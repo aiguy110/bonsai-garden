@@ -37,7 +37,7 @@ for task in sorted({r["task"] for r in recs}):
     lines += [f"## {task}", "",
               "| step | arm | n | pass | " + " | ".join(check_names) +
               " | wall s | turns | agent prefill tok | agent gen tok | mem calls | mem gen tok | queue wait s |",
-              "|---" * (5 + len(check_names) + 7) + "|"]
+              "|---" * (4 + len(check_names) + 7) + "|"]
     for (t, step, arm), rs in sorted(groups.items()):
         if t != task:
             continue
