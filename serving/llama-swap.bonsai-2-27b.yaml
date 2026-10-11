@@ -1,14 +1,15 @@
-# PROPOSED replacement for the "bonsai-2-27b" entry in /etc/llama-swap/config.yaml
-# (Phase A of ../docs/engine-review.md). NOT applied. Keep the model NAME
-# unchanged: turnstile evicts by name, so the agent and the memory LLM must both
-# request "bonsai-2-27b" (no aliases) or they will thrash the GPU.
+# APPLIED 2026-10-11: the "bonsai-2-27b" entry in /etc/llama-swap/config.yaml
+# (Phase A of ../docs/engine-review.md; backup config.yaml.bak.20261011-160339).
+# Keep the model NAME unchanged: turnstile evicts by name, so the agent and the
+# memory LLM must both resolve to "bonsai-2-27b" or they will thrash the GPU.
 #
-# Changes vs the live entry:
+# Changes vs the previous entry:
 #   --parallel 2 --kv-unified   one weights copy, two slots (agent + memory) over
 #                               one KV pool; measured 9503 MiB, +154 MiB vs 1 slot
-#   --checkpoint-min-step 2048  denser hybrid-cache checkpoints, so a diverged agent
-#                               turn re-prefills <=2k tokens instead of <=8k (verify)
-# Optional if headroom (~770 MiB) feels too tight: --ubatch-size 256.
+# Not applied: --checkpoint-min-step 2048. Replays of agent-shaped traffic and a
+# real pi session showed zero re-processing at the default 8192 (the fork
+# checkpoints near the end of every prompt), so it buys nothing.
+# Optional if headroom (~730 MiB) feels too tight: --ubatch-size 256.
 "bonsai-2-27b":
   env:
     - "LLAMA_ATTN_ROT_DISABLE=1"
@@ -22,7 +23,6 @@
     --ctx-size 98304
     --parallel 2
     --kv-unified
-    --checkpoint-min-step 2048
     --threads 8
     --flash-attn on
     --cache-type-k q4_0

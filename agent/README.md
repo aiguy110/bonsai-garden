@@ -1,8 +1,7 @@
 # pi wiring
 
-- `~/.pi/agent/models.json` provider `llama-swap` has no `bonsai-2-27b` entry yet.
-  Add one: copy an existing entry, set `id: bonsai-2-27b`, and set `contextWindow:
-  98304`. The id must match the llama-swap name exactly.
+- `~/.pi/agent/models.json` provider `llama-swap` has the `bonsai-2-27b` entry
+  (copy: `models.bonsai-2-27b.json`), and it's in `settings.json` `enabledModels`.
 - Memory extension candidates, to be evaluated in this order:
   1. `@mem0/pi-agent-plugin`, the official plugin. Confirm it can target a
      self-hosted mem0 rather than the hosted platform.

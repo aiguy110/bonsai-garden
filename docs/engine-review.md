@@ -145,6 +145,31 @@ All of this is a self-contained change in `internal/queue` and `internal/proxy`.
 - Add `bonsai-2-27b` to pi's `models.json`.
 - Re-measure on pi traces: per-turn prefill tokens and decode tok/s at depth.
 
+**Phase A results (2026-10-11, applied).** Raw data in
+`../bench/results/2026-10-11/`.
+- Baseline unchanged from 10-10: 1 slot 61.5 tok/s / 9349 MiB, 2 slots 44.8 tok/s
+  each / 9503 MiB.
+- Live `bonsai-2-27b` now runs `--parallel 2 --kv-unified`
+  (`../serving/llama-swap.bonsai-2-27b.yaml`). Through turnstile with the pi key it is
+  tagged `name=pi priority=40`; VRAM 9503 MiB; two simultaneous requests sent
+  directly to llama-swap each decode at 44.6 tok/s.
+- **`--checkpoint-min-step 2048` is not needed and was not shipped.**
+  `../bench/checkpoint_replay.py` replays a 14-turn tool-calling conversation
+  (reasoning dropped from history, as an OpenAI client does) to ~17k tokens; at
+  `-cms 8192` and `-cms 2048` the per-turn `prompt_n` is identical and equals only
+  the new tokens (`cache_n` = the whole previous prompt). The fork checkpoints at
+  the last user message and 4 tokens before the end of every prompt, so
+  append-only agent traffic never rolls back. A real pi session via
+  `../evals/tap.py` shows the same (`pi_smoke_tap.jsonl`: `cache_n` = previous
+  prompt + previous generation every turn). §3.1's latency worry does not apply
+  to pi as it is today; it may matter after compaction or history edits.
+- `id_slot` **is honored** through llama-swap's `/v1/chat/completions` (checked via
+  `/upstream/bonsai-2-27b/slots` `id_task`). `chat_template_kwargs:
+  {enable_thinking: false}` works on this fork (no `reasoning_content`).
+- pi has a `bonsai-2-27b` entry (`../agent/models.bonsai-2-27b.json`). pi needs
+  stdin closed (`</dev/null`) in scripted `-p` runs with a fresh
+  `PI_CODING_AGENT_DIR`, or it hangs.
+
 **Phase B (turnstile):** co-admission, context budget and virtual models (§4a–c).
 
 **Phase C (experiments):** `ngram-mod` on agent traces; q8_0 KV for the agent at

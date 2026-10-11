@@ -6,7 +6,7 @@ the **same** Bonsai weights in a second server slot, and embeddings and retrieva
 run locally. The point is to benchmark the agent with and without memory, and
 later to try memory and compaction variants.
 
-Status: **scaffold.** The engine review is done, and nothing is deployed yet.
+Status: **Phase A deployed** (2-slot `bonsai-2-27b`, registered in pi).
 
 ## Layout
 
@@ -18,7 +18,7 @@ Status: **scaffold.** The engine review is done, and nothing is deployed yet.
 | `bench/` | Engine probe scripts plus dated raw results |
 | `docs/phase-a-runbook.md` | Step-by-step runbook for Phase A (2-slot config, pi registration) |
 | `docs/phase-b-runbook.md` | Turnstile work: co-admission, context budget, virtual models (a different repo) |
-| `serving/` | Proposed llama-swap entry (not applied) |
+| `serving/` | The applied llama-swap entry |
 | `memory/` | Draft mem0 config. Runtime data goes in `memory/data/` (gitignored) |
 | `agent/` | pi wiring: models.json entry and memory extension choice |
 | `evals/` | Benchmark harness: arms, tasks, and results |
@@ -35,9 +35,7 @@ never touch the live llama-swap service.
 
 ## Next steps
 
-1. Phase A (`docs/phase-a-runbook.md`): apply the 2-slot llama-swap entry and add
-   `bonsai-2-27b` to `~/.pi/agent/models.json`. Needs user approval, because it
-   changes the live service.
+1. ~~Phase A~~ done 2026-10-11 (results in `docs/engine-review.md` §5).
 2. Choose the pi memory extension, then stand up the CPU embedder and mem0.
 3. Write the first cross-session task sequence and the `baseline` and `mem0` arms.
 4. Phase B (`docs/phase-b-runbook.md`): turnstile co-admission, context budget and
