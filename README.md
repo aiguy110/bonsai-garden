@@ -17,6 +17,7 @@ Status: **scaffold.** The engine review is done, and nothing is deployed yet.
 | `docs/benchmark-plan.md` | Arms, task suites, metrics, and run rules |
 | `bench/` | Engine probe scripts plus dated raw results |
 | `docs/phase-a-runbook.md` | Step-by-step runbook for Phase A (2-slot config, pi registration) |
+| `docs/phase-b-runbook.md` | Turnstile work: co-admission, context budget, virtual models (a different repo) |
 | `serving/` | Proposed llama-swap entry (not applied) |
 | `memory/` | Draft mem0 config. Runtime data goes in `memory/data/` (gitignored) |
 | `agent/` | pi wiring: models.json entry and memory extension choice |
@@ -39,4 +40,5 @@ never touch the live llama-swap service.
    changes the live service.
 2. Choose the pi memory extension, then stand up the CPU embedder and mem0.
 3. Write the first cross-session task sequence and the `baseline` and `mem0` arms.
-4. Phase B: turnstile co-admission, so agent and memory calls can batch.
+4. Phase B (`docs/phase-b-runbook.md`): turnstile co-admission, context budget and
+   virtual models, so agent and memory calls can batch.
