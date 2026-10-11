@@ -16,6 +16,7 @@ Status: **scaffold.** The engine review is done, and nothing is deployed yet.
 | `docs/architecture.md` | Target topology, roles, priorities, and open questions |
 | `docs/benchmark-plan.md` | Arms, task suites, metrics, and run rules |
 | `bench/` | Engine probe scripts plus dated raw results |
+| `docs/phase-a-runbook.md` | Step-by-step runbook for Phase A (2-slot config, pi registration) |
 | `serving/` | Proposed llama-swap entry (not applied) |
 | `memory/` | Draft mem0 config. Runtime data goes in `memory/data/` (gitignored) |
 | `agent/` | pi wiring: models.json entry and memory extension choice |
@@ -33,7 +34,7 @@ never touch the live llama-swap service.
 
 ## Next steps
 
-1. Phase A (`docs/engine-review.md` §5): apply the 2-slot llama-swap entry and add
+1. Phase A (`docs/phase-a-runbook.md`): apply the 2-slot llama-swap entry and add
    `bonsai-2-27b` to `~/.pi/agent/models.json`. Needs user approval, because it
    changes the live service.
 2. Choose the pi memory extension, then stand up the CPU embedder and mem0.
