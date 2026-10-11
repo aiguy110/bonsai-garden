@@ -4,8 +4,8 @@
 llm:
   provider: openai
   config:
-    model: bonsai-2-27b            # same name as the agent — turnstile evicts by name
-    openai_base_url: http://127.0.0.1:8080/v1   # or the tagging shim, see docs/architecture.md
+    model: bonsai-mem              # turnstile virtual model -> bonsai-2-27b slot 1, thinking off
+    openai_base_url: http://127.0.0.1:8080/v1
     api_key: ${BONSAI_GARDEN_MEM_KEY}
     temperature: 0.2
     max_tokens: 1024

@@ -172,6 +172,28 @@ All of this is a self-contained change in `internal/queue` and `internal/proxy`.
 
 **Phase B (turnstile):** co-admission, context budget and virtual models (§4a–c).
 
+**Phase B results (2026-10-11, deployed).** Turnstile `main` 25474ca
+(`~/Projects/gpu-turnstile`, branch `virtual-models`). Live config:
+`bonsai-2-27b {slots: 2, ctxPool: 98304}`; `bonsai-agent` (maxCtx 81920, `id_slot: 0`);
+`bonsai-mem` (maxCtx 12288, defaultMaxTokens 1024, `id_slot: 1`, thinking off); new
+key `bonsai-garden-mem` (prio 40, `BONSAI_GARDEN_MEM_KEY` in turnstile's `.keys.env`).
+`../bench/phase_b_validate.py` against the live stack, all pass
+(`../bench/results/2026-10-11/phase_b_validate.txt`):
+- agent + mem through `:8080` are co-admitted (`joined`, mem waited 0 ms) and decode
+  at 43.9 / 44.9 tok/s, i.e. the +45% aggregate is now reachable through turnstile;
+- `id_slot` pinning works through turnstile → llama-swap (slot 0 agent, slot 1 mem);
+  `bonsai-mem` returns no reasoning, `bonsai-agent` still reasons;
+- over-`maxCtx` → 400 `context_length_exceeded` without queueing; two ~50k-token
+  requests serialize on the budget (`deferring: context budget`);
+- a lease arriving mid-stream waits for both LLM holders.
+Deviations from the runbook: none in behaviour. Additions: a `deferring: slots
+full` log for multi-slot models; `HoldRecord.Alias`; a joiner never lowers
+`warm_tier`. Separately fixed a turnstile activity test that had a fixed date
+and aged out of retention, and gitignored `config.yaml.bak*` (it holds keys).
+pi: `bonsai-agent` is the default model. pi's `llama-swap-discover.ts` extension
+replaced the provider's model list with llama-swap's `/v1/models`, which hid
+virtual names; it now appends models.json entries discovery doesn't return.
+
 **Phase C (experiments):** `ngram-mod` on agent traces; q8_0 KV for the agent at
 lower ctx; a two-context single-process server for per-role KV types, only if
 memory evals call for it.

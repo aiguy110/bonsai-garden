@@ -13,7 +13,7 @@ mem0 ────────┘   (key: pi / garden)               └─ slot 
 
 | Role | What | Notes |
 |---|---|---|
-| Agent LLM | `bonsai-2-27b` slot 0 via turnstile | pi provider `llama-swap`, key `pi` (prio 40) |
+| Agent LLM | virtual `bonsai-agent` → `bonsai-2-27b` slot 0 via turnstile | pi provider `llama-swap`, key `pi` (prio 40), pi default model |
 | Memory LLM | virtual model `bonsai-mem` (same weights), slot 1 | Used for fact extraction, update/dedup decisions, and retrieval rewriting. Turn reasoning off or low per request (`chat_template_kwargs`), because these are short JSON tasks |
 | Embeddings | CPU embedder (candidate: Qwen3-Embedding-0.6B GGUF) | Bonsai is not an embedding model. Keeping this on the CPU leaves GPU headroom alone |
 | Vector store | Qdrant local path under `memory/data/` (gitignored) | |
@@ -22,14 +22,12 @@ mem0 ────────┘   (key: pi / garden)               └─ slot 
 
 ## Request tagging
 
-mem0 can't add custom body fields, so tag memory calls through turnstile virtual
-models (engine-review §4c: `bonsai-agent`, `bonsai-mem`). Until that exists, a thin
-shim in front of turnstile does the job. The shim:
-- injects the memory turnstile key;
-- adds `chat_template_kwargs` to turn thinking off;
-- can pin `id_slot` (verify the OAI endpoint honors it). Otherwise rely on
-  `--slot-prompt-similarity` to keep the agent's cache in its slot;
-- logs role, tokens, latency, and queue wait for benchmarks.
+Done by turnstile virtual models (engine-review §4c, deployed 2026-10-11): pi asks
+for `bonsai-agent` (pinned to slot 0), mem0 asks for `bonsai-mem` (slot 1,
+thinking off, 12k max context). Both resolve to `bonsai-2-27b`, so they co-run
+instead of evicting each other. Metering for benchmarks (per-role tokens,
+`prompt_n`/`cache_n`, latency) is `evals/tap.py`, a pass-through in front of
+turnstile; it no longer needs to rewrite anything.
 
 ## Priority choice
 
@@ -41,6 +39,6 @@ tier-30/20 work slip in between an agent turn and its recall.
 ## Open questions
 
 - Does the pi mem0 plugin support a self-hosted base URL and local embedder?
-- Does `id_slot` survive llama-swap and the OAI chat endpoint?
-- Should memory work be async (needs turnstile co-admission) or synchronous (works
-  today, adds latency)?
+- ~~Does `id_slot` survive llama-swap and the OAI chat endpoint?~~ Yes.
+- Should memory capture be async (now possible: co-admission lets it run next to the
+  agent's next turn) or synchronous? Measure both as arms.

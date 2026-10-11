@@ -6,7 +6,8 @@ the **same** Bonsai weights in a second server slot, and embeddings and retrieva
 run locally. The point is to benchmark the agent with and without memory, and
 later to try memory and compaction variants.
 
-Status: **Phase A deployed** (2-slot `bonsai-2-27b`, registered in pi).
+Status: **Phases A and B deployed** (2-slot `bonsai-2-27b`; turnstile co-admission and
+the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`).
 
 ## Layout
 
@@ -38,5 +39,4 @@ never touch the live llama-swap service.
 1. ~~Phase A~~ done 2026-10-11 (results in `docs/engine-review.md` §5).
 2. Choose the pi memory extension, then stand up the CPU embedder and mem0.
 3. Write the first cross-session task sequence and the `baseline` and `mem0` arms.
-4. Phase B (`docs/phase-b-runbook.md`): turnstile co-admission, context budget and
-   virtual models, so agent and memory calls can batch.
+4. ~~Phase B~~ done 2026-10-11 (results in `docs/engine-review.md` §5).
