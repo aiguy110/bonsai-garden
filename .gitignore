@@ -1,0 +1,3 @@
+memory/data/
+evals/results/*
+!evals/results/.gitkeep

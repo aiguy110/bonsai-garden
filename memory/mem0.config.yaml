@@ -1,0 +1,24 @@
+# DRAFT mem0 OSS config for bonsai-garden — UNVERIFIED key names; check against
+# the installed mem0 version (mem0/configs/*.py) before use.
+# Secrets come from env (BONSAI_GARDEN_MEM_KEY = turnstile key), never this file.
+llm:
+  provider: openai
+  config:
+    model: bonsai-2-27b            # same name as the agent — turnstile evicts by name
+    openai_base_url: http://127.0.0.1:8080/v1   # or the tagging shim, see docs/architecture.md
+    api_key: ${BONSAI_GARDEN_MEM_KEY}
+    temperature: 0.2
+    max_tokens: 1024
+embedder:
+  provider: openai                 # OpenAI-compatible llama-server --embeddings on CPU
+  config:
+    model: qwen3-embedding-0.6b
+    openai_base_url: http://127.0.0.1:8095/v1
+    api_key: unused
+    embedding_dims: 1024
+vector_store:
+  provider: qdrant
+  config:
+    path: ./data/qdrant            # embedded mode; gitignored
+    collection_name: bonsai_garden
+    embedding_model_dims: 1024
