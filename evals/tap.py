@@ -125,6 +125,7 @@ class Tap(http.server.BaseHTTPRequestHandler):
                    "model": req.get("model"), "stream": bool(req.get("stream")),
                    "n_messages": len(req.get("messages") or []),
                    "wall_s": round(time.time() - t0, 3), "ttfb_s": round(ttfb, 3),
+                   "queue_wait_ms": int(resp.getheader("X-Turnstile-Wait") or 0),
                    "timings": timings, "usage": usage, **self.tag}
             with LOCK, open(self.log_path, "a") as f:
                 f.write(json.dumps(rec) + "\n")

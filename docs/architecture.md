@@ -1,12 +1,13 @@
-# bonsai-garden architecture (target)
+# bonsai-garden architecture
 
 ```
 pi (agent) ──┐                                      ┌─ slot 0: agent  (long ctx, deep)
              ├─> turnstile :8080 ─> llama-swap ─> llama-server "bonsai-2-27b"
-mem0 ────────┘   (key: pi / garden)               └─ slot 1: memory (short prompts)
-  │                                                  one weights copy, unified q4_0 KV
-  ├─ embedder: small embedding GGUF on CPU (stock llama.cpp --embeddings, own port, no GPU)
-  └─ vector store: Qdrant embedded mode (on-disk path, no service)
+mem0 ────────┘   (bonsai-agent / bonsai-mem)      └─ slot 1: memory (short prompts)
+  │  (in-process in pi,                              one weights copy, unified q4_0 KV
+  │   @amaster.ai/pi-memory-mem0)
+  ├─ embedder: Qwen3-Embedding-0.6B on CPU (stock llama.cpp, :8095, no GPU)
+  └─ vector store: mem0 OSS "memory" store = a SQLite file (no service)
 ```
 
 ## Components
@@ -15,10 +16,10 @@ mem0 ────────┘   (key: pi / garden)               └─ slot 
 |---|---|---|
 | Agent LLM | virtual `bonsai-agent` → `bonsai-2-27b` slot 0 via turnstile | pi provider `llama-swap`, key `pi` (prio 40), pi default model |
 | Memory LLM | virtual model `bonsai-mem` (same weights), slot 1 | Used for fact extraction, update/dedup decisions, and retrieval rewriting. Turn reasoning off or low per request (`chat_template_kwargs`), because these are short JSON tasks |
-| Embeddings | CPU embedder (candidate: Qwen3-Embedding-0.6B GGUF) | Bonsai is not an embedding model. Keeping this on the CPU leaves GPU headroom alone |
-| Vector store | Qdrant local path under `memory/data/` (gitignored) | |
-| Memory API | mem0 OSS, as a library or self-hosted REST, configured by `memory/mem0.config.yaml` | |
-| pi integration | a pi extension that recalls before a turn and captures after it | Candidates: `@mem0/pi-agent-plugin` (official; check whether it supports self-hosted mode) or `@amaster.ai/pi-memory-mem0` (claims self-hosted mode). Fall back to a thin local extension in `agent/` |
+| Embeddings | `Qwen3-Embedding-0.6B-Q8_0.gguf` on CPU, user unit `bonsai-garden-embed` (`serving/bonsai-garden-embed.service`), `:8095`, 1024-d, last-token pooling, ~60 ms/query | Bonsai is not an embedding model. `CUDA_VISIBLE_DEVICES=` keeps it off the GPU |
+| Vector store | mem0 OSS `memory` provider (SQLite file, `dimension: 1024`) | Per eval run: `<run>/memory/`. Simpler than Qdrant and enough at this scale |
+| Memory API | mem0 OSS JS (`mem0ai` 3.3.1), in-process inside pi | Telemetry is on by default: set `MEM0_TELEMETRY=false` |
+| pi integration | `@amaster.ai/pi-memory-mem0` 0.1.24, embedded mode | Configured per arm (`evals/arms/mem0.json`). See `agent/README.md` for why not the official plugin |
 
 ## Request tagging
 

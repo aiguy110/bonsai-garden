@@ -19,10 +19,9 @@ the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`)
 | `bench/` | Engine probe scripts plus dated raw results |
 | `docs/phase-a-runbook.md` | Step-by-step runbook for Phase A (2-slot config, pi registration) |
 | `docs/phase-b-runbook.md` | Turnstile work: co-admission, context budget, virtual models (a different repo) |
-| `serving/` | The applied llama-swap entry |
-| `memory/` | Draft mem0 config. Runtime data goes in `memory/data/` (gitignored) |
+| `serving/` | The applied llama-swap entry and the CPU embedder unit |
 | `agent/` | pi wiring: models.json entry and memory extension choice |
-| `evals/` | Benchmark harness: arms, tasks, and results |
+| `evals/` | Benchmark harness: arms, tasks, runner, metering tap, results |
 
 ## Running a probe
 

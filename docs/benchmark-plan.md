@@ -38,7 +38,8 @@ memory store snapshot.
   version, mem0 config, and prompts. Store them in the run manifest.
 - Fixed seeds where possible. Bonsai samples at temp 1.0, so run **N≥3 repeats per
   task** and report spread.
-- Reset memory state per run (fresh Qdrant path) unless the arm tests carryover.
+- Reset memory state per run (fresh SQLite store in the run dir) unless the arm tests
+  carryover.
 - Runs go through turnstile with the `local-llm-bench` key (prio 20), for **both**
   agent and memory calls. They're batch jobs and must not starve interactive pi.
 - Results are append-only JSONL under `evals/results/` (gitignored if large;

@@ -148,7 +148,7 @@ record).
 ## After it works
 
 - Point pi at `bonsai-agent` (its `models.json` `id`, `contextWindow` = `maxCtx`)
-  and mem0 at `bonsai-mem` (`memory/mem0.config.yaml`); update `agent/README.md` and
+  and mem0 at `bonsai-mem` (now `evals/arms/mem0.json`); update `agent/README.md` and
   `docs/architecture.md` (drop the tagging shim).
 - Add measured results to `docs/engine-review.md`, add a dated dir under
   `bench/results/`, and commit and merge per `CLAUDE.md` here.
