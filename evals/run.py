@@ -39,9 +39,10 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 EVALS = ROOT / "evals"
 CACHE = EVALS / ".cache"
 WS_ROOT = pathlib.Path("/tmp/bonsai-garden-evals")
-TAP_PORT = 8091
+TAP_PORT = 8091  # inside the sandbox, relayed to the tap's Unix socket
 TAP = f"http://127.0.0.1:{TAP_PORT}"
 TURNSTILE = "http://127.0.0.1:8080"
+EMBEDDER = "http://127.0.0.1:8095"
 STEP_TIMEOUT = 1800
 BENCH_RUNNER = pathlib.Path.home() / "Projects/local-llm-bench/turnstile_run.py"
 SWAP_CONFIG = pathlib.Path("/etc/llama-swap/config.yaml")
@@ -49,8 +50,20 @@ TURNSTILE_CONFIG = pathlib.Path.home() / "Projects/gpu-turnstile/config.yaml"
 MODEL_FILE = pathlib.Path.home() / "models/Ternary-Bonsai-2-27B-PQ2_0.gguf"
 EMBED_UNIT = pathlib.Path.home() / ".config/systemd/user/bonsai-garden-embed.service"
 PI_FLAGS = ["--no-skills", "--no-prompt-templates", "--no-themes"]
-VENV = CACHE / "venv"  # python + pinned pytest, first on PATH for the agent and the checker
+VENV = CACHE / "venv-sandbox"  # python + pinned pytest; built at its sandbox path /opt/venv
 PYTEST = "pytest==8.4.2"
+NODE = pathlib.Path(shutil.which("pi")).resolve().parents[6]  # .../installation (node + global pi)
+
+# What the agent sees inside bubblewrap. Neutral names on purpose: the arm, the
+# results dir, and this repo must not be discoverable (an unsandboxed baseline agent
+# searched the disk and copied a reference solution).
+SB_HOME = "/home/dev"
+SB_WS = f"{SB_HOME}/inventory"
+SB_AGENT = f"{SB_HOME}/.pi/agent"
+SB_MEM = f"{SB_HOME}/.local/share/mem0"
+SB_VENV = "/opt/venv"
+SB_NODE = "/opt/node"
+SANDBOX_IMAGE = "ubuntu:24.04"
 
 
 def bench_key():
@@ -124,6 +137,7 @@ def manifest(args, arms, tasks):
         "priority_key": "local-llm-bench",
         "python": sh(str(VENV / "bin/python"), "--version"),
         "pytest": PYTEST,
+        "sandbox_image": sh("docker", "image", "inspect", SANDBOX_IMAGE, "--format", "{{.Id}}"),
         "repeats": args.repeats,
         "arms": arms,
         "tasks": {name: t["spec"] for name, t in tasks.items()},
@@ -171,7 +185,7 @@ def build_agent_dir(arm, run_dir):
     shutil.copytree(agent_template(arm), agent, symlinks=True,
                     ignore=shutil.ignore_patterns(".ready", "sessions"))
     installed = json.loads((agent / "settings.json").read_text())
-    mapping = {"{RUN}": str(run_dir), "{TAP}": TAP}
+    mapping = {"{MEM}": SB_MEM, "{TAP}": TAP}
     settings = {
         "defaultProvider": "garden",
         "defaultModel": arm["model"],
@@ -193,28 +207,24 @@ def build_agent_dir(arm, run_dir):
 
 # ---- one step ----
 
-def start_tap(log, tags, key):
+def start_tap(log, tags, key, sock):
+    """A tap on a fresh Unix socket: the sandbox's only way out. It reaches turnstile
+    (agent and mem roles, with the bench key) and the embedder, nothing else."""
     env = dict(os.environ, GARDEN_BENCH_KEY=key)
-    cmd = [sys.executable, str(EVALS / "tap.py"), "--port", str(TAP_PORT), "--log", str(log),
+    cmd = [sys.executable, str(EVALS / "tap.py"), "--unix", str(sock), "--log", str(log),
            "--route", f"agent={TURNSTILE}:GARDEN_BENCH_KEY",
-           "--route", f"mem={TURNSTILE}:GARDEN_BENCH_KEY"]
+           "--route", f"mem={TURNSTILE}:GARDEN_BENCH_KEY",
+           "--route", f"embed={EMBEDDER}"]
     for k, v in tags.items():
         cmd += ["--tag", f"{k}={v}"]
-    # Refuse to start if anything already listens on the port: a stale tap would
-    # silently take our traffic with the wrong key and log elsewhere.
-    with socket.socket() as probe:
-        if probe.connect_ex(("127.0.0.1", TAP_PORT)) == 0:
-            sys.exit(f"port {TAP_PORT} is already in use (stale tap?)")
     p = subprocess.Popen(cmd, env=env, stderr=subprocess.PIPE, text=True)
     for _ in range(50):
         if p.poll() is not None:
             sys.exit(f"tap exited: {p.stderr.read()}")
-        try:
-            urllib.request.urlopen(f"{TAP}/", timeout=1)
-        except urllib.error.HTTPError:
-            return p  # 404 = our tap is listening
-        except OSError:
-            time.sleep(0.1)
+        with socket.socket(socket.AF_UNIX) as probe:
+            if probe.connect_ex(str(sock)) == 0:
+                return p
+        time.sleep(0.1)
     p.kill()
     sys.exit("tap did not start")
 
@@ -285,17 +295,29 @@ def tap_stats(tap_log, run_id, step):
 def run_step(ctx, step_i, step):
     run_dir, ws, agent = ctx["run_dir"], ctx["ws"], ctx["agent"]
     tags = {"run": ctx["run_id"], "arm": ctx["arm"]["name"], "task": ctx["task"], "step": step_i}
-    tap = start_tap(ctx["tap_log"], tags, ctx["key"])
-    env = step_env({"PI_CODING_AGENT_DIR": str(agent), **ctx["arm"]["env"]})
+    sock = pathlib.Path(f"/tmp/garden-tap-{os.getpid()}.sock")
+    tap = start_tap(ctx["tap_log"], tags, ctx["key"], sock)
+    env = sandbox_env({"PI_CODING_AGENT_DIR": SB_AGENT, **ctx["arm"]["env"]})
     events = run_dir / f"step{step_i}.events.jsonl"
+    # Only the workspace, this run's agent dir, and its memory dir are writable or
+    # visible; sessions aren't saved, so earlier steps can only come back via memory.
+    container = f"garden-{ctx['run_id']}-s{step_i}-{os.getpid()}"
+    sandbox = sandbox_cmd(container, [(ws, SB_WS, "rw"), (agent, SB_AGENT, "rw"),
+                                      (run_dir / "memory", SB_MEM, "rw"), (VENV, SB_VENV, "ro"),
+                                      (sock, "/run/garden/tap.sock", "rw"),
+                                      (EVALS / "relay.py", "/opt/garden/relay.py", "ro")],
+                          env, workdir=SB_WS)
+    # The relay gives pi (and mem0 inside it) the tap at 127.0.0.1:TAP_PORT.
+    sandbox += ["sh", "-c", f"python3 /opt/garden/relay.py {TAP_PORT} /run/garden/tap.sock & "
+                "sleep 0.5; exec \"$@\"", "sh"]
     t0 = time.time()
     # pi gets its own process group so nothing it spawns outlives the step, even if
     # the runner itself is interrupted (an orphan would keep talking to the next tap).
     with open(events, "w") as out, open(run_dir / f"step{step_i}.stderr", "w") as err:
-        p = subprocess.Popen(["pi", "-p", "--mode", "json", "--model", f"garden/{ctx['arm']['model']}",
-                              "--thinking", ctx["arm"]["thinking"], *PI_FLAGS, step["prompt"]],
-                             cwd=ws, env=env, stdin=subprocess.DEVNULL, stdout=out, stderr=err,
-                             start_new_session=True)
+        p = subprocess.Popen(sandbox + ["pi", "-p", "--mode", "json", "--no-session",
+                                        "--model", f"garden/{ctx['arm']['model']}",
+                                        "--thinking", ctx["arm"]["thinking"], *PI_FLAGS, step["prompt"]],
+                             stdin=subprocess.DEVNULL, stdout=out, stderr=err, start_new_session=True)
         try:
             rc = p.wait(STEP_TIMEOUT)
         except subprocess.TimeoutExpired:
@@ -304,14 +326,16 @@ def run_step(ctx, step_i, step):
             if p.poll() is None:
                 os.killpg(p.pid, signal.SIGKILL)
                 p.wait()
+            kill_container(container)  # the docker client dying doesn't stop the container
             stop(tap)
+            sock.unlink(missing_ok=True)
     wall = time.time() - t0
     ev = parse_events(events)
     final_file = run_dir / f"step{step_i}.final.txt"
     final_file.write_text(ev["final"])
     chk = subprocess.run([str(VENV / "bin/python"), "-I", str(ctx["task_dir"] / "check.py"), str(ws),
                           str(step_i), str(final_file)], capture_output=True, text=True, timeout=600,
-                         env=step_env())
+                         env=checker_env())
     try:
         verdict = json.loads(chk.stdout.strip().splitlines()[-1])
     except (ValueError, IndexError):
@@ -374,16 +398,45 @@ def run_sequence(args, out, arm, task_name, task, rep, key):
     (run_dir / "done").write_text("")
 
 
+def sandbox_cmd(name, mounts, env, workdir=SB_HOME):
+    """docker run argv for an isolated step. The container sees the host's /usr read-only
+    (same Ubuntu release, so node and python just work), an empty tmpfs home and /tmp,
+    its own PID namespace, no network, and only the given mounts."""
+    args = ["docker", "run", "--rm", "--name", name, "--network", "none",
+            "--user", f"{os.getuid()}:{os.getgid()}", "--read-only",
+            "--tmpfs", "/tmp", "--tmpfs", f"{SB_HOME}:uid={os.getuid()},gid={os.getgid()}",
+            "-v", "/usr:/usr:ro", "-v", f"{NODE}:{SB_NODE}:ro", "-w", workdir]
+    for src, dst, mode in mounts:
+        args += ["-v", f"{src}:{dst}:{mode}"]
+    for k, v in env.items():
+        args += ["-e", f"{k}={v}"]
+    return args + [SANDBOX_IMAGE]
+
+
+def sandbox_env(extra=None):
+    return {"HOME": SB_HOME, "USER": "dev", "LANG": "C.UTF-8", "TERM": "dumb",
+            "PATH": f"{SB_VENV}/bin:{SB_NODE}/bin:/usr/bin:/bin", "VIRTUAL_ENV": SB_VENV,
+            **(extra or {})}
+
+
+def kill_container(name):
+    subprocess.run(["docker", "rm", "-f", name], capture_output=True)
+
+
 def ensure_venv():
-    if not (VENV / "bin/pytest").exists():
-        subprocess.run([sys.executable, "-m", "venv", str(VENV)], check=True)
-        subprocess.run([str(VENV / "bin/pip"), "install", "-q", PYTEST], check=True)
+    """Build the venv at its sandbox path so its scripts' shebangs work in there."""
+    if (VENV / "bin/pytest").exists():
+        return
+    VENV.mkdir(parents=True, exist_ok=True)
+    mounts = [(VENV, SB_VENV, "rw"), ("/etc/ssl/certs", "/etc/ssl/certs", "ro")]  # certs for pip
+    cmd = sandbox_cmd("garden-venv", mounts, {"HOME": SB_HOME}) + [
+        "sh", "-c", f"python3 -m venv {SB_VENV} && {SB_VENV}/bin/pip install -q {PYTEST}"]
+    subprocess.run(cmd, check=True)
 
 
-def step_env(extra=None):
-    """Environment with the eval venv first on PATH."""
-    return dict(os.environ, PATH=f"{VENV / 'bin'}:{os.environ['PATH']}", VIRTUAL_ENV=str(VENV),
-                **(extra or {}))
+def checker_env():
+    """The checker runs outside the sandbox with the same venv first on PATH."""
+    return dict(os.environ, PATH=f"{VENV / 'bin'}:{os.environ['PATH']}", VIRTUAL_ENV=str(VENV))
 
 
 def preflight(arms):

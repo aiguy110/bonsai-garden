@@ -29,18 +29,18 @@
           "config": {
             "model": "qwen3-embedding-0.6b",
             "apiKey": "unused",
-            "baseURL": "http://127.0.0.1:8095/v1"
+            "baseURL": "{TAP}/embed/v1"
           }
         },
         "vectorStore": {
           "provider": "memory",
           "config": {
             "collectionName": "garden",
-            "dbPath": "{RUN}/memory/mem0-vectors.db",
+            "dbPath": "{MEM}/mem0-vectors.db",
             "dimension": 1024
           }
         },
-        "historyDbPath": "{RUN}/memory/mem0-history.db"
+        "historyDbPath": "{MEM}/mem0-history.db"
       }
     }
   },

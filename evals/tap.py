@@ -7,7 +7,8 @@ actually prefilled, cache_n = tokens reused) and `usage`.
   tap.py --port 8091 --log run.jsonl --route agent=http://127.0.0.1:8080:KEYVAR \
          --route mem=http://127.0.0.1:8080:KEYVAR2
 
-A client uses base URL http://127.0.0.1:8091/<role>/v1. The role prefix is
+A client uses base URL http://127.0.0.1:8091/<role>/v1 (or the same over --unix,
+which the eval sandbox reaches through evals/relay.py). The role prefix is
 stripped; the request goes to that route's upstream with `Authorization: Bearer
 $KEYVAR` (the key is read from the environment, so it never lands in a config
 file). `--inject role='{"json": ...}'` deep-merges fields into that role's
@@ -18,6 +19,8 @@ import http.client
 import http.server
 import json
 import os
+import posixpath
+import socketserver
 import sys
 import threading
 import time
@@ -67,6 +70,11 @@ class Tap(http.server.BaseHTTPRequestHandler):
             self.send_error(404, "unknown role prefix")
             return
         role, (base, key), path = route
+        if not path.startswith("/v1/") or posixpath.normpath(path.split("?")[0]) != path.split("?")[0].rstrip("/"):
+            # Only the OpenAI API: never turnstile's console/activity API or llama-swap's
+            # logs, which hold other sessions' transcripts.
+            self.send_error(403, "only /v1/ paths are forwarded")
+            return
         req = None
         if body:
             try:
@@ -135,6 +143,7 @@ class Tap(http.server.BaseHTTPRequestHandler):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--port", type=int, default=8091)
+    ap.add_argument("--unix", help="listen on this Unix socket instead of TCP (for sandboxed clients)")
     ap.add_argument("--log", required=True)
     ap.add_argument("--route", action="append", default=[],
                     help="role=http://host:port[:ENVVAR_WITH_KEY]")
@@ -152,8 +161,22 @@ def main():
         Tap.injects[role] = json.loads(js)
     Tap.tag = dict(t.split("=", 1) for t in a.tag)
     Tap.log_path = a.log
-    srv = http.server.ThreadingHTTPServer(("127.0.0.1", a.port), Tap)
-    print(f"tap on :{a.port} routes={list(Tap.routes)}", file=sys.stderr, flush=True)
+    if a.unix:
+        class UnixHTTPServer(socketserver.ThreadingMixIn, socketserver.UnixStreamServer):
+            daemon_threads = True
+
+        class UnixTap(Tap):
+            def address_string(self):
+                return "unix"
+
+        if os.path.exists(a.unix):
+            os.unlink(a.unix)
+        srv = UnixHTTPServer(a.unix, UnixTap)
+        where = a.unix
+    else:
+        srv = http.server.ThreadingHTTPServer(("127.0.0.1", a.port), Tap)
+        where = f":{a.port}"
+    print(f"tap on {where} routes={list(Tap.routes)}", file=sys.stderr, flush=True)
     srv.serve_forever()
 
 
