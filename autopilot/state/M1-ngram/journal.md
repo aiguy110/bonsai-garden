@@ -14,3 +14,7 @@ I now understand I'm the **worker** in the autopilot. I end each turn with a `re
 ### 2026-10-12T00:29:49-04:00 · worker (Bonsai), round 3
 
 (no final message; errors: ['Request timed out.'])
+
+### 2026-10-12T01:14:51-04:00 · worker (Bonsai), round 4
+
+Now let me rewrite the script cleanly with all fixes (simplified pi/mem0 discovery, clean grep section, correct sqlite glob, proper paren/brace matching).
