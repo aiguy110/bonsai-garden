@@ -274,6 +274,31 @@ def item_diff(st):
     return d if len(d) <= DIFF_MAX else d[:DIFF_MAX] + "\n… (truncated)"
 
 
+SECRET_PATTERNS = [r"tk-[0-9a-f]{20,}", r"sk-[A-Za-z0-9_-]{20,}", r"gh[pousr]_[A-Za-z0-9]{20,}",
+                   r"-----BEGIN [A-Z ]*PRIVATE KEY-----", r"AKIA[0-9A-Z]{16}"]
+SECRET_FILES = [pathlib.Path.home() / "Projects/gpu-turnstile/config.yaml",
+                pathlib.Path.home() / "Projects/gpu-turnstile/.keys.env", pathlib.Path.home() / ".pi/agent/auth.json"]
+
+
+def secret_hits(rev_range, cwd):
+    """Known key values and key-shaped strings added in rev_range. Pushes are public."""
+    diff = "\n".join(l for l in git("diff", rev_range, cwd=cwd, check=False).splitlines() if l.startswith("+"))
+    hits = [p for p in SECRET_PATTERNS if re.search(p, diff)]
+    for f in SECRET_FILES:
+        if f.exists():
+            for v in set(re.findall(r"[A-Za-z0-9_\-]{24,}", f.read_text())):
+                if v in diff:
+                    hits.append(f"value from {f.name}")
+    return hits
+
+
+def push(cwd, refspec, rev_range):
+    hits = secret_hits(rev_range, cwd)
+    if hits:
+        raise RuntimeError(f"refusing to push {refspec}: possible secrets ({', '.join(sorted(set(hits)))})")
+    git("push", "-q", "-f", CFG["remote"], refspec, cwd=cwd)
+
+
 def publish(msg, merge_branch=None):
     """Push to main from the publisher worktree (never the user's checkout), then
     fast-forward the main checkout if it is clean and on main."""
@@ -290,7 +315,7 @@ def publish(msg, merge_branch=None):
         git("-c", "user.name=bonsai-autopilot", "-c", "user.email=autopilot@bonsai-garden.local",
             "commit", "-qm", msg, cwd=PUB)
     if git("rev-parse", "HEAD", cwd=PUB) != git("rev-parse", f"{CFG['remote']}/main", cwd=PUB):
-        git("push", "-q", CFG["remote"], "HEAD:main", cwd=PUB)
+        push(PUB, "HEAD:main", f"{CFG['remote']}/main..HEAD")
         (RT / "last-push").write_text(now())
         if git("branch", "--show-current", cwd=ROOT) == "main" and not git("status", "--porcelain", cwd=ROOT):
             git("merge", "-q", "--ff-only", f"{CFG['remote']}/main", cwd=ROOT, check=False)
@@ -571,8 +596,8 @@ def do_work(m, st):
 
 
 def do_publish(m, st):
-    git("push", "-q", "-f", CFG["remote"], f"auto/{m.name}", cwd=WT)
     try:
+        push(WT, f"auto/{m.name}", f"{CFG['remote']}/main...HEAD")
         publish(f"Merge autopilot milestone {m.name}", merge_branch=f"auto/{m.name}")
     except RuntimeError as e:
         block(m, f"merge/publish failed: {e}")
@@ -581,7 +606,7 @@ def do_publish(m, st):
     m.save(st)
     m.journal("orchestrator", "Milestone merged into main and published.")
     commit(f"autopilot({m.name}): done")
-    git("push", "-q", "-f", CFG["remote"], f"auto/{m.name}", cwd=WT)
+    push(WT, f"auto/{m.name}", f"{CFG['remote']}/main...HEAD")
 
 
 def current():
@@ -614,8 +639,11 @@ def tick():
         commit(f"autopilot({m.name}): out of budget")
         maybe_publish_status(force=True)
         return "budget"
-    if st["phase"] != "blocked":
-        git("push", "-q", "-f", CFG["remote"], f"auto/{m.name}", cwd=WT, check=False)
+    if m.status()["phase"] != "blocked":
+        try:
+            push(WT, f"auto/{m.name}", f"{CFG['remote']}/main...HEAD")
+        except RuntimeError as e:
+            block(m, str(e))
     return m.status()["phase"]
 
 
