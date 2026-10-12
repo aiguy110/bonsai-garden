@@ -552,3 +552,31 @@ Verified the harness includes the venv fallback, manifest metadata, tap-log pres
 ### 2026-10-12T16:06:15-04:00 · advisor (run request)
 
 **revise**: The replay route and writes are safe, but smoke.sh is not a trustworthy smoke test. Do not swallow the pytest failure or continue after a failed run.py invocation. Enable fail-fast behavior, and replace the final bare `ls -d /tmp/w1-replay-*` with an explicit check that exits 0 when no directories exist and exits nonzero when leftovers are found. Then resubmit `bash bench/worker_eval/smoke.sh`.
+
+### 2026-10-12T16:06:58-04:00 · worker (gpt-5.6-terra), round 6
+
+Updated bench/worker_eval/smoke.sh to use set -euo pipefail, require the same sandbox pytest interpreter family as the harness, stop on pytest/run failures, and explicitly assert no leftover replay checkout. Bash syntax check passes. Next: inspect host smoke artifacts, fields, manifest metadata, and resume stats.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/smoke.sh",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Host smoke run of one live bench-route replay followed by resume; smoke.sh is now fail-fast for test and harness failures and explicitly fails on leftover /tmp checkouts."
+}
+```
+
+### 2026-10-12T16:07:38-04:00 · advisor (run request)
+
+**approve**: Safe and suitable for the required host smoke test. Afterward, report the requested pytest summary, attempt metrics and artifacts, non-empty tap log with HTTP 200, populated manifest metadata, second-run skipped=1/ran=0 stats, one results.jsonl record, unchanged status result, and no leftover /tmp/w1-replay-* directories. Quote any infra-errors.jsonl entry.
+
+### 2026-10-12T16:11:03-04:00 · orchestrator
+
+Health check through turnstile failed: URLError: <urlopen error [Errno 111] Connection refused>
+
+### 2026-10-12T16:12:31-04:00 · fixer (cloud)
+
+```json
+{"fixed":true,"diagnosis":"Transient connection refusal during host reboot; turnstile and llama-swap subsequently started normally. The live config exactly matches known-good.","actions":["Confirmed turnstile :8080, llama-swap :11435, and embedder :8095 are running","Verified live and known-good configs have identical checksums","Ran infra.py check twice; both returned {\"ok\": true}","Made no configuration changes or unnecessary restarts"]}
+```

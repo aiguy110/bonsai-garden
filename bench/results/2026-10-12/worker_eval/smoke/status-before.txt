@@ -1,0 +1,3 @@
+ M autopilot/state/W1-worker-eval/journal.md
+ M bench/worker_eval/smoke.sh
+?? bench/results/2026-10-12/autopilot/replay-harness-r6.log
