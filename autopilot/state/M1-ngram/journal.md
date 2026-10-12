@@ -18,3 +18,18 @@ I now understand I'm the **worker** in the autopilot. I end each turn with a `re
 ### 2026-10-12T01:14:51-04:00 · worker (Bonsai), round 4
 
 Now let me rewrite the script cleanly with all fixes (simplified pi/mem0 discovery, clean grep section, correct sqlite glob, proper paren/brace matching).
+
+### 2026-10-12T02:03:10-04:00 · worker (Bonsai), round 6
+
+Let me get the exact text of `resolve_src` and `find_mem0ai` for precise edits.
+
+### 2026-10-12T02:03:10-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
