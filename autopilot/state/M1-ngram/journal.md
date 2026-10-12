@@ -455,3 +455,18 @@ autopilot/state/M1-ngram/journal.md |    4 +
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
+
+### 2026-10-12T08:21:06-04:00 · worker (Bonsai), round 5
+
+(no final message; errors: [])
+
+### 2026-10-12T08:21:06-04:00 · orchestrator
+
+Your last reply hit the output limit (16k tokens) and was cut off, which ends the session. Write large files in parts: a short first version, then edits. The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
