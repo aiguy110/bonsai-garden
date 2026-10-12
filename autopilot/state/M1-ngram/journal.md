@@ -1145,3 +1145,14 @@ result ok None
 2026-10-12 11:13:27,259 released lease 51e31f3d16b70d4c2bcb768e0d954e59
 
 ```
+
+### 2026-10-12T11:16:36-04:00 · worker (gpt-5.6-terra), round 8
+
+Validated A/prod and off/prod replay artifacts: all four phases, no errors, and timestamps/draft fields are present. Added production-sampling results and the corrected mmproj/embedded-batch caveat to bench/m1-notes.md. A is slower on dual-agent foreground (26.7 vs 31.3 tok/s) and dual-mem (23.4 vs 25.4); its higher dual-agent completed-output figure is driven by much longer sampled outputs, not faster decode. Next: make the no-deploy decision and write the experiment/series/project summaries.
+
+```json
+{
+  "request": "continue",
+  "note": "Proceed to plan item 4: analyze results formally, decide against deployment unless a reviewer identifies a contrary metric, then prepare the serving experiment documentation."
+}
+```

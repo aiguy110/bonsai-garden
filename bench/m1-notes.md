@@ -81,10 +81,14 @@ replay probe will use on :8089, not what is live. Draft stats
 (`timings.draft_n` / `timings.draft_n_accepted`) only appear when
 speculation is on (see §3, §7).
 
-## 3. spec + mmproj verdict: **yes (static) — confirm with draft_n>0 on :8089**
+## 3. spec + mmproj verdict: mmproj may load, but embedded image batches cannot speculate
 
-Static inspection found no line that gates speculative decoding on the
-presence of multimodal (mtmd/mctx) input. The gating logic in
+`--mmproj` does not prevent initializing an n-gram backend, and this text-only
+replay confirms it runs (`draft_n > 0`). This is not compatibility with image
+traffic: `server-context.cpp:3550-3553` throws `unsupported batch.has_embd +
+spec case` when a request batch carries embeddings. Thus speculation is usable
+for these text-only replay requests, while image input with spec is untested and
+risky. The initialization logic is:
 `tools/server/server-context.cpp` is cross-checked against the recon's
 `spec_lines_full.txt` (every line matching `speculative|spec`, numbered) and,
 for lines that keyword-grep misses, against the host window `spec_ctx.txt`:
@@ -98,14 +102,15 @@ verified quotes below are literal.
   426: }
   ```
 - **`server-context.cpp:1123, 1128`** — the mmproj/multimodal block disables
-  only `ctx_shift` and `cache_reuse`; it does **not** touch spec.
+  `ctx_shift` and `cache_reuse`; it does not prevent spec initialization.
   ```
   1123: SRV_WRN("%s\n", "ctx_shift is not supported by multimodal, it will be disabled");
   1128: SRV_WRN("%s\n", "cache_reuse is not supported by multimodal, it will be disabled");
   ```
-- **`server-context.cpp:~1168`** — the only spec-related log line in this
-  region is the checkpoint-mode notice — a checkpoint-mode guard, **not** an
-  mmproj guard.
+- **`server-context.cpp:~1168`** — `speculative decoding not supported by
+  this context` means sequence removal is unsupported and speculation was not
+  initialized. The distinct checkpoint notice is at 1171-1172 (`speculative
+  decoding will use checkpoints`) and is trace-level.
   ```
   1168: SRV_WRN("%s", "speculative decoding not supported by this context\n");
   ```
@@ -130,18 +135,13 @@ verified quotes below are literal.
   1212: slot.spec    = spec.get();
   ```
 
-**Verdict: yes (static)** — nothing in the source refuses or disables
-speculation when `--mmproj` is loaded. The complete set of spec gates is:
-(a) `can_speculate() == !!spec` (424-426); (b) the init gate at 1185 on
-`ctx_tgt_seq_rm_type != COMMON_CONTEXT_SEQ_RM_TYPE_NO` (no mctx/mmproj term);
-and (c) the slot assignment `slot.spec = spec.get()` (1212). The mmproj block
-disables only `ctx_shift` (1123) and `cache_reuse` (1128), never spec. This
-static verdict is confirmed **empirically** on the live server only when the
-replay probe reports **`draft_n > 0`** and **`draft_n_accepted > 0`** in the
-tap records on :8089 (draft fields appear only when speculation is on;
-`predicted_n` is just the generated-token count — §2, §7). If those are zero,
-check the server log for the checkpoint-mode line (1168) before concluding spec
-is disabled.
+**Verdict:** the production command with `--mmproj` loaded works for
+text-only speculative replay: A/prod recorded 25,774 drafted and 5,954 accepted
+tokens. Do not infer image compatibility from that result: batches with
+`has_embd` hit the explicit unsupported spec case above. If a spec run has zero
+drafts, look for `not supported by this context`; checkpointed acceptance is
+instead evidenced by `accepted N/M draft tokens (restore checkpoint)` at 3813
+(the 1172 checkpoint notice is trace-level and absent at default verbosity).
 
 ## 4. Message-reconstruction mapping (from `event_samples.json`)
 
@@ -381,3 +381,32 @@ The earlier §9 reading of A's single-agent 86.0 tok/s as a gain is wrong.
   length rows excluded (26.1 vs 23.0). Prod runs: off, then A.
 - Combined two-slot throughput over wall time was not recorded for off/A/B greedy;
   spec_replay.py now notes `fg wall_s` per phase, so prod runs have it.
+
+### 9c. Production-sampling replay (round 8)
+
+`off-prod` and `A-prod` both completed all four phases with no request errors;
+every successful row has `t_end`, and all A foreground rows carry draft fields.
+The complete tables are produced by:
+
+```
+python3 bench/spec_analyze.py bench/results/2026-10-12/m1-ngram/replay off-prod A-prod
+```
+
+| phase | off fg tok/s | A fg tok/s | A draft_n / accepted | off combined | A combined |
+|---|---:|---:|---:|---:|---:|
+| single-agent | 56.0 | 56.0 | 3231 / 670 | 43.8 | 43.7 |
+| single-mem | 55.6 | 53.5 | 804 / 90 | 32.7 | 31.1 |
+| dual-agent | 31.3 | 26.7 | 2293 / 350 | 47.8 | 51.4 |
+| dual-mem | 25.4 | 23.4 | 996 / 115 | 35.4 | 33.7 |
+
+Fg decode is `sum(predicted_n) / sum(predicted_ms)`. “Combined” is the
+conservative completed-output throughput: foreground tokens plus only background
+requests that ended before the foreground end, divided by the foreground wall
+window. It is not exact aggregate GPU decode throughput. The A dual-agent
+combined value is inflated relative to off by different sampled output lengths
+(A completed 17,355 foreground and 21,359 eligible background tokens, versus
+off's 9,831 and 9,666), while its per-request foreground decode is slower.
+Spec also changes sampled outputs: same SHA shares versus off are 4/30
+single-agent, 10/12 single-mem, 0/30 dual-agent, and 9/12 dual-mem. Thus the
+figures do not demonstrate a deployable two-slot speedup; A is slower on both
+single-mem and dual-mem and on dual-agent foreground traffic.
