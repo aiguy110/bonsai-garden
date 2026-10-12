@@ -22,6 +22,7 @@ the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`)
 | `serving/` | The applied llama-swap entry and the CPU embedder unit |
 | `agent/` | pi wiring: models.json entry and memory extension choice |
 | `evals/` | Benchmark harness: arms, tasks, runner, metering tap, results |
+| `site/` | Research site (GitHub Pages): project → series → experiment pages; see `site/AUTHORING.md` |
 
 ## Running a probe
 
@@ -36,6 +37,6 @@ never touch the live llama-swap service.
 ## Next steps
 
 1. ~~Phase A~~ done 2026-10-11 (results in `docs/engine-review.md` §5).
-2. Choose the pi memory extension, then stand up the CPU embedder and mem0.
-3. Write the first cross-session task sequence and the `baseline` and `mem0` arms.
+2. ~~Memory stack and first baseline vs mem0 eval~~ done 2026-10-11 (site: memory-evals).
+3. Keep `site/` current: every new result updates its experiment, series and project pages.
 4. ~~Phase B~~ done 2026-10-11 (results in `docs/engine-review.md` §5).

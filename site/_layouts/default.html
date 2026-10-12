@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if page.layer == "project" %}{{ site.title }}{% else %}{{ page.title }} · {{ site.title }}{% endif %}</title>
+  <meta name="description" content="{{ page.tldr | escape }}">
+  <link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+</head>
+<body>
+<main>
+  {%- assign project = site.pages | where: "layer", "project" | first -%}
+  {%- assign series_page = site.pages | where: "layer", "series" | where: "series", page.series | first -%}
+  <nav class="crumbs">
+    {%- if page.layer != "project" %}<a href="{{ project.url | relative_url }}">{{ project.title }}</a>{% endif -%}
+    {%- if page.layer == "experiment" %} / <a href="{{ series_page.url | relative_url }}">{{ series_page.title }}</a>{% endif -%}
+  </nav>
+
+  <header>
+    <p class="kind">{% if page.layer == "project" %}Project overview{% elsif page.layer == "series" %}Experiment series{% else %}Experiment{% endif %}</p>
+    <h1>{{ page.title }}</h1>
+    <p class="meta">
+      {% if page.date %}Run {{ page.date | date: "%Y-%m-%d" }} · {% endif %}Updated {{ page.updated | date: "%Y-%m-%d" }}{% if page.status %} · <span class="status status-{{ page.status }}">{{ page.status }}</span>{% endif %}
+    </p>
+  </header>
+
+  <section class="summary">
+    <h2>Summary <small>(under a minute)</small></h2>
+    {{ page.summary | markdownify }}
+  </section>
+
+  {%- if page.layer == "project" -%}
+    {%- assign kids = site.pages | where: "layer", "series" | sort: "order" -%}
+    {%- assign kids_heading = "Experiment series" -%}
+  {%- elsif page.layer == "series" -%}
+    {%- assign kids = site.pages | where: "layer", "experiment" | where: "series", page.series | sort: "date" -%}
+    {%- assign kids_heading = "Experiments" -%}
+  {%- endif -%}
+  {%- if kids and kids.size > 0 %}
+  <section class="children">
+    <h2>{{ kids_heading }}</h2>
+    <ol>
+    {%- for k in kids %}
+      <li>
+        <a href="{{ k.url | relative_url }}">{{ k.title }}</a>
+        <span class="meta">{% if k.date %}{{ k.date | date: "%Y-%m-%d" }}{% else %}updated {{ k.updated | date: "%Y-%m-%d" }}{% endif %}{% if k.status %} · <span class="status status-{{ k.status }}">{{ k.status }}</span>{% endif %}{% if k.layer == "series" %}{% assign n = site.pages | where: "layer", "experiment" | where: "series", k.series %} · {{ n.size }} experiment{% if n.size != 1 %}s{% endif %}{% endif %}</span>
+        <p>{{ k.tldr }}</p>
+      </li>
+    {%- endfor %}
+    </ol>
+  </section>
+  {%- endif %}
+
+  <article>
+    {{ content }}
+  </article>
+
+  <footer>
+    <a href="https://github.com/aiguy110/bonsai-garden">Source and raw results</a>
+  </footer>
+</main>
+</body>
+</html>

@@ -175,7 +175,7 @@ All of this is a self-contained change in `internal/queue` and `internal/proxy`.
 **Phase B results (2026-10-11, deployed).** Turnstile `main` 25474ca
 (`~/Projects/gpu-turnstile`, branch `virtual-models`). Live config:
 `bonsai-2-27b {slots: 2, ctxPool: 98304}`; `bonsai-agent` (maxCtx 81920, `id_slot: 0`);
-`bonsai-mem` (maxCtx 12288, defaultMaxTokens 1024, `id_slot: 1`, thinking off); new
+`bonsai-mem` (maxCtx 32768 since the mem0 evals, first 12288; defaultMaxTokens 1024, `id_slot: 1`, thinking off); new
 key `bonsai-garden-mem` (prio 40, `BONSAI_GARDEN_MEM_KEY` in turnstile's `.keys.env`).
 `../bench/phase_b_validate.py` against the live stack, all pass
 (`../bench/results/2026-10-11/phase_b_validate.txt`):
