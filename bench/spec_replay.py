@@ -234,9 +234,9 @@ class Run:
                     i += 1
 
             th = threading.Thread(target=loop, daemon=True) if bg else None
+            t0 = time.time()
             if th:
                 th.start()
-            t0 = time.time()
             for i, item in enumerate(fg):
                 self.one(name, item, "fg", i == 0)
             t_fg = time.time()

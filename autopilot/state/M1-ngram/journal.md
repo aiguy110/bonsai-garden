@@ -1085,3 +1085,33 @@ Rechecked the amended replay and analyzer scripts; both compile. The probe recor
 ### 2026-10-12T10:35:02-04:00 · advisor (run request)
 
 **revise**: In bench/spec_replay.py phase(), record t0 before starting the background thread: set t0 = time.time(), then call th.start(), then run foreground requests. Currently th.start() precedes t0, so the first background row counted by spec_analyze.py may include output produced before the window. After this one-line ordering fix and a compile check, resubmit the same off/prod command. The host operation is otherwise safe and production-equivalent on private port 8089.
+
+### 2026-10-12T10:35:16-04:00 · worker (gpt-5.6-terra), round 6
+
+Moved the dual-phase measurement start timestamp to immediately before the background thread starts, so no counted background output predates the analysis window. Compiled bench/spec_replay.py and bench/spec_analyze.py successfully.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Repeat off/prod on the corrected probe. It starts only the private production-equivalent server on :8089 and captures all four fresh-server phases with timestamps/window lines needed for valid conservative two-slot throughput."
+}
+```
+
+### 2026-10-12T10:35:45-04:00 · advisor (run request)
+
+**approve**: Safe to run. bench/spec_replay.py uses the production command with port replaced by private :8089, writes only under the requested repo output directories and bench/.replay, and does not touch live services. The corrected ordering records t0 before starting the background thread, so completed background rows cannot predate the measurement window. Afterward verify all four phases have window lines and all successful rows have t_end, then run A/prod. Describe analyzer combined rates as conservative completed-output throughput during the foreground window, not exact aggregate decode throughput.
+
+### 2026-10-12T10:50:27-04:00 · orchestrator
+
+Ran `python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod` (gpu=True) in 883s, exit 0. Full output: `bench/results/2026-10-12/autopilot/spec-replay-r6.log`. Last lines:
+
+```
+2026-10-12 10:35:45,795 turnstile lease 6279215a9028a9b840224a75d2614169 granted after 0s
+2026-10-12 10:35:45,796 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod
+result ok None
+2026-10-12 10:50:27,968 released lease 6279215a9028a9b840224a75d2614169
+
+```
