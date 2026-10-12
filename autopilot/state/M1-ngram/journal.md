@@ -33,3 +33,24 @@ autopilot/state/M1-ngram/journal.md | 4 ++++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
+
+### 2026-10-12T02:06:37-04:00 · worker (Bonsai), round 7
+
+Recon round 7 complete (host-side run requested next):
+
+**Work done this session:**
+- Found and reviewed the existing `bench/m1_recon.py` (left by the prior session, 30KB); it implements all five recon deliverables in `bench/results/<date>/m1-ngram/recon/`.
+- Fixed a bug in `match_tap_records`: int-typed `step` values in tap.jsonl would be silently dropped (`s in (target, str(s))` → `s is None or s != target or str(s) != target`).
+- Broadened the spec↔mmproj proximity grep from `*.js` to `.js/.mjs/.ts/.cpp/.cxx/.h/.hh/.hpp/.py/.md` under `tools/server/` (in case the spec code isn't all in JS).
+- Added a stdout summary of written files (sizes) so the run output is visible in the orchestrator log.
+- `python3 -m py_compile` passes. Nothing else changed; repo tree clean.
+
+**Next round:** read the run output (help flags, spec/mmproj grep, inventory, event samples, mem0/pi source), write `bench/m1-notes.md`, and commit the script + outputs.
+
+```json
+{"request": "run", "command": "python3 bench/m1_recon.py", "gpu": false, "timeout_min": 10, "why": "M1 recon round 7: host-only script (no GPU, no network) that writes bench/results/<date>/m1-ngram/recon/ containing (a) help.txt (full llama-server --help) + spec_flags.txt (--spec*/--draft* lines), (b) spec_mmproj_grep.txt (spec/speculative lines within 5 lines of mtmd/multimodal/mctx under tools/server/), (c) inventory.json (every step*.events.jsonl: event types, assistant message count, tool calls by name; per-request tap prompt_n/cache_n/predicted_n; mem0 *.db tables+rows), (d) event_samples.json (one full example per distinct event type from a mem0-arm step), (e) sources.txt + mem0_extract_src.txt (ADDITIVE_EXTRACTION_PROMPT + user-prompt builder) + pi_prompt_src.txt (system-prompt builder + built-in tool schemas). Stdout includes a per-file size summary."}
+```
+
+### 2026-10-12T02:07:27-04:00 · advisor (run request)
+
+**revise**: Safe to run (read-only, writes only under bench/results/<date>/m1-ngram/recon/, no server or port), but it would crash on import. BLOCKING: (1) PRIMARY_SRC = Path(...) / ("evals" / "results" / ...) raises TypeError because the brackets make Python divide two strings first. Use MAIN_REPO / "evals" / "results" / "2026-10-11-baseline-mem0" and define MAIN_REPO before it. (2) The spec_flags.txt filter misses llama.cpp's '--draft, --draft-n, --draft-max N' (a comma follows 'draft') and lines that begin with a short alias like '-cd, --ctx-size-draft'. It also adds unrelated '-xx, --foo' lines as continuations. Rewrite it: any stripped line starting with '-' is a flag line and is kept if re.search(r'--(spec|draft)', line) matches. Lines not starting with '-' are continuations and follow the keep/drop decision of the flag line above them. NON-BLOCKING: (3) match_tap_records: replace 's is None or s != target or str(s) != target' with 'str(s) != target' as evals/run.py:277 does (the current form drops integer steps; tap tags are strings, so it only works by luck). (4) spec_mmproj_grep.txt: print the path relative to tools/server/, not root.name. (5) mem0_dbs: key by the path relative to the run dir, not db.name. (6) If the windows in mem0_extract_src.txt don't clearly contain the user-prompt builder, also extract the function that receives the messages and existing memories. Compile it with a quick ast.parse check, then resubmit the same run request.

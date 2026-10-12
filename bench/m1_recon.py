@@ -280,7 +280,7 @@ def match_tap_records(tap: List[Dict[str, Any]], run_id: str, step_i: int) -> Li
         if r.get("run") != run_id:
             continue
         s = r.get("step")
-        if s not (target, str(s)):
+        if s is None or s != target or str(s) != target:
             continue
         if not (r.get("path") or "").endswith("/completions"):
             continue
@@ -738,7 +738,15 @@ def main() -> None:
     if LLAMA_SERVER_SRC.exists():
         spec_pat = re.compile(r"(?i)speculative|spec")
         mm_pat = re.compile(r"(?i)mtmd|multimodal|mctx")
-        for root in LLAMA_SERVER_SRC.rglob("*.js"):
+        patterns = ("*.js", "*.mjs", "*.ts", "*.tsx",
+                    "*.cpp", "*.cxx", "*.cc", "*.h", "*.hh", "*.hpp", "*.py", "*.md")
+        files: set = set()
+        for pat in patterns:
+            try:
+                files.update(LLAMA_SERVER_SRC.rglob(pat))
+            except Exception:
+                continue
+        for root in sorted(files, key=lambda p: str(p)):
             try:
                 lines = root.read_text(encoding="utf-8", errors="replace").splitlines()
             except Exception:
@@ -822,7 +830,11 @@ def main() -> None:
             ps.append(rec["function_src"])
     write_text(OUT_DIR / "pi_prompt_src.txt", "\n".join(ps) + "\n")
 
-    print(f"[recon] done -> {OUT_DIR}", file=sys.stderr)
+    written: Dict[str, Any] = {}
+    for f in sorted(OUT_DIR.iterdir()):
+        written[f.name] = f.stat().st_size if f.is_file() else "-"
+    print(f"[recon] done -> {OUT_DIR}")
+    print(json.dumps({"out_dir": str(OUT_DIR), "files": written}, indent=2))
 
 
 if __name__ == "__main__":
