@@ -1156,3 +1156,14 @@ Validated A/prod and off/prod replay artifacts: all four phases, no errors, and 
   "note": "Proceed to plan item 4: analyze results formally, decide against deployment unless a reviewer identifies a contrary metric, then prepare the serving experiment documentation."
 }
 ```
+
+### 2026-10-12T11:19:59-04:00 · worker (gpt-5.6-terra), round 9
+
+Made and documented the no-deploy decision. Added the serving experiment page and updated series/project/engine summaries. The replay shows default ngram-mod is slower on both production two-slot foreground roles (agent 26.7 vs 31.3 tok/s; mem 23.4 vs 25.4) and changes outputs. Replay scripts compile; site checker is blocked here by missing PyYAML.
+
+```json
+{
+  "request": "continue",
+  "note": "Validate site metadata when PyYAML is available, then finish the milestone."
+}
+```

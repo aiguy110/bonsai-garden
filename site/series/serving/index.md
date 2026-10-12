@@ -24,8 +24,9 @@ summary: |
     keeps a shared context budget, and exposes per-role virtual models
     (`bonsai-agent`, `bonsai-mem`). All 9 live validation checks pass.
 
-  **Status:** deployed. Per-role KV-cache precision and n-gram speculation are
-  deferred until the memory evals show a need.
+  **Status:** deployed. A real-traffic replay found n-gram self-speculation
+  slower when both slots are busy, so it was not deployed. Per-role KV-cache
+  precision remains deferred until the memory evals show a need.
 ---
 
 This series answers a feasibility question that comes before any memory
@@ -42,8 +43,8 @@ experiment: can both roles fit, and can they run at the same time?
 
 ## Deferred ideas
 
-- **N-gram self-speculation.** It reached 162 tok/s on repeated text and showed
-  no slowdown on fresh text. Agents re-emit a lot of code, so this is worth testing
-  on real traces.
+- **N-gram self-speculation (closed).** Despite its synthetic repeated-text
+  result, it regressed real two-slot agent and memory replay traffic. The live
+  entry remains without a `--spec-*` flag.
 - **Different KV precision per role.** This needs a custom server. Only worth it
   if memory quality turns out to be sensitive to KV quantization.

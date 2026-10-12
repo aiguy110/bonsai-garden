@@ -410,3 +410,19 @@ Spec also changes sampled outputs: same SHA shares versus off are 4/30
 single-agent, 10/12 single-mem, 0/30 dual-agent, and 9/12 dual-mem. Thus the
 figures do not demonstrate a deployable two-slot speedup; A is slower on both
 single-mem and dual-mem and on dual-agent foreground traffic.
+
+### 9d. Decision
+
+**Do not deploy n-gram speculation.** The rule was an improvement with both
+slots busy. Neither greedy candidate met it (A dual-agent 25.5 vs off 26.3;
+B 23.0; A dual-mem 23.8 vs 25.0), and the production-sampling confirmation
+regressed A's foreground decode for both roles (dual-agent 26.7 vs 31.3;
+dual-mem 23.4 vs 25.4). The larger A dual-agent conservative completed-output
+figure (51.4 vs 47.8 tok/s) is not a decode gain: sampled output lengths differ
+substantially (A foreground/eligible-bg 17,355/21,359 tokens vs off
+9,831/9,666). It must not override the per-request rates.
+
+The live `bonsai-2-27b` entry is unchanged. Text-only speculative replay worked
+with `--mmproj` loaded and used effectively the same VRAM (9507--9508 MiB), but
+this does not make image traffic safe: a batch carrying image embeddings with
+speculation is unsupported.
