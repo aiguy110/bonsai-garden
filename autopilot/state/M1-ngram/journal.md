@@ -1197,3 +1197,24 @@ Corrected the final documentation review issues and validated the B warning agai
 ### 2026-10-12T11:28:21-04:00 · advisor (finished item)
 
 **approve**: Acceptance criteria are met. `bench/spec_replay.py` implements fresh-server single/dual agent and mem phases, production-equivalent :8089 startup, required sampling, hashes, draft statistics, VRAM capture, and gitignored full outputs. All five required result arms contain requests, four server logs, and VRAM data; A/B foreground rows include draft fields. Reported rates and acceptance totals are traceable to the JSONL data and server logs. Documentation includes the corrected mem0 count, B quality warning, output-identity results, mmproj/image caveat, and justified no-deploy decision. The live serving YAML remains without speculation flags.
+
+### 2026-10-12T11:30:09-04:00 · worker (gpt-5.6-terra), round 1
+
+Implemented and locally validated the decision summarizer and no-deploy artifacts.
+
+```json
+{
+  "request": "done",
+  "summary": "`bench/spec_summarize.py` writes `bench/results/2026-10-12/m1-ngram/summary.md`, `summary.json`, and `deploy.json` from foreground replay rows and gitignored response outputs. It includes weighted/median rates, drafts, JSON validity, VRAM, identity/divergence, the batch control, and all six rules. A-prod fails rules 2, 3, and 5 (dual-agent 26.7 vs 31.3 tok/s; dual-mem 23.4 vs 25.4), so deploy.json is false. No serving config changed."
+}
+```
+
+### 2026-10-12T11:32:23-04:00 · advisor (finished item)
+
+**revise**: Fix `bench/spec_summarize.py` and regenerate the artifacts. (1) Compute VRAM versus off per phase, not from one arm-wide median. The current A-prod dual-mem row reports +1 MiB, while `A-prod/vram.txt` records 9507 MiB and `off-prod/vram.txt` records 9508 MiB, so it should be -1 MiB. Rule 4 remains PASS with a maximum +1 MiB. (2) Add first-divergence character indices for the off dual-vs-single control mismatches to `summary.md` and `summary.json`; the identity requirement applies mismatch diagnostics to the included control as well. The performance, acceptance, validity, and identity counts otherwise trace to the replay files, and the no-deploy result is correct.
+
+### 2026-10-12T11:32:23-04:00 · orchestrator
+
+Added to the standing facts:
+
+- `bench/spec_summarize.py` currently computes one median VRAM value per arm; phase-specific A-prod versus off-prod deltas are +1, +1, +1, and -1 MiB respectively, although the deployment-rule maximum remains +1 MiB.

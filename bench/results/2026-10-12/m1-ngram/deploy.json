@@ -1,0 +1,8 @@
+{
+  "deployed": false,
+  "why": [
+    "rule 2: dual-agent 26.7 tok/s, 0.853x off",
+    "rule 3: dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x",
+    "rule 5: candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%"
+  ]
+}
