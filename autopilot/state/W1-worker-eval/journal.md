@@ -411,3 +411,27 @@ Added to the standing facts:
 
 - bench/worker_eval/cases.jsonl applies the 08:33 cloud cutoff to the worker journal-entry time, so case m1-ngram-replay-set-r6 (log 20261012-083246, a Sonnet round) has a source_timestamp 14 s before 08:33.
 - build_cases.py --check takes the M1 journal from the first existing candidate in host_paths(), the M1-ngram worktree copy first, and compares journal_sha256, so removing that worktree or changing that copy makes --check fail even though cases.jsonl is unchanged.
+
+### 2026-10-12T14:07:37-04:00 · worker (gpt-5.6-terra), round 1
+
+Wrote bench/worker_eval/arms/schema.json, arms/bonsai-2026-10-12.json, run.py, test_run.py (23 tests pass locally, no GPU/network), smoke.sh, and README sections (arm sources, harness, output layout). The arm is garden/bonsai-agent, thinking low, 16384 max output, 81920 context, reserve 28672, 20 min, memory off, submit_request.ts. Thinking=low and the 16384 cap come from autopilot/README.md "History" and agent/models.bonsai-agent.json, not from a recorded 2026-10-12 config.json (git history is unreadable here); the README says so. The host-only parts (git init+fetch checkout, sandbox, tap, manifest) are untested. smoke.sh runs the tests, then one case twice with a stable --out. Next round: read the log, fix any host-side bugs, confirm the second invocation skipped and that all fields and artifacts exist, then submit done.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/smoke.sh",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Host smoke run of one case through the live turnstile bench route (the harness holds its own lease-free path like the autopilot worker), then a second invocation that must skip it."
+}
+```
+
+### 2026-10-12T14:09:36-04:00 · advisor (run request)
+
+**revise**: Safe, but the smoke run will most likely stop at line 7. Host `python3` probably has no pytest: the eval harness runs pytest on the host only through `evals/.cache/venv-sandbox/bin/python` (evals/run.py:444), and your 23 passing tests ran in the sandbox under /opt/venv. Required fix: in smoke.sh, run the tests with `evals/.cache/venv-sandbox/bin/python -m pytest -q bench/worker_eval/test_run.py` (that venv's python works on the host; only its script shebangs don't). Recommended, cheap, while you are in there: (1) Before the first invocation, save `git status --porcelain` to a file under $OUT. At the end, diff it against the new status and print `ls -d /tmp/w1-replay-* 2>/dev/null`. The current final `git status | head` cannot show 'worktree unchanged except results', because the tree is already dirty with your uncommitted files. Also print the number of lines in results.jsonl after each invocation, and the skipped/ran stats JSON from both. (2) run_session deletes `base` along with `tap.jsonl`. Copy the tap log into the attempt dir first (e.g. `tap.jsonl`). It holds the per-request prompt/completion token counts that W2 needs to study prompt growth and compaction. (3) Call `ev.ensure_venv()` (and `ev.preflight([])`, or a turnstile `/api/queue` check) once in main() before launching. If VENV is missing, `docker -v` creates it as a root-owned empty dir. (4) `ev.start_tap` raises SystemExit on failure, and SystemExit gets past `except Exception` in attempt(), so a tap failure kills the chunk without an infra-errors.jsonl line. Catch SystemExit there too. (5) OUTPUT_LIMIT matches any error text containing `max_tokens` and RATE_LIMIT matches any `429`, so a context-overflow message that mentions max_tokens is also flagged as output_limit. Keep `output_limit` keyed on stopReason `length` (plus explicit output-limit wording) and record what triggered each flag. Then resubmit the same `bash bench/worker_eval/smoke.sh` request.
+
+### 2026-10-12T14:09:36-04:00 · orchestrator
+
+Added to the standing facts:
+
+- Host-side pytest in this repo goes through `evals/.cache/venv-sandbox/bin/python -m pytest` (evals/run.py:444); a run request that calls `python3 -m pytest` uses the host's own python3, where pytest is likely missing.

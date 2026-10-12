@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "worker-eval arm",
+  "description": "One replayable configuration of the autopilot worker. run.py checks required keys, types and the enum/range constraints below (no jsonschema dependency).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["name", "description", "model", "worker_description", "thinking", "max_output_tokens",
+               "context_window", "compaction_reserve_tokens", "session_timeout_min", "worker_memory",
+               "extensions", "sources"],
+  "properties": {
+    "name": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$", "description": "Must equal the file name without .json."},
+    "description": {"type": "string"},
+    "model": {"type": "string", "pattern": "^garden/[^/]+$", "description": "pi model string provider/id. Only the garden provider (Bonsai via turnstile) is replayed; the id must be the virtual model registered in agent/models.bonsai-agent.json."},
+    "worker_description": {"type": "string", "description": "Text naming the replayed model in the prompt's first line ('running as <this>. The project'). It replaces the case's worker_description_to exactly once."},
+    "thinking": {"enum": ["off", "minimal", "low", "medium", "high", "xhigh"], "description": "pi --thinking level and defaultThinkingLevel."},
+    "max_output_tokens": {"type": "integer", "minimum": 1, "description": "maxTokens of the model registration (sent as max_tokens)."},
+    "context_window": {"type": "integer", "minimum": 1, "description": "contextWindow of the model registration."},
+    "compaction_reserve_tokens": {"type": "integer", "minimum": 0, "description": "settings.json compaction.reserveTokens."},
+    "session_timeout_min": {"type": "number", "exclusiveMinimum": 0, "description": "Wall-clock limit for one pi session; the process group is killed after it."},
+    "worker_memory": {"enum": [null, "mem0"], "description": "null = no memory tool or extension. 'mem0' = the evals/arms/<name>.json mem0 setup (not implemented by run.py yet; W3)."},
+    "extensions": {"type": "array", "items": {"type": "string"}, "description": "Repo-relative paths of extra .ts extension files copied into the agent dir's extensions/. submit_request.ts is how a session ends."},
+    "sources": {"type": "object", "additionalProperties": {"type": "string"}, "description": "Per setting: where its value comes from."}
+  }
+}

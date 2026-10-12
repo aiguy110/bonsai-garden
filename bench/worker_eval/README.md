@@ -71,3 +71,84 @@ retained. Outputs are written only after all validation succeeds.
   (`journal_request_missing` / `journal_request_mismatch` skips).
 - The start commit must be at most 300 s older than the call-log stamp
   (`stale_start_commit` skip), since `commit()` skips unchanged trees.
+
+## Replay harness (`run.py`)
+
+```sh
+python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-12/worker_eval/bonsai-2026-10-12
+python3 -m pytest bench/worker_eval/test_run.py      # fixture tests; no GPU, docker or network
+```
+
+Options: `--cases PATH` (default `cases.jsonl`), `--repeat N`, `--out DIR` (keep it the same
+across chunks; default is a dated dir), `--budget-min` (default 145, at most 150),
+`--only CASE_ID` and `--limit N` for smoke runs.
+
+Per `(arm, case_id, repeat)`: a new repo under `/tmp` that holds only the start commit and
+its ancestors (fetched by SHA, not cloned, so later branches and the cloud answer are not
+visible), checked out detached and removed afterwards; a fresh pi agent dir (settings,
+model registration and extensions from the arm); the replay-model line rendered and
+verified (exactly one `running as <desc>. The project` line, naming the case's recorded
+description, replaced by the arm's, and no other change); pi in the eval sandbox (docker,
+`--network none`) reaching live `bonsai-agent` through the tap with the bench key.
+`run.py` imports `evals/run.py` and `autopilot/autopilot.py` read-only and lazily, and
+uses autopilot's own `check_run_command` against the replay checkout (a local copy is used
+only if autopilot cannot be imported).
+
+The prompt is replayed verbatim, so it still says "each session is killed after 45
+minutes" (the cloud rounds' limit) while the arm enforces 20.
+
+Requests are taken from `request.json` (the `submit_request` tool), else the last JSON
+object in the final reply, else none. Both are checked with `submit_request.ts`'s field and
+path rules and the orchestrator's per-kind checks, against the replay checkout as the
+session left it.
+
+### Output (`--out`)
+
+- `manifest-<stamp>.json`, one per invocation: repo commit and dirty flag, arm and cases
+  SHA-256, pi version and flags, the model registration, model file SHA-256, the
+  `bonsai-2-27b` llama-swap entry, turnstile routing (no keys) and commit, sandbox image id.
+- `results.jsonl`: one line per finished attempt, appended and fsynced after the attempt.
+  Only these lines count as done. Resume skips an exact `(arm, case_id, repeat)` match, so a
+  rerun never duplicates one; an attempt killed mid-way has no line and is rerun. Records
+  from a different arm file hash make `run.py` refuse (use a new `--out`).
+- `<case_id>/r<N>/`: `manifest.json`, `events.jsonl`, `stderr.txt`, `final.txt`,
+  `request.json` (if any), `workspace.diff`, `record.json`.
+- `infra-errors.jsonl`: attempts that could not start (git, docker, tap); not recorded as
+  done. Three in a row stop the chunk.
+
+Record fields: `request_source` (`tool`, `json_fallback`, `none`), `request`,
+`validation_errors`, `valid_request`, `cloud_kind`, `replay_kind`, `kind_match`, `wall_s`,
+`turns`, `tool_calls`, `tools`, `tool_errors`, `compaction_start`, `compaction_end`,
+`stop_reasons` (every assistant reply), `last_stop`, `errors` (raw messages), and the flags
+`timeout`, `context_overflow`, `output_limit` (any reply stopped on `length`), `rate_limit`,
+`pi_exit_nonzero`.
+
+Cases are scheduled repeat-major, so a partial chunk covers every case once before any twice.
+A case is launched only if the arm's session timeout fits in the remaining budget.
+
+## Arms (`arms/`)
+
+`arms/schema.json` documents the format; `run.py` checks required keys, types, enums and
+ranges. Fields: `name` (= file name), `description`, `model`, `worker_description`
+(the text for the prompt's model line), `thinking`, `max_output_tokens`, `context_window`,
+`compaction_reserve_tokens`, `session_timeout_min`, `worker_memory` (`null` only, for now),
+`extensions` (repo paths copied into the agent dir) and `sources`.
+
+`bonsai-2026-10-12` and where each value comes from:
+
+| setting | value | source |
+|---|---|---|
+| model | `garden/bonsai-agent` | `autopilot/README.md` "History" (to go back to Bonsai: `garden/bonsai-agent`); `autopilot.py` `worker_agent_dir()` |
+| thinking | `low` | same README paragraph; `evals/arms/baseline.json` |
+| max output tokens | 16384 | `agent/models.bonsai-agent.json` `maxTokens`; `autopilot.py` `do_work()` names the 16k limit |
+| context window | 81920 | `agent/models.bonsai-agent.json` `contextWindow` |
+| compaction reserve | 28672 | `autopilot.py` `worker_agent_dir()` (provider `garden`) |
+| session timeout | 20 min | W1 milestone (the historical `worker_timeout_min` was 45) |
+| worker memory | off | W1 milestone (the historical `worker_memory` was `mem0`; memory is W3) |
+| extensions | `autopilot/extensions/submit_request.ts` | `autopilot.py` `worker_agent_dir()` |
+
+Not proven from here: `autopilot/config.json` now names Terra, and git history is not
+readable in the sandbox, so `thinking: low` and the 16384 cap rest on the README's
+instruction for restoring the Bonsai worker and the model registration file, not on a
+recorded 2026-10-12 config. A reviewer with host access can check them against the first
+`autopilot(M1-ngram)` commits' `config.json`.
