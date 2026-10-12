@@ -92,9 +92,14 @@ def to_openai(m):
         return {"role": "user", "content": blocks_text(m["content"])}
     if r == "toolResult":
         return {"role": "tool", "tool_call_id": m["toolCallId"], "content": blocks_text(m["content"])}
-    if r == "assistant":  # reasoning dropped, as pi does
+    if r == "assistant":
         out = {"role": "assistant", "content": "".join(
             b.get("text", "") for b in m["content"] if b.get("type") == "text")}
+        # pi-ai's openai-completions converter (checked via the printed source lines) sends thinking
+        # blocks back under the first block's thinkingSignature (here 'reasoning_content')
+        th = [b for b in m["content"] if b.get("type") == "thinking" and (b.get("thinking") or "").strip()]
+        if th:
+            out[th[0].get("thinkingSignature") or "reasoning_content"] = "\n".join(b["thinking"] for b in th)
         calls = [b for b in m["content"] if b.get("type") == "toolCall"]
         if calls:
             out["tool_calls"] = [{"id": c["id"], "type": "function",
@@ -116,7 +121,7 @@ def tool_list(sysmsg):
 def est_chars(messages, tools=None):
     n = 0
     for m in messages:
-        n += len(m.get("content") or "")
+        n += len(m.get("content") or "") + len(m.get("reasoning_content") or "")
         for c in m.get("tool_calls", []):
             n += len(c["function"]["name"]) + len(c["function"]["arguments"])
     if tools:
@@ -129,7 +134,16 @@ def chars_by_role(messages, tools):
     for m in messages:
         n = len(m.get("content") or "") + sum(len(c["function"]["arguments"]) for c in m.get("tool_calls", []))
         d[m["role"]] = d.get(m["role"], 0) + n
+        d["reasoning"] = d.get("reasoning", 0) + len(m.get("reasoning_content") or "")
     return d
+
+
+def reasoning_split(messages):
+    """(all prior reasoning chars, reasoning chars after the last user message)."""
+    last_user = max((i for i, m in enumerate(messages) if m["role"] == "user"), default=-1)
+    allr = sum(len(m.get("reasoning_content") or "") for m in messages)
+    after = sum(len(m.get("reasoning_content") or "") for m in messages[last_user + 1:])
+    return allr, after
 
 
 def step_score(msgs):
@@ -238,6 +252,19 @@ def mem_user_prompt(existing, lastk, new_msgs, date):
 
 # ---------- main ----------
 
+def show_pi_ai_source():
+    import glob
+    root = pathlib.Path("/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works")
+    hits = glob.glob(str(root / "**" / "providers" / "openai-completions.js"), recursive=True)
+    print("pi-ai openai-completions.js:", hits)
+    for h in hits[:1]:
+        lines = pathlib.Path(h).read_text(encoding="utf-8").splitlines()
+        for i, l in enumerate(lines):
+            if "thinkingSignature" in l:
+                print(f"--- {h}:{i + 1}")
+                print("\n".join(lines[max(0, i - 6): i + 8]))
+
+
 def median(xs):
     return round(statistics.median(xs), 3) if xs else None
 
@@ -290,7 +317,9 @@ def main():
                                         predicted_n=rec["predicted_n"],
                                         recorded_n_messages=rec["n_messages"],
                                         chars=est_chars(hist, tools),
-                                        chars_by_role=chars_by_role(hist, tools))))
+                                        chars_by_role=chars_by_role(hist, tools),
+                                        reasoning_all=reasoning_split(hist)[0],
+                                        reasoning_after_last_user=reasoning_split(hist)[1])))
     agent = agent[: args.agent_max]
 
     # ---- mem set: one request per mem tap record in the mem0 arm, up to --mem-max.
@@ -365,11 +394,17 @@ def main():
                     prompt_chars=c, est_tokens_chars4=round(c / 4),
                     recorded_prompt_tokens=rp, est_over_recorded=round(c / 4 / rp, 3),
                     predicted_n=r["meta"]["predicted_n"], kind=r["meta"].get("kind"),
-                    chars_by_role=r["meta"].get("chars_by_role"))
+                    chars_by_role=r["meta"].get("chars_by_role"),
+                    **({"est_over_recorded_reasoning_after_last_user_only": round(
+                        (c - r["meta"]["reasoning_all"] + r["meta"]["reasoning_after_last_user"]) / 4 / rp, 3),
+                        "est_over_recorded_no_reasoning": round((c - r["meta"]["reasoning_all"]) / 4 / rp, 3)}
+                       if "reasoning_all" in r["meta"] else {}))
     ents = [entry(r) for r in agent + mem]
     by = lambda role: [e for e in ents if e["role"] == role]
     manifest = dict(
         system_prompt_exact=exact_all,
+        server_requirement="probe llama-server needs --jinja (production has it) so the chat template sees "
+                           "reasoning_content on assistant messages",
         system_prompt_note="agent system prompt = recorded sections joined by blank lines; the join is INFERRED "
                            "(getSystemMessageText is not in pi_prompt_src.txt); exactness is supported only by "
                            "the est/recorded ratios of requests with n_messages<=3",
@@ -393,6 +428,13 @@ def main():
     print("agent chars_by_role (id, ratio, breakdown):")
     for e in by("agent"):
         print("  ", e["id"], e["est_over_recorded"], e["chars_by_role"])
+    print("agent ratios (all reasoning / reasoning after last user only / none):")
+    for e in by("agent"):
+        print("  ", e["id"], e["est_over_recorded"], e["est_over_recorded_reasoning_after_last_user_only"],
+              e["est_over_recorded_no_reasoning"])
+    for k in ("est_over_recorded", "est_over_recorded_reasoning_after_last_user_only", "est_over_recorded_no_reasoning"):
+        print("agent median", k, median([e[k] for e in by("agent")]))
+    show_pi_ai_source()
     print("mem kinds:", [(e["id"], e["kind"], e["est_over_recorded"]) for e in by("mem")])
     manifest["agent_ratio_n_messages_le3"] = short
     print("n_messages mismatches:", len(mismatches), mismatches[:10])

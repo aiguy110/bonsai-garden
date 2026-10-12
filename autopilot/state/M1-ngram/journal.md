@@ -646,3 +646,66 @@ Applied the advisor's fixes in bench/build_replay_set.py. The mem set now has on
 Added to the standing facts:
 
 - pi's recorded thinking blocks carry thinkingSignature='reasoning_content' (recon/event_samples.json:457), and agent prompt growth after long-reasoning turns (e.g. baseline-r0/0/2 predicted_n=8565, then the recorded prompt goes 2761->13032 by turn 5) indicates that recorded agent prompts included earlier reasoning, so agent replay bodies that drop reasoning under-size the real traffic.
+
+### 2026-10-12T08:43:35-04:00 · worker (claude-sonnet-5-5), round 10
+
+Edited bench/build_replay_set.py as the advisor asked. It compiles; I did not run it. Agent bodies now keep assistant thinking as reasoning_content, using the block's thinkingSignature. est_chars and chars_by_role count it under a separate 'reasoning' key. The manifest records server_requirement (--jinja). Each agent entry gets three ratios: reasoning for all prior turns, reasoning only after the last user message, and none. The run prints the medians of all three and the pi-ai openai-completions.js lines around thinkingSignature. The mem-set code is unchanged. Next round: check both medians against 0.75–1.33 from this output. If the agent median is still low, report that rather than change the estimator. Then write the outlier notes in bench/m1-notes.md and add bench/.replay/ to .gitignore if it isn't there yet.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/build_replay_set.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Re-run the builder with reasoning_content kept in agent bodies. It prints ratios with all, last-turn-only and no reasoning, and the pi-ai source lines confirming how thinking is sent back. Read-only, no GPU."
+}
+```
+
+### 2026-10-12T08:44:09-04:00 · advisor (run request)
+
+**approve**: Safe: read-only on recordings, SQLite (mode=ro) and the pi-ai dist source; writes only bench/.replay/m1 and the results manifest; no GPU or server. Keeping reasoning_content in agent bodies is the right fix. When reading the output: (1) the 'after last user only' ratio will equal the 'all reasoning' ratio, because every step is a fresh session with one user message before all assistant turns; say so rather than citing it as template evidence. (2) show_pi_ai_source prints only hits[0]; if several copies are found, confirm the printed one is the pi-ai that pi-coding-agent resolves (a nested node_modules copy wins over its sibling). (3) Check that chars_by_role['reasoning'] is non-zero on the long-output steps (baseline-r0/0, mem0-r*/0); est_chars counts only the 'reasoning_content' key, so any other signature value would be silently missed. (4) Commit only this run's rebuilt manifest. Check both medians against 0.75-1.33 with the unchanged chars/4 estimator, then write the outlier notes in bench/m1-notes.md: tool-output/JSON-heavy turns are expected to land below 1 because code tokenizes at <4 chars/token.
+
+### 2026-10-12T08:44:10-04:00 · orchestrator
+
+Ran `python3 bench/build_replay_set.py` (gpu=False) in 0s, exit 0. Full output: `bench/results/2026-10-12/autopilot/replay-set-r10.log`. Last lines:
+
+```
+4 0.246
+   inventory-baseline-r0/0/8 0.743 0.743 0.272
+   inventory-baseline-r0/0/10 0.742 0.742 0.278
+   inventory-baseline-r1/0/0 0.846 0.846 0.846
+   inventory-baseline-r1/0/2 0.756 0.756 0.743
+   inventory-baseline-r1/0/4 0.812 0.812 0.381
+   inventory-baseline-r1/0/5 0.806 0.806 0.396
+   inventory-baseline-r1/0/7 0.805 0.805 0.414
+   inventory-baseline-r1/2/0 0.84 0.84 0.84
+   inventory-baseline-r1/2/3 0.785 0.785 0.745
+   inventory-baseline-r1/2/6 0.886 0.886 0.864
+   inventory-baseline-r1/2/8 0.88 0.88 0.817
+   inventory-baseline-r1/2/11 0.887 0.887 0.771
+   inventory-mem0-r0/0/0 0.877 0.877 0.877
+   inventory-mem0-r0/0/2 0.844 0.844 0.5
+   inventory-mem0-r0/0/4 0.835 0.835 0.384
+   inventory-mem0-r0/0/7 0.828 0.828 0.406
+   inventory-mem0-r0/0/9 0.819 0.819 0.405
+   inventory-mem0-r1/0/0 0.877 0.877 0.877
+   inventory-mem0-r1/0/2 0.813 0.813 0.796
+   inventory-mem0-r1/0/4 0.834 0.834 0.407
+   inventory-mem0-r1/0/5 0.831 0.831 0.391
+   inventory-mem0-r1/0/7 0.82 0.82 0.394
+   inventory-mem0-r2/0/0 0.877 0.877 0.877
+   inventory-mem0-r2/0/2 0.815 0.815 0.798
+   inventory-mem0-r2/0/4 0.857 0.857 0.349
+   inventory-mem0-r2/0/6 0.849 0.849 0.384
+   inventory-mem0-r2/0/8 0.847 0.847 0.399
+agent median est_over_recorded 0.833
+agent median est_over_recorded_reasoning_after_last_user_only 0.833
+agent median est_over_recorded_no_reasoning 0.457
+pi-ai openai-completions.js: []
+mem kinds: [('inventory-mem0-r0/0/0', 'capture', 1.029), ('inventory-mem0-r0/0/1', 'tool_add', 1.035), ('inventory-mem0-r0/0/2', 'tool_add', 1.027), ('inventory-mem0-r0/0/3', 'tool_add', 1.035), ('inventory-mem0-r0/0/4', 'tool_add', 1.027), ('inventory-mem0-r0/0/5', 'tool_add', 1.026), ('inventory-mem0-r0/0/6', 'tool_add', 1.026), ('inventory-mem0-r0/1/0', 'capture', 1.022), ('inventory-mem0-r0/2/0', 'capture', 1.022), ('inventory-mem0-r1/0/0', 'tool_add', 1.035), ('inventory-mem0-r1/0/1', 'capture', 1.026), ('inventory-mem0-r1/1/0', 'capture', 1.041)]
+n_messages mismatches: 0 []
+mem0 db columns: {"inventory-mem0-r0": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}, "inventory-mem0-r1": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}, "inventory-mem0-r2": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}}
+outliers (ratio outside 0.75-1.33): [('inventory-baseline-r0/0/5', 0.74), ('inventory-baseline-r0/0/8', 0.743), ('inventory-baseline-r0/0/10', 0.742)]
+wrote /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/.replay/m1 /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/replay_manifest.json
+
+```
