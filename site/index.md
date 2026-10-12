@@ -26,6 +26,9 @@ summary: |
   (agent-managed blocks, Graphiti) to compare with mem0.
 ---
 
+Live progress from the autopilot (Bonsai doing the research, with a cloud model
+reviewing): [autopilot status]({{ '/autopilot.html' | relative_url }}).
+
 ## Why this exists
 
 Coding agents forget everything between sessions. Hosted memory products exist, but

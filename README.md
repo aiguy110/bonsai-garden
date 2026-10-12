@@ -23,6 +23,7 @@ the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`)
 | `serving/` | The applied llama-swap entry and the CPU embedder unit |
 | `agent/` | pi wiring: models.json entry and memory extension choice |
 | `evals/` | Benchmark harness: arms, tasks, runner, metering tap, results |
+| `autopilot/` | Unattended roadmap runner: Bonsai worker, cloud advisor, guarded live-config changes |
 | `site/` | Research site (GitHub Pages): project → series → experiment pages; see `site/AUTHORING.md` |
 
 ## Running a probe

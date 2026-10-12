@@ -17,17 +17,19 @@
   </nav>
 
   <header>
-    <p class="kind">{% if page.layer == "project" %}Project overview{% elsif page.layer == "series" %}Experiment series{% else %}Experiment{% endif %}</p>
+    <p class="kind">{% if page.layer == "project" %}Project overview{% elsif page.layer == "series" %}Experiment series{% elsif page.layer == "experiment" %}Experiment{% else %}{{ page.kind | default: "Page" }}{% endif %}</p>
     <h1>{{ page.title }}</h1>
     <p class="meta">
       {% if page.date %}Run {{ page.date | date: "%Y-%m-%d" }} · {% endif %}Updated {{ page.updated | date: "%Y-%m-%d" }}{% if page.status %} · <span class="status status-{{ page.status }}">{{ page.status }}</span>{% endif %}
     </p>
   </header>
 
+  {%- if page.summary %}
   <section class="summary">
     <h2>Summary <small>(under a minute)</small></h2>
     {{ page.summary | markdownify }}
   </section>
+  {%- endif %}
 
   {%- if page.layer == "project" -%}
     {%- assign kids = site.pages | where: "layer", "series" | sort: "order" -%}

@@ -21,3 +21,7 @@ memory and compaction variants. Start with `README.md` and `docs/engine-review.m
   llama-server port (8089), never the live llama-swap on :11435.
 - Turnstile evicts by model name; the agent and memory roles share one real model.
 - Raw benchmark results go in dated dirs under `bench/results/`.
+- The autopilot (`autopilot/`, service `bonsai-autopilot`) may change the live
+  `bonsai-2-27b` entry, but only through `autopilot/infra.py`, which handles lease,
+  health check, rollback and soak. Its work lives on `auto/<milestone>` branches.
+  Stop the service before changing the live stack by hand.

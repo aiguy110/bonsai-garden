@@ -65,48 +65,20 @@ either side of that design:
 
 ## Autonomous pursuit ("autopilot")
 
-Bonsai does the work. A larger model reviews at a few gates. Deterministic code
-runs the evals and enforces the rules.
+Implemented in [`autopilot/`](../autopilot/README.md). Bonsai does the work in a
+sandbox. A cloud advisor (`meridian/claude-opus-5-5` via pi, swappable) plans,
+reviews every request and fact-checks write-ups. Deterministic code runs the
+probes and evals, enforces protected paths, and publishes. Live-server changes go
+through `autopilot/infra.py`:
+- the change is applied under a GPU lease;
+- it is health-checked and speed-checked, and rolled back on failure;
+- it becomes known-good only after a soak period.
 
-```
-autopilot (Python, systemd user timer)
-  ├─ worker:  pi -p on bonsai-agent, in the eval Docker sandbox, on branch auto/<milestone>
-  │           drafts tasks, checkers, arms, analysis and site pages
-  ├─ runner:  evals/run.py + summarize.py + check_site.py, plus bench/ probes (no LLM)
-  └─ advisor: pi -p --model meridian/claude-opus-5-5, read-only tools, called at gates
-```
+If the local model goes down, a cloud fixer takes over. Progress is published to
+the site's autopilot status page.
 
-The advisor is a pi model string routed through
-[meridian](https://github.com/rynfar/meridian), a local proxy that serves Claude
-through the Claude Code SDK. Swapping the advisor means changing that string, e.g.
-to a hosted API model or a bigger local one. The orchestration doesn't change.
-
-### Loop per milestone
-
-1. **Plan.** The advisor turns the milestone row into a short work list (tasks to
-   write, arms to add, probes to run), committed to `autopilot/state/`.
-2. **Build.** The worker produces one item at a time, e.g. a task, an arm or
-   extension, or a probe script. Tasks must pass the sanity gate.
-3. **Review gate.** The advisor reads the diff. It looks for answer leakage,
-   checkers that test the wrong thing, and tasks that need no memory. It returns
-   approve, or revise with notes. After 3 rounds the item is dropped and logged.
-4. **Run.** The runner executes the work. Runs resume after interruption, use
-   priority 20 and yield to interactive use.
-5. **Analyze.** The worker drafts the experiment page from the raw results. The
-   advisor checks every claim against the numbers.
-6. **Publish.** `check_site.py` passes, then merge to `main` and push (this updates
-   the site).
-
-### Guardrails
-
-- No live-stack changes (llama-swap, turnstile, pi's `models.json`). Those become a
-  proposal for the user. M1's deploy step is one.
-- The worker has no network except the tap. It writes only to its branch worktree.
-- Eval agents never see authoring material: known-good workspaces and advisor notes
-  stay outside the sandbox.
-- Advisor call budget: 25/day by default. Every verdict is logged, so the worker's
-  rejection rate becomes a result too.
-- A daily digest goes to the user. Kill switch: `systemctl --user stop bonsai-autopilot`.
+M1 (n-gram speculation) is the first milestone and the test case. Bonsai measures,
+then possibly changes, the server it runs on.
 
 ### Throughput estimate
 
