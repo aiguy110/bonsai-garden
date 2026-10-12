@@ -4,13 +4,13 @@ kind: Live status
 updated: 2026-10-12
 ---
 
-*Updated 2026-10-12T12:18:30-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
+*Updated 2026-10-12T12:48:22-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
 
-Cloud advisor calls left today: **29** of 50.
+Cloud advisor calls left today: **28** of 50.
 
 ## M1-ngram
 
-**Phase:** publish
+**Phase:** done
 
 - ⚠️ **Inventory spec flags, mmproj compatibility and the recorded traffic**
 - ✅ **Convert recordings into agent and mem0 replay requests, checked against tap prompt sizes**
@@ -20,7 +20,6 @@ Cloud advisor calls left today: **29** of 50.
 
 <details><summary>Recent journal entries</summary>
 
-- 2026-10-12T11:35:36-04:00 · advisor (finished item)
 - 2026-10-12T11:37:57-04:00 · worker (gpt-5.6-terra), round 3
 - 2026-10-12T11:39:30-04:00 · advisor (finished item)
 - 2026-10-12T11:42:08-04:00 · orchestrator
@@ -32,14 +31,27 @@ Cloud advisor calls left today: **29** of 50.
 - 2026-10-12T11:48:51-04:00 · advisor (write-up)
 - 2026-10-12T11:48:54-04:00 · orchestrator
 - 2026-10-12T12:18:28-04:00 · orchestrator
+- 2026-10-12T12:18:31-04:00 · orchestrator
 
 Full journal: [branch auto/M1-ngram](https://github.com/aiguy110/bonsai-garden/blob/auto/M1-ngram/autopilot/state/M1-ngram/journal.md)
 </details>
 
 ## W1-worker-eval
 
-**Phase:** plan
+**Phase:** work
 
+- ▶️ **Extract a provenance-checked cloud-worker case set** (round 0)
+- ⬜ **Define worker arms and implement the resumable replay harness**
+- ⬜ **Run Bonsai at N=2 and summarize deterministic outcomes**
+- ⬜ **Grade a deterministic sample of valid Bonsai requests**
+- ⬜ **Publish the W1 experiment and update parent summaries**
+
+<details><summary>Recent journal entries</summary>
+
+- 2026-10-12T12:48:21-04:00 · advisor (plan)
+
+Full journal: [branch auto/W1-worker-eval](https://github.com/aiguy110/bonsai-garden/blob/auto/W1-worker-eval/autopilot/state/W1-worker-eval/journal.md)
+</details>
 
 ## Live-stack changes
 
