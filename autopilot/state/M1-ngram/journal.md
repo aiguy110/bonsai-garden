@@ -1260,3 +1260,30 @@ Service is restored. The connection refusal coincided with a host reboot; enable
 ```json
 {"fixed":true,"diagnosis":"Host reboot caused a temporary connection-refused window before turnstile and llama-swap restarted automatically.","actions":["Confirmed turnstile, llama-swap, and embedder are active","Confirmed ports 8080, 11435, and 8095 are listening","Verified live llama-swap config matches known-good","Ran infra.py check twice; both returned {\"ok\": true}"]}
 ```
+
+### 2026-10-12T11:46:52-04:00 · worker (gpt-5.6-terra), round 2
+
+Renamed and expanded the M1 serving experiment page at `site/series/serving/ngram-speculation.md`; it now includes traceable replay tables, identity/control, reconstruction/cap caveats, mmproj limitation, and no-deploy decision. Updated serving/project summaries, roadmap, and README; engine review already contained the required result. The sandbox checker is blocked by missing PyYAML, so added the minimal `bench/check_site.py` wrapper to run the protected checker under the permitted host-run policy.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/check_site.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Validate required site front matter, summary word limits, and parent updated dates in the host environment, where PyYAML is available."
+}
+```
+
+### 2026-10-12T11:47:08-04:00 · advisor (run request)
+
+**approve**: Safe to run. `bench/check_site.py` delegates directly to `tools/check_site.py`, which only reads site Markdown/YAML, reports validation errors, and exits accordingly. It does not touch live services, ports, configuration, or files outside the repository.
+
+### 2026-10-12T11:47:08-04:00 · orchestrator
+
+Ran `python3 bench/check_site.py` (gpu=False) in 0s, exit 0. Full output: `bench/results/2026-10-12/autopilot/write-up-r2.log`. Last lines:
+
+```
+10 pages checked, 0 errors
+
+```

@@ -8,6 +8,8 @@ later to try memory and compaction variants.
 
 Status: **Phases A and B deployed** (2-slot `bonsai-2-27b`; turnstile co-admission and
 the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`).
+M1 n-gram self-speculation replay is complete: it slowed busy two-slot traffic
+and was not deployed.
 
 ## Layout
 
@@ -42,3 +44,8 @@ never touch the live llama-swap service.
 2. ~~Memory stack and first baseline vs mem0 eval~~ done 2026-10-11 (site: memory-evals).
 3. Keep `site/` current: every new result updates its experiment, series and project pages.
 4. ~~Phase B~~ done 2026-10-11 (results in `docs/engine-review.md` §5).
+5. ~~M1 n-gram self-speculation~~ done 2026-10-12: default `ngram-mod` was
+   slower with both slots busy (agent 26.7 vs 31.3 tok/s; mem0 23.4 vs 25.4),
+   changed outputs, and was not deployed.
+6. Next: expand the continuity suite to more tasks and repeats, then add the
+   unrelated-task regression guard.

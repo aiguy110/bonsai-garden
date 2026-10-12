@@ -19,8 +19,9 @@ summary: |
   - First memory benchmark (1 task, 3 repeats): **mem0 finished the full 3-session
     sequence 2/3 times; no-memory baseline 0/3.** Memory carried facts and rules that
     were only ever *said*, never written into the repo.
-  - N-gram self-speculation did **not** speed recorded agent or mem0 traffic with
-    both slots busy, and changed outputs. It was not deployed.
+  - N-gram self-speculation did **not** speed recorded agent or mem0 traffic
+    with both slots busy (26.7 vs 31.3 tok/s for agent; 23.4 vs 25.4 for mem0),
+    and changed outputs. It was not deployed.
 
   **Next ([roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md)):**
   more tasks and repeats, a guard that memory doesn't hurt unrelated tasks, and
@@ -67,9 +68,10 @@ mem0 ──────► CPU embedder (Qwen3-Embedding-0.6B)
 4. **First memory benchmark (2026-10-11).** Baseline vs mem0 on a 3-session task.
    The first attempt was thrown out: without a sandbox, the agent searched the disk
    and found another run's answer. Re-run inside Docker with no network.
-5. **N-gram replay (2026-10-12).** Default and shorter-draft n-gram speculation
-   did not improve real two-slot agent/memory traffic; the live server stays
-   non-speculative.
+5. **N-gram replay (2026-10-12).** Default `ngram-mod` was slower on real
+   two-slot production traffic (agent 26.7 vs 31.3 tok/s; mem0 23.4 vs 25.4),
+   and a shorter-draft variant also lost under greedy sampling. The live server
+   stays non-speculative.
 
 ## Open questions
 
