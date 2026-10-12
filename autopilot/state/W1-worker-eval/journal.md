@@ -50,3 +50,28 @@ The worker's subscription hit its rate limit; pausing 30 min. This session doesn
 ### 2026-10-12T13:41:33-04:00 · orchestrator
 
 The worker's subscription hit its rate limit; pausing 96 min. This session doesn't count as a round.
+
+### 2026-10-12T13:46:58-04:00 · worker (gpt-5.6-terra), round 3
+
+The round 2 corrections are in place. The script compiles and `--help` works. The earlier run request never executed because of the rate-limit pauses, so this resubmits it. I have not run the builder against the host archive, so I don't know yet whether the validation passes. Next round I'll read the output and fix any parsing problems.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/build_cases.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Run the corrected corpus builder on the host against the call archive, the M1 journal and git history. It needs no GPU. The output will show whether the validation passes and how the cases and inventory look."
+}
+```
+
+### 2026-10-12T13:49:31-04:00 · advisor (run request)
+
+**revise**: Safe to run, but three bugs would discard almost every round, so it would only waste a round. Fix them first. (1) associated_advisor() expects `advisor (done request)`, but the orchestrator writes `advisor (finished item)` or `advisor (write-up)` for done requests (autopilot.py:852); only run/infra become `advisor (<kind> request)` (lines 833, 837). Map kinds to those labels in build() and validate(), or roughly 8 done rounds are lost, including the revise verdicts at 11:24, 11:32 and 11:35. Because eligible_revise is only counted after an advisor match, the revise-retention check would also pass vacuously. (2) The journal JSON omits `report` (worker_entry, autopilot.py:783), while submit_request.ts:106 requires it, so same_json() fails for every tool request. Drop `report` from the recovered request before the cross-check, but keep the full request in the row. (3) RATE_LIMIT.search(raw) scans the whole event log, including the prompt's 15,000-char journal tail (which contains the 09:55 rate_limit_error entries and the 10:23 note) and all tool output, and `\b429\b` matches stray numbers. That wrongly drops the Terra rounds at 10:30, 10:33, 10:35 and likely 10:52. Apply the regex only to evals/run.py parse_events(path)['errors'] (as check_rate_limit does) and to the worker's journal entry. (4) Decide the 08:33 cutoff by the matched journal entry (time >= 08:33 and model != Bonsai), not the call-log start time; Sonnet round 6's session probably started before 08:33:00 although its entry is at 08:33:38. (5) Give `continue` requests (rounds 8 and 9 at 11:16/11:19) and `stuck` requests their own skip reason, not no_matching_advisor_verdict. By the journal, about 22 rounds should qualify; if a correct build finds fewer than 20, report it rather than loosening the rules. Then resubmit this run request.
+
+### 2026-10-12T13:49:31-04:00 · orchestrator
+
+Added to the standing facts:
+
+- The journal labels advisor verdicts by review type, not request kind: `advisor (run request)` and `advisor (infra request)`, but `advisor (finished item)` or `advisor (write-up)` for done requests, and `continue` requests get no review (autopilot/autopilot.py:831-855).
+- The worker's journal entry stores its request JSON with `report` removed (autopilot/autopilot.py:781-784), so a journal request is not byte-equal to the submit_request arguments.

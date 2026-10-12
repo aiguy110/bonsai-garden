@@ -1,0 +1,2 @@
+- The journal labels advisor verdicts by review type, not request kind: `advisor (run request)` and `advisor (infra request)`, but `advisor (finished item)` or `advisor (write-up)` for done requests, and `continue` requests get no review (autopilot/autopilot.py:831-855). (advisor, case-corpus, 2026-10-12)
+- The worker's journal entry stores its request JSON with `report` removed (autopilot/autopilot.py:781-784), so a journal request is not byte-equal to the submit_request arguments. (advisor, case-corpus, 2026-10-12)
