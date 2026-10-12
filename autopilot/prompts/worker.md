@@ -40,6 +40,11 @@ time, over several fresh sessions. The journal below is your memory between them
 
 ## How to end your turn
 
+**Budget:** each session is killed after {timeout_min} minutes, and a killed session
+sends no request, so nothing runs. Aim to finish in about 15 tool calls. A script
+you can't test here is ready once it looks right; request a `run` and read the
+output next round instead of re-checking it by hand.
+
 Do a meaningful chunk of work, then make your **final message** a short report
 (what you did, what you found, what's next). End it with exactly one fenced `json`
 block, which must be one of:

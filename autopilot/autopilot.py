@@ -557,6 +557,7 @@ def do_work(m, st):
                   plan="\n".join(f"{i + 1}. {it['title']}" + (" ← current" if i == st["item"] else "")
                                  for i, it in enumerate(plan)),
                   item_id=item["id"], round=st["round"], max_rounds=CFG["worker_rounds_per_item"],
+                  timeout_min=CFG["worker_timeout_min"],
                   item=f"**{item['title']}**\n\n{item['instructions']}\n\n**Acceptance:** {item['acceptance']}",
                   journal=m.journal_tail())
     commit(f"autopilot({m.name}): before {item['id']} round {st['round']}")
@@ -565,6 +566,12 @@ def do_work(m, st):
     enforce_protected(m, pre)
     req = last_json(final) or {"request": "continue", "note": "(no request JSON)"}
     m.journal(f"worker (Bonsai), round {st['round']}", final or f"(no final message; errors: {e['errors'][:3]})")
+    if not last_json(final):
+        stat = git("diff", "--stat", pre) or "(no file changes)"
+        m.journal("orchestrator", "The session ended without a request (cut off by the time limit or an "
+                  f"error), so nothing ran. Files changed in it:\n\n```\n{stat}\n```\n\nNext session: don't "
+                  "polish further. Check those files briefly, then end early with a `run` request. Running "
+                  "the script is how you test it.")
     kind = req.get("request")
     if kind == "run":
         v = review(m, item, "run request", f"```json\n{json.dumps(req, indent=2)}\n```", REVIEW_RUN, st)
