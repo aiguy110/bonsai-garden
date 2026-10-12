@@ -218,3 +218,39 @@ autopilot/state/M1-ngram/journal.md | 4 ++++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
+
+### 2026-10-12T04:09:11-04:00 · worker (Bonsai), round 8
+
+Everything is in order. The advisor's 03:25 review is fully addressed:
+
+**`bench/m1-notes.md` (all 7 points):**
+- §1: `ngram-mod` no longer claimed as live; live entry (`serving/llama-swap.bonsai-2-27b.yaml`) has **no** `--spec-*` flag → runs `--spec-type none` default.
+- §2: 48/64/24 reframed as documented defaults only (probe will use them on :8089); `--draft*` flags stated as removed aliases of `--spec-draft-*`.
+- §3: verdict → **likely yes (not refused/disabled by mmproj)**, quoting the five `server-context.cpp` anchors (424-426 `can_speculate()` = `!!spec`; 1121-1129 mmproj disables only `ctx_shift`/`cache_reuse`; ~1168 checkpoint-mode "speculative decoding not supported by this context"; 1182-1188 spec init gated only by `ctx_tgt_seq_rm_type != NO`; 1212 `slot.spec = spec.get()` unconditionally); empirical confirm = `draft_n > 0` / `draft_n_accepted > 0` on :8089.
+- §5: "Gap" → pending re-run; `mem0_extract_src.txt` from round 7/12 is authoritative for the template.
+- §7: `predicted_n` = generated-token count (not draft count); `draft_n`/`draft_n_accepted` are the draft stats, absent from current recordings.
+- Header: "Round 12/12" removed, `spec_mmproj_grep.txt` = 2.9 KB.
+- §4 (non-blocking): notes point to `pi_prompt_src.txt` `message_start.message.toolsAdded` dump.
+
+**`bench/m1_recon.py`:** `extract_named_function_anywhere()` (name lookup + `dist/` fallback) for `generateAdditiveExtractionPrompt`; full `tools/server/server-context.cpp` + `server-common.h` grep → `spec_lines_full.txt` (no proximity requirement); `message_start.message.toolsAdded` dumped into `pi_prompt_src.txt`. Compiles clean; the 8 prior recon outputs are in place and will be regenerated.
+
+Per SOP, no commit (orchestrator commits after this session). Sending the single run request:
+
+**RUN REQUEST (one this round)**
+- command: `python3 bench/m1_recon.py`
+- gpu: false
+
+Next round: read regenerated outputs under `bench/results/2026-10-12/m1-ngram/recon/` — verify `spec_lines_full.txt` matches the §3 quoted lines (424-426, 1121-1129, ~1168, 1182-1188, 1212), `generateAdditiveExtractionPrompt` body present in `mem0_extract_src.txt` (and `sources.txt` records its location), `toolsAdded` in `pi_prompt_src.txt`, `inventory.json` covers every `step*.events.jsonl` with per-request `prompt_n`/`cache_n`. If acceptance holds → `done`.
+
+### 2026-10-12T04:09:11-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md |  23 +++++++
+ bench/m1-notes.md                   | 116 ++++++++++++++++++++----------------
+ bench/m1_recon.py                   |  87 +++++++++++++++++++++++++++
+ 3 files changed, 173 insertions(+), 53 deletions(-)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.

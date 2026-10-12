@@ -638,6 +638,39 @@ def extract_extraction_user_prompt(m0dir: Optional[pathlib.Path]) -> Optional[st
     return "\n\n".join(blocks)
 
 
+def extract_named_function_anywhere(m0dir: Optional[pathlib.Path],
+                                    func_name: str) -> Optional[Dict[str, Any]]:
+    """Search every JS/TS file under m0dir/dist/ for a function definition
+    named func_name (classic declaration or const/let/var arrow). Returns
+    {"path": str, "src": str} or None. Used for generateAdditiveExtractionPrompt
+    (the extraction user-prompt builder), which may live in a dist file other
+    than dist/oss/index.mjs."""
+    if not m0dir or not (m0dir / "dist").exists():
+        return None
+    patterns = ("*.js", "*.mjs", "*.ts", "*.tsx")
+    files: List[pathlib.Path] = []
+    for pat in patterns:
+        try:
+            files.extend((m0dir / "dist").rglob(pat))
+        except Exception:
+            continue
+    for f in sorted(set(files), key=lambda p: str(p)):
+        if not f.is_file():
+            continue
+        try:
+            txt = f.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        fn = extract_function(txt, func_name)
+        if fn:
+            return {"path": str(f), "src": fn}
+        for start, end, name in (list(_named_function_defs(txt))
+                                  + list(_arrow_function_defs(txt))):
+            if name == func_name:
+                return {"path": str(f), "src": txt[start:end + 1]}
+    return None
+
+
 def extract_pi_src() -> Dict[str, Any]:
     """Extract the pi system-prompt builder and built-in tool schemas."""
     pi = find_pi()
@@ -758,6 +791,26 @@ def main() -> None:
                    "NOTE: no spec/speculative lines within 5 lines of "
                    "mtmd/multimodal/mctx found under tools/server/\n")
 
+    # ---- auxiliary: full listing of spec/mmproj-related lines in the server
+    # context files (no mmproj-proximity requirement) — used to cross-check the
+    # spec+mmproj gating lines quoted in bench/m1-notes.md §3.
+    full_lines: List[str] = []
+    if LLAMA_SERVER_SRC.exists():
+        for name in ("server-context.cpp", "server-common.h"):
+            p = LLAMA_SERVER_SRC / name
+            if not p.exists():
+                continue
+            try:
+                lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+            except Exception:
+                continue
+            for i, ln in enumerate(lines, 1):
+                if re.search(r"(?i)spec|speculative|mctx|multimodal|mmproj", ln):
+                    full_lines.append(f"{name}:{i}: {ln.strip()}")
+    if full_lines:
+        write_text(OUT_DIR / "spec_lines_full.txt",
+                   "\n".join(full_lines) + "\n")
+
     # ---- inventory + event samples ----
     inv = build_inventory(src)
     (OUT_DIR / "inventory.json").write_text(
@@ -772,6 +825,17 @@ def main() -> None:
     add = extract_additive_extraction_prompt(m0dir)
     user = extract_extraction_user_prompt(m0dir)
     index = (m0dir / "dist" / "oss" / "index.mjs") if m0dir else None
+    # Full body of the extraction user-prompt builder (may live in a dist file
+    # other than dist/oss/index.mjs).
+    upb = extract_named_function_anywhere(
+        m0dir, "generateAdditiveExtractionPrompt")
+    # Built-in tool schemas as seen on the wire (message_start.message.toolsAdded).
+    tools_added = None
+    if isinstance(es, dict):
+        ms = (es.get("samples") or {}).get("message_start")
+        if isinstance(ms, dict):
+            e = ms.get("event") or {}
+            tools_added = (e.get("message") or {}).get("toolsAdded")
 
     sources_lines = [
         f"pi_package_dir: {pi_src['pi_package'] or 'NOT FOUND'}",
@@ -785,6 +849,8 @@ def main() -> None:
             f"{'found' if add else 'NOT FOUND / empty'}",
         f"mem0_extraction_user_prompt_windows: "
             f"{'found' if user else 'NOT FOUND / empty'}",
+        (f"mem0_generateAdditiveExtractionPrompt: found @ {upb['path']}"
+         if upb else "mem0_generateAdditiveExtractionPrompt: NOT FOUND (searched dist/)"),
         f"built_in_tool_schemas_extracted: {len(pi_src.get('tool_schemas', []))}",
     ]
     for rec in pi_src.get("tool_schemas", []):
@@ -805,6 +871,18 @@ def main() -> None:
         "# (definition + the functions building the extraction user prompt)",
         user or "(not found)",
     ]
+    if upb:
+        mem0_src += [
+            "",
+            "# generateAdditiveExtractionPrompt (full body — extraction user prompt template)",
+            f"# source: {upb['path']}",
+            upb["src"],
+        ]
+    else:
+        mem0_src += [
+            "",
+            "# generateAdditiveExtractionPrompt: NOT FOUND under dist/ (searched all JS/TS files)",
+        ]
     write_text(OUT_DIR / "mem0_extract_src.txt", "\n\n".join(mem0_src) + "\n")
 
     # pi_prompt_src.txt
@@ -824,6 +902,15 @@ def main() -> None:
             ps.append(rec["schema_src"])
         if rec.get("function_src"):
             ps.append(rec["function_src"])
+    # Built-in tool schemas as seen on the wire, from the chosen step's
+    # message_start event (event_samples.json).
+    if tools_added is not None:
+        ps.append("")
+        ps.append("# --- message_start.message.toolsAdded (full built-in tool schemas, from event_samples) ---")
+        ps.append(json.dumps(tools_added, indent=2, ensure_ascii=False))
+    elif isinstance(es, dict) and es.get("n_distinct_types", 0) > 0:
+        ps.append("")
+        ps.append("# --- message_start.message.toolsAdded: not present in the chosen step's sample ---")
     write_text(OUT_DIR / "pi_prompt_src.txt", "\n".join(ps) + "\n")
 
     written: Dict[str, Any] = {}
