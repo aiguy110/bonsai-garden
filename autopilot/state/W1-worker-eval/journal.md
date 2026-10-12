@@ -46,3 +46,7 @@ The advisor's subscription hit its rate limit; pausing 30 min. This session does
 ### 2026-10-12T13:25:17-04:00 · orchestrator
 
 The worker's subscription hit its rate limit; pausing 30 min. This session doesn't count as a round.
+
+### 2026-10-12T13:41:33-04:00 · orchestrator
+
+The worker's subscription hit its rate limit; pausing 96 min. This session doesn't count as a round.
