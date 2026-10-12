@@ -315,3 +315,49 @@ autopilot/state/M1-ngram/journal.md |   4 +
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
+
+### 2026-10-12T05:09:29-04:00 · worker (Bonsai), round 11
+
+**Final report — recon (item 1/12), round 11.**
+
+I am ending this turn by submitting a run request (not by calling `bash`, which runs in the sandbox and can't see the host's recorded-traffic dir). Work completed and verified:
+- **§3 line numbers** checked against `spec_lines_full.txt`: `can_speculate()`=424, mmproj disables only `ctx_shift`(1123)/`cache_reuse`(1128), checkpoint-mode notice 1168, `slot.spec=spec.get()`=1212.
+- **The honest gap:** the spec-init gating `if` (1182-1183, `ctx_tgt_seq_rm_type`) is absent from the keyword grep (no `spec` keyword), so the notes' "unverified" flag was right — but they referenced a non-existent `spec_ctx.txt`.
+- **§5/§4 confirmed:** `generateAdditiveExtractionPrompt` found in `dist/oss/index.js` (full template in `mem0_extract_src.txt`); `role=="system"` `sections` + `toolsAdded` present in `event_samples.json`/`pi_prompt_src.txt`. No "round 7/12" residue.
+- **Gap fixed:** added `spec_ctx.txt` generation to `m1_recon.py` (~line 818) — a ±30-line window around `common_speculative_init` — so the exact gating `if` can be quoted and the §3 verdict settled. Script syntax-clean. Removed a stray `.run_queue.txt`.
+
+The run request below regenerates all recon outputs on the host (now including `spec_ctx.txt`). Next round: read it, quote the actual gating line, finalize the §3 verdict, then send `done`.
+
+```json
+{"request": "run", "command": "python3 bench/m1_recon.py", "gpu": false, "timeout_min": 15, "why": "Re-run M1 recon on the HOST after adding spec_ctx.txt generation (±30-line window around the common_speculative_init call in server-context.cpp). This is the missing output needed to honestly verify the §3 spec-init gating `if` (ctx_tgt_seq_rm_type) and settle the spec+mmproj verdict. Pure host file reads + llama-server --help; no GPU, no network, no ports. Regenerates all recon files under bench/results/<date>/m1-ngram/recon/."}
+```
+
+### 2026-10-12T05:09:54-04:00 · advisor (run request)
+
+**approve**: Safe: the only process started is `llama-server --help` (60 s timeout), SQLite is read-only, all writes go under bench/results/<today>/m1-ngram/recon/, nothing is deleted, no network/ports/GPU. The new spec_ctx.txt block (m1_recon.py:814-834) is the right fix: ±30 lines around common_speculative_init (~1187) covers the gating if at 1182-1183, 1168 and 1212. Next round, before `done`: (1) HONESTY: m1-notes.md already lists spec_ctx.txt in the header's file list and says the unreachable lines are 'cross-checked against the host window spec_ctx.txt'. That file doesn't exist yet. Open the new spec_ctx.txt and quote the actual gating if(...) line with its number. If it has no mctx/mmproj term, change the §3 verdict to 'yes (static), confirm with draft_n>0 on :8089'; otherwise rewrite §3 to match the source. Remove the 'unverified/pending/to be confirmed' wording and the '(see §3)' self-reference inside §3, and give spec_ctx.txt's real size in the file list. If spec_ctx.txt isn't produced, say so plainly and use spec.reset from spec_lines_full.txt instead. (2) Delete bench/m1_ctx.py: it duplicates the new block and is buggy (OUT.mkdir on the file path creates a directory named spec_ctx.txt). (3) Then send `done`; no other polishing.
+
+### 2026-10-12T05:09:56-04:00 · orchestrator
+
+Ran `python3 bench/m1_recon.py` (gpu=False) in 2s, exit 0. Full output: `bench/results/2026-10-12/autopilot/recon-r11.log`. Last lines:
+
+```
+[recon] out dir: /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon
+[recon] src dir: /home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0
+[recon] done -> /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon
+{
+  "out_dir": "/home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon",
+  "files": {
+    "event_samples.json": 124668,
+    "help.txt": 57121,
+    "inventory.json": 99448,
+    "mem0_extract_src.txt": 62229,
+    "pi_prompt_src.txt": 64537,
+    "sources.txt": 3308,
+    "spec_ctx.txt": 10860,
+    "spec_flags.txt": 8810,
+    "spec_lines_full.txt": 17368,
+    "spec_mmproj_grep.txt": 2952
+  }
+}
+
+```

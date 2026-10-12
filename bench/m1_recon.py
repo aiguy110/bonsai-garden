@@ -811,6 +811,28 @@ def main() -> None:
         write_text(OUT_DIR / "spec_lines_full.txt",
                    "\n".join(full_lines) + "\n")
 
+    # ---- auxiliary: window around the spec-init call so the exact gating `if`
+    # (e.g. the ctx_tgt_seq_rm_type condition) can be quoted in m1-notes.md §3.
+    # spec_lines_full.txt misses the gating line because it carries no
+    # spec/speculative/mctx keyword.
+    spec_ctx_lines: List[str] = []
+    if LLAMA_SERVER_SRC.exists():
+        p = LLAMA_SERVER_SRC / "server-context.cpp"
+        if p.exists():
+            try:
+                lines = p.read_text(encoding="utf-8", errors="replace").splitlines()
+            except Exception:
+                lines = []
+            for i, ln in enumerate(lines, 1):
+                if "common_speculative_init" in ln:
+                    lo, hi = max(1, i - 30), min(len(lines), i + 30)
+                    for j in range(lo, hi + 1):
+                        spec_ctx_lines.append(f"{p.name}:{j}: {lines[j - 1].rstrip()}")
+                    spec_ctx_lines.append("")
+    if spec_ctx_lines:
+        write_text(OUT_DIR / "spec_ctx.txt",
+                   "# window(s) around 'common_speculative_init' in server-context.cpp, +/-30 lines\n" + "\n".join(spec_ctx_lines) + "\n")
+
     # ---- inventory + event samples ----
     inv = build_inventory(src)
     (OUT_DIR / "inventory.json").write_text(

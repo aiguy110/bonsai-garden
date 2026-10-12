@@ -7,10 +7,12 @@
     "event_samples.json": 124668,
     "help.txt": 57121,
     "inventory.json": 99448,
-    "mem0_extract_src.txt": 61001,
-    "pi_prompt_src.txt": 59207,
-    "sources.txt": 3115,
+    "mem0_extract_src.txt": 62229,
+    "pi_prompt_src.txt": 64537,
+    "sources.txt": 3308,
+    "spec_ctx.txt": 10860,
     "spec_flags.txt": 8810,
+    "spec_lines_full.txt": 17368,
     "spec_mmproj_grep.txt": 2952
   }
 }
