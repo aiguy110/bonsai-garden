@@ -100,3 +100,26 @@ autopilot/state/M1-ngram/journal.md | 20 ++++++++++++++++++++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
+
+### 2026-10-12T02:53:40-04:00 · worker (Bonsai), round 10
+
+## Recon round 10 (item 1/5 of M1) — report
+
+I validated `bench/m1_recon.py` and confirmed it is ready to run on the host:
+
+- **Script:** `bench/m1_recon.py` (837 lines, `py_compile` OK). Host-only — reads llama.cpp build (`--help`, `tools/server/` grep), the recorded traffic under `evals/results/2026-10-11-baseline-mem0/`, and the installed pi/mem0ai packages. No GPU, no network.
+- **All 6 advisor fixes confirmed in place:** (1) `PRIMARY_SRC = MAIN_REPO / "evals" / "results" / "2026-10-11-baseline-mem0"` (line 39); (2) `spec_flags.txt` filter (flag lines kept iff `--(spec|draft)`, non-flag lines are continuations, line 710); (3) `match_tap_records` uses `str(s) != target` (line 281); (4) mmproj grep paths `relative_to(LLAMA_SERVER_SRC)` (line 753); (5) `mem0_dbs` keyed by path rel to run dir (line 367); (6) user-prompt builder captured via windows + `extract_functions_referencing`.
+- **Output location:** `bench/results/<today>/m1-ngram/recon/` — all 8 required files (help.txt, spec_flags.txt, spec_mmproj_grep.txt, inventory.json, event_samples.json, sources.txt, mem0_extract_src.txt, pi_prompt_src.txt).
+- **Caveat (honest):** the sandbox's git worktree pointer is broken (points to host-only path `/home/josiah/...` not present here), so I could **not** run a `git commit` locally in this session. I'll confirm the commit on the host side when I read the outputs next round.
+
+**Next round:** read the host-produced recon files, write `bench/m1-notes.md`, and commit on `auto/M1-ngram`.
+
+Submitting the `run` request:
+
+```json
+{"request": "run", "command": "python3 bench/m1_recon.py", "gpu": false, "timeout_min": 15, "why": "M1 recon (item 1/12), round 10: host-only, no-GPU, no-network script that populates bench/results/<date>/m1-ngram/recon/ with (a) help.txt + spec_flags.txt (llama-server --help plus --spec*/--draft* flag lines with continuations), (b) spec_mmproj_grep.txt (spec/speculative lines within 5 lines of mtmd/multimodal/mctx under tools/server/, paths relative to tools/server/), (c) inventory.json (every step*.events.jsonl: event types+counts, assistant msg count, tool calls by name, per-request tap prompt_n/cache_n/predicted_n plus per-role totals; mem0 *.db tables+row counts keyed by path rel to run dir), (d) event_samples.json (one full untruncated example per distinct event type from a mem0-arm step), (e) sources.txt + mem0_extract_src.txt (ADDITIVE_EXTRACTION_PROMPT constant plus extraction user-prompt builder) + pi_prompt_src.txt (pi system-prompt builder plus built-in tool JSON schemas). All 6 reviewer fixes verified in-place; script compiles. Stdout prints a per-file size summary."}
+```
+
+### 2026-10-12T02:54:32-04:00 · advisor (run request)
+
+**revise**: Safe to run (read-only, writes only under bench/results/<date>/m1-ngram/recon/), and all 6 earlier fixes are in place. One blocking bug: build_inventory (around line 365) uses run_dir.glob("*.db"), but mem0 keeps its databases in run_dir/memory/mem0-vectors.db and memory/mem0-history.db (evals/run.py:356, evals/arms/mem0.json). The search finds nothing, so inventory.json would wrongly show no mem0 databases. Fix: change it to sorted(run_dir.rglob("*.db")). The relative_to(run_dir) key will then read 'memory/mem0-vectors.db'. Change nothing else. Run python3 -m py_compile bench/m1_recon.py, then end the session right away by resubmitting the same run request. In the notes, list the mem0 databases and their row counts for each mem0 run.

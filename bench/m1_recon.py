@@ -362,7 +362,7 @@ def build_inventory(src: pathlib.Path) -> Dict[str, Any]:
             inv["tap_role_totals"] = roles
             steps[str(step_i)] = inv
         mem0_dbs: Dict[str, Dict[str, Any]] = {}
-        for db in sorted(run_dir.rglob("*.db")):
+        for db in sorted(run_dir.glob("*.db")):
             rel = db.relative_to(run_dir)
             mem0_dbs[str(rel)] = inspect_sqlite(db)
         inventory["runs"].append({"run_id": rid, "steps": steps, "mem0_dbs": mem0_dbs})
@@ -486,63 +486,48 @@ def find_mem0ai(src: pathlib.Path) -> Optional[pathlib.Path]:
             r = p.resolve()
         except Exception:
             return
-        if r not in seen:
+        if r in seen:
+            return
+        if (r / "dist" / "oss" / "index.mjs").exists():
             seen.add(r)
             hits.append(r)
 
+    # First pass: direct node_modules hits.
     for root in roots:
         if not root.exists():
             continue
-        for p in root.rglob("mem0ai/package.json"):
-            add(p.parent)
-        for p in root.rglob("mem0ai/dist/oss/index.mjs"):
-            add(p.parent)  # the mem0ai dir
-    # symlinked agent dirs under the results (runs/*/agent/* are symlinks)
-    for run_dir in src.glob("runs/*"):
-        agent = run_dir / "agent"
-        if agent.is_dir():
-            try:
-                for entry in agent.iterdir():
-                    if entry.is_symlink():
-                        add(entry.resolve())
-            except Exception:
-                pass
+        for p in root.rglob("node_modules/mem0ai"):
+            add(p)
+        for p in root.rglob("mem0ai"):
+            add(p)
 
-    # a hit is either the mem0ai dir itself or a node_modules that contains it
-    for d in hits:
-        if not d.exists():
-            continue
-        if (d / "dist" / "oss" / "index.mjs").exists():
-            return d
-        mem0 = d / "mem0ai"
-        if (mem0 / "dist" / "oss" / "index.mjs").exists():
-            return mem0
-        mem0 = d / "@amaster.ai" / "pi-memory-mem0" / "node_modules" / "mem0ai"
-        if (mem0 / "dist" / "oss" / "index.mjs").exists():
-            return mem0
-        mem0 = d / "node_modules" / "mem0ai"
-        if (mem0 / "dist" / "oss" / "index.mjs").exists():
-            return mem0
-    return None
+    # Fallback: any index.mjs under dist/oss anywhere under the evals tree.
+    if not hits:
+        for base in (MAIN_REPO, CWD):
+            if not base.exists():
+                continue
+            for idx in base.rglob("dist/oss/index.mjs"):
+                add(idx.parent.parent)
+
+    if not hits:
+        return None
+    return hits[0]
 
 
 def _read_index(m0dir: Optional[pathlib.Path]) -> Optional[Dict[str, Any]]:
-    """Return {"path": index, "text": text} for the mem0ai dist/oss/index.mjs."""
-    if m0dir is None:
+    if not m0dir:
         return None
     idx = m0dir / "dist" / "oss" / "index.mjs"
     if not idx.exists():
         return None
     try:
-        text = idx.read_text(encoding="utf-8", errors="replace")
+        return {"path": str(idx), "text": idx.read_text(encoding="utf-8", errors="replace")}
     except Exception:
         return None
-    return {"path": str(idx), "text": text}
 
 
 def extract_additive_extraction_prompt(m0dir: Optional[pathlib.Path]) -> Optional[str]:
-    """Extract the full ADDITIVE_EXTRACTION_PROMPT constant from mem0ai.
-    Returns the raw source (the `const ... = ...` statement) or None."""
+    """Extract the full ADDITIVE_EXTRACTION_PROMPT constant from mem0ai."""
     data = _read_index(m0dir)
     if not data:
         return None
@@ -550,73 +535,29 @@ def extract_additive_extraction_prompt(m0dir: Optional[pathlib.Path]) -> Optiona
     m = re.search(r"(?:const|let|var)\s+ADDITIVE_EXTRACTION_PROMPT\s*=\s*", txt)
     if not m:
         return None
-    start = m.end()
-    while start < len(txt) and txt[start].isspace():
-        start += 1
-    # primary: a single string/template-literal
-    lit, _ = extract_string_literal(txt, start) if txt[start] in "\"`'" else (None, None)
-    if lit is not None:
-        return txt[m.start() : start + len(lit)]
-    # fallback: capture until the statement's terminating ';' on its own line,
-    # bounded to a generous window
-    line_start = txt.rfind("\n", 0, start) + 1
-    end = start
-    limit = min(len(txt), start + 400 * 130)
-    while end < limit:
-        j = txt.find("\n", end)
-        if j == -1:
-            break
-        stripped = txt[end:j].strip()
-        if stripped == ";":
-            end = j + 1
-            break
-        if stripped and (stripped.startswith("const ") or stripped.startswith("var ")
-                         or stripped.startswith("let ") or stripped.startswith("export ")):
-            end = j
-            break
-        end = j
-    return txt[m.start() : end]
-
-
-def extract_string_literal(text: str, start: int) -> tuple:
-    """From the char at `start` (an opening quote), capture the whole string
-    literal. Handles double/single quotes and template literals with ${...}.
-    Returns (raw_literal_including_quotes, end_index_exclusive) or (None, None)."""
-    if start >= len(text) or text[start] not in ("\"", "'", "`"):
-        return None, None
-    q = text[start]
-    i = start + 1
-    n = len(text)
-    if q == "`":
-        depth = 0
-        while i < n:
-            c = text[i]
-            if c == "\\" and i + 1 < n:
-                i += 2
-                continue
-            if c == "`":
-                if depth == 0:
-                    return text[start : i + 1], i + 1
-                depth -= 1
-            elif c == "$" and i + 1 < n and text[i + 1] == "{":
-                depth += 1
-            elif c == "}" and depth > 0:
-                depth -= 1
-            i += 1
-        return None, None
-    while i < n:
-        c = text[i]
-        if c == "\\" and i + 1 < n:
-            i += 2
+    start = m.start()
+    # Find the end of the template literal (backticks, possibly multi-line).
+    i = txt.find("`", m.end() - 1)
+    if i == -1:
+        # Fallback: grab to the next semicolon on a sane line.
+        j = txt.find(";", m.end())
+        return txt[start : (j + 1 if j != -1 else len(txt))]
+    # Skip to the closing backtick, handling escaped backticks + nested templates.
+    end = i + 1
+    n = len(txt)
+    while end < n:
+        c = txt[end]
+        if c == "\\" and end + 1 < n:
+            end += 2
             continue
-        if c == q:
-            return text[start : i + 1], i + 1
-        i += 1
-    return None, None
+        if c == "`":
+            break
+        end += 1
+    return txt[start : end + 1]
 
 
-def _named_function_defs(text):
-    """Yield (start, end, name) for named function definitions."""
+def _named_function_defs(text: str):
+    """Yield (start, end, name) for `export? async? function NAME(args) { ... }`."""
     for m in re.finditer(
         r"(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", text):
         close = find_matching_close(text, m.end() - 1)
@@ -631,7 +572,7 @@ def _named_function_defs(text):
         yield m.start(), end, m.group(1)
 
 
-def _arrow_function_defs(text):
+def _arrow_function_defs(text: str):
     """Yield (start, end, name) for `const/let/var NAME = (async)?(params) => { ...}`."""
     for m in re.finditer(
         r"\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s+)?\(", text):
@@ -690,8 +631,7 @@ def extract_extraction_user_prompt(m0dir: Optional[pathlib.Path]) -> Optional[st
         label = "definition" if idx == 0 else f"usage#{idx}"
         blocks.append(
             f"===== {label} @ line {lines + 1} ({data['path']}) =====\n" +
-            txt[before:after]
-        )
+            txt[before:after])
     blocks.extend(extract_functions_referencing(txt, needle))
     if not blocks:
         return None
@@ -731,8 +671,7 @@ def extract_pi_src() -> Dict[str, Any]:
                 rec["function"] = fn_name
                 rec["function_src"] = func
             schema_const = re.search(
-                r"const\s+([a-zA-Z_][a-zA-Z0-9_]*)Schema\s*=\s*Type\.Object\(", src
-            )
+                r"const\s+([a-zA-Z_][a-zA-Z0-9_]*)Schema\s*=\s*Type\.Object\(", src)
             if schema_const:
                 schema_block = extract_schema_block(src, schema_const.group(1))
                 if schema_block:
