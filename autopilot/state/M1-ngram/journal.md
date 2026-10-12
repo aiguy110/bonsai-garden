@@ -1067,3 +1067,21 @@ Added to the standing facts:
 ### 2026-10-12T10:33:16-04:00 · orchestrator
 
 The approved off/prod run was stopped 2 minutes in for a config restart (the fixer moves to GPT-5.6 Sol). Its partial output was discarded and the earlier off-prod results restored. Round 5 doesn't count: resubmit the same run request.
+
+### 2026-10-12T10:33:40-04:00 · worker (gpt-5.6-terra), round 5
+
+Rechecked the amended replay and analyzer scripts; both compile. The probe records t_end plus dual-phase window boundaries, so this rerun replaces the earlier off/prod baseline whose measurements cannot produce conservative completed-output two-slot throughput.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Repeat off/prod on the corrected probe. It starts only the private production-equivalent server on :8089 and captures all four fresh-server phases with timestamps/window lines needed for valid conservative two-slot throughput."
+}
+```
+
+### 2026-10-12T10:35:02-04:00 · advisor (run request)
+
+**revise**: In bench/spec_replay.py phase(), record t0 before starting the background thread: set t0 = time.time(), then call th.start(), then run foreground requests. Currently th.start() precedes t0, so the first background row counted by spec_analyze.py may include output produced before the window. After this one-line ordering fix and a compile check, resubmit the same off/prod command. The host operation is otherwise safe and production-equivalent on private port 8089.
