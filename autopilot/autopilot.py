@@ -187,7 +187,10 @@ def worker_agent_dir():
         agent.mkdir(parents=True, exist_ok=True)
         r = CFG["roles"]["worker"]
         (agent / "settings.json").write_text(json.dumps(
-            {"defaultProvider": "garden", "defaultModel": r["model"], "defaultThinkingLevel": r["thinking"]}))
+            {"defaultProvider": "garden", "defaultModel": r["model"], "defaultThinkingLevel": r["thinking"],
+             # pi's default 16k reserve let a turn reach 66.5k (turnstile's estimate) + 16k
+             # max_tokens > the 80k window; compact at ~52k instead.
+             "compaction": {"reserveTokens": 28672}}))
         entry = json.loads((ROOT / "agent/models.bonsai-agent.json").read_text())
         entry["id"] = r["model"]
         (agent / "models.json").write_text(json.dumps({"providers": {"garden": {
