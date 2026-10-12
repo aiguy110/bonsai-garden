@@ -40,7 +40,7 @@ Each milestone is `milestones/<name>.md` and runs on branch `auto/<name>` in
    - `continue` or `stuck`: just another round.
 
    Edits to protected paths (`config.json`) are reverted after every session. An
-   item is dropped after 8 rounds or 3 failed reviews.
+   item is dropped after 12 rounds or 3 failed reviews.
 3. **publish:** the last item is the write-up. It needs `check_site.py` to pass and
    the advisor's fact-check. Then the branch is merged into `main` from a separate
    publisher worktree and pushed, which deploys the site.

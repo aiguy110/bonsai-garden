@@ -19,7 +19,7 @@
     }
   },
   "cloud_calls_per_day": 25,
-  "worker_rounds_per_item": 8,
+  "worker_rounds_per_item": 12,
   "review_rounds_per_item": 3,
   "worker_timeout_min": 45,
   "publisher": "/home/josiah/Projects/bonsai-garden-pub",
