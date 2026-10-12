@@ -1127,3 +1127,39 @@ t temporalUsageNotice = detectTemporalUsageFromMetadata(
               };
               if (filters.user_id) entityPayload.user_id = filters.user_id;
               if (fil
+
+
+
+# generateAdditiveExtractionPrompt (full body — extraction user prompt template)
+
+# source: /home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/agent/npm/node_modules/mem0ai/dist/oss/index.js
+
+function generateAdditiveExtractionPrompt(options) {
+  var _a2, _b2, _c;
+  const now = (/* @__PURE__ */ new Date()).toISOString().split("T")[0];
+  const currentDate = (_a2 = options.currentDate) != null ? _a2 : now;
+  const observationDate = (_b2 = options.observationDate) != null ? _b2 : currentDate;
+  const sections = [];
+  sections.push("## Summary\n");
+  sections.push(
+    `## Last k Messages
+${formatConversationHistory(options.lastKMessages)}`
+  );
+  sections.push("## Recently Extracted Memories\n[]");
+  sections.push(
+    `## Existing Memories
+${serializeMemories(options.existingMemories)}`
+  );
+  sections.push(`## New Messages
+${(_c = options.newMessages) != null ? _c : "[]"}`);
+  sections.push(`## Observation Date
+${observationDate}`);
+  sections.push(`## Current Date
+${currentDate}`);
+  if (options.customInstructions) {
+    sections.push(`## Custom Instructions
+${options.customInstructions}`);
+  }
+  sections.push("# Output:");
+  return sections.join("\n\n");
+}
