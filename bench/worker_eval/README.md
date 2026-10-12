@@ -56,7 +56,14 @@ retained. Outputs are written only after all validation succeeds.
 
 ## Additional provenance checks
 
-- A journal worker entry may be claimed by at most one call log (duplicate is a build error).
+- Call logs are associated with journal entries by window: for each worker log (sorted by
+  stamp), the first `worker (...), round <n>` entry with time in [log start, next worker
+  log start). A log with none is skipped as `no_journal_worker` (orphan sessions).
+  A journal entry claimed by two logs is a build error.
+- Rounds whose original prompt describes the worker as Bonsai are skipped (`bonsai_source`).
+- `--check` re-runs in memory and also validates: unique IDs, counts, substitution, prompt
+  item/round header, advisor type/order, start-commit subject, and start-commit age
+  (0 to 300 s before the log stamp, via `git show -s --format=%aI`).
 - The prompt's `## Current item: <id>, round <n>` line must match the log filename.
 - The journal's request JSON must be present and equal the recovered request without `report`
   (`journal_request_missing` / `journal_request_mismatch` skips).

@@ -230,3 +230,27 @@ Ran `python3 bench/worker_eval/build_cases.py` (gpu=False) in 1s, exit 0. Full o
 }
 
 ```
+
+### 2026-10-12T13:57:20-04:00 · worker (gpt-5.6-terra), round 7
+
+Round 6's build produced 22 cases (11 Sonnet, 11 Terra; 15 approve, 7 revise; items decide, replay-set, spec-replay, write-up). Skips: no_journal_worker 10, rate_limited 8, unreviewed_continue_request 2, before_cutoff 24, before_cutoff_or_bonsai 1. I added the start-commit age check to validate() and documented the window rule, bonsai_source and the --check coverage in the README. The script compiles. I have not run --check yet, so the age check is untested. Next: read the --check output and, if it exits 0, submit done.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/build_cases.py --check",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Verify the committed cases.jsonl/inventory.json (22 rows from round 6's run) pass the full validation including the new start-commit age check, without modifying files."
+}
+```
+
+### 2026-10-12T13:58:17-04:00 · advisor (run request)
+
+**revise**: Safe, but --check will fail. build() globs every *-worker-*.jsonl in the calls archive, which also gets this milestone's own logs (case-corpus r1..r7). Each one has no M1 journal entry in its window, so it is counted as no_journal_worker. That is why the count went from 6 to 10 between rounds 4 and 6 (+2 orphan logs, +2 case-corpus logs). The round-7 log already exists, so the rebuilt inventory will have no_journal_worker >= 11 and will not equal the committed inventory.json, and --check exits 1. It will keep failing every round. Fix: (1) Scope the scan to M1 before any counting. Read each log's first user prompt and keep only logs whose milestone heading is `# M1:` (prompt section `## Milestone`). Also add a fixed upper time bound, e.g. the time of the last M1 journal entry, read from the journal, or a hard-coded constant. Drop out-of-scope logs silently, not as a skip reason, and compute `starts_of`/`next_start` only over the in-scope logs. That way new W1 or later logs cannot change the output. (2) Optional but cheap: in validate(), re-run event_errors() on each included row's event_log and fail on any RATE_LIMIT match. That makes 'no included rate-limit failures' an explicit check, not something implied by determinism. (3) The README has two overlapping sections ('Inclusion and validation' and 'Additional provenance checks'). Merge them into one, and document the milestone/time scoping. Then submit one run, `python3 bench/worker_eval/build_cases.py && python3 bench/worker_eval/build_cases.py --check`, so the committed outputs and the check come from the same archive state. Report the exact included count and every skip count (no_journal_worker should drop to only the real M1 orphan logs). If fewer than 20 rows remain, report it rather than loosening the rules.
+
+### 2026-10-12T13:58:17-04:00 · orchestrator
+
+Added to the standing facts:
+
+- autopilot/.runtime/calls/ mixes worker logs from all milestones and the filenames (<stamp>-worker-<item>-r<n>.jsonl) carry no milestone, so any corpus builder or --check must scope logs by the prompt's milestone heading or a fixed time window, or its output changes as new rounds run (bench/worker_eval/build_cases.py build()).

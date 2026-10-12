@@ -259,6 +259,9 @@ def validate(rows, eligible_revise):
         if dt.datetime.fromisoformat(r["advisor_timestamp"]) < dt.datetime.fromisoformat(r["worker_entry_timestamp"]): errors.append(f"advisor precedes request: {r['case_id']}")
         subject = git("show", "-s", "--format=%s", r["start_commit"])
         if subject != f"autopilot({r['milestone']}): before {r['item']} round {r['round']}": errors.append(f"bad start commit: {r['case_id']}")
+        try: age = (dt.datetime.fromisoformat(r["source_timestamp"]) - dt.datetime.fromisoformat(git("show", "-s", "--format=%aI", r["start_commit"]))).total_seconds()
+        except ValueError: age = None
+        if age is None or not 0 <= age <= START_COMMIT_MAX_AGE: errors.append(f"start commit age out of range: {r['case_id']}")
     return errors
 
 
