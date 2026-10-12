@@ -416,3 +416,7 @@ autopilot/state/M1-ngram/journal.md | 4 ++++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
+
+### 2026-10-12T06:53:30-04:00 · orchestrator
+
+The autopilot now triages items at limits instead of dropping them. `recon` was dropped under the old rule one review short of done, so it is re-recorded as accepted with caveats, and the 05:22 review's corrections are now standing facts. From now on, end each session with the `submit_request` tool.
