@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""bonsai-garden autopilot: Bonsai does the work, a cloud advisor reviews, code enforces.
+"""bonsai-garden autopilot: a worker model does the work, a cloud advisor reviews, code enforces.
 
   autopilot.py loop        run milestones until done or blocked (the systemd service)
   autopilot.py tick        one step, then exit
@@ -7,17 +7,25 @@
   autopilot.py unblock     clear a blocked milestone so the loop resumes
 
 Roles (config.json) are pi model strings, so any of them can be swapped:
-  worker   Bonsai via turnstile (bench key, priority 20), in the eval Docker sandbox
-  advisor  cloud model through meridian, read-only tools: plans, reviews every request,
+  worker   in the eval Docker sandbox: garden/<id> is Bonsai via turnstile (bench key,
+           priority 20), meridian/<id> or openai-codex/<id> a cloud model through the sandbox's tap
+  advisor  cloud model (meridian or openai-codex), read-only tools: plans, reviews every request,
            approves finished items and fact-checks write-ups
   fixer    cloud model with shell access, called only when the local model is down
            and rolling back the last infra change didn't help
 
 Work happens on branch auto/<milestone> in its own worktree. State and the journal
-(the worker's memory between sessions) are committed there under autopilot/state/.
+(the worker's memory between sessions) are committed there under autopilot/state/,
+along with the standing facts: corrections and caveats that every later prompt
+includes in full, so they survive the journal being truncated.
+
+The worker ends a session by calling the submit_request tool (extensions/), which
+checks the request while it can still fix it. When an item runs out of rounds or
+reviews, the advisor triages it: accept with caveats, re-plan, or block.
 Finished milestones are merged to main and pushed, which publishes the site; a status
 page (site/autopilot.md) is pushed as things happen.
 """
+import base64
 import datetime
 import fcntl
 import json
@@ -48,6 +56,11 @@ SB_REPO = f"{ev.SB_HOME}/garden"
 PROMPTS = HERE / "prompts"
 JOURNAL_TAIL = 15000
 DIFF_MAX = 40000
+MAX_REPLANS = 2  # per plan position; after that triage can only accept or block
+MERIDIAN = "http://127.0.0.1:3456"
+CODEX = "https://chatgpt.com/backend-api"  # pi's openai-codex provider (ChatGPT subscription)
+CODEX_AUTH = pathlib.Path.home() / ".codex" / "auth.json"
+CODEX_CLAIM = "https://api.openai.com/auth"
 
 
 def now():
@@ -83,8 +96,15 @@ def last_json(text):
     return None
 
 
+def worker_desc():
+    provider, model = CFG["roles"]["worker"]["model"].split("/", 1)
+    if provider == "garden":
+        return "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU"
+    return f"{model}, a cloud model"
+
+
 def fill(template, **kw):
-    return (PROMPTS / template).read_text().format(**kw)
+    return (PROMPTS / template).read_text().format(**{"worker": worker_desc(), **kw})
 
 
 # ---- state ----
@@ -103,7 +123,7 @@ class Milestone:
     def status(self):
         if self.status_file.exists():
             return json.loads(self.status_file.read_text())
-        return {"phase": "plan", "item": 0, "round": 0, "reviews": 0, "base": None, "dropped": []}
+        return {"phase": "plan", "item": 0, "round": 0, "reviews": 0, "base": None, "dropped": [], "caveats": {}}
 
     def save(self, st):
         self.dir.mkdir(parents=True, exist_ok=True)
@@ -117,6 +137,19 @@ class Milestone:
         self.dir.mkdir(parents=True, exist_ok=True)
         with open(self.dir / "journal.md", "a") as f:
             f.write(f"\n### {now()} · {actor}\n\n{text.strip()}\n")
+
+    def facts(self):
+        p = self.dir / "facts.md"
+        return p.read_text().strip() if p.exists() and p.read_text().strip() else "(none yet)"
+
+    def add_facts(self, facts, source):
+        facts = [f.strip() for f in facts or [] if isinstance(f, str) and f.strip()]
+        if not facts:
+            return
+        self.dir.mkdir(parents=True, exist_ok=True)
+        with open(self.dir / "facts.md", "a") as f:
+            f.writelines(f"- {x} ({source}, {now()[:10]})\n" for x in facts)
+        self.journal("orchestrator", "Added to the standing facts:\n\n" + "\n".join(f"- {x}" for x in facts))
 
     def journal_tail(self):
         p = self.dir / "journal.md"
@@ -141,8 +174,26 @@ def spend():
     p.write_text(json.dumps(b))
 
 
+RATE_WAIT = 1800
+
+
 class OutOfBudget(Exception):
     pass
+
+
+class RateLimited(Exception):
+    """A subscription's rate or usage limit (Claude Max through meridian, or Codex). The
+    loop pauses instead of spending rounds on sessions that fail at once."""
+    def __init__(self, role, wait):
+        super().__init__(role)
+        self.role, self.wait = role, wait
+
+
+def check_rate_limit(e, role):
+    hits = [x for x in e["errors"] if re.search(r"rate.?limit|usage.?limit|\b429\b", str(x), re.I)]
+    if hits:
+        m = re.search(r"retry.?after\D{0,4}(\d+)", str(hits[-1]), re.I)
+        raise RateLimited(role, int(m.group(1)) if m else 1800)
 
 
 # ---- model calls ----
@@ -163,7 +214,9 @@ def ensure_cloud_agent():
 
 
 def call_cloud(role, prompt, label):
-    """A cloud role (advisor or fixer) as a host pi session through meridian."""
+    """A cloud role (advisor or fixer) as a host pi session, through meridian or Codex.
+    For Codex the token comes from the CLI's login through the environment, so it
+    never lands in the agent dir."""
     ensure_cloud_agent()
     if budget_left() <= 0:
         raise OutOfBudget(role)
@@ -171,6 +224,10 @@ def call_cloud(role, prompt, label):
     r = CFG["roles"][role]
     events = call_log(f"{role}-{label}")
     env = dict(os.environ, PI_CODING_AGENT_DIR=str(CLOUD_AGENT))
+    if r["model"].startswith("openai-codex/"):
+        env["CODEX_TOKEN"] = codex_token()[0]
+        (CLOUD_AGENT / "models.json").write_text(json.dumps(
+            {"providers": {"openai-codex": {"apiKey": "${CODEX_TOKEN}"}}}, indent=2) + "\n")
     with open(events, "w") as out:
         p = subprocess.run(["pi", "-p", "--mode", "json", "--no-session", *ev.PI_FLAGS,
                             "--model", f"{r['model']}:{r['thinking']}", "--tools", r["tools"], prompt],
@@ -178,41 +235,155 @@ def call_cloud(role, prompt, label):
                            text=True, timeout=3600)
     e = ev.parse_events(events)
     say(f"{role}/{label}: exit {p.returncode}, {e['turns']} turns, {e['tool_calls']} tools")
+    check_rate_limit(e, role)
     return e["final"], e
 
 
+def worker_memory_arm():
+    """The eval arm whose mem0 setup the worker borrows when worker_memory is on."""
+    if not CFG.get("worker_memory"):
+        return None
+    return json.loads((ROOT / "evals" / "arms" / f"{CFG['worker_memory']}.json").read_text())
+
+
+def meridian_extension():
+    """pi-meridian-extension's source, from the cloud agent's install, with any models it
+    predates but meridian serves (claude-sonnet-5-5) added like their predecessors. It
+    has no npm dependencies, so the worker loads it as a plain extension file."""
+    ensure_cloud_agent()
+    src = (CLOUD_AGENT / "npm/node_modules/pi-meridian-extension/extensions/index.ts").read_text()
+    if '"claude-sonnet-5-5"' in src:
+        return src
+    entry = re.search(r'\t\{\n\t\tid: "claude-sonnet-5",.*?\n\t\},\n', src, re.S).group(0)
+    for anchor, add in [("const ADAPTIVE_MODEL_IDS = new Set([\n", '\t"claude-sonnet-5-5",\n'),
+                        ("const SAMPLING_UNSUPPORTED_MODEL_IDS = new Set([\n", '\t"claude-sonnet-5-5",\n'),
+                        ("const MERIDIAN_MODELS: ProviderModelConfig[] = [\n",
+                         entry.replace('"claude-sonnet-5"', '"claude-sonnet-5-5"').replace("Sonnet 5 ", "Sonnet 5.5 "))]:
+        assert src.count(anchor) == 1, f"pi-meridian-extension changed: {anchor!r}"
+        src = src.replace(anchor, anchor + add)
+    return src
+
+
 def worker_agent_dir():
+    """Rebuilt every session from config, so switching the worker model or turning
+    worker_memory off takes effect at once.
+    With memory on, the worker gets pi-memory-mem0 in "active" mode: only the mem0_memory
+    tool, no auto-capture or auto-recall. Those key on the user input, which here is the
+    whole ~25k-character prompt, so recall would search with it and capture would extract
+    facts from it."""
     agent = RT / "agent-worker"
-    if not (agent / "models.json").exists():
-        agent.mkdir(parents=True, exist_ok=True)
-        r = CFG["roles"]["worker"]
-        (agent / "settings.json").write_text(json.dumps(
-            {"defaultProvider": "garden", "defaultModel": r["model"], "defaultThinkingLevel": r["thinking"]}))
+    agent.mkdir(parents=True, exist_ok=True)
+    arm = worker_memory_arm()
+    r = CFG["roles"]["worker"]
+    provider, model = r["model"].split("/", 1)
+    settings = {"defaultProvider": provider, "defaultModel": model, "defaultThinkingLevel": r["thinking"]}
+    if provider == "garden":
+        # pi's default 16k reserve let a turn reach 66.5k (turnstile's estimate) + 16k
+        # max_tokens > the 80k window; compact at ~52k instead.
+        settings["compaction"] = {"reserveTokens": 28672}
+    if arm:
+        tpl = ev.agent_template(arm)
+        mark = agent / "npm" / ".template"
+        if not mark.exists() or mark.read_text() != tpl.name:
+            shutil.rmtree(agent / "npm", ignore_errors=True)
+            shutil.copytree(tpl / "npm", agent / "npm", symlinks=True)
+            mark.write_text(tpl.name)
+        mem = ev.substitute(arm["settings"]["pi-memory-mem0"], {"{MEM}": ev.SB_MEM, "{TAP}": ev.TAP})
+        settings.update(packages=json.loads((tpl / "settings.json").read_text())["packages"],
+                        **{"pi-memory-mem0": {**mem, "memoryMode": "active"}})
+    (agent / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
+    ext = agent / "extensions"
+    ext.mkdir(exist_ok=True)
+    (agent / "models.json").unlink(missing_ok=True)
+    (ext / "meridian.ts").unlink(missing_ok=True)
+    if provider == "garden":
         entry = json.loads((ROOT / "agent/models.bonsai-agent.json").read_text())
-        entry["id"] = r["model"]
+        entry["id"] = model
         (agent / "models.json").write_text(json.dumps({"providers": {"garden": {
             "baseUrl": f"{ev.TAP}/agent/v1", "api": "openai-completions", "apiKey": "tap",
             "compat": {"supportsStore": False, "supportsDeveloperRole": False,
                        "supportsReasoningEffort": False, "maxTokensField": "max_tokens"},
             "models": [entry]}}}, indent=2))
+    elif provider == "meridian":
+        (ext / "meridian.ts").write_text(meridian_extension())
+    elif provider == "openai-codex":
+        # The tap has no WebSocket support, so pi must use SSE.
+        settings["transport"] = "sse"
+        (agent / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
+        (agent / "models.json").write_text(json.dumps({"providers": {"openai-codex": {
+            "baseUrl": f"{ev.TAP}/codex/codex", "apiKey": codex_placeholder(codex_token()[1])}}}, indent=2))
+    else:
+        raise ValueError(f"worker provider must be garden, meridian or openai-codex, not {provider}")
+    shutil.copy(HERE / "extensions" / "submit_request.ts", ext / "submit_request.ts")
     return agent
 
 
-def call_worker(prompt, label):
-    """The worker: pi on Bonsai in the eval sandbox, seeing only the autopilot worktree."""
+def codex_token():
+    """The Codex CLI's access token, read fresh each session. Only the CLI refreshes it
+    (refreshing here would rotate the refresh token under it); it lasts about 10 days."""
+    tok = json.loads(CODEX_AUTH.read_text())["tokens"]["access_token"]
+    claims = json.loads(base64.urlsafe_b64decode(tok.split(".")[1] + "=="))
+    if claims["exp"] < time.time() + 3600:
+        raise RuntimeError("the Codex login expires within the hour: run `codex` once to refresh it")
+    return tok, claims[CODEX_CLAIM]["chatgpt_account_id"]
+
+
+def codex_placeholder(account):
+    """What the sandbox gets instead of the token: an unsigned JWT carrying only the
+    account id, which pi reads from it. The tap swaps in the real token on the host."""
+    enc = lambda d: base64.urlsafe_b64encode(json.dumps(d).encode()).decode().rstrip("=")
+    return f"{enc({'alg': 'none'})}.{enc({CODEX_CLAIM: {'chatgpt_account_id': account}})}.x"
+
+
+def last_stop_reason(events):
+    stop = None
+    for line in events.read_text(errors="replace").splitlines():
+        try:
+            m = json.loads(line)
+        except ValueError:
+            continue
+        if m.get("type") == "message_end" and (m.get("message") or {}).get("role") == "assistant":
+            stop = m["message"].get("stopReason")
+    return stop
+
+
+def call_worker(prompt, label, memory_dir=None):
+    """The worker: pi in the eval sandbox, seeing only the autopilot worktree. A cloud
+    model (meridian or Codex) is reached through the sandbox's tap, so the sandbox still
+    has no network. Returns its final text, the parsed events, and the request it
+    submitted (or None)."""
     r = CFG["roles"]["worker"]
+    provider = r["model"].split("/", 1)[0]
+    agent = worker_agent_dir()
+    req_file = agent / "request.json"
+    req_file.unlink(missing_ok=True)
     events = call_log(f"worker-{label}")
     sock = pathlib.Path(f"/tmp/garden-autopilot-{os.getpid()}.sock")
-    tap = ev.start_tap(RT / "tap.jsonl", {"run": "autopilot", "step": label}, ev.bench_key(), sock)
+    routes, paths, tap_env = {}, {}, {}
+    if provider == "meridian":
+        routes["meridian"] = MERIDIAN
+    elif provider == "openai-codex":
+        routes["codex"] = f"{CODEX}:CODEX_TOKEN"
+        paths["codex"] = ["/codex/responses"]
+        tap_env["CODEX_TOKEN"] = codex_token()[0]
+    tap = ev.start_tap(RT / "tap.jsonl", {"run": "autopilot", "step": label}, ev.bench_key(), sock,
+                       routes, paths, tap_env)
     container = f"garden-autopilot-{os.getpid()}"
-    cmd = ev.sandbox_cmd(container, [(WT, SB_REPO, "rw"), (worker_agent_dir(), ev.SB_AGENT, "rw"),
-                                     (ev.VENV, ev.SB_VENV, "ro"), (sock, "/run/garden/tap.sock", "rw"),
-                                     (ev.EVALS / "relay.py", "/opt/garden/relay.py", "ro")],
-                         ev.sandbox_env({"PI_CODING_AGENT_DIR": ev.SB_AGENT}), workdir=SB_REPO)
+    mounts = [(WT, SB_REPO, "rw"), (agent, ev.SB_AGENT, "rw"), (ev.VENV, ev.SB_VENV, "ro"),
+              (sock, "/run/garden/tap.sock", "rw"), (ev.EVALS / "relay.py", "/opt/garden/relay.py", "ro")]
+    env = {"PI_CODING_AGENT_DIR": ev.SB_AGENT}
+    if provider == "meridian":
+        env["MERIDIAN_BASE_URL"] = f"{ev.TAP}/meridian"
+    arm = worker_memory_arm()
+    if arm and memory_dir:
+        memory_dir.mkdir(parents=True, exist_ok=True)
+        mounts.append((memory_dir, ev.SB_MEM, "rw"))
+        env.update(arm.get("env", {}))
+    cmd = ev.sandbox_cmd(container, mounts, ev.sandbox_env(env), workdir=SB_REPO)
     cmd += ["sh", "-c", f"python3 /opt/garden/relay.py {ev.TAP_PORT} /run/garden/tap.sock & "
             "sleep 0.5; exec \"$@\"", "sh",
             "pi", "-p", "--mode", "json", "--no-session", *ev.PI_FLAGS,
-            "--model", f"garden/{r['model']}", "--thinking", r["thinking"], prompt]
+            "--model", r["model"], "--thinking", r["thinking"], prompt]
     with open(events, "w") as out:
         p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.DEVNULL,
                              start_new_session=True)
@@ -228,8 +399,14 @@ def call_worker(prompt, label):
             ev.stop(tap)
             sock.unlink(missing_ok=True)
     e = ev.parse_events(events)
+    e["last_stop"] = last_stop_reason(events)
     say(f"worker/{label}: {e['turns']} turns, {e['tool_calls']} tools, errors {e['errors'][:2]}")
-    return e["final"], e
+    check_rate_limit(e, "worker")
+    try:
+        req = json.loads(req_file.read_text()) if req_file.exists() else None
+    except ValueError:
+        req = None
+    return e["final"], e, req
 
 
 # ---- git plumbing ----
@@ -274,6 +451,31 @@ def item_diff(st):
     return d if len(d) <= DIFF_MAX else d[:DIFF_MAX] + "\n… (truncated)"
 
 
+SECRET_PATTERNS = [r"tk-[0-9a-f]{20,}", r"sk-[A-Za-z0-9_-]{20,}", r"gh[pousr]_[A-Za-z0-9]{20,}",
+                   r"-----BEGIN [A-Z ]*PRIVATE KEY-----", r"AKIA[0-9A-Z]{16}"]
+SECRET_FILES = [pathlib.Path.home() / "Projects/gpu-turnstile/config.yaml",
+                pathlib.Path.home() / "Projects/gpu-turnstile/.keys.env", pathlib.Path.home() / ".pi/agent/auth.json"]
+
+
+def secret_hits(rev_range, cwd):
+    """Known key values and key-shaped strings added in rev_range. Pushes are public."""
+    diff = "\n".join(l for l in git("diff", rev_range, cwd=cwd, check=False).splitlines() if l.startswith("+"))
+    hits = [p for p in SECRET_PATTERNS if re.search(p, diff)]
+    for f in SECRET_FILES:
+        if f.exists():
+            for v in set(re.findall(r"[A-Za-z0-9_\-]{24,}", f.read_text())):
+                if v in diff:
+                    hits.append(f"value from {f.name}")
+    return hits
+
+
+def push(cwd, refspec, rev_range):
+    hits = secret_hits(rev_range, cwd)
+    if hits:
+        raise RuntimeError(f"refusing to push {refspec}: possible secrets ({', '.join(sorted(set(hits)))})")
+    git("push", "-q", "-f", CFG["remote"], refspec, cwd=cwd)
+
+
 def publish(msg, merge_branch=None):
     """Push to main from the publisher worktree (never the user's checkout), then
     fast-forward the main checkout if it is clean and on main."""
@@ -290,7 +492,7 @@ def publish(msg, merge_branch=None):
         git("-c", "user.name=bonsai-autopilot", "-c", "user.email=autopilot@bonsai-garden.local",
             "commit", "-qm", msg, cwd=PUB)
     if git("rev-parse", "HEAD", cwd=PUB) != git("rev-parse", f"{CFG['remote']}/main", cwd=PUB):
-        git("push", "-q", CFG["remote"], "HEAD:main", cwd=PUB)
+        push(PUB, "HEAD:main", f"{CFG['remote']}/main..HEAD")
         (RT / "last-push").write_text(now())
         if git("branch", "--show-current", cwd=ROOT) == "main" and not git("status", "--porcelain", cwd=ROOT):
             git("merge", "-q", "--ff-only", f"{CFG['remote']}/main", cwd=ROOT, check=False)
@@ -324,6 +526,8 @@ def write_status_page():
             mark = "✅" if i < st["item"] else ("▶️" if i == st["item"] and st["phase"] == "work" else "⬜")
             if it["id"] in st.get("dropped", []):
                 mark = "✖️"
+            elif it["id"] in st.get("caveats", {}):
+                mark = "⚠️"
             lines.append(f"- {mark} **{it['title']}**" + (f" (round {st['round']})" if mark == "▶️" else ""))
         jp = m.dir / "journal.md"
         if jp.exists():
@@ -464,10 +668,11 @@ def execute_infra(m, req):
 def review(m, item, kind, subject, instructions, st):
     final, _ = call_cloud("advisor", fill("review.md", milestone=m.spec, item_id=item["id"],
                                           item=json.dumps(item, indent=2), kind=kind, subject=subject,
-                                          diff=item_diff(st), journal=m.journal_tail(),
+                                          diff=item_diff(st), journal=m.journal_tail(), facts=m.facts(),
                                           instructions=instructions), f"{kind}-{item['id']}")
     v = last_json(final) or {"verdict": "revise", "notes": "(advisor reply had no verdict JSON)\n" + final[-2000:]}
     m.journal(f"advisor ({kind})", f"**{v.get('verdict')}**: {v.get('notes', '')}")
+    m.add_facts(v.get("facts"), f"advisor, {item['id']}")
     return v
 
 
@@ -485,6 +690,16 @@ REVIEW_WRITEUP = ("This is the milestone write-up for the public research site. 
                   "series/project pages were updated per site/AUTHORING.md. Approve only if accurate.")
 
 
+MEMORY_NOTE = """
+- You have a long-term memory, the `mem0_memory` tool. It persists across all
+  sessions of this milestone. Early in a session, search it for the current item
+  (e.g. its title, or the file or error you're dealing with). When you learn
+  something a later session would otherwise rediscover (how a script or log is laid
+  out, a command that works, a dead end and why), add it as one short fact. The
+  standing facts and the journal still win where they disagree with a memory.
+"""
+
+
 # ---- the state machine ----
 
 def do_plan(m, st):
@@ -493,6 +708,7 @@ def do_plan(m, st):
     if not plan or not plan.get("items"):
         m.journal("advisor (plan)", "No usable plan JSON:\n\n" + final[-3000:])
         return
+    m.dir.mkdir(parents=True, exist_ok=True)
     (m.dir / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
     m.journal("advisor (plan)", "\n".join(f"{i + 1}. **{it['title']}**: {it['acceptance']}"
                                           for i, it in enumerate(plan["items"])))
@@ -506,10 +722,62 @@ def next_item(m, st, dropped=False):
     plan = m.plan()
     if dropped:
         st.setdefault("dropped", []).append(plan[st["item"]]["id"])
-    st.update(item=st["item"] + 1, round=0, reviews=0, base=git("rev-parse", "HEAD"))
+    st.update(item=st["item"] + 1, round=0, reviews=0, replans=0, base=git("rev-parse", "HEAD"))
     if st["item"] >= len(plan):
         st["phase"] = "publish"
     m.save(st)
+
+
+def valid_items(items):
+    keys = ("id", "title", "instructions", "acceptance")
+    return isinstance(items, list) and items and all(
+        isinstance(it, dict) and all(isinstance(it.get(k), str) and it[k].strip() for k in keys) for it in items)
+
+
+def triage(m, st, item, why):
+    """An item hit a limit (rounds or reviews) or the worker is stuck. The advisor decides
+    what happens to it instead of the item being silently dropped."""
+    plan = m.plan()
+    can_replan = st.get("replans", 0) < MAX_REPLANS
+    final, _ = call_cloud("advisor", fill(
+        "triage.md", milestone=m.spec, item_id=item["id"], item=json.dumps(item, indent=2), why=why,
+        rest=json.dumps(plan[st["item"] + 1:], indent=2), diff=item_diff(st), journal=m.journal_tail(),
+        facts=m.facts(), replan=("You may re-plan." if can_replan else
+                                 f"This position was already re-planned {MAX_REPLANS} times: accept or block.")),
+        f"triage-{item['id']}")
+    d = last_json(final) or {}
+    decision = d.get("decision")
+    m.journal("advisor (triage)", f"**{decision}**: {d.get('notes', '')}"
+              + ("" if d else "\n\n(no decision JSON)\n" + final[-2000:]))
+    m.add_facts(d.get("facts"), f"triage, {item['id']}")
+    if decision == "accept_with_caveats" and d.get("caveats"):
+        st.setdefault("caveats", {})[item["id"]] = d["caveats"]
+        m.add_facts([f"`{item['id']}` was accepted with caveats: {d['caveats']}"], "triage")
+        next_item(m, st)
+        commit(f"autopilot({m.name}): {item['id']} accepted with caveats")
+    elif decision == "replan" and can_replan and valid_items(d.get("items")):
+        p = m.dir / "plan.json"
+        full = json.loads(p.read_text())
+        full["items"] = plan[:st["item"]] + d["items"]
+        p.write_text(json.dumps(full, indent=2) + "\n")
+        m.journal("orchestrator", "Re-planned from here:\n\n" + "\n".join(
+            f"{st['item'] + i + 1}. **{it['title']}**: {it['acceptance']}" for i, it in enumerate(d["items"])))
+        st.update(round=0, reviews=0, replans=st.get("replans", 0) + 1)
+        m.save(st)
+        commit(f"autopilot({m.name}): re-plan at {item['id']}")
+        maybe_publish_status(force=True)
+    else:
+        if decision not in ("block", None):
+            m.journal("orchestrator", f"Triage decision `{decision}` was unusable (missing caveats, invalid "
+                      "items, or no re-plans left), so the milestone is blocked.")
+        block(m, f"triage of `{item['id']}` ({why}): {d.get('why') or d.get('notes') or 'no usable decision'}")
+
+
+def worker_entry(final, e, req):
+    if req:
+        rest = {k: v for k, v in req.items() if k != "report"}
+        return f"{req.get('report', '').strip()}\n\n```json\n{json.dumps(rest, indent=2)}\n```"
+    return final or f"(no final message; errors: {e['errors'][:3]})"
 
 
 def do_work(m, st):
@@ -520,22 +788,41 @@ def do_work(m, st):
     st["round"] += 1
     m.save(st)
     if st["round"] > CFG["worker_rounds_per_item"]:
-        m.journal("orchestrator", f"Item `{item['id']}` used all {CFG['worker_rounds_per_item']} rounds; dropped.")
-        next_item(m, st, dropped=True)
-        commit(f"autopilot({m.name}): drop {item['id']}")
+        m.journal("orchestrator", f"Item `{item['id']}` used all {CFG['worker_rounds_per_item']} rounds; "
+                  "asking the advisor to triage it.")
+        triage(m, st, item, f"used all {CFG['worker_rounds_per_item']} worker rounds")
         return
     prompt = fill("worker.md", protected=", ".join(CFG["protected_paths"]), milestone=m.spec,
                   plan="\n".join(f"{i + 1}. {it['title']}" + (" ← current" if i == st["item"] else "")
                                  for i, it in enumerate(plan)),
                   item_id=item["id"], round=st["round"], max_rounds=CFG["worker_rounds_per_item"],
+                  timeout_min=CFG["worker_timeout_min"],
                   item=f"**{item['title']}**\n\n{item['instructions']}\n\n**Acceptance:** {item['acceptance']}",
-                  journal=m.journal_tail())
+                  facts=m.facts(), journal=m.journal_tail(),
+                  memory=MEMORY_NOTE if worker_memory_arm() else "")
     commit(f"autopilot({m.name}): before {item['id']} round {st['round']}")
     pre = git("rev-parse", "HEAD")
-    final, e = call_worker(prompt, f"{item['id']}-r{st['round']}")
+    try:
+        final, e, req = call_worker(prompt, f"{item['id']}-r{st['round']}", memory_dir=RT / "memory" / m.name)
+    except RateLimited:
+        enforce_protected(m, pre)
+        st["round"] -= 1  # the session failed at the limit: it doesn't count
+        m.save(st)
+        raise
     enforce_protected(m, pre)
-    req = last_json(final) or {"request": "continue", "note": "(no request JSON)"}
-    m.journal(f"worker (Bonsai), round {st['round']}", final or f"(no final message; errors: {e['errors'][:3]})")
+    req = req or last_json(final)  # the fenced json block is the fallback if the tool wasn't used
+    m.journal(f"worker ({CFG['roles']['worker']['model'].split('/', 1)[1]}), round {st['round']}",
+              worker_entry(final, e, req))
+    if not req:
+        req = {"request": "continue", "note": "(no request)"}
+        stat = git("diff", "--stat", pre) or "(no file changes)"
+        cause = ("Your last reply hit the output limit (16k tokens) and was cut off, which ends the session. "
+                 "Write large files in parts: a short first version, then edits. "
+                 if e.get("last_stop") == "length" else "")
+        m.journal("orchestrator", f"{cause}The session ended without a request (cut off by the time limit or an "
+                  f"error), so nothing ran. Files changed in it:\n\n```\n{stat}\n```\n\nNext session: don't "
+                  "polish further. Check those files briefly, then end early with submit_request (a `run` "
+                  "request). Running the script is how you test it.")
     kind = req.get("request")
     if kind == "run":
         v = review(m, item, "run request", f"```json\n{json.dumps(req, indent=2)}\n```", REVIEW_RUN, st)
@@ -545,6 +832,10 @@ def do_work(m, st):
         v = review(m, item, "infra request", f"```json\n{json.dumps(req, indent=2)}\n```", REVIEW_INFRA, st)
         if v.get("verdict") == "approve":
             m.journal("orchestrator", execute_infra(m, req))
+    elif kind == "stuck":
+        commit(f"autopilot({m.name}): {item['id']} round {st['round']}")
+        triage(m, st, item, f"the worker is stuck: {req.get('why', '')}")
+        return
     elif kind == "done":
         writeup = st["item"] == len(plan) - 1
         if writeup:
@@ -561,17 +852,20 @@ def do_work(m, st):
             next_item(m, st)
         else:
             st["reviews"] += 1
-            if st["reviews"] >= CFG["review_rounds_per_item"]:
-                m.journal("orchestrator", f"Item `{item['id']}` failed review {st['reviews']} times; dropped.")
-                next_item(m, st, dropped=True)
             m.save(st)
+            if st["reviews"] >= CFG["review_rounds_per_item"]:
+                m.journal("orchestrator", f"Item `{item['id']}` failed review {st['reviews']} times; "
+                          "asking the advisor to triage it.")
+                commit(f"autopilot({m.name}): {item['id']} round {st['round']}")
+                triage(m, st, item, f"failed review {st['reviews']} times")
+                return
     commit(f"autopilot({m.name}): {item['id']} round {st['round']}")
     maybe_publish_status()
 
 
 def do_publish(m, st):
-    git("push", "-q", "-f", CFG["remote"], f"auto/{m.name}", cwd=WT)
     try:
+        push(WT, f"auto/{m.name}", f"{CFG['remote']}/main...HEAD")
         publish(f"Merge autopilot milestone {m.name}", merge_branch=f"auto/{m.name}")
     except RuntimeError as e:
         block(m, f"merge/publish failed: {e}")
@@ -580,7 +874,7 @@ def do_publish(m, st):
     m.save(st)
     m.journal("orchestrator", "Milestone merged into main and published.")
     commit(f"autopilot({m.name}): done")
-    git("push", "-q", "-f", CFG["remote"], f"auto/{m.name}", cwd=WT)
+    push(WT, f"auto/{m.name}", f"{CFG['remote']}/main...HEAD")
 
 
 def current():
@@ -613,8 +907,18 @@ def tick():
         commit(f"autopilot({m.name}): out of budget")
         maybe_publish_status(force=True)
         return "budget"
-    if st["phase"] != "blocked":
-        git("push", "-q", "-f", CFG["remote"], f"auto/{m.name}", cwd=WT, check=False)
+    except RateLimited as e:
+        global RATE_WAIT
+        RATE_WAIT = min(max(e.wait, 300), 3600)
+        m.journal("orchestrator", f"The {e.role}'s subscription hit its rate limit; pausing "
+                  f"{RATE_WAIT // 60} min. This session doesn't count as a round.")
+        commit(f"autopilot({m.name}): rate limited")
+        return "ratelimit"
+    if m.status()["phase"] != "blocked":
+        try:
+            push(WT, f"auto/{m.name}", f"{CFG['remote']}/main...HEAD")
+        except RuntimeError as e:
+            block(m, str(e))
     return m.status()["phase"]
 
 
@@ -640,6 +944,8 @@ def main():
             st = m.status()
             st["phase"] = "work" if m.plan() else "plan"
             st.pop("blocked", None)
+            if st["round"] >= CFG["worker_rounds_per_item"] or st["reviews"] >= CFG["review_rounds_per_item"]:
+                st.update(round=0, reviews=0)  # blocked by triage: the user's go-ahead buys fresh rounds
             m.save(st)
             m.journal("orchestrator", "Unblocked by the user.")
             commit(f"autopilot({m.name}): unblocked")
@@ -648,13 +954,23 @@ def main():
         print(tick())
         return
     if cmd == "loop":
+        crashes = 0
         while True:
             try:
                 state = tick()
+                crashes = 0
             except Exception as e:  # keep the service alive; record and back off
                 say(f"tick failed: {type(e).__name__}: {e}")
-                state = "error"
-            if state in ("idle", "blocked", "budget", "error", "done"):
+                state, crashes = "error", crashes + 1
+                if crashes >= 3 and WT is not None:  # the same step keeps failing: stop and say so
+                    try:
+                        block(current(), f"tick crashed 3 times in a row; last: {type(e).__name__}: {e}")
+                        crashes = 0
+                    except Exception as e2:
+                        say(f"could not record the block: {e2}")
+            if state == "ratelimit":
+                time.sleep(RATE_WAIT)
+            elif state in ("idle", "blocked", "budget", "error", "done"):
                 time.sleep(1800 if state != "error" else 300)
         return
     sys.exit(__doc__)

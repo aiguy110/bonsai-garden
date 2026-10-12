@@ -1,27 +1,28 @@
 {
   "roles": {
     "worker": {
-      "model": "bonsai-agent",
-      "thinking": "low",
+      "model": "openai-codex/gpt-5.6-terra",
+      "thinking": "medium",
       "where": "sandbox"
     },
     "advisor": {
-      "model": "meridian/claude-opus-5-5",
+      "model": "openai-codex/gpt-5.6-sol",
       "thinking": "high",
       "where": "host",
       "tools": "read,grep,find,ls"
     },
     "fixer": {
-      "model": "meridian/claude-opus-5-5",
+      "model": "openai-codex/gpt-5.6-sol",
       "thinking": "high",
       "where": "host",
       "tools": "read,bash,edit,write,grep,find,ls"
     }
   },
-  "cloud_calls_per_day": 25,
-  "worker_rounds_per_item": 8,
+  "cloud_calls_per_day": 50,
+  "worker_rounds_per_item": 12,
   "review_rounds_per_item": 3,
   "worker_timeout_min": 45,
+  "worker_memory": "mem0",
   "publisher": "/home/josiah/Projects/bonsai-garden-pub",
   "remote": "origin",
   "status_push_min_interval_min": 60,
@@ -34,6 +35,8 @@
     "evals/relay.py",
     "evals/arms/baseline.json",
     "evals/arms/mem0.json",
+    "evals/arms/mem0-server.json",
+    "evals/mem0_server.py",
     "serving/llama-swap.bonsai-2-27b.yaml",
     "site/autopilot.md"
   ],
@@ -42,7 +45,8 @@
     "soak_worker_calls": 3
   },
   "milestones": [
-    "M1-ngram"
+    "M1-ngram",
+    "W1-worker-eval"
   ],
   "worktree_root": "/home/josiah/Projects/bonsai-garden-auto",
   "cloud_extension": "npm:pi-meridian-extension@0.2.5"
