@@ -99,7 +99,8 @@ def to_openai(m):
         if calls:
             out["tool_calls"] = [{"id": c["id"], "type": "function",
                                   "function": {"name": c["name"],
-                                               "arguments": json.dumps(c["arguments"])}}
+                                               "arguments": c["arguments"] if isinstance(c["arguments"], str)
+                                               else json.dumps(c["arguments"])}}
                                  for c in calls]
         return out
     raise ValueError("unknown role " + r)
@@ -121,6 +122,14 @@ def est_chars(messages, tools=None):
     if tools:
         n += len(json.dumps(tools, separators=(",", ":")))
     return n
+
+
+def chars_by_role(messages, tools):
+    d = {"tools": len(json.dumps(tools, separators=(",", ":")))}
+    for m in messages:
+        n = len(m.get("content") or "") + sum(len(c["function"]["arguments"]) for c in m.get("tool_calls", []))
+        d[m["role"]] = d.get(m["role"], 0) + n
+    return d
 
 
 def step_score(msgs):
@@ -145,12 +154,20 @@ def load_additive(path):
     txt = path.read_text(encoding="utf-8")
     a = txt.index("var ADDITIVE_EXTRACTION_PROMPT = `") + len("var ADDITIVE_EXTRACTION_PROMPT = `")
     b = txt.index("\n`\n", a) + 1
-    raw = txt[a:b].replace("\\`", "`")
-    # the recon dump shows non-ASCII as \uXXXX escapes (JS source); decode them
-    return re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1), 16)), raw)
+    raw = txt[a:b]
+    # raw JS template-literal source: decode escapes in one pass, as JS would
+    def dec(m):
+        t = m.group(1)
+        if t[0] == "u" and len(t) == 5:
+            return chr(int(t[1:], 16))
+        return {"n": "\n", "t": "\t", "r": "\r"}.get(t, t)
+    return re.sub(r"\\(u[0-9a-fA-F]{4}|.)", dec, raw, flags=re.S)
 
 
 def parse_ts(s):
+    if isinstance(s, (int, float)) or (isinstance(s, str) and re.fullmatch(r"\d+(\.\d+)?", s)):
+        v = float(s)
+        return datetime.fromtimestamp(v / 1000 if v > 1e11 else v, timezone.utc)
     try:
         d = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
     except ValueError:
@@ -168,22 +185,24 @@ def db_tables(db):
 
 
 def existing_memories(con, cols, cutoff, limit=10):
-    tcol = next((c for c in ("new_memory", "new_value", "text", "memory") if c in cols), None)
-    ecol = "event" if "event" in cols else None
+    """Latest text per memory id, created before cutoff; ids whose latest action is DELETE dropped."""
+    tcol = next((c for c in ("new_value", "new_memory", "text", "memory") if c in cols), None)
+    acol = next((c for c in ("action", "event") if c in cols), None)
     if not tcol:
         return [], False
-    rows = [dict(r) for r in con.execute("SELECT * FROM memory_history ORDER BY rowid")]
     latest, filtered = {}, False
-    for r in rows:
-        if ecol and r[ecol] not in ("ADD", "UPDATE"):
-            continue
+    for r in (dict(r) for r in con.execute("SELECT * FROM memory_history ORDER BY rowid")):
         ts = parse_ts(r.get("created_at"))
         if cutoff and ts:
             filtered = True
             if ts >= cutoff:
                 continue
-        if r.get(tcol):
-            latest[r.get("memory_id") or r.get("id")] = r[tcol]
+        act = str(r.get(acol) or "").upper() if acol else "ADD"
+        key = r.get("memory_id") or r.get("id")
+        if act == "DELETE":
+            latest.pop(key, None)
+        elif act in ("ADD", "UPDATE") and r.get(tcol):
+            latest[key] = r[tcol]
     texts = list(latest.values())[-limit:]
     return [{"id": str(i), "text": t} for i, t in enumerate(texts)], filtered
 
@@ -270,10 +289,14 @@ def main():
                               meta=dict(arm=s["arm"], step=s["step"], turn=t,
                                         predicted_n=rec["predicted_n"],
                                         recorded_n_messages=rec["n_messages"],
-                                        chars=est_chars(hist, tools))))
+                                        chars=est_chars(hist, tools),
+                                        chars_by_role=chars_by_role(hist, tools))))
     agent = agent[: args.agent_max]
 
-    # ---- mem set: every mem tap record in the mem0 arm, up to --mem-max
+    # ---- mem set: one request per mem tap record in the mem0 arm, up to --mem-max.
+    # Events per step: one per mem0_memory add toolCall (new msgs = "user: <content>", cutoff = its
+    # toolResult time) + the auto-capture (user prompt + first assistant text, cutoff = that
+    # message's time), in cutoff order, matched to the step's mem tap records in order.
     mem, dbinfo = [], {}
     for s in steps:
         if s["arm"] != "mem0":
@@ -286,24 +309,46 @@ def main():
             continue
         con, cols = db_tables(hist_db)
         dbinfo[s["run"]] = cols
-        ts_ms = [m["timestamp"] for m in s["msgs"] if isinstance(m.get("timestamp"), (int, float))]
-        cutoff = datetime.fromtimestamp(max(ts_ms) / 1000, timezone.utc) if ts_ms else None
-        date = (s["sess_ts"] or "")[:10] or "2026-10-12"
+        date = (s["sess_ts"] or "")[:10] or "2026-10-11"
+        tr_ts = {m["toolCallId"]: m.get("timestamp") for m in s["msgs"] if m["role"] == "toolResult"}
+        events = []
         user = next(m for m in s["msgs"] if m["role"] == "user")
-        first_asst = next((blocks_text([b for b in m["content"] if b.get("type") == "text"])
-                           for m in s["msgs"] if m["role"] == "assistant"
-                           and any(b.get("type") == "text" and b.get("text", "").strip()
-                                   for b in m["content"])), "")
-        new_msgs = f"user: {blocks_text(user['content'])}\nassistant: {first_asst}"
-        ex, filtered = existing_memories(con, cols["memory_history"], cutoff)
-        lk = last_k(con, cols["messages"], cutoff)
+        for m in s["msgs"]:
+            if m["role"] != "assistant":
+                continue
+            for b in m["content"]:
+                if b.get("type") == "toolCall" and b["name"] == "mem0_memory":
+                    a = b["arguments"] if isinstance(b["arguments"], dict) else json.loads(b["arguments"])
+                    if a.get("action") != "add":
+                        continue
+                    txt = next((a[k] for k in ("content", "text", "memory", "fact", "data")
+                                if isinstance(a.get(k), str)), None)
+                    if txt is None:
+                        log("tool add without known content key:", s["run"], s["step"], list(a))
+                        txt = json.dumps(a)
+                    events.append(dict(kind="tool_add", ts=tr_ts.get(b["id"]) or m.get("timestamp"),
+                                       new=f"user: {txt}"))
+        cap = next((m for m in s["msgs"] if m["role"] == "assistant"
+                    and any(b.get("type") == "text" and b.get("text", "").strip() for b in m["content"])), None)
+        if cap:
+            events.append(dict(kind="capture", ts=cap.get("timestamp"),
+                               new=f"user: {blocks_text(user['content'])}\nassistant: {blocks_text(cap['content'])}"))
+        events.sort(key=lambda e: e["ts"] or 0)
+        if len(events) != len(recs):
+            log("MEM COUNT MISMATCH", s["run"], s["step"], "events", len(events), "tap", len(recs))
         for j, rec in enumerate(recs):
-            up = mem_user_prompt(ex, lk, new_msgs, date)
+            e = events[j] if j < len(events) else dict(kind="unmatched", ts=events[-1]["ts"] if events else None,
+                                                       new=events[-1]["new"] if events else "")
+            cutoff = parse_ts(e["ts"])
+            ex, filtered = existing_memories(con, cols["memory_history"], cutoff)
+            lk = last_k(con, cols["messages"], cutoff)
+            up = mem_user_prompt(ex, lk, e["new"], date)
             msgs_ = [{"role": "system", "content": additive}, {"role": "user", "content": up}]
             mem.append(dict(id=f"{s['run']}/{s['step']}/{j}", role="mem",
-                            body={"messages": msgs_, "chat_template_kwargs": {"enable_thinking": False}},
+                            body={"messages": msgs_, "response_format": {"type": "json_object"},
+                                  "chat_template_kwargs": {"enable_thinking": False}},
                             recorded_prompt_tokens=rec["prompt_n"] + rec["cache_n"],
-                            meta=dict(arm="mem0", step=s["step"], ordinal=j,
+                            meta=dict(arm="mem0", step=s["step"], ordinal=j, kind=e["kind"],
                                       predicted_n=rec["predicted_n"],
                                       cap_hit_2048=rec["predicted_n"] == 2048,
                                       recorded_n_messages=rec["n_messages"],
@@ -319,14 +364,19 @@ def main():
         return dict(id=r["id"], role=r["role"], n_messages=len(r["body"]["messages"]),
                     prompt_chars=c, est_tokens_chars4=round(c / 4),
                     recorded_prompt_tokens=rp, est_over_recorded=round(c / 4 / rp, 3),
-                    predicted_n=r["meta"]["predicted_n"])
+                    predicted_n=r["meta"]["predicted_n"], kind=r["meta"].get("kind"),
+                    chars_by_role=r["meta"].get("chars_by_role"))
     ents = [entry(r) for r in agent + mem]
     by = lambda role: [e for e in ents if e["role"] == role]
     manifest = dict(
         system_prompt_exact=exact_all,
-        system_prompt_note="agent system prompt = sections from the recorded system message joined by blank lines",
+        system_prompt_note="agent system prompt = recorded sections joined by blank lines; the join is INFERRED "
+                           "(getSystemMessageText is not in pi_prompt_src.txt); exactness is supported only by "
+                           "the est/recorded ratios of requests with n_messages<=3",
         mem_prompt_assumptions="serializeMemories=JSON list; formatConversationHistory='role: content' lines; "
-                               "existing = latest 10 ADD/UPDATE memories created before the step's last event",
+                               "existing = latest 10 live memories (ADD/UPDATE, DELETE removed) created before the per-call cutoff "
+                               "(not the 10 nearest by embedding); newMessages 'role: content' per mem0_extract_src.txt:838; "
+                               "tool-add content key guessed from toolCall arguments",
         totals={role: dict(requests=len(by(role)),
                            distinct_steps=len({e["id"].rsplit("/", 1)[0] for e in by(role)}),
                            prompt_chars=sum(e["prompt_chars"] for e in by(role)),
@@ -338,6 +388,13 @@ def main():
         requests=ents,
     )
     print(json.dumps({k: manifest[k] for k in ("system_prompt_exact", "totals")}, indent=1))
+    short = [e["est_over_recorded"] for e in by("agent") if e["n_messages"] <= 3]
+    print("agent ratio n_messages<=3:", short)
+    print("agent chars_by_role (id, ratio, breakdown):")
+    for e in by("agent"):
+        print("  ", e["id"], e["est_over_recorded"], e["chars_by_role"])
+    print("mem kinds:", [(e["id"], e["kind"], e["est_over_recorded"]) for e in by("mem")])
+    manifest["agent_ratio_n_messages_le3"] = short
     print("n_messages mismatches:", len(mismatches), mismatches[:10])
     print("mem0 db columns:", json.dumps(dbinfo))
     print("outliers (ratio outside 0.75-1.33):",

@@ -622,3 +622,27 @@ outliers (ratio outside 0.75-1.33): [('inventory-baseline-r0/0/5', 0.246), ('inv
 wrote /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/.replay/m1 /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/replay_manifest.json
 
 ```
+
+### 2026-10-12T08:41:32-04:00 · worker (claude-sonnet-5-5), round 9
+
+Applied the advisor's fixes in bench/build_replay_set.py. The mem set now has one event per mem0_memory add toolCall plus the auto-capture, matched to tap records in order, with kind recorded and count mismatches logged. Cutoffs are per call. Bodies carry response_format json_object. The history table is read by its action column with DELETE handled, and the prompt is unescaped in a single pass. String arguments are no longer double-encoded, and the system-prompt note says the join is inferred. The manifest now includes the ratio for n_messages<=3. I added a per-request chars-by-role breakdown to the output. The previous run had a median agent est/recorded ratio of 0.457, which fails the 0.75–1.33 criterion, so I need that breakdown to see why (code and JSON tokenize at fewer than 4 chars/token, or some history is missing). The mem median was 1.054. I did not run it. I'll write the outlier notes and decide on a ratio method after seeing this output.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/build_replay_set.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Re-run the builder with the advisor's mem-set fixes. These are per-call tool_add and capture events, per-call cutoffs, response_format, the action column with DELETE handling, single-pass unescape, string-safe arguments and the inferred-join note. It also prints per-role char breakdowns to explain the agent est/recorded median of 0.457, which fails acceptance. Read-only, no GPU."
+}
+```
+
+### 2026-10-12T08:42:58-04:00 · advisor (run request)
+
+**revise**: The run is safe (read-only, mode=ro SQLite, writes under the repo, no GPU), but chars_by_role leaves out assistant thinking, so it can't explain the 0.457 agent median. The likely cause is that the recorded prompts include earlier reasoning: baseline-r0/0/2 has predicted_n=8565, and the recorded prompt grows 2761->13032 tokens by turn 5 while rebuilt chars grow only 8354->12842. The same jump follows every long-output turn (mem0-r0/0/2, mem0-r1/0/4, mem0-r2/0/2), and steps with short outputs (baseline-r1/2) stay at ~0.8. pi's thinking blocks carry thinkingSignature='reasoning_content' (recon/event_samples.json:457), and pi-ai's openai-completions converter very likely sends them back on the assistant message under that field. Fix before running: (1) In to_openai, for assistant messages with non-empty thinking blocks, set out[sig] = '\n'.join(thinking texts), where sig is the first block's thinkingSignature (if present). Mirror pi-ai's convertMessages, and stop saying reasoning is dropped. (2) Count reasoning_content in est_chars and chars_by_role, as a separate 'reasoning' key. (3) For each agent request, print two ratios: with reasoning counted for all prior assistant turns, and only for assistant turns after the last role=user message (the usual Qwen-template behaviour). Whichever one lands near 0.85, the n_messages=2 value, tells you how the template renders it. (4) Confirm from source in the same run: glob for pi-ai's dist/providers/openai-completions.js under the pi package's node_modules (sources.txt pi_package_dir, or the sibling @earendil-works/pi-ai), then print the lines around 'thinkingSignature' to stdout. (5) Bodies must keep reasoning_content: the replay must reproduce the real prompt (size and the text n-gram drafting copies from). Note in the manifest that the probe server needs --jinja (production has it) so the template sees reasoning_content. The mem-set changes look right; leave them. After the run, check both medians against 0.75-1.33 before writing the outlier notes. If the agent median is still low with reasoning included, report that rather than switching the estimator to make it pass.
+
+### 2026-10-12T08:42:58-04:00 · orchestrator
+
+Added to the standing facts:
+
+- pi's recorded thinking blocks carry thinkingSignature='reasoning_content' (recon/event_samples.json:457), and agent prompt growth after long-reasoning turns (e.g. baseline-r0/0/2 predicted_n=8565, then the recorded prompt goes 2761->13032 by turn 5) indicates that recorded agent prompts included earlier reasoning, so agent replay bodies that drop reasoning under-size the real traffic.
