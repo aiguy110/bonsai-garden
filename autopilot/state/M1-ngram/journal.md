@@ -1302,3 +1302,7 @@ Verified the completed M1 documentation and host site-check result; no further c
 ### 2026-10-12T11:48:51-04:00 · advisor (write-up)
 
 **approve**: The write-up is accurate, readable, and complete. Required experiment, series, project, engine-review, roadmap, and README updates are present; the live configuration correctly remains unchanged.
+
+### 2026-10-12T11:48:54-04:00 · orchestrator
+
+BLOCKED: merge/publish failed: git -c user.name=bonsai-autopilot -c user.email=autopilot@bonsai-garden.local merge --no-ff -m Merge autopilot milestone M1-ngram auto/M1-ngram:
