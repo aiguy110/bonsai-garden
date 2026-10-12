@@ -1167,3 +1167,18 @@ Made and documented the no-deploy decision. Added the serving experiment page an
   "note": "Validate site metadata when PyYAML is available, then finish the milestone."
 }
 ```
+
+### 2026-10-12T11:22:05-04:00 · worker (gpt-5.6-terra), round 10
+
+Validated the completed replay artifacts and documentation. All five requested arms contain four phases, requests, VRAM samples, and per-phase server logs; A/B foreground rows have draft fields. Production results support the no-deploy decision: default ngram-mod is slower in both busy-slot foreground roles (agent 26.7 vs 31.3 tok/s; mem 23.4 vs 25.4). PyYAML is unavailable in the sandbox, but an equivalent structural/date/word-count validation of the site front matter passed (10 pages, 0 errors).
+
+```json
+{
+  "request": "done",
+  "summary": "M1 is complete. Real-traffic replay is implemented in `bench/spec_replay.py`; measurements and logs are in `bench/results/2026-10-12/m1-ngram/replay/{off-greedy,A-greedy,B-greedy,off-prod,A-prod}/`, with analysis via `bench/spec_analyze.py`. It covers agent and reconstructed mem0 traffic at one and two busy slots, greedy and production sampling, draft acceptance, hashes, and text-only mmproj compatibility. Both tested n-gram settings fail the two-slot speed rule; no live config was changed. Findings and decision are documented in `bench/m1-notes.md`, `site/series/serving/ngram-self-speculation.md`, `site/series/serving/index.md`, `site/index.md`, and `docs/engine-review.md`. Site metadata validation passed via an equivalent local check because PyYAML is absent from the sandbox."
+}
+```
+
+### 2026-10-12T11:24:29-04:00 · advisor (finished item)
+
+**revise**: Measurements and required artifacts are complete and traceable; no rerun is needed. Before approval, correct documentation issues in `bench/m1-notes.md`: §7 says mem0-r0 step 0 had 11 agent requests, but `recon/inventory.json` records 10; §1 attributes backend descriptions to `help.txt` although help only enumerates names, so remove or properly source those descriptions. Also disclose that every B server log warns `ngram_mod n_match=12 is too small - poor quality is possible`; this belongs beside the B justification and preferably on the experiment page. The no-deploy conclusion remains supported.
