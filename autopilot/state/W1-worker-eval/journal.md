@@ -42,3 +42,7 @@ Corrected the builder for authoritative single-journal selection, timestamped st
 ### 2026-10-12T12:55:14-04:00 · orchestrator
 
 The advisor's subscription hit its rate limit; pausing 30 min. This session doesn't count as a round.
+
+### 2026-10-12T13:25:17-04:00 · orchestrator
+
+The worker's subscription hit its rate limit; pausing 30 min. This session doesn't count as a round.
