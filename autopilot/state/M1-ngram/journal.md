@@ -788,3 +788,40 @@ result ok None
 2026-10-12 09:02:31,747 released lease f9ef893827037d5fdab19e6285c41cae
 
 ```
+
+### 2026-10-12T09:03:24-04:00 · worker (claude-sonnet-5-5), round 2
+
+Off/greedy results are in. Fg decode tok/s: single-agent 55.1, single-mem 55.6, dual-agent 26.3, dual-mem 25.0. All 4 phases completed with no errors. Patched bench/spec_replay.py per the advisor: draft_n and draft_n_accepted default to 0, the -nommproj fallback fires only on a refusal log line, and it aborts if :8089 is already answering. Next is the A/greedy run. After that I will pick B and justify it in bench/m1-notes.md.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A greedy --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Config A (ngram-mod defaults), greedy replay, 4 phases on fresh servers. Off/greedy finished (all 4 phases ok; decode tok/s fg: single-agent 55.1, single-mem 55.6, dual-agent 26.3, dual-mem 25.0; 1 length-finish). Applied advisor fixes first: draft_n defaults to 0, mmproj fallback only on a refusal log line, stale-server check."
+}
+```
+
+### 2026-10-12T09:04:38-04:00 · advisor (run request)
+
+**approve**: Safe: private server on 127.0.0.1:8089 from the production yaml, stale-server check, writes only under the repo, server stopped in finally. The advisor fixes are in. For the analysis: (1) Off-greedy already shows that temp-0 outputs depend on the batch mix (baseline-r0/0/0 sha 530c... single vs 4694... dual; r0/0/8 gives 141 vs 203 tokens), so compare out_sha256 between arms only within the same phase, report the share of identical outputs per phase, and expect dual-phase mismatches even with spec off. (2) Dual-phase fg predicted_ms includes stalls from the other slot's 8-9k-token prefills and from bg cache misses, so for each arm and phase report fg sum(predicted_n)/sum(predicted_ms) plus combined throughput of both slots over phase wall time, not just a mean of per-request tok/s. (3) The REFUSAL string 'not supported by this context' also matches server-context.cpp:1168 (spec not initialised at all, and removing mmproj won't fix it) and the ctx_shift/cache_reuse warnings at 1135/1140. If a -nommproj fallback fires, quote the triggering line and don't call it an mmproj refusal unless it is one. (4) The 1172 'will use checkpoints' notice is SRV_TRC and won't appear at the default verbosity, so look for 'accepted N/M draft tokens (restore checkpoint)' (3813) instead. (5) Count finish_reason=length per arm (off-greedy has 1 fg row: baseline-r1/2/8) and give speedups with and without capped outputs.
+
+### 2026-10-12T09:04:38-04:00 · orchestrator
+
+Added to the standing facts:
+
+- In off-greedy, the same request gives a different greedy output in single vs dual phases (requests.jsonl: baseline-r0/0/0 out_sha256 530c... vs 4694..., r0/0/8 predicted_n 141 vs 203), so temp-0 output depends on the batch mix; output identity between arms must be compared per phase, and dual-phase mismatches are expected without spec.
+- server-context.cpp:1172 'speculative decoding will use checkpoints' is logged with SRV_TRC and does not appear in replay logs at the default verbosity; use the 3813 'restore checkpoint' acceptance lines as evidence of checkpointed speculation.
+
+### 2026-10-12T09:17:52-04:00 · orchestrator
+
+Ran `python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A greedy --spec-type ngram-mod` (gpu=True) in 794s, exit 0. Full output: `bench/results/2026-10-12/autopilot/spec-replay-r2.log`. Last lines:
+
+```
+2026-10-12 09:04:39,332 turnstile lease 83b914c19ad0614135e3845a13ce9912 granted after 0s
+2026-10-12 09:04:39,333 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A greedy --spec-type ngram-mod
+result ok None
+2026-10-12 09:17:52,458 released lease 83b914c19ad0614135e3845a13ce9912
+
+```

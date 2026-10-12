@@ -128,6 +128,11 @@ class Run:
         cmd = server_cmd(self.extra, self.nommproj)
         if phase == "single-agent":
             self.note("cmd: " + " ".join(cmd))
+        try:
+            urllib.request.urlopen(f"http://127.0.0.1:{PORT}/health", timeout=2).read()
+            raise SystemExit(f"stale server already answering on :{PORT}")
+        except OSError:
+            pass
         self.srv = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, env=env)
         for _ in range(600):
             if self.srv.poll() is not None:
@@ -182,7 +187,7 @@ class Run:
             row.update(prompt_n=t.get("prompt_n"), cache_n=t.get("cache_n"),
                        predicted_n=t.get("predicted_n"), predicted_ms=t.get("predicted_ms"),
                        predicted_per_second=t.get("predicted_per_second"),
-                       draft_n=t.get("draft_n"), draft_n_accepted=t.get("draft_n_accepted"),
+                       draft_n=t.get("draft_n", 0), draft_n_accepted=t.get("draft_n_accepted", 0),
                        finish_reason=r["choices"][0].get("finish_reason"),
                        tool_call_json_valid=valid,
                        out_sha256=hashlib.sha256(blob.encode()).hexdigest())
@@ -208,7 +213,9 @@ class Run:
         try:
             if not ok:
                 self.note(f"[{name}] server did not become healthy (exit={self.srv.poll()})")
-                self.log_hits(logp, name)
+                if self.log_hits(logp, name) and self.extra and not self.nommproj:
+                    self.note(f"[{name}] speculation refused at startup")
+                    return "refused"
                 return "failed"
             refusals = self.log_hits(logp, name)
             if refusals and any(a.startswith("--spec-type") for a in self.extra) \
@@ -263,7 +270,7 @@ def main():
     nommproj = label.endswith("-nommproj")
     run = Run(outdir, label, sampling, extra, nommproj)
     st, ph = run.run()
-    if st != "ok" and not nommproj and any(a.startswith("--spec-type") for a in extra):
+    if st == "refused" and not nommproj and any(a.startswith("--spec-type") for a in extra):
         run.note(f"mmproj config {st} in phase {ph}; rerunning as {label}-nommproj")
         run = Run(outdir, f"{label}-nommproj", sampling, extra, True)
         st, ph = run.run()
