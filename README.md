@@ -15,6 +15,7 @@ the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`)
 |---|---|
 | `docs/engine-review.md` | Measured throughput, the shared-weights feasibility study, and the phased engine proposal. **Start here** |
 | `docs/architecture.md` | Target topology, roles, priorities, and open questions |
+| `docs/roadmap.md` | Milestones (M1 n-gram speculation onward) and the autopilot design |
 | `docs/benchmark-plan.md` | Arms, task suites, metrics, and run rules |
 | `bench/` | Engine probe scripts plus dated raw results |
 | `docs/phase-a-runbook.md` | Step-by-step runbook for Phase A (2-slot config, pi registration) |

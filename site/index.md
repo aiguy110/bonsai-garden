@@ -20,8 +20,10 @@ summary: |
     sequence 2/3 times; no-memory baseline 0/3.** Memory carried facts and rules that
     were only ever *said*, never written into the repo.
 
-  **Next:** more tasks and repeats before drawing conclusions, a guard that memory
-  doesn't hurt unrelated tasks, and cheaper memory writes.
+  **Next ([roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md)):**
+  n-gram speculation to speed up everything else, more tasks and repeats, a guard
+  that memory doesn't hurt unrelated tasks, and two other memory layers
+  (agent-managed blocks, Graphiti) to compare with mem0.
 ---
 
 ## Why this exists
