@@ -9,7 +9,7 @@
 Roles (config.json) are pi model strings, so any of them can be swapped:
   worker   in the eval Docker sandbox: garden/<id> is Bonsai via turnstile (bench key,
            priority 20), meridian/<id> or openai-codex/<id> a cloud model through the sandbox's tap
-  advisor  cloud model through meridian, read-only tools: plans, reviews every request,
+  advisor  cloud model (meridian or openai-codex), read-only tools: plans, reviews every request,
            approves finished items and fact-checks write-ups
   fixer    cloud model with shell access, called only when the local model is down
            and rolling back the last infra change didn't help
@@ -214,7 +214,9 @@ def ensure_cloud_agent():
 
 
 def call_cloud(role, prompt, label):
-    """A cloud role (advisor or fixer) as a host pi session through meridian."""
+    """A cloud role (advisor or fixer) as a host pi session, through meridian or Codex.
+    For Codex the token comes from the CLI's login through the environment, so it
+    never lands in the agent dir."""
     ensure_cloud_agent()
     if budget_left() <= 0:
         raise OutOfBudget(role)
@@ -222,6 +224,10 @@ def call_cloud(role, prompt, label):
     r = CFG["roles"][role]
     events = call_log(f"{role}-{label}")
     env = dict(os.environ, PI_CODING_AGENT_DIR=str(CLOUD_AGENT))
+    if r["model"].startswith("openai-codex/"):
+        env["CODEX_TOKEN"] = codex_token()[0]
+        (CLOUD_AGENT / "models.json").write_text(json.dumps(
+            {"providers": {"openai-codex": {"apiKey": "${CODEX_TOKEN}"}}}, indent=2) + "\n")
     with open(events, "w") as out:
         p = subprocess.run(["pi", "-p", "--mode", "json", "--no-session", *ev.PI_FLAGS,
                             "--model", f"{r['model']}:{r['thinking']}", "--tools", r["tools"], prompt],

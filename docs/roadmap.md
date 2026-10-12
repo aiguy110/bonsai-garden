@@ -132,7 +132,7 @@ either side of that design:
 
 Implemented in [`autopilot/`](../autopilot/README.md). A worker model does the
 work in a sandbox: Bonsai until 2026-10-12, then a cloud model (Claude Sonnet 5.5, then GPT-5.6 Terra), until the
-local worker track brings Bonsai back. A cloud advisor (`meridian/claude-opus-5-5` via pi, swappable) plans,
+local worker track brings Bonsai back. A cloud advisor (`openai-codex/gpt-5.6-sol` via pi since 2026-10-12, before that Claude Opus; swappable) plans,
 reviews every request and fact-checks write-ups. Deterministic code runs the
 probes and evals, enforces protected paths, and publishes. Live-server changes go
 through `autopilot/infra.py`:

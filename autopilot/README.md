@@ -8,7 +8,7 @@ Progress is published to the site's [autopilot status page](https://aiguy110.git
 autopilot.py (systemd user service, runs from the main checkout)
   ├─ worker   pi on openai-codex/gpt-5.6-terra (or meridian/…, garden/…) in the eval
   │           Docker sandbox: no network, no GPU, sees only the milestone's worktree
-  ├─ advisor  pi on meridian/claude-opus-5-5, read-only tools: plans, reviews every
+  ├─ advisor  pi on openai-codex/gpt-5.6-sol (or meridian/…), read-only tools: plans, reviews every
   │           request and finished item, fact-checks the write-up
   ├─ fixer    pi on meridian/claude-opus-5-5 with a shell: only when the local model is
   │           down and rollback didn't help
@@ -19,7 +19,10 @@ autopilot.py (systemd user service, runs from the main checkout)
 Roles are pi model strings in `config.json`. To swap the advisor, edit the string
 (any pi provider works). Meridian (`meridian.service`, :3456) serves Claude through
 the Claude Code SDK. The advisor's pi agent dir is `.cache/agent-cloud`, which has
-`pi-meridian-extension`.
+`pi-meridian-extension`. An `openai-codex/<id>` advisor gets the Codex CLI's token
+through the environment (`CODEX_TOKEN`, named in the agent dir's `models.json`).
+Since 2026-10-12 10:30 the advisor is GPT-5.6 Sol (thinking `high`) and the fixer is
+still Claude Opus.
 
 The worker is `garden/<id>` (Bonsai through turnstile, bench key, priority 20),
 `meridian/<id>` or `openai-codex/<id>`. A cloud worker still has no network; the
