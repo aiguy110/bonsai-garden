@@ -297,3 +297,95 @@ Traceback (most recent call last):
 AttributeError: 'str' object has no attribute 'read_text'
 
 ```
+
+### 2026-10-12T14:00:26-04:00 · worker (gpt-5.6-terra), round 9
+
+Round 8's run crashed in validate(): event_errors() got a str event_log path, but parse_events needs a Path. I wrapped it in pathlib.Path in event_errors (bench/worker_eval/build_cases.py:165). I haven't rerun it. Next: read the included count, each skip count, and the --check exit code. If there are at least 20 rows and --check exits 0, I'll submit done.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/build_and_check.sh",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Rerun build and --check after fixing event_errors(), which crashed because validate() passed a str to parse_events."
+}
+```
+
+### 2026-10-12T14:00:49-04:00 · advisor (run request)
+
+**approve**: Safe, and the fix is correct: event_errors() now wraps the path in pathlib.Path before calling evals/run.py:parse_events, which calls path.read_text(). In your next report give: (1) the exact included count and every skip reason with its count. no_journal_worker should be 8, the original 6 M1 orphans plus 082110-replay-set-r6 and 113932-write-up-r1. If it is anything else, list the log names. rate_limited should still be 8. (2) The exit code of the --check step. If the build succeeds, --check exits 0, there are at least 20 rows across at least 2 items and at least one revise case is kept, submit done with those numbers. Keep the inventory.json this run writes; don't edit it by hand. If --check fails, quote the validation errors exactly and fix the causes. Don't loosen the rules. Optional cleanup before done: fold the README's 'Scoping and further provenance checks' bullets into the paragraph above them, and remove the unused ADVISOR regex and the unused `raw` return value of log_data(). If you change any code, rerun build_and_check.sh before submitting done.
+
+### 2026-10-12T14:00:59-04:00 · orchestrator
+
+Ran `bash bench/worker_eval/build_and_check.sh` (gpu=False) in 11s, exit 0. Full output: `bench/results/2026-10-12/autopilot/case-corpus-r9.log`. Last lines:
+
+```
+{
+  "canonical_worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+  "counts": {
+    "advisor_verdict": {
+      "approve": 15,
+      "revise": 7
+    },
+    "item": {
+      "decide": 3,
+      "replay-set": 7,
+      "spec-replay": 10,
+      "write-up": 2
+    },
+    "request_kind": {
+      "done": 8,
+      "run": 14
+    },
+    "source_model": {
+      "claude-sonnet-5-5": 11,
+      "gpt-5.6-terra": 11
+    }
+  },
+  "eligible_revise": 7,
+  "included": 22,
+  "schema_version": 1,
+  "skipped": {
+    "before_cutoff": 24,
+    "before_cutoff_or_bonsai": 1,
+    "no_journal_worker": 2,
+    "rate_limited": 8,
+    "unreviewed_continue_request": 2
+  }
+}
+{
+  "canonical_worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+  "counts": {
+    "advisor_verdict": {
+      "approve": 15,
+      "revise": 7
+    },
+    "item": {
+      "decide": 3,
+      "replay-set": 7,
+      "spec-replay": 10,
+      "write-up": 2
+    },
+    "request_kind": {
+      "done": 8,
+      "run": 14
+    },
+    "source_model": {
+      "claude-sonnet-5-5": 11,
+      "gpt-5.6-terra": 11
+    }
+  },
+  "eligible_revise": 7,
+  "included": 22,
+  "schema_version": 1,
+  "skipped": {
+    "before_cutoff": 24,
+    "before_cutoff_or_bonsai": 1,
+    "no_journal_worker": 2,
+    "rate_limited": 8,
+    "unreviewed_continue_request": 2
+  }
+}
+
+```

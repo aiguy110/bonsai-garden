@@ -162,7 +162,7 @@ def advisor_labels(kind):
 def event_errors(path):
     spec = importlib.util.spec_from_file_location("garden_evals_run", ROOT / "evals" / "run.py")
     module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
-    return module.parse_events(path)["errors"]
+    return module.parse_events(pathlib.Path(path))["errors"]
 
 
 def associated_advisor(journal_entries, worker_index, kind):
