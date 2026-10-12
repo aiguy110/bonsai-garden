@@ -1,13 +1,12 @@
 {
-  "phase": "blocked",
+  "phase": "work",
   "item": 2,
-  "round": 13,
+  "round": 4,
   "reviews": 0,
   "base": "62225d347db6befd389fea02eee0dfd81ae73de9",
   "dropped": [],
   "caveats": {
     "recon": "m1-notes.md \u00a71, \u00a73 (mmproj + spec runtime throw) and \u00a77 errors from the 05:22 review are unfixed; see standing facts."
   },
-  "replans": 0,
-  "blocked": "triage of `spec-replay` (used all 12 worker rounds): no usable decision"
+  "replans": 0
 }

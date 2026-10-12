@@ -1035,3 +1035,7 @@ Item `spec-replay` used all 12 rounds; asking the advisor to triage it.
 ### 2026-10-12T09:59:12-04:00 · orchestrator
 
 BLOCKED: triage of `spec-replay` (used all 12 worker rounds): no usable decision
+
+### 2026-10-12T10:23:26-04:00 · orchestrator
+
+Unblocked by the user. Rounds 5–12 of `spec-replay` and the triage call failed at once on the Claude Max rate limit, so they don't count: the round counter is back to 4. The worker is now `openai-codex/gpt-5.6-terra` (GPT-5.6 Terra through Codex). Rate limits now pause the loop instead of using rounds.
