@@ -4,10 +4,10 @@ series: serving
 title: GPU scheduler co-admission and virtual models
 status: done
 date: 2026-10-11
-updated: 2026-10-11
+updated: 2026-10-12
 tldr: Turnstile now lets agent and memory requests run together on one model, with a context budget and per-role limits; all 9 live checks pass.
 summary: |
-  **Problem:** turnstile, the GPU scheduler shared by everything on this machine,
+  **Problem:** [turnstile](https://github.com/aiguy110/gpu-turnstile), the GPU scheduler shared by everything on this machine,
   admitted one LLM request at a time. It also evicted models by name. So memory
   calls had to wait behind the agent, and the two-slot speedup could never happen.
 
@@ -59,6 +59,7 @@ estimate, were rejected.
 [PASS] lease waits for both LLM holders -- lease waited 6.2s
 ```
 
+Turnstile source: [aiguy110/gpu-turnstile](https://github.com/aiguy110/gpu-turnstile) (`internal/queue`, `internal/proxy/route.go`).
 Script: [`bench/phase_b_validate.py`](https://github.com/aiguy110/bonsai-garden/blob/main/bench/phase_b_validate.py).
 
 ## Token estimate

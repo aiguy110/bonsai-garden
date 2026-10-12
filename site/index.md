@@ -1,7 +1,7 @@
 ---
 layer: project
 title: bonsai-garden
-updated: 2026-10-11
+updated: 2026-10-12
 tldr: A coding agent with long-term memory, running entirely on one 10 GB consumer GPU.
 summary: |
   **Question:** can a small local coding agent get measurably better at multi-session
@@ -45,7 +45,7 @@ mem0 ──────► CPU embedder (Qwen3-Embedding-0.6B)
 - **Memory:** mem0 (open-source build, in-process) through the
   `@amaster.ai/pi-memory-mem0` pi extension. It auto-captures after each turn and
   auto-recalls before each prompt. Vectors live in SQLite. Nothing leaves the machine.
-- **Scheduler:** turnstile, a small GPU arbiter shared with other local
+- **Scheduler:** [turnstile](https://github.com/aiguy110/gpu-turnstile), a small GPU arbiter shared with other local
   workloads. It was extended so the agent and memory roles can share one model
   instead of evicting each other.
 

@@ -5,7 +5,7 @@ measurements behind it), then do Phase A (`docs/phase-a-runbook.md`) or confirm 
 is done: Phase B is only useful against a multi-slot `bonsai-2-27b`.
 
 The work happens in a **different repo**: `~/Projects/gpu-turnstile` (Go 1.26, module
-`github.com/aiguy110/gpu-turnstile`, private GitHub `aiguy110/gpu-turnstile`). Read
+`github.com/aiguy110/gpu-turnstile`, public at https://github.com/aiguy110/gpu-turnstile). Read
 its `README.md`, `internal/types/doc.go` (wiring contract + scheduler policy), and
 the `gpu-turnstile` skill before editing. Record outcomes back in this repo.
 

@@ -18,7 +18,7 @@ the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`)
 | `docs/benchmark-plan.md` | Arms, task suites, metrics, and run rules |
 | `bench/` | Engine probe scripts plus dated raw results |
 | `docs/phase-a-runbook.md` | Step-by-step runbook for Phase A (2-slot config, pi registration) |
-| `docs/phase-b-runbook.md` | Turnstile work: co-admission, context budget, virtual models (a different repo) |
+| `docs/phase-b-runbook.md` | Turnstile work: co-admission, context budget, virtual models (in [gpu-turnstile](https://github.com/aiguy110/gpu-turnstile)) |
 | `serving/` | The applied llama-swap entry and the CPU embedder unit |
 | `agent/` | pi wiring: models.json entry and memory extension choice |
 | `evals/` | Benchmark harness: arms, tasks, runner, metering tap, results |
