@@ -1,0 +1,4 @@
+2026-10-12 09:35:26,345 turnstile lease 13de840acf135063892f0ce03c3f615a granted after 0s
+2026-10-12 09:35:26,346 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod
+result ok None
+2026-10-12 09:53:52,274 released lease 13de840acf135063892f0ce03c3f615a

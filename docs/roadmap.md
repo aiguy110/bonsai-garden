@@ -1,15 +1,16 @@
 # Roadmap
 
-Status as of 2026-10-12: serving is done (two slots, turnstile co-admission). One
-memory eval has run: 1 task, N=3, mem0 2/3 vs baseline 0/3. That is suggestive,
-not a result. A second mem0 arm, `mem0-server`, runs Python mem0 (the reference
-implementation) instead of the JS port.
+Status as of 2026-10-12: serving is done (two slots, turnstile co-admission;
+n-gram speculation replayed and rejected). One memory eval has run: 1 task, N=3,
+mem0 2/3 vs baseline 0/3. That is suggestive, not a result. A second
+mem0 arm, `mem0-server`, runs Python mem0 (the reference implementation)
+instead of the JS port.
 
 Bonsai couldn't keep up as the autopilot's worker (11 of 21 rounds sent no request),
 so since 2026-10-12 the worker is a cloud model (Claude Sonnet 5.5, then GPT-5.6
 Terra through Codex). The priority now is the
 [local worker track](#local-worker-track): making the stack good enough that Bonsai
-can do this research itself. Order: M1, then W1, W2 (with M6 alongside), W3, W4,
+can do this research itself. M1 is done; next: W1, W2 (with M6 alongside), W3, W4,
 then M2 onward.
 
 ## Terms
@@ -79,7 +80,7 @@ grow. Each step is measured on W1.
 
 | # | Milestone | Question | Done when |
 |---|---|---|---|
-| M1 | **N-gram speculation** | Does llama-server's n-gram self-speculation speed up real agent and memory traffic, including when both slots are busy? | Replay of recorded agent and mem0 traces on :8089 (np2, both slots loaded) with and without `--spec-type ngram-*`; tok/s and acceptance rate per role. If it wins, a proposed config goes to the user. Deploying it is a live-stack change |
+| M1 | **N-gram speculation — done, not deployed** | Does llama-server's n-gram self-speculation speed up real agent and memory traffic, including when both slots are busy? | Replayed recorded agent and rebuilt mem0 traces on :8089, one and two slots busy. Default `ngram-mod` was slower at production sampling with two slots (agent 26.7 vs 31.3 tok/s; mem 23.4 vs 25.4), changed outputs, and was not deployed. |
 | M2 | **Continuity suite** | Does mem0's win hold beyond one hand-built task, and does it depend on which mem0? | 6 cross-session tasks, `baseline` vs `mem0` vs `mem0-server`, N=5; per-task and pooled pass rates with spread. Include ≥2 *knowledge-update* tasks, where a step 1 fact is changed in step 2. Spec: [`autopilot/milestones/M2-continuity.md`](../autopilot/milestones/M2-continuity.md) |
 | M3 | **Regression guard** | Does memory hurt tasks that don't need it? | 12 single-session tasks run with a pre-filled, *irrelevant* memory store vs baseline; no significant drop |
 | M4 | **Other memory layers** | Is mem0 the right design for a small local model? | Arms below, run on the M2 suite and M3 guard; pass rate vs memory-LLM tokens per step |

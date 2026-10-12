@@ -1,0 +1,12 @@
+{
+  "phase": "publish",
+  "item": 5,
+  "round": 0,
+  "reviews": 0,
+  "base": "6a83ecd908bcdca06c2441a47d866f3b99f404aa",
+  "dropped": [],
+  "caveats": {
+    "recon": "m1-notes.md \u00a71, \u00a73 (mmproj + spec runtime throw) and \u00a77 errors from the 05:22 review are unfixed; see standing facts."
+  },
+  "replans": 0
+}

@@ -1,0 +1,187 @@
+# window(s) around 'common_speculative_init' in server-context.cpp, +/-30 lines
+server-context.cpp:813:             // destroy() is already called when entering sleeping state
+server-context.cpp:814:             // we don't call it again here to avoid double free
+server-context.cpp:815:             destroy();
+server-context.cpp:816:         }
+server-context.cpp:817:     }
+server-context.cpp:818: 
+server-context.cpp:819:     server_metrics get_metrics() const {
+server-context.cpp:820:         return metrics;
+server-context.cpp:821:     }
+server-context.cpp:822: 
+server-context.cpp:823:     void reset_metrics_bucket() {
+server-context.cpp:824:         metrics.reset_bucket();
+server-context.cpp:825:     }
+server-context.cpp:826: 
+server-context.cpp:827: private:
+server-context.cpp:828:     // note: accessing these fields outside of this class is not thread-safe
+server-context.cpp:829:     // use server_context methods instead
+server-context.cpp:830: 
+server-context.cpp:831:     common_params params_base;
+server-context.cpp:832: 
+server-context.cpp:833:     // note: keep these alive - they determine the lifetime of the model, context, etc.
+server-context.cpp:834:     common_init_result_ptr llama_init;
+server-context.cpp:835: 
+server-context.cpp:836:     llama_context * ctx_tgt = nullptr;
+server-context.cpp:837: 
+server-context.cpp:838:     server_batch batch;
+server-context.cpp:839: 
+server-context.cpp:840:     llama_model   * model_dft = nullptr;
+server-context.cpp:841:     llama_context * ctx_dft   = nullptr;
+server-context.cpp:842: 
+server-context.cpp:843:     common_speculative_init_result_ptr spec_init;
+server-context.cpp:844: 
+server-context.cpp:845:     common_context_seq_rm_type ctx_tgt_seq_rm_type = COMMON_CONTEXT_SEQ_RM_TYPE_NO;
+server-context.cpp:846:     common_context_seq_rm_type ctx_dft_seq_rm_type = COMMON_CONTEXT_SEQ_RM_TYPE_NO;
+server-context.cpp:847: 
+server-context.cpp:848:     common_speculative_ptr spec;
+server-context.cpp:849: 
+server-context.cpp:850:     bool add_bos_token = true;
+server-context.cpp:851: 
+server-context.cpp:852:     int32_t n_ctx; // total context for all clients / slots
+server-context.cpp:853: 
+server-context.cpp:854:     // set to llama_model_n_swa(model)
+server-context.cpp:855:     // if swa_full is enabled, this is set to 0 to simulate a non-SWA model
+server-context.cpp:856:     int32_t n_swa;
+server-context.cpp:857: 
+server-context.cpp:858:     // slots / clients
+server-context.cpp:859:     std::vector<server_slot> slots;
+server-context.cpp:860: 
+server-context.cpp:861:     int trace = 0;        // env: LLAMA_TRACE
+server-context.cpp:862:     int slots_debug = 0;  // env: LLAMA_SERVER_SLOTS_DEBUG
+server-context.cpp:863:     int slots_n_diff = 0; // env: LLAMA_SERVER_SLOTS_N_DIFF
+server-context.cpp:864: 
+server-context.cpp:865:     int n_empty_consecutive = 0;
+server-context.cpp:866: 
+server-context.cpp:867:     std::unique_ptr<server_prompt_cache> prompt_cache;
+server-context.cpp:868: 
+server-context.cpp:869:     server_metrics metrics;
+server-context.cpp:870: 
+server-context.cpp:871:     // queued prompt stats - llama_decode() is async, so the timing is only valid after a sync
+server-context.cpp:872:     // note: kept out of server_metrics, which is copied as-is into the task result
+server-context.cpp:873:     int64_t  t_decode_start  = 0; // start of the last submitted decode
+
+server-context.cpp:1054:         ctx_tgt   = llama_init->context();
+server-context.cpp:1055: 
+server-context.cpp:1056:         if (model_tgt == nullptr) {
+server-context.cpp:1057:             SRV_ERR("failed to load model, '%s'\n", params_base.model.path.c_str());
+server-context.cpp:1058:             return false;
+server-context.cpp:1059:         }
+server-context.cpp:1060: 
+server-context.cpp:1061:         if (ctx_tgt == nullptr) {
+server-context.cpp:1062:             SRV_ERR("failed to create_context with model '%s'\n", params_base.model.path.c_str());
+server-context.cpp:1063:             return false;
+server-context.cpp:1064:         }
+server-context.cpp:1065: 
+server-context.cpp:1066:         vocab = llama_model_get_vocab(model_tgt);
+server-context.cpp:1067: 
+server-context.cpp:1068:         n_ctx = llama_n_ctx(ctx_tgt);
+server-context.cpp:1069: 
+server-context.cpp:1070:         add_bos_token = llama_vocab_get_add_bos(vocab);
+server-context.cpp:1071: 
+server-context.cpp:1072:         if (has_spec) {
+server-context.cpp:1073:             // spec_mtp doesn't use load a model internally, so we report 0.0 and 1.0 manually
+server-context.cpp:1074:             load_progress_callback(0.0f, &load_progress_spec);
+server-context.cpp:1075:             load_progress_spec.t_last_load_progress_ms = 0;  // reset so internal cbs aren't delayed
+server-context.cpp:1076: 
+server-context.cpp:1077:             {
+server-context.cpp:1078:                 common_params params_dft = common_base_params_to_speculative(params_base);
+server-context.cpp:1079: 
+server-context.cpp:1080:                 // progress callback
+server-context.cpp:1081:                 params_dft.load_progress_callback           = load_progress_callback;
+server-context.cpp:1082:                 params_dft.load_progress_callback_user_data = &load_progress_spec;
+server-context.cpp:1083: 
+server-context.cpp:1084:                 spec_init = common_speculative_init_from_params(params_dft, model_tgt, ctx_tgt);
+server-context.cpp:1085:                 model_dft = spec_init->model();
+server-context.cpp:1086:                 ctx_dft   = spec_init->context();
+server-context.cpp:1087: 
+server-context.cpp:1088:                 if (has_draft && model_dft == nullptr) {
+server-context.cpp:1089:                     SRV_ERR("failed to load draft model, '%s'\n", params_dft.model.path.c_str());
+server-context.cpp:1090:                     return false;
+server-context.cpp:1091:                 }
+server-context.cpp:1092: 
+server-context.cpp:1093:                 if (ctx_dft == nullptr) {
+server-context.cpp:1094:                     SRV_ERR("%s", "failed to create MTP context\n");
+server-context.cpp:1095:                     return false;
+server-context.cpp:1096:                 }
+server-context.cpp:1097: 
+server-context.cpp:1098:                 params_base.speculative.draft.ctx_tgt = ctx_tgt;
+server-context.cpp:1099:                 params_base.speculative.draft.ctx_dft = ctx_dft;
+server-context.cpp:1100:             }
+server-context.cpp:1101: 
+server-context.cpp:1102:             load_progress_callback(1.0f, &load_progress_spec);
+server-context.cpp:1103:         }
+server-context.cpp:1104: 
+server-context.cpp:1105:         if (has_mmproj) {
+server-context.cpp:1106:             if (callback_state) {
+server-context.cpp:1107:                 callback_state(SERVER_STATE_LOADING, {{"stage", "mmproj_model"}});
+server-context.cpp:1108:             }
+server-context.cpp:1109: 
+server-context.cpp:1110:             if (!is_resume) {
+server-context.cpp:1111:                 mtmd_helper_log_set(common_log_default_callback, nullptr);
+server-context.cpp:1112:             }
+server-context.cpp:1113: 
+server-context.cpp:1114:             mctx = mtmd_init_from_file(mmproj_path.c_str(), model_tgt, mparams);
+
+server-context.cpp:1157: 
+server-context.cpp:1158:         int n_ctx_slot = llama_n_ctx_seq(ctx_tgt);
+server-context.cpp:1159:         if (n_ctx_slot > n_ctx_train) {
+server-context.cpp:1160:             SRV_WRN("the slot context (%d) exceeds the training context of the model (%d) - capping\n", n_ctx_slot, n_ctx_train);
+server-context.cpp:1161:             n_ctx_slot = n_ctx_train;
+server-context.cpp:1162:         }
+server-context.cpp:1163: 
+server-context.cpp:1164:         slots.clear();
+server-context.cpp:1165: 
+server-context.cpp:1166:         ctx_tgt_seq_rm_type = common_context_can_seq_rm(ctx_tgt);
+server-context.cpp:1167:         if (ctx_tgt_seq_rm_type == COMMON_CONTEXT_SEQ_RM_TYPE_NO) {
+server-context.cpp:1168:             SRV_WRN("%s", "speculative decoding not supported by this context\n");
+server-context.cpp:1169:         }
+server-context.cpp:1170: 
+server-context.cpp:1171:         if (ctx_tgt_seq_rm_type == COMMON_CONTEXT_SEQ_RM_TYPE_FULL) {
+server-context.cpp:1172:             SRV_TRC("%s", "speculative decoding will use checkpoints\n");
+server-context.cpp:1173:         }
+server-context.cpp:1174: 
+server-context.cpp:1175:         // setup slots
+server-context.cpp:1176:         SRV_INF("initializing, n_slots = %d, n_ctx_slot = %d, kv_unified = '%s'\n",
+server-context.cpp:1177:                 params_base.n_parallel, n_ctx_slot, params_base.kv_unified ? "true" : "false");
+server-context.cpp:1178: 
+server-context.cpp:1179:         // initialize slots
+server-context.cpp:1180:         for (int i = 0; i < params_base.n_parallel; i++) {
+server-context.cpp:1181:             slots.emplace_back();
+server-context.cpp:1182:         }
+server-context.cpp:1183: 
+server-context.cpp:1184:         // try speculative decoding
+server-context.cpp:1185:         if (ctx_tgt_seq_rm_type != COMMON_CONTEXT_SEQ_RM_TYPE_NO) {
+server-context.cpp:1186:             try {
+server-context.cpp:1187:                 spec.reset(common_speculative_init(params_base.speculative, params_base.n_parallel));
+server-context.cpp:1188:             } catch (const std::exception & e) {
+server-context.cpp:1189:                 SRV_ERR("failed to initialize speculative decoding context: %s\n", e.what());
+server-context.cpp:1190:             }
+server-context.cpp:1191:         }
+server-context.cpp:1192: 
+server-context.cpp:1193:         if (ctx_dft) {
+server-context.cpp:1194:             ctx_dft_seq_rm_type = common_context_can_seq_rm(ctx_dft);
+server-context.cpp:1195:         }
+server-context.cpp:1196: 
+server-context.cpp:1197:         if (spec) {
+server-context.cpp:1198:             SRV_TRC("%s", "speculative decoding context initialized\n");
+server-context.cpp:1199:         } else {
+server-context.cpp:1200:             spec_init.reset();
+server-context.cpp:1201:             ctx_dft   = nullptr;
+server-context.cpp:1202:             model_dft = nullptr;
+server-context.cpp:1203:         }
+server-context.cpp:1204: 
+server-context.cpp:1205:         for (int i = 0; i < params_base.n_parallel; i++) {
+server-context.cpp:1206:             server_slot & slot = slots[i];
+server-context.cpp:1207: 
+server-context.cpp:1208:             slot.id      = i;
+server-context.cpp:1209:             slot.ctx_tgt = ctx_tgt;
+server-context.cpp:1210:             slot.ctx_dft = ctx_dft;
+server-context.cpp:1211:             slot.mem.init(ctx_tgt, ctx_dft);
+server-context.cpp:1212:             slot.spec    = spec.get();
+server-context.cpp:1213:             slot.n_ctx   = n_ctx_slot;
+server-context.cpp:1214: 
+server-context.cpp:1215:             slot.mctx                   = mctx;
+server-context.cpp:1216:             slot.prompt.tokens.has_mtmd = mctx != nullptr;
+server-context.cpp:1217: 
+

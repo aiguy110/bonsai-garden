@@ -69,11 +69,16 @@ would be cheap.
    `-cms 1024..2048`. Checkpoints live in host RAM (`--cache-ram`, 8 GiB default).
    *Probably the single biggest agent-latency win; measure per-turn
    `prompt_n` on real pi traces.*
-2. **N-gram self-speculation (`--spec-type ngram-mod`).** Needs no draft model and
-   no extra VRAM (+4 MiB measured). On a fresh prompt it drafted nothing and ran at
-   baseline speed (61.0 vs 61.5). On repeated text it hit 100% acceptance and
-   reached 162 tok/s. Agents re-emit file contents and edits a lot. Validate on
-   agent traces, including with `-np 2`.
+2. **N-gram self-speculation (`--spec-type ngram-mod`) — tested, not deployed.**
+   It needs no draft model and has negligible VRAM cost. On synthetic repeated
+   text it reached 162 tok/s, but the 2026-10-12 replay of 30 recorded agent
+   turns and 12 mem0 extraction calls did not carry that over. With production
+   sampling and both slots busy, default ngram-mod decoded agent foreground at
+   26.7 vs 31.3 tok/s off-speculation, and memory foreground at 23.4 vs 25.4.
+   A shorter 8--16-token draft variant was also slower under greedy sampling.
+   Spec changed outputs and sometimes changed token-cap behaviour, so the live
+   entry remains without a `--spec-*` flag. Text-only traffic works with the
+   projector loaded; speculative image-embedding batches are unsupported.
 3. **No MTP or EAGLE/DFlash draft for Bonsai 2.** The GGUF has no `nextn`
    tensors, and no published draft for its Qwen3.8-27B base was found. The fork can
    run `draft-dflash` if one appears.
@@ -194,6 +199,7 @@ pi: `bonsai-agent` is the default model. pi's `llama-swap-discover.ts` extension
 replaced the provider's model list with llama-swap's `/v1/models`, which hid
 virtual names; it now appends models.json entries discovery doesn't return.
 
-**Phase C (experiments):** `ngram-mod` on agent traces; q8_0 KV for the agent at
-lower ctx; a two-context single-process server for per-role KV types, only if
-memory evals call for it.
+**Phase C (experiments):** ngram-mod on agent traces was completed and rejected
+for deployment (see §3.2). Consider q8_0 KV for the agent at lower context, or a
+two-context single-process server for per-role KV types, only if memory evals
+call for it.
