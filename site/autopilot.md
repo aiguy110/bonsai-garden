@@ -4,9 +4,9 @@ kind: Live status
 updated: 2026-10-12
 ---
 
-*Updated 2026-10-12T14:27:57-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
+*Updated 2026-10-12T16:06:15-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
 
-Cloud advisor calls left today: **13** of 50.
+Cloud advisor calls left today: **12** of 50.
 
 ## M1-ngram
 
@@ -38,19 +38,16 @@ Full journal: [branch auto/M1-ngram](https://github.com/aiguy110/bonsai-garden/b
 
 ## W1-worker-eval
 
-**Phase:** blocked — tick crashed 3 times in a row; last: ValueError: embedded null byte
+**Phase:** work
 
 - ✅ **Extract a provenance-checked cloud-worker case set**
-- ⬜ **Define worker arms and implement the resumable replay harness**
+- ▶️ **Define worker arms and implement the resumable replay harness** (round 5)
 - ⬜ **Run Bonsai at N=2 and summarize deterministic outcomes**
 - ⬜ **Grade a deterministic sample of valid Bonsai requests**
 - ⬜ **Publish the W1 experiment and update parent summaries**
 
 <details><summary>Recent journal entries</summary>
 
-- 2026-10-12T14:09:36-04:00 · orchestrator
-- 2026-10-12T14:10:23-04:00 · worker (gpt-5.6-terra), round 2
-- 2026-10-12T14:12:35-04:00 · advisor (run request)
 - 2026-10-12T14:12:35-04:00 · orchestrator
 - 2026-10-12T14:12:35-04:00 · orchestrator
 - 2026-10-12T14:13:11-04:00 · worker (gpt-5.6-terra), round 3
@@ -60,6 +57,9 @@ Full journal: [branch auto/M1-ngram](https://github.com/aiguy110/bonsai-garden/b
 - 2026-10-12T14:16:41-04:00 · orchestrator
 - 2026-10-12T14:17:56-04:00 · fixer (cloud)
 - 2026-10-12T14:27:57-04:00 · orchestrator
+- 2026-10-12T16:03:51-04:00 · orchestrator
+- 2026-10-12T16:04:20-04:00 · worker (gpt-5.6-terra), round 5
+- 2026-10-12T16:06:15-04:00 · advisor (run request)
 
 Full journal: [branch auto/W1-worker-eval](https://github.com/aiguy110/bonsai-garden/blob/auto/W1-worker-eval/autopilot/state/W1-worker-eval/journal.md)
 </details>
