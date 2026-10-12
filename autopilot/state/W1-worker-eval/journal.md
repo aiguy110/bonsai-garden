@@ -534,3 +534,21 @@ BLOCKED: tick crashed 3 times in a row; last: ValueError: embedded null byte
 ### 2026-10-12T16:03:51-04:00 · orchestrator
 
 Unblocked by the user.
+
+### 2026-10-12T16:04:20-04:00 · worker (gpt-5.6-terra), round 5
+
+Verified the harness includes the venv fallback, manifest metadata, tap-log preservation, and SIGTERM handling requested in prior reviews. No further code changes were needed before retrying the host-only smoke run; its prior execution was blocked by the host reboot before the harness began.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/smoke.sh",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Retry the approved host smoke run now that the transient reboot outage is resolved: one live bench-route replay followed by a resume invocation that must skip it."
+}
+```
+
+### 2026-10-12T16:06:15-04:00 · advisor (run request)
+
+**revise**: The replay route and writes are safe, but smoke.sh is not a trustworthy smoke test. Do not swallow the pytest failure or continue after a failed run.py invocation. Enable fail-fast behavior, and replace the final bare `ls -d /tmp/w1-replay-*` with an explicit check that exits 0 when no directories exist and exits nonzero when leftovers are found. Then resubmit `bash bench/worker_eval/smoke.sh`.
