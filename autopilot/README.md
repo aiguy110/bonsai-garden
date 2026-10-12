@@ -10,7 +10,7 @@ autopilot.py (systemd user service, runs from the main checkout)
   │           Docker sandbox: no network, no GPU, sees only the milestone's worktree
   ├─ advisor  pi on openai-codex/gpt-5.6-sol (or meridian/…), read-only tools: plans, reviews every
   │           request and finished item, fact-checks the write-up
-  ├─ fixer    pi on meridian/claude-opus-5-5 with a shell: only when the local model is
+  ├─ fixer    pi on openai-codex/gpt-5.6-sol with a shell: only when the local model is
   │           down and rollback didn't help
   └─ infra.py transactional live-config changes: lease, back up, restart, health-check,
               roll back
@@ -21,8 +21,7 @@ Roles are pi model strings in `config.json`. To swap the advisor, edit the strin
 the Claude Code SDK. The advisor's pi agent dir is `.cache/agent-cloud`, which has
 `pi-meridian-extension`. An `openai-codex/<id>` advisor gets the Codex CLI's token
 through the environment (`CODEX_TOKEN`, named in the agent dir's `models.json`).
-Since 2026-10-12 10:30 the advisor is GPT-5.6 Sol (thinking `high`) and the fixer is
-still Claude Opus.
+Since 2026-10-12 10:30 the advisor and fixer are GPT-5.6 Sol (thinking `high`).
 
 The worker is `garden/<id>` (Bonsai through turnstile, bench key, priority 20),
 `meridian/<id>` or `openai-codex/<id>`. A cloud worker still has no network; the
