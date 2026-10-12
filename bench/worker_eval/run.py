@@ -443,6 +443,17 @@ def load_ev():
     return load_module("garden_evals_run", ROOT / "evals" / "run.py", alias="run")
 
 
+def resolve_venv(ev):
+    """Mount the venv the live worker mounted: the main checkout's, when this worktree has none
+    (autopilot/autopilot.py:44-47,372). Never create it: docker -v would leave a root-owned dir."""
+    main_venv = pathlib.Path.home() / "Projects" / "bonsai-garden" / "evals" / ".cache" / "venv-sandbox"
+    if not os.access(pathlib.Path(ev.VENV) / "bin" / "python", os.X_OK):
+        ev.VENV = main_venv
+    if not (os.access(pathlib.Path(ev.VENV) / "bin" / "python", os.X_OK)
+            and (pathlib.Path(ev.VENV) / "bin" / "pytest").exists()):
+        sys.exit(f"sandbox venv {ev.VENV} has no bin/python and bin/pytest; refusing to launch")
+
+
 def orchestrator_check():
     """autopilot.py's own check_run_command, pointed at a repo through its WT global;
     falls back to the local copy if autopilot can't be imported."""
@@ -539,6 +550,8 @@ def run_manifest(ev, arm, arm_hash, cases_path, cases_hash, args):
         "repeat": args.repeat, "budget_min": args.budget_min,
         "pi_version": safe(lambda: ev.sh("pi", "--version")),
         "pi_flags": ev.PI_FLAGS,
+        "sandbox_venv": str(ev.VENV),
+        "sandbox_venv_python": safe(lambda: ev.sh(str(ev.VENV / "bin" / "python"), "--version")),
         "model_registration": model_registration(arm),
         "model_file": str(ev.MODEL_FILE),
         "model_sha256": safe(lambda: ev.file_sha256(ev.MODEL_FILE)),
@@ -650,6 +663,7 @@ def main(argv=None):
         sys.exit(f"{results} holds records from a different arm definition; use a new --out")
 
     ev = load_ev()
+    resolve_venv(ev)
     ev.preflight([])
     check = orchestrator_check()
     out.mkdir(parents=True, exist_ok=True)

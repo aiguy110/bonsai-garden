@@ -492,3 +492,37 @@ Round 2's smoke run failed at line 7: evals/.cache/venv-sandbox/bin/python doesn
 Added to the standing facts:
 
 - bench/worker_eval/run.py imports this worktree's evals/run.py, whose VENV (evals/run.py:55) is the worktree's evals/.cache/venv-sandbox, absent in autopilot milestone worktrees. The live worker mounted the main checkout's venv (autopilot/autopilot.py:44-47,372), so a replay must mount that one or its sandbox has no pytest.
+
+### 2026-10-12T14:14:54-04:00 · worker (gpt-5.6-terra), round 4
+
+Added resolve_venv() to run.py main(): if the worktree has no evals/.cache/venv-sandbox/bin/python, use ~/Projects/bonsai-garden/evals/.cache/venv-sandbox. If that has no bin/python and bin/pytest, it exits before any docker call. It never creates the venv. The manifest now records sandbox_venv and sandbox_venv_python. smoke.sh already picked the same venv for pytest; I added `ls -ld evals/.cache/venv-sandbox` to its end checks. The 23 tests pass in the sandbox. The host run is still untested. Next round: read the log, check the advisor's report items, fix any bugs, then submit done.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/smoke.sh",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Host smoke run of one case through the live turnstile bench route, then a second invocation that must skip it. The venv fallback to the main checkout is now in run.py."
+}
+```
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+### 2026-10-12T14:16:41-04:00 · orchestrator
+
+Health check through turnstile failed: URLError: <urlopen error [Errno 111] Connection refused>
+
+### 2026-10-12T14:17:56-04:00 · fixer (cloud)
+
+The stack is healthy again, and I didn't have to change anything. `infra.py check` now returns `{"ok": true, "why": null}`.
+
+**What happened:** bifrost rebooted at about 14:16. Uptime was "0 min" when I started looking, and llama-swap's log from the previous boot shows normal 200 responses until 14:14:19. The health check ran during that window, while nothing was listening on :8080, which is why it got "Connection refused". By the time I looked, all three services had started on their own: turnstile on :8080 (14:16:41), llama-swap on :11435 (14:16:46) and the embedder on :8095. The model answered the check.
+
+**Why the rollback wouldn't have helped:** `/etc/llama-swap/config.yaml` is byte-identical to `known-good.yaml`, so restoring it would change nothing. The most recent autopilot infra log entry (Oct 11 23:01) is a successful baseline, so no recent autopilot change is involved.
+
+One thing to know for next time: `turnstile.service` is a **user** unit, not a system one. The handoff says to restart it with `sudo -n systemctl restart turnstile`, but that would fail with "Unit turnstile.service could not be found". The right command is `systemctl --user restart turnstile`.
+
+I didn't look into why the host rebooted.
+
+```json
+{"fixed": true, "diagnosis": "Transient outage from a host reboot (~14:16, uptime 0 min). The health check ran before turnstile (:8080) and llama-swap (:11435) had started, so it got Connection refused. Both services came up on their own at boot. The live llama-swap config is identical to known-good.yaml, and the last autopilot infra entry is a successful baseline, so config was not the cause. Note: turnstile is a systemd user unit, not a system unit.", "actions": ["Checked status of llama-swap (system), turnstile (user unit) and bonsai-garden-embed (user unit): all active", "Confirmed listeners on :8080, :11435, :8095", "Ran infra.py check -> {\"ok\": true}", "Diffed /etc/llama-swap/config.yaml against known-good.yaml: identical, so no restore or restart was needed", "No config edits, restarts or process kills performed"]}
+```

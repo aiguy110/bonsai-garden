@@ -25,4 +25,5 @@ print(json.dumps(rec[0], indent=1)[:4000])
 P
 git status --porcelain | grep -v "^.. $OUT" > "$OUT/status-after.txt"
 echo "== worktree diff outside results (empty = unchanged)"; diff "$OUT/status-before.txt" "$OUT/status-after.txt" && echo unchanged
+echo "== worktree venv dir"; ls -ld evals/.cache/venv-sandbox 2>&1
 echo "== leftover checkouts"; ls -d /tmp/w1-replay-* 2>/dev/null
