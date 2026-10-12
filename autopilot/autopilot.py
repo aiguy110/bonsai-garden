@@ -976,7 +976,7 @@ def main():
                         say(f"could not record the block: {e2}")
             if state == "ratelimit":
                 time.sleep(RATE_WAIT)
-            elif state in ("idle", "blocked", "budget", "error", "done"):
+            elif state in ("idle", "blocked", "budget", "error"):  # "done": go straight to the next milestone
                 time.sleep(1800 if state != "error" else 300)
         return
     sys.exit(__doc__)
