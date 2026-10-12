@@ -35,10 +35,8 @@ from typing import Any, Dict, List, Optional
 # ---------------------------------------------------------------- paths ----
 CWD = pathlib.Path(os.getcwd()).resolve()
 
-PRIMARY_SRC = pathlib.Path("/home/josiah/Projects/bonsai-garden") / (
-    "evals" / "results" / "2026-10-11-baseline-mem0"
-)
 MAIN_REPO = pathlib.Path("/home/josiah/Projects/bonsai-garden")
+PRIMARY_SRC = MAIN_REPO / "evals" / "results" / "2026-10-11-baseline-mem0"
 
 # llama.cpp build tree (host ~ = /home/josiah)
 LLAMA_BUILD = pathlib.Path(os.environ.get("HOME", "/home/dev")) / "Projects" / "llama.cpp-bonsai2"
@@ -280,7 +278,7 @@ def match_tap_records(tap: List[Dict[str, Any]], run_id: str, step_i: int) -> Li
         if r.get("run") != run_id:
             continue
         s = r.get("step")
-        if s is None or s != target or str(s) != target:
+        if str(s) != target:
             continue
         if not (r.get("path") or "").endswith("/completions"):
             continue
@@ -365,7 +363,8 @@ def build_inventory(src: pathlib.Path) -> Dict[str, Any]:
             steps[str(step_i)] = inv
         mem0_dbs: Dict[str, Dict[str, Any]] = {}
         for db in sorted(run_dir.rglob("*.db")):
-            mem0_dbs[db.name] = inspect_sqlite(db)
+            rel = db.relative_to(run_dir)
+            mem0_dbs[str(rel)] = inspect_sqlite(db)
         inventory["runs"].append({"run_id": rid, "steps": steps, "mem0_dbs": mem0_dbs})
     return inventory
 
@@ -616,6 +615,63 @@ def extract_string_literal(text: str, start: int) -> tuple:
     return None, None
 
 
+def _named_function_defs(text):
+    """Yield (start, end, name) for named function definitions."""
+    for m in re.finditer(
+        r"(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)\s*\(", text):
+        close = find_matching_close(text, m.end() - 1)
+        if close is None:
+            continue
+        brace = text.find("{", close + 1)
+        if brace == -1:
+            continue
+        end = find_matching_brace(text, brace)
+        if end is None:
+            continue
+        yield m.start(), end, m.group(1)
+
+
+def _arrow_function_defs(text):
+    """Yield (start, end, name) for `const/let/var NAME = (async)?(params) => { ...}`."""
+    for m in re.finditer(
+        r"\b(?:const|let|var)\s+([A-Za-z_$][\w$]*)\s*=\s*(?:async\s+)?\(", text):
+        close = find_matching_close(text, m.end() - 1)
+        if close is None:
+            continue
+        j = close + 1
+        while j < len(text) and text[j].isspace():
+            j += 1
+        if not text.startswith("=>", j):
+            continue
+        j += 2
+        while j < len(text) and text[j].isspace():
+            j += 1
+        if j >= len(text) or text[j] != "{":
+            continue
+        end = find_matching_brace(text, j)
+        if end is None:
+            continue
+        yield m.start(), end, m.group(1)
+
+
+def extract_functions_referencing(text, needle):
+    """Extract full function definitions whose body references `needle`."""
+    blocks = []
+    seen = set()
+    defs = list(_named_function_defs(text)) + list(_arrow_function_defs(text))
+    for start, end, name in defs:
+        if start in seen:
+            continue
+        if needle not in text[start:end + 1]:
+            continue
+        seen.add(start)
+        line = text[:start].count("\n")
+        blocks.append(
+            f"===== function {name} (starts line {line + 1}) "
+            f"references {needle} =====\n" + text[start:end + 1])
+    return blocks
+
+
 def extract_extraction_user_prompt(m0dir: Optional[pathlib.Path]) -> Optional[str]:
     """Labelled windows around every occurrence of ADDITIVE_EXTRACTION_PROMPT in
     the mem0ai source — the definition plus the functions that build the
@@ -624,19 +680,21 @@ def extract_extraction_user_prompt(m0dir: Optional[pathlib.Path]) -> Optional[st
     if not data:
         return None
     txt = data["text"]
-    occurrences = [m.start() for m in re.finditer(r"ADDITIVE_EXTRACTION_PROMPT", txt)]
-    if not occurrences:
-        return None
+    needle = "ADDITIVE_EXTRACTION_PROMPT"
+    occurrences = [m.start() for m in re.finditer(re.escape(needle), txt)]
     blocks = []
     for idx, occ in enumerate(occurrences):
         lines = txt[:occ].count("\n")
-        before = max(0, occ - 20 * 130)
+        before = max(0, occ - 30 * 130)
         after = min(len(txt), occ + 70 * 130)
         label = "definition" if idx == 0 else f"usage#{idx}"
         blocks.append(
-            f"===== {label} @ line {lines + 1} "
-            f"({data['path']}) =====\n" + txt[before:after]
+            f"===== {label} @ line {lines + 1} ({data['path']}) =====\n" +
+            txt[before:after]
         )
+    blocks.extend(extract_functions_referencing(txt, needle))
+    if not blocks:
+        return None
     return "\n\n".join(blocks)
 
 
@@ -710,22 +768,21 @@ def main() -> None:
         write_text(OUT_DIR / "help.txt", help_text)
         spec_lines: List[str] = []
         in_block = False
-        flag_re = re.compile(r"^\s*--(?:spec|draft)(?:[-\s])")
+        spec_draft_re = re.compile(r"--(spec|draft)")
         for line in help_text.splitlines():
             s = line.strip()
-            if flag_re.match(s):
-                spec_lines.append(line)
-                in_block = True
-            elif in_block:
-                if s.startswith("--"):
-                    if flag_re.match(s):
-                        spec_lines.append(line)
-                    else:
-                        in_block = False
-                elif s == "":
-                    in_block = False
-                else:
+            if s.startswith("-"):
+                if spec_draft_re.search(s):
                     spec_lines.append(line)
+                    in_block = True
+                else:
+                    in_block = False
+            else:
+                if in_block:
+                    if s == "":
+                        in_block = False
+                    else:
+                        spec_lines.append(line)
         if spec_lines:
             write_text(OUT_DIR / "spec_flags.txt", "\n".join(spec_lines) + "\n")
         else:
@@ -754,7 +811,7 @@ def main() -> None:
             mm_i = [i for i, ln in enumerate(lines, 1) if mm_pat.search(ln)]
             for i, ln in enumerate(lines, 1):
                 if spec_pat.search(ln) and any(abs(i - m) <= 5 for m in mm_i):
-                    uniq.append(f"{root.name}:{i}: {ln.strip()}")
+                    uniq.append(f"{root.relative_to(LLAMA_SERVER_SRC)}:{i}: {ln.strip()}")
     if uniq:
         write_text(OUT_DIR / "spec_mmproj_grep.txt", "\n".join(uniq) + "\n")
     else:
