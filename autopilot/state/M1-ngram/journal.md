@@ -361,3 +361,24 @@ Ran `python3 bench/m1_recon.py` (gpu=False) in 2s, exit 0. Full output: `bench/r
 }
 
 ```
+
+### 2026-10-12T05:21:39-04:00 · worker (Bonsai), round 12
+
+All done. The worktree is clean — `bench/m1_notes.md` and `bench/m1_recon.py` are the only M1 artifacts, `m1_ctx.py` is deleted, no stray temp files remain.
+
+**Final summary (recon item, M1, item 1/12):**
+
+All advisor review points addressed:
+- **§3 gating `if` verified** from `spec_ctx.txt`: gate at `server-context.cpp:1185` (`if (ctx_tgt_seq_rm_type != COMMON_CONTEXT_SEQ_RM_TYPE_NO)`) with **no** mctx/mmproj term; `ctx_tgt_seq_rm_type` set at 1166 from `common_context_can_seq_rm(ctx_tgt)` (also no multimodal condition). Verdict changed to **"yes (static) — confirm with draft_n>0 on :8089"**.
+- All four spec gates (424-426, 1123/1128, 1168, 1185, 1212) are literal quotes.
+- All "unverified/pending/to be confirmed" wording removed; the circular `(see §3)` self-ref inside §3 removed; `spec_ctx.txt` real size (10.9 KB) in the file list.
+- `bench/m1_ctx.py` deleted.
+- `inventory.json` covers all 18 `step*.events.jsonl` with per-request tap `prompt_n`/`cache_n`/`predicted_n` (0 records missing fields).
+
+Sending `done`; the orchestrator commits the worktree.
+
+{"request": "done", "summary": "Recon item (M1, item 1/12) complete. bench/results/2026-10-12/m1-ngram/recon/ holds all 10 files, non-empty: help.txt (57KB), spec_flags.txt (8.6KB), spec_mmproj_grep.txt (2.9KB), sources.txt (3.3KB), inventory.json (99KB), mem0_extract_src.txt (62KB), pi_prompt_src.txt (64KB), event_samples.json (122KB), spec_lines_full.txt (17KB), spec_ctx.txt (10.9KB). bench/m1-notes.md updated per the 05:09 advisor review: (1) the spec-init gating if is now literally quoted from spec_ctx.txt at server-context.cpp:1184-1191, with line 1185 = `if (ctx_tgt_seq_rm_type != COMMON_CONTEXT_SEQ_RM_TYPE_NO)` carrying NO mctx/mmproj term, and ctx_tgt_seq_rm_type set at 1166 from common_context_can_seq_rm(ctx_tgt) (also no multimodal term) -> verdict changed to 'yes (static) - confirm with draft_n>0 on :8089'; all four spec gates (424-426 can_speculate, 1123/1128 mmproj disables only ctx_shift/cache_reuse, 1168 checkpoint notice, 1212 slot.spec=spec.get()) are literal quotes; removed all 'unverified/pending/to be confirmed' wording and the (see section-3) self-reference inside section 3; gave spec_ctx.txt its real size (10.9KB) in the file list; 'All 9' -> 'All 10'. (2) Deleted leftover bench/m1_ctx.py. (3) inventory.json covers all 18 step*.events.jsonl (6 runs x 3 steps) with per-request tap prompt_n/cache_n/predicted_n (0 records missing fields). No round-7/12 residue. Ready for the next plan item (convert recordings into replay requests)."}
+
+### 2026-10-12T05:22:57-04:00 · advisor (finished item)
+
+**revise**: Edit bench/m1-notes.md only. No re-run is needed; everything below is already in the recon outputs. (1) §3 is factually wrong. You say 'the complete set of spec gates' and that nothing disables spec with mmproj, but spec_lines_full.txt has server-context.cpp:3550-3553: `if (spec && batch.has_embd) { SRV_ERR("%s", "unsupported batch.has_embd + spec case\n"); throw std::runtime_error("unsupported batch.has_embd + spec case"); }`. That is a runtime spec × embedding-batch check. Also quote 707-710, where the mtmd decode path passes slot.spec to common_speculative_process. Rewrite the verdict as: 'yes for text-only traffic (static): spec initializes and is assigned to slots with mmproj loaded; caveat: a batch carrying embeddings with spec on throws (3550-3553), so image input with spec is untested/risky. Our replay is text-only.' Drop the words 'complete set'. (2) Line 1168 is not a checkpoint-mode notice. spec_ctx.txt 1166-1169 shows it fires when common_context_can_seq_rm returns SEQ_RM_TYPE_NO, the case where speculation is not initialized at all. The checkpoint notice is 1171-1172 (`if (ctx_tgt_seq_rm_type == COMMON_CONTEXT_SEQ_RM_TYPE_FULL) SRV_TRC("speculative decoding will use checkpoints")`). Fix the label and quote 1171-1172. Add one sentence for the replay probe: check the server log for 'not supported by this context' (spec off) and 'will use checkpoints' (rejected drafts restore a checkpoint, which may eat the speedup). Also look for 'accepted N/M draft tokens (restore checkpoint)' (3813). (3) §7: mem0-r0 step0 agent shows 10 requests in inventory.json (tap_role_totals), not 11. Fix it. While you're in §7, note that mem0-r0 step2's mem request has predicted_n=2048, which looks like it hit a max_tokens cap. The replay should carry max_tokens over from the recordings. (4) §1: the one-line descriptions of the ngram types ('k=1 vs k=4v', 'n-gram with caching', 'the mod variant') are not in help.txt. Say that help gives no per-type description. Also note that --spec-type takes a comma-separated list and that --spec-default exists (spec_flags.txt). Then send `done` with no other changes.

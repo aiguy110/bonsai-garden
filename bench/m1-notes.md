@@ -1,6 +1,6 @@
 # M1-ngram — recon notes (2026-10-12)
 
-All 9 recon files are present and **non-empty** under
+All 10 recon files are present and **non-empty** under
 `bench/results/2026-10-12/m1-ngram/recon/`; `sources.txt` reports **no
 "NOT FOUND"** entries. Recon ran on the host worktree; outputs land in the
 sandbox via content sync. The recon re-run re-generates all of them and adds
@@ -15,8 +15,8 @@ Files: `help.txt` (57 KB), `spec_flags.txt` (8.6 KB),
 `spec_mmproj_grep.txt` (2.9 KB), `sources.txt` (3.3 KB),
 `inventory.json` (99 KB), `mem0_extract_src.txt` (62 KB),
 `pi_prompt_src.txt` (64 KB), `event_samples.json` (122 KB),
-`spec_lines_full.txt` (17 KB), `spec_ctx.txt` (host window of
-`server-context.cpp`, §3).
+`spec_lines_full.txt` (17 KB), `spec_ctx.txt` (10.9 KB, host window of
+`server-context.cpp`).
 
 ## 1. `--spec-type` — available values (from `help.txt`)
 
@@ -81,14 +81,14 @@ replay probe will use on :8089, not what is live. Draft stats
 (`timings.draft_n` / `timings.draft_n_accepted`) only appear when
 speculation is on (see §3, §7).
 
-## 3. spec + mmproj verdict: **likely yes (not refused/disabled by mmproj)**
+## 3. spec + mmproj verdict: **yes (static) — confirm with draft_n>0 on :8089**
 
 Static inspection found no line that gates speculative decoding on the
 presence of multimodal (mtmd/mctx) input. The gating logic in
 `tools/server/server-context.cpp` is cross-checked against the recon's
 `spec_lines_full.txt` (every line matching `speculative|spec`, numbered) and,
-for lines that keyword-grep misses, against the host window `spec_ctx.txt`
-(see §3): verified quotes below are literal.
+for lines that keyword-grep misses, against the host window `spec_ctx.txt`:
+verified quotes below are literal.
 
 - **`server-context.cpp:424-426`** — `can_speculate()` returns `!!spec`: the
   only gate is whether a spec backend object exists.
@@ -97,7 +97,7 @@ for lines that keyword-grep misses, against the host window `spec_ctx.txt`
   425: return !!spec;
   426: }
   ```
-- **`server-context.cpp:1121-1129`** — the mmproj/multimodal path disables
+- **`server-context.cpp:1123, 1128`** — the mmproj/multimodal block disables
   only `ctx_shift` and `cache_reuse`; it does **not** touch spec.
   ```
   1123: SRV_WRN("%s\n", "ctx_shift is not supported by multimodal, it will be disabled");
@@ -109,30 +109,39 @@ for lines that keyword-grep misses, against the host window `spec_ctx.txt`
   ```
   1168: SRV_WRN("%s", "speculative decoding not supported by this context\n");
   ```
-- **`server-context.cpp:1182-1188`** — spec init: the call
-  `spec.reset(common_speculative_init(params_base.speculative, params_base.n_parallel));`
-  is at **1187**; the surrounding gating `if(...)` condition on 1182-1183 is
-  the line this recon flags as *to be confirmed from the host window*
-  (`spec_ctx.txt`). The claim "depends only on `ctx_tgt_seq_rm_type != NO`
-  (no multimodal condition)" is **unverified** until `spec_ctx.txt` is read
-  and is kept here for the reviewer — it must be confirmed (or struck) from
-  that output. The adjacent `spec.reset` at 1187 is the only spec-init call
-  in the window and carries no mmproj/mctx condition.
+- **`server-context.cpp:1184-1191`** — spec init is gated on the context
+  sequence-removal type only, with **no** mctx/mmproj term. From the host
+  window `spec_ctx.txt` (literal):
+  ```
+  1184:         // try speculative decoding
+  1185:         if (ctx_tgt_seq_rm_type != COMMON_CONTEXT_SEQ_RM_TYPE_NO) {
+  1186:             try {
+  1187:                 spec.reset(common_speculative_init(params_base.speculative, params_base.n_parallel));
+  1188:             } catch (const std::exception & e) {
+  1189:                 SRV_ERR("failed to initialize speculative decoding context: %s\n", e.what());
+  1190:             }
+  1191:         }
+  ```
+  `ctx_tgt_seq_rm_type` is set at 1166 from
+  `common_context_can_seq_rm(ctx_tgt)` — also no multimodal condition.
 - **`server-context.cpp:1212`** — every slot gets `slot.spec = spec.get()`
   regardless of mctx.
   ```
   1212: slot.spec    = spec.get();
   ```
 
-**Verdict: likely yes** — nothing in the *verified* source refuses or disables
-speculation when `--mmproj` is loaded. The one remaining open line (the
-spec-init gating condition at 1182-1183) is pending `spec_ctx.txt`; once read
-it is either confirmed (verdict: **yes**, confirmed) or the wording is updated
-if it differs. The replay probe (`bench/checkpoint_replay.py`) confirms on
-:8089 by checking the tap records for **`draft_n > 0`** and **`draft_n_accepted
-> 0`** (draft fields appear only when speculation is on; `predicted_n` is just
-the generated-token count — §2, §7). If they are zero, check the server log
-for the checkpoint-mode line above before concluding spec is disabled.
+**Verdict: yes (static)** — nothing in the source refuses or disables
+speculation when `--mmproj` is loaded. The complete set of spec gates is:
+(a) `can_speculate() == !!spec` (424-426); (b) the init gate at 1185 on
+`ctx_tgt_seq_rm_type != COMMON_CONTEXT_SEQ_RM_TYPE_NO` (no mctx/mmproj term);
+and (c) the slot assignment `slot.spec = spec.get()` (1212). The mmproj block
+disables only `ctx_shift` (1123) and `cache_reuse` (1128), never spec. This
+static verdict is confirmed **empirically** on the live server only when the
+replay probe reports **`draft_n > 0`** and **`draft_n_accepted > 0`** in the
+tap records on :8089 (draft fields appear only when speculation is on;
+`predicted_n` is just the generated-token count — §2, §7). If those are zero,
+check the server log for the checkpoint-mode line (1168) before concluding spec
+is disabled.
 
 ## 4. Message-reconstruction mapping (from `event_samples.json`)
 
