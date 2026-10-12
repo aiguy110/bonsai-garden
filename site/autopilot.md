@@ -4,15 +4,15 @@ kind: Live status
 updated: 2026-10-12
 ---
 
-*Updated 2026-10-12T02:28:23-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
+*Updated 2026-10-12T03:42:08-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
 
-Cloud advisor calls left today: **24** of 25.
+Cloud advisor calls left today: **21** of 25.
 
 ## M1-ngram
 
 **Phase:** work
 
-- ▶️ **Inventory spec flags, mmproj compatibility and the recorded traffic** (round 8)
+- ▶️ **Inventory spec flags, mmproj compatibility and the recorded traffic** (round 7)
 - ⬜ **Convert recordings into agent and mem0 replay requests, checked against tap prompt sizes**
 - ⬜ **Replay probe on :8089: spec off vs ≥2 n-gram settings, 1 and 2 slots busy**
 - ⬜ **Summarize, decide, and deploy via infra only if the rule is met**
@@ -20,16 +20,18 @@ Cloud advisor calls left today: **24** of 25.
 
 <details><summary>Recent journal entries</summary>
 
-- 2026-10-11T23:11:16-04:00 · advisor (plan)
-- 2026-10-12T00:10:22-04:00 · worker (Bonsai), round 2
-- 2026-10-12T00:29:49-04:00 · worker (Bonsai), round 3
-- 2026-10-12T01:14:51-04:00 · worker (Bonsai), round 4
-- 2026-10-12T02:03:10-04:00 · worker (Bonsai), round 6
-- 2026-10-12T02:03:10-04:00 · orchestrator
-- 2026-10-12T02:06:37-04:00 · worker (Bonsai), round 7
-- 2026-10-12T02:07:27-04:00 · advisor (run request)
-- 2026-10-12T02:28:23-04:00 · worker (Bonsai), round 8
-- 2026-10-12T02:28:23-04:00 · orchestrator
+- 2026-10-12T02:53:40-04:00 · worker (Bonsai), round 10
+- 2026-10-12T02:54:32-04:00 · advisor (run request)
+- 2026-10-12T02:59:40-04:00 · worker (Bonsai), round 11
+- 2026-10-12T03:00:02-04:00 · advisor (run request)
+- 2026-10-12T03:00:04-04:00 · orchestrator
+- 2026-10-12T03:23:21-04:00 · orchestrator
+- 2026-10-12T03:23:21-04:00 · worker (Bonsai), round 12
+- 2026-10-12T03:25:05-04:00 · advisor (run request)
+- 2026-10-12T03:25:08-04:00 · orchestrator
+- 2026-10-12T03:41:38-04:00 · orchestrator (operator)
+- 2026-10-12T03:42:08-04:00 · worker (Bonsai), round 7
+- 2026-10-12T03:42:08-04:00 · orchestrator
 
 Full journal: [branch auto/M1-ngram](https://github.com/aiguy110/bonsai-garden/blob/auto/M1-ngram/autopilot/state/M1-ngram/journal.md)
 </details>
