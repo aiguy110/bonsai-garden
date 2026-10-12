@@ -1,8 +1,9 @@
 # Roadmap
 
-Status as of 2026-10-11: serving is done (two slots, turnstile co-admission). One
+Status as of 2026-10-12: serving is done (two slots, turnstile co-admission). One
 memory eval has run: 1 task, N=3, mem0 2/3 vs baseline 0/3. That is suggestive,
-not a result.
+not a result. A second mem0 arm, `mem0-server`, runs Python mem0 (the reference
+implementation) instead of the JS port. The autopilot works M1, then M2.
 
 ## Terms
 
@@ -18,7 +19,8 @@ not a result.
   Example: `inventory` has 3 steps. Step 1 states four conventions and a staging
   host. Steps 2 and 3 only say "follow the conventions" or "as discussed".
 - **Arm:** one agent configuration (`evals/arms/<name>.json`), e.g. `baseline`
-  (no memory) or `mem0`.
+  (no memory), `mem0` (mem0's JS port inside pi) or `mem0-server` (Python mem0
+  behind a per-step server; see [mem0 arms](#mem0-arms)).
 - **Run:** arms × tasks × repeats. Each step of each repeat counts as one pass or
   fail.
 - **Task sanity gate:** a new task is only accepted if two things hold. First, its
@@ -32,7 +34,7 @@ not a result.
 | # | Milestone | Question | Done when |
 |---|---|---|---|
 | M1 | **N-gram speculation** | Does llama-server's n-gram self-speculation speed up real agent and memory traffic, including when both slots are busy? | Replay of recorded agent and mem0 traces on :8089 (np2, both slots loaded) with and without `--spec-type ngram-*`; tok/s and acceptance rate per role. If it wins, a proposed config goes to the user. Deploying it is a live-stack change |
-| M2 | **Continuity suite** | Does mem0's win hold beyond one hand-built task? | 6 cross-session tasks, `baseline` vs `mem0`, N=5; per-task and pooled pass rates with spread. Include ≥2 *knowledge-update* tasks, where a step 1 fact is changed in step 2 |
+| M2 | **Continuity suite** | Does mem0's win hold beyond one hand-built task, and does it depend on which mem0? | 6 cross-session tasks, `baseline` vs `mem0` vs `mem0-server`, N=5; per-task and pooled pass rates with spread. Include ≥2 *knowledge-update* tasks, where a step 1 fact is changed in step 2. Spec: [`autopilot/milestones/M2-continuity.md`](../autopilot/milestones/M2-continuity.md) |
 | M3 | **Regression guard** | Does memory hurt tasks that don't need it? | 12 single-session tasks run with a pre-filled, *irrelevant* memory store vs baseline; no significant drop |
 | M4 | **Other memory layers** | Is mem0 the right design for a small local model? | Arms below, run on the M2 suite and M3 guard; pass rate vs memory-LLM tokens per step |
 | M5 | **Cheaper memory writes** | Can the ~8k-token prefill per mem0 write be cut? | Variants of capture (per turn vs end of session), a shorter extraction prompt, recall top-k; cost vs pass-rate curve |
@@ -41,6 +43,23 @@ not a result.
 
 Rules from `benchmark-plan.md` apply throughout. New arms never edit old ones.
 Every result updates its experiment, series and project pages.
+
+### mem0 arms
+
+The extension can reach mem0 in three ways. `platform` is mem0's hosted API, which
+we don't use. `embedded` loads mem0's JS port (`mem0ai/oss`) into pi. `self-hosted`
+calls a mem0 REST server. The JS port ships less often than Python mem0 and has
+different prompts and update logic, so judging mem0 only by the port could be unfair
+to it. Both are arms:
+
+- `mem0` (embedded): JS port, in-process SQLite vector store.
+- `mem0-server` (self-hosted): Python mem0, served by `evals/mem0_server.py`, which
+  is upstream's REST endpoints over `mem0.Memory` without Postgres or auth. The
+  harness starts one server per step outside the sandbox. It uses the run's
+  on-disk Qdrant and SQLite history, and its LLM and embedder traffic is metered
+  through the tap. `mem0_server.pip` in the arm pins the build. A mem0 change can
+  be tested by pointing a *new* arm at a fork's git ref. It is a full install
+  (spaCy entities, fastembed BM25 hybrid search), as a stock deployment would be.
 
 ### M4 candidates
 
@@ -78,9 +97,11 @@ If the local model goes down, a cloud fixer takes over. Progress is published to
 the site's autopilot status page.
 
 M1 (n-gram speculation) is the first milestone and the test case. Bonsai measures,
-then possibly changes, the server it runs on.
+then possibly changes, the server it runs on. M2 (continuity suite) is queued next.
+Milestones run in the order of `milestones` in `autopilot/config.json`, and each
+needs a spec in `autopilot/milestones/<name>.md`.
 
 ### Throughput estimate
 
-One sequence on one arm takes about 8 min, so M2 (6 tasks × 2 arms × N=5) is about
-8 GPU-hours. M1 is about 2 GPU-hours of replays.
+One sequence on one arm takes about 8 min, so M2 (6 tasks × 3 arms × N=5) is about
+12 GPU-hours. M1 is about 2 GPU-hours of replays.
