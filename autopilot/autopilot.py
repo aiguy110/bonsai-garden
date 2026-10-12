@@ -677,12 +677,20 @@ def main():
         print(tick())
         return
     if cmd == "loop":
+        crashes = 0
         while True:
             try:
                 state = tick()
+                crashes = 0
             except Exception as e:  # keep the service alive; record and back off
                 say(f"tick failed: {type(e).__name__}: {e}")
-                state = "error"
+                state, crashes = "error", crashes + 1
+                if crashes >= 3 and WT is not None:  # the same step keeps failing: stop and say so
+                    try:
+                        block(current(), f"tick crashed 3 times in a row; last: {type(e).__name__}: {e}")
+                        crashes = 0
+                    except Exception as e2:
+                        say(f"could not record the block: {e2}")
             if state in ("idle", "blocked", "budget", "error", "done"):
                 time.sleep(1800 if state != "error" else 300)
         return
