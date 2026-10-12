@@ -74,5 +74,9 @@ python3 autopilot/infra.py baseline       # re-measure and save known-good
 systemctl --user stop bonsai-autopilot    # kill switch
 ```
 
+To edit `state/<m>/status.json` by hand, stop the service first and commit the edit
+in the milestone worktree. Changes under `autopilot/` made during a worker session
+are reverted as protected-path edits.
+
 Cloud calls are capped at `cloud_calls_per_day` (25). When the cap is reached,
 work pauses until the next day.
