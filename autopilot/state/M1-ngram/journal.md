@@ -1021,3 +1021,17 @@ autopilot/state/M1-ngram/journal.md | 4 ++++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
+
+### 2026-10-12T09:58:47-04:00 · orchestrator
+
+Item `spec-replay` used all 12 rounds; asking the advisor to triage it.
+
+### 2026-10-12T09:59:12-04:00 · advisor (triage)
+
+**None**: 
+
+(no decision JSON)
+
+### 2026-10-12T09:59:12-04:00 · orchestrator
+
+BLOCKED: triage of `spec-replay` (used all 12 worker rounds): no usable decision
