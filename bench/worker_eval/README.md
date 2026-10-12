@@ -30,6 +30,7 @@ Each JSONL row is one replay case.
 | `source_first_user_prompt`, `source_first_user_prompt_sha256`, `prompt_sha256` | The recorded first user message and hashes for auditing the sole replay transformation. |
 | `event_log`, `event_log_sha256`, `journal`, `journal_sha256` | Host provenance locations and immutable-content hashes. Paths are informative host paths, not replay inputs. |
 | `worker_description_from`, `worker_description_to` | The one permitted prompt transformation. `to` is the canonical local Bonsai description. |
+| `worker_entry_timestamp` | Time of the matched worker journal entry. |
 | `request`, `request_source` | Recovered cloud request from an event tool call or final-assistant JSON fallback. A journal JSON copy is only an equality cross-check. |
 | `advisor_timestamp`, `advisor_actor`, `advisor_verdict`, `advisor_notes` | First chronological, request-kind-matched advisor verdict after the worker request and before the next worker round. `revise` is retained. |
 
@@ -38,9 +39,12 @@ and included counts by source model, item, request kind, and advisor verdict.
 
 ## Inclusion and validation
 
-Cases start at 2026-10-12 08:33 -04:00. The builder excludes pre-cutoff calls,
-rate-limited entries (including rate-limit text in either source log or worker
-journal entry), absent recoverable requests, absent kind-matched advisor verdicts,
+Cases start at 2026-10-12 08:33 -04:00, decided by the matched worker journal
+entry time (`worker_entry_timestamp`) and a non-Bonsai model. The builder excludes
+earlier entries, rate-limited rounds (rate-limit text in the parsed event errors of
+`evals/run.py:parse_events`, or in the worker journal entry; prompt and tool text
+are not scanned), `continue`/`stuck` requests (no advisor review; `done` is
+matched to `advisor (finished item)` or `advisor (write-up)`), absent recoverable requests, absent kind-matched advisor verdicts,
 and calls without an unambiguous before-round commit. Repeated before-round subjects
 are selected by the latest commit timestamp at or before the call timestamp; tied
 candidates are rejected. It requires at least 20 rows spanning two items. It

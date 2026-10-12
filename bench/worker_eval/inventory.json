@@ -1,0 +1,34 @@
+{
+  "canonical_worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+  "counts": {
+    "advisor_verdict": {
+      "approve": 15,
+      "revise": 7
+    },
+    "item": {
+      "decide": 3,
+      "replay-set": 7,
+      "spec-replay": 10,
+      "write-up": 2
+    },
+    "request_kind": {
+      "done": 8,
+      "run": 14
+    },
+    "source_model": {
+      "claude-sonnet-5-5": 11,
+      "gpt-5.6-terra": 11
+    }
+  },
+  "eligible_revise": 7,
+  "included": 22,
+  "schema_version": 1,
+  "skipped": {
+    "before_cutoff": 24,
+    "before_cutoff_or_bonsai": 1,
+    "no_journal_worker": 6,
+    "no_recoverable_request": 2,
+    "rate_limited": 8,
+    "unreviewed_continue_request": 2
+  }
+}

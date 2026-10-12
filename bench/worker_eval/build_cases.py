@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import hashlib
+import importlib.util
 import json
 import os
 import pathlib
@@ -145,11 +146,24 @@ def associated_worker(workers, rnd, source_time):
     return choices[0] if choices and choices[0][0] < 3000 else None
 
 
+def advisor_labels(kind):
+    # autopilot.py:831-855: run/infra are reviewed as "<kind> request"; done as
+    # "finished item" or "write-up"; continue and stuck get no review.
+    return {"run": {"advisor (run request)"}, "infra": {"advisor (infra request)"},
+            "done": {"advisor (finished item)", "advisor (write-up)"}}.get(kind, set())
+
+
+def event_errors(path):
+    spec = importlib.util.spec_from_file_location("garden_evals_run", ROOT / "evals" / "run.py")
+    module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+    return module.parse_events(path)["errors"]
+
+
 def associated_advisor(journal_entries, worker_index, kind):
-    expected = f"advisor ({kind} request)"
+    expected = advisor_labels(kind)
     for entry in journal_entries[worker_index + 1:]:
         if WORKER.match(entry["actor"]): break
-        if entry["actor"] != expected: continue
+        if entry["actor"] not in expected: continue
         verdict = re.match(r"\*\*(approve|revise|reject)\*\*:\s*(.*)", entry["body"], re.S)
         if verdict: return entry, verdict.group(1), verdict.group(2).strip()
     return None
@@ -168,12 +182,13 @@ def build():
         if not match: continue
         stamp, item, rnd = match.group(1), match.group(2), int(match.group(3))
         source_time = dt.datetime.strptime(stamp, "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo)
-        if source_time < CUTOFF: skipped["before_cutoff"] += 1; continue
+        if source_time < CUTOFF - dt.timedelta(hours=1): skipped["before_cutoff"] += 1; continue
         prompt, final, tool_req, event_model, raw = log_data(path)
         worker_match = associated_worker(workers, rnd, source_time)
         if not worker_match: skipped["no_journal_worker"] += 1; continue
         _, worker_index, worker, source_model = worker_match
-        if RATE_LIMIT.search(raw) or RATE_LIMIT.search(worker["body"]): skipped["rate_limited"] += 1; continue
+        if worker["when"] < CUTOFF or "bonsai" in (source_model or "").lower(): skipped["before_cutoff_or_bonsai"] += 1; continue
+        if any(RATE_LIMIT.search(str(e)) for e in event_errors(path)) or RATE_LIMIT.search(worker["body"]): skipped["rate_limited"] += 1; continue
         fallback, journal_req = last_json(final or ""), last_json(worker["body"])
         # Event evidence wins: submit_request, then final assistant JSON. Journal is
         # cross-check only and is never a request source.
@@ -181,7 +196,10 @@ def build():
         elif isinstance(fallback, dict): request, request_source = fallback, "json_fallback"
         else: skipped["no_recoverable_request"] += 1; continue
         if not request.get("request"): skipped["malformed_request"] += 1; continue
-        if journal_req is not None and not same_json(request, journal_req): skipped["journal_request_mismatch"] += 1; continue
+        # The journal stores the request without `report` (autopilot.py:781-784).
+        without_report = {k: v for k, v in request.items() if k != "report"}
+        if journal_req is not None and not same_json(without_report, journal_req): skipped["journal_request_mismatch"] += 1; continue
+        if request["request"] in ("continue", "stuck"): skipped[f"unreviewed_{request['request']}_request"] += 1; continue
         advisor = associated_advisor(journal_entries, worker_index, request["request"])
         if not advisor: skipped["no_matching_advisor_verdict"] += 1; continue
         advisor_entry, verdict, notes = advisor
@@ -193,6 +211,7 @@ def build():
         commit_time, commit, subject = selected
         rows.append({"case_id": f"m1-ngram-{item}-r{rnd}-{sha(path.name + sha(prompt))[:12]}",
           "milestone": "M1-ngram", "item": item, "round": rnd, "source_timestamp": source_time.isoformat(),
+          "worker_entry_timestamp": worker["when"].isoformat(),
           "source_model": source_model or event_model or "unknown", "start_commit": commit, "start_commit_subject": subject,
           "source_first_user_prompt": prompt, "source_first_user_prompt_sha256": sha(prompt), "prompt": changed,
           "prompt_sha256": sha(changed), "event_log": str(path), "event_log_sha256": bytes_sha(path),
@@ -211,14 +230,14 @@ def validate(rows, eligible_revise):
     if len({r["case_id"] for r in rows}) != len(rows): errors.append("case IDs are not unique")
     if eligible_revise and not any(r["advisor_verdict"] == "revise" for r in rows): errors.append("eligible revise case was not retained")
     for r in rows:
-        if dt.datetime.fromisoformat(r["source_timestamp"]) < CUTOFF: errors.append(f"pre-cutoff: {r['case_id']}")
+        if dt.datetime.fromisoformat(r["worker_entry_timestamp"]) < CUTOFF: errors.append(f"pre-cutoff: {r['case_id']}")
         if not r["prompt"].strip() or not isinstance(r["request"], dict) or not r["request"].get("request"): errors.append(f"empty prompt/request: {r['case_id']}")
         if r["request_source"] not in {"tool", "json_fallback"}: errors.append(f"bad request source: {r['case_id']}")
         if len(list(DESCRIPTION.finditer(r["source_first_user_prompt"]))) != 1: errors.append(f"source substitution count: {r['case_id']}")
         rebuilt, _ = substitute(r["source_first_user_prompt"])
         if rebuilt != r["prompt"] or sha(r["source_first_user_prompt"]) != r["source_first_user_prompt_sha256"]: errors.append(f"prompt provenance mismatch: {r['case_id']}")
-        if r["advisor_actor"] != f"advisor ({r['request']['request']} request)": errors.append(f"advisor type mismatch: {r['case_id']}")
-        if dt.datetime.fromisoformat(r["advisor_timestamp"]) < dt.datetime.fromisoformat(r["source_timestamp"]): errors.append(f"advisor precedes request: {r['case_id']}")
+        if r["advisor_actor"] not in advisor_labels(r["request"]["request"]): errors.append(f"advisor type mismatch: {r['case_id']}")
+        if dt.datetime.fromisoformat(r["advisor_timestamp"]) < dt.datetime.fromisoformat(r["worker_entry_timestamp"]): errors.append(f"advisor precedes request: {r['case_id']}")
         subject = git("show", "-s", "--format=%s", r["start_commit"])
         if subject != f"autopilot({r['milestone']}): before {r['item']} round {r['round']}": errors.append(f"bad start commit: {r['case_id']}")
     return errors

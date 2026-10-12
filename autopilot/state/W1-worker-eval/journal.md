@@ -75,3 +75,69 @@ Added to the standing facts:
 
 - The journal labels advisor verdicts by review type, not request kind: `advisor (run request)` and `advisor (infra request)`, but `advisor (finished item)` or `advisor (write-up)` for done requests, and `continue` requests get no review (autopilot/autopilot.py:831-855).
 - The worker's journal entry stores its request JSON with `report` removed (autopilot/autopilot.py:781-784), so a journal request is not byte-equal to the submit_request arguments.
+
+### 2026-10-12T13:50:33-04:00 · worker (gpt-5.6-terra), round 4
+
+Fixed the advisor's five points in build_cases.py. Done requests now match `advisor (finished item)` or `advisor (write-up)`. `report` is dropped before the journal cross-check, but the full request stays in the row. The rate-limit regex now runs only on `parse_events` errors and the worker's journal entry. The cutoff uses the journal entry time and a non-Bonsai model, and the log filename prefilter has a one-hour margin. `continue` and `stuck` requests get their own skip reasons. The README is updated and the script compiles. I have not run it against the host archive, so I don't know the case count yet. Next round I'll read the inventory and skip counts and fix any parsing problems.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/build_cases.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Run the corrected builder on the host archive, journal and git history to produce cases.jsonl and inventory.json. It needs no GPU."
+}
+```
+
+### 2026-10-12T13:53:24-04:00 · advisor (run request)
+
+**approve**: Safe: read-only on the archive, journal and git; it writes only bench/worker_eval/{cases.jsonl,inventory.json}, and only after validation passes. The round 3 fixes check out against autopilot.py. Expect about 22 rows; if fewer than 20 pass, report the skip counts instead of loosening the rules. Before calling the item done, add these checks and re-run with --check: (1) Each journal worker entry may be claimed by at most one log. associated_worker() matches on round number and nearest time only, so two logs can map to one entry. Treat a duplicate as an error. (2) Check that the recorded prompt's `## Current item: <id>, round <n>` line matches the log filename's item and round. The journal headers don't name the item, so this is the only direct item check. (3) Require journal_req to be present and equal to the request without `report`; skip with `journal_request_missing` otherwise. Every reviewed round has the JSON in its worker entry (worker_entry, autopilot.py:781-784). Today a missing journal JSON passes the cross-check, so a final submit_request call the tool rejected could slip through. (4) Reject a start commit whose author time is more than a few minutes before the call-log stamp. commit() skips when nothing changed (autopilot.py:426-430), and select_commit() would then quietly pick an earlier attempt's commit with the same subject. (5) In log_data(), skip lines whose JSON isn't a dict or whose `message` isn't a dict, so a stray event can't crash the build. Commit the inventory with the cases.
+
+### 2026-10-12T13:53:24-04:00 · orchestrator
+
+Added to the standing facts:
+
+- autopilot.py commit() (lines 426-430) only commits when the tree changed, so a round's `before <item> round <n>` commit can be missing and the latest earlier same-subject commit is not necessarily that round's start state.
+
+### 2026-10-12T13:53:26-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/build_cases.py` (gpu=False) in 1s, exit 0. Full output: `bench/results/2026-10-12/autopilot/case-corpus-r4.log`. Last lines:
+
+```
+{
+  "canonical_worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+  "counts": {
+    "advisor_verdict": {
+      "approve": 15,
+      "revise": 7
+    },
+    "item": {
+      "decide": 3,
+      "replay-set": 7,
+      "spec-replay": 10,
+      "write-up": 2
+    },
+    "request_kind": {
+      "done": 8,
+      "run": 14
+    },
+    "source_model": {
+      "claude-sonnet-5-5": 11,
+      "gpt-5.6-terra": 11
+    }
+  },
+  "eligible_revise": 7,
+  "included": 22,
+  "schema_version": 1,
+  "skipped": {
+    "before_cutoff": 24,
+    "before_cutoff_or_bonsai": 1,
+    "no_journal_worker": 6,
+    "no_recoverable_request": 2,
+    "rate_limited": 8,
+    "unreviewed_continue_request": 2
+  }
+}
+
+```
