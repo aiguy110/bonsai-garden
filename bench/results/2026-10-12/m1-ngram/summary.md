@@ -13,7 +13,7 @@ Foreground replay requests only. Decode rate is `sum(predicted_n) / sum(predicte
 | A | prod | single-agent | agent | 30 | 56.0 | 54.3 | 20.7% | 0.223 | 1.001x | 100.0% | 1.0 MiB |
 | A | prod | single-mem | mem | 12 | 53.5 | 35.9 | 11.2% | 0.657 | 0.962x | 100.0% | 1.0 MiB |
 | A | prod | dual-agent | agent | 30 | 26.7 | 27.6 | 15.3% | 0.132 | 0.853x | 100.0% | 1.0 MiB |
-| A | prod | dual-mem | mem | 12 | 23.4 | 17.0 | 11.5% | 0.680 | 0.920x | 91.7% | 1.0 MiB |
+| A | prod | dual-mem | mem | 12 | 23.4 | 17.0 | 11.5% | 0.680 | 0.920x | 91.7% | -1.0 MiB |
 | B | greedy | single-agent | agent | 30 | 53.4 | 54.8 | 43.3% | 0.371 | 0.968x | 100.0% | 0.0 MiB |
 | B | greedy | single-mem | mem | 12 | 50.7 | 38.3 | 24.0% | 0.450 | 0.912x | 91.7% | 0.0 MiB |
 | B | greedy | dual-agent | agent | 30 | 23.0 | 24.8 | 43.5% | 0.206 | 0.876x | 100.0% | 0.0 MiB |
@@ -48,10 +48,10 @@ Compared against off at the same phase and request id. First divergence is a cha
 
 Off dual-vs-single batch-numerics control:
 
-| role | identical/compared | rate |
-|---|---:|---:|
-| agent | 0/30 | 0.0% |
-| mem | 10/12 | 83.3% |
+| role | identical/compared | rate | first-divergence indices for mismatches |
+|---|---:|---:|---|
+| agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:62, inventory-baseline-r0/0/5:223, inventory-baseline-r0/0/8:113, inventory-baseline-r0/0/10:224, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:49, inventory-baseline-r1/0/4:212, inventory-baseline-r1/0/5:485, inventory-baseline-r1/0/7:449, inventory-baseline-r1/2/0:472, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:497, inventory-baseline-r1/2/8:542, inventory-baseline-r1/2/11:66, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:282, inventory-mem0-r0/0/4:249, inventory-mem0-r0/0/7:513, inventory-mem0-r0/0/9:242, inventory-mem0-r1/0/0:253, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:39, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:231, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:18, inventory-mem0-r2/0/4:280, inventory-mem0-r2/0/6:164, inventory-mem0-r2/0/8:495 |
+| mem | 10/12 | 83.3% | inventory-mem0-r0/0/0:191, inventory-mem0-r1/1/0:1098 |
 
 ## Deployment decision
 

@@ -1218,3 +1218,18 @@ Implemented and locally validated the decision summarizer and no-deploy artifact
 Added to the standing facts:
 
 - `bench/spec_summarize.py` currently computes one median VRAM value per arm; phase-specific A-prod versus off-prod deltas are +1, +1, +1, and -1 MiB respectively, although the deployment-rule maximum remains +1 MiB.
+
+### 2026-10-12T11:33:53-04:00 · worker (gpt-5.6-terra), round 2
+
+Corrected and regenerated the summary artifacts; local compile and JSON assertions passed.
+
+```json
+{
+  "request": "done",
+  "summary": "`bench/spec_summarize.py` now compares phase-tagged VRAM samples: A-prod is +1, +1, +1, and -1 MiB across its four phases, while rule 4 remains PASS at +1 MiB maximum. The off greedy dual-vs-single control now records mismatch first-divergence indices in `bench/results/2026-10-12/m1-ngram/summary.md` and `summary.json`. `deploy.json` remains no-deploy because rules 2, 3, and 5 fail; no candidate or live serving YAML changed."
+}
+```
+
+### 2026-10-12T11:35:36-04:00 · advisor (finished item)
+
+**revise**: Update `bench/spec_summarize.py` and regenerate the summaries. `summary.md` numbers the six rules but never states their actual predicates or thresholds; add a criterion column or equivalent text containing the exact requirements (1.10x, 0.97x, +64 MiB, validity comparison, 10-point identity allowance, and mmproj condition). Also make rule 1 verify the pinned projector was actually loaded from all four A-prod server logs (`load_model: loaded multimodal model, ...mmproj...`), rather than inferring this solely from `--mmproj` appearing in notes and the absence of the word `refused`. The current artifacts otherwise recompute correctly, no candidate exists, and the live YAML remains unchanged.

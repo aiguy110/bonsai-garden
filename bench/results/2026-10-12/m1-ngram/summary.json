@@ -16,8 +16,8 @@
       "draft_tokens_per_generated_token": 0.5859441754485901,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 1.5601483420650577,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "A-greedy",
@@ -33,8 +33,8 @@
       "draft_tokens_per_generated_token": 0.5530642750373692,
       "tool_call_json_valid_rate": 0.9166666666666666,
       "speedup_vs_off": 0.9560915018645486,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "A-greedy",
@@ -50,8 +50,8 @@
       "draft_tokens_per_generated_token": 0.231797177469714,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 0.9690241304755464,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "A-greedy",
@@ -67,8 +67,8 @@
       "draft_tokens_per_generated_token": 0.5572289156626506,
       "tool_call_json_valid_rate": 0.8333333333333334,
       "speedup_vs_off": 0.9525023457824847,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "A-prod",
@@ -84,8 +84,8 @@
       "draft_tokens_per_generated_token": 0.2228736980064841,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 1.001275473482931,
-      "vram_mib": 9508.0,
-      "vram_vs_off_mib": 1.0
+      "vram_mib": 9508,
+      "vram_vs_off_mib": 1
     },
     {
       "arm": "A-prod",
@@ -101,8 +101,8 @@
       "draft_tokens_per_generated_token": 0.6573998364677024,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 0.9618340409152707,
-      "vram_mib": 9508.0,
-      "vram_vs_off_mib": 1.0
+      "vram_mib": 9508,
+      "vram_vs_off_mib": 1
     },
     {
       "arm": "A-prod",
@@ -118,8 +118,8 @@
       "draft_tokens_per_generated_token": 0.13212330740420627,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 0.8531714510039895,
-      "vram_mib": 9508.0,
-      "vram_vs_off_mib": 1.0
+      "vram_mib": 9508,
+      "vram_vs_off_mib": 1
     },
     {
       "arm": "A-prod",
@@ -135,8 +135,8 @@
       "draft_tokens_per_generated_token": 0.6798634812286689,
       "tool_call_json_valid_rate": 0.9166666666666666,
       "speedup_vs_off": 0.920253289017245,
-      "vram_mib": 9508.0,
-      "vram_vs_off_mib": 1.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": -1
     },
     {
       "arm": "B-greedy",
@@ -152,8 +152,8 @@
       "draft_tokens_per_generated_token": 0.3713131313131313,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 0.967627781005772,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "B-greedy",
@@ -169,8 +169,8 @@
       "draft_tokens_per_generated_token": 0.45019011406844106,
       "tool_call_json_valid_rate": 0.9166666666666666,
       "speedup_vs_off": 0.9116025161245578,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "B-greedy",
@@ -186,8 +186,8 @@
       "draft_tokens_per_generated_token": 0.20617740232312565,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 0.8760661321121939,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "B-greedy",
@@ -203,8 +203,8 @@
       "draft_tokens_per_generated_token": 0.47380410022779046,
       "tool_call_json_valid_rate": 0.8333333333333334,
       "speedup_vs_off": 0.8972595589183918,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "off-greedy",
@@ -220,8 +220,8 @@
       "draft_tokens_per_generated_token": 0.0,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 1.0,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "off-greedy",
@@ -237,8 +237,8 @@
       "draft_tokens_per_generated_token": 0.0,
       "tool_call_json_valid_rate": 0.8333333333333334,
       "speedup_vs_off": 1.0,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "off-greedy",
@@ -254,8 +254,8 @@
       "draft_tokens_per_generated_token": 0.0,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 1.0,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "off-greedy",
@@ -271,8 +271,8 @@
       "draft_tokens_per_generated_token": 0.0,
       "tool_call_json_valid_rate": 0.9166666666666666,
       "speedup_vs_off": 1.0,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "off-prod",
@@ -288,8 +288,8 @@
       "draft_tokens_per_generated_token": 0.0,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 1.0,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "off-prod",
@@ -305,8 +305,8 @@
       "draft_tokens_per_generated_token": 0.0,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 1.0,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "off-prod",
@@ -322,8 +322,8 @@
       "draft_tokens_per_generated_token": 0.0,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 1.0,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9507,
+      "vram_vs_off_mib": 0
     },
     {
       "arm": "off-prod",
@@ -339,8 +339,8 @@
       "draft_tokens_per_generated_token": 0.0,
       "tool_call_json_valid_rate": 1.0,
       "speedup_vs_off": 1.0,
-      "vram_mib": 9507.0,
-      "vram_vs_off_mib": 0.0
+      "vram_mib": 9508,
+      "vram_vs_off_mib": 0
     }
   ],
   "identity": [
@@ -938,13 +938,145 @@
       "role": "agent",
       "compared": 30,
       "identical": 0,
-      "identical_rate": 0.0
+      "identical_rate": 0.0,
+      "mismatches": [
+        {
+          "id": "inventory-baseline-r0/0/0",
+          "first_divergence_char": 253
+        },
+        {
+          "id": "inventory-baseline-r0/0/2",
+          "first_divergence_char": 62
+        },
+        {
+          "id": "inventory-baseline-r0/0/5",
+          "first_divergence_char": 223
+        },
+        {
+          "id": "inventory-baseline-r0/0/8",
+          "first_divergence_char": 113
+        },
+        {
+          "id": "inventory-baseline-r0/0/10",
+          "first_divergence_char": 224
+        },
+        {
+          "id": "inventory-baseline-r1/0/0",
+          "first_divergence_char": 253
+        },
+        {
+          "id": "inventory-baseline-r1/0/2",
+          "first_divergence_char": 49
+        },
+        {
+          "id": "inventory-baseline-r1/0/4",
+          "first_divergence_char": 212
+        },
+        {
+          "id": "inventory-baseline-r1/0/5",
+          "first_divergence_char": 485
+        },
+        {
+          "id": "inventory-baseline-r1/0/7",
+          "first_divergence_char": 449
+        },
+        {
+          "id": "inventory-baseline-r1/2/0",
+          "first_divergence_char": 472
+        },
+        {
+          "id": "inventory-baseline-r1/2/3",
+          "first_divergence_char": 430
+        },
+        {
+          "id": "inventory-baseline-r1/2/6",
+          "first_divergence_char": 497
+        },
+        {
+          "id": "inventory-baseline-r1/2/8",
+          "first_divergence_char": 542
+        },
+        {
+          "id": "inventory-baseline-r1/2/11",
+          "first_divergence_char": 66
+        },
+        {
+          "id": "inventory-mem0-r0/0/0",
+          "first_divergence_char": 253
+        },
+        {
+          "id": "inventory-mem0-r0/0/2",
+          "first_divergence_char": 282
+        },
+        {
+          "id": "inventory-mem0-r0/0/4",
+          "first_divergence_char": 249
+        },
+        {
+          "id": "inventory-mem0-r0/0/7",
+          "first_divergence_char": 513
+        },
+        {
+          "id": "inventory-mem0-r0/0/9",
+          "first_divergence_char": 242
+        },
+        {
+          "id": "inventory-mem0-r1/0/0",
+          "first_divergence_char": 253
+        },
+        {
+          "id": "inventory-mem0-r1/0/2",
+          "first_divergence_char": 179
+        },
+        {
+          "id": "inventory-mem0-r1/0/4",
+          "first_divergence_char": 39
+        },
+        {
+          "id": "inventory-mem0-r1/0/5",
+          "first_divergence_char": 331
+        },
+        {
+          "id": "inventory-mem0-r1/0/7",
+          "first_divergence_char": 231
+        },
+        {
+          "id": "inventory-mem0-r2/0/0",
+          "first_divergence_char": 253
+        },
+        {
+          "id": "inventory-mem0-r2/0/2",
+          "first_divergence_char": 18
+        },
+        {
+          "id": "inventory-mem0-r2/0/4",
+          "first_divergence_char": 280
+        },
+        {
+          "id": "inventory-mem0-r2/0/6",
+          "first_divergence_char": 164
+        },
+        {
+          "id": "inventory-mem0-r2/0/8",
+          "first_divergence_char": 495
+        }
+      ]
     },
     {
       "role": "mem",
       "compared": 12,
       "identical": 10,
-      "identical_rate": 0.8333333333333334
+      "identical_rate": 0.8333333333333334,
+      "mismatches": [
+        {
+          "id": "inventory-mem0-r0/0/0",
+          "first_divergence_char": 191
+        },
+        {
+          "id": "inventory-mem0-r1/1/0",
+          "first_divergence_char": 1098
+        }
+      ]
     }
   ],
   "decision_candidate": "A-prod",

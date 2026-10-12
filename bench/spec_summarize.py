@@ -41,10 +41,20 @@ def output_texts(replay, arm):
 
 
 def vram_mib(path):
+    """Read the per-phase first-foreground VRAM samples written by the probe."""
     if not path.exists():
-        return None
-    values = [int(x) for x in re.findall(r"\b(\d+) MiB,", path.read_text())]
-    return statistics.median(values) if values else None
+        return {}
+    samples = {}
+    phase = None
+    for line in path.read_text().splitlines():
+        match = re.match(r"== (.+) \(after first fg request\)", line)
+        if match:
+            phase = match.group(1)
+            continue
+        match = re.match(r"(\d+) MiB,", line)
+        if match and phase:
+            samples[phase] = int(match.group(1))
+    return samples
 
 
 def first_divergence(a, b):
@@ -97,8 +107,9 @@ def main():
         off = f"off-{sampling}"
         ref = metrics.get((off, phase, role))
         m["speedup_vs_off"] = m["decode_tok_s"] / ref["decode_tok_s"] if ref and ref["decode_tok_s"] else None
-        m["vram_mib"] = vrams[arm]
-        m["vram_vs_off_mib"] = vrams[arm] - vrams[off] if vrams[arm] is not None and vrams.get(off) is not None else None
+        m["vram_mib"] = vrams[arm].get(phase)
+        ref_vram = vrams.get(off, {}).get(phase)
+        m["vram_vs_off_mib"] = m["vram_mib"] - ref_vram if m["vram_mib"] is not None and ref_vram is not None else None
 
     identity = []
     for arm in arms:
@@ -126,9 +137,16 @@ def main():
     for role in ("agent", "mem"):
         single = {r["id"]: r for r in data["off-greedy"] if r["phase"] == "single-" + role}
         dual = {r["id"]: r for r in data["off-greedy"] if r["phase"] == "dual-" + role}
-        same = sum(r.get("out_sha256") == single.get(i, {}).get("out_sha256") for i, r in dual.items())
+        same, mismatches = 0, []
+        for ident, row in dual.items():
+            if row.get("out_sha256") == single.get(ident, {}).get("out_sha256"):
+                same += 1
+            else:
+                mismatches.append({"id": ident, "first_divergence_char": first_divergence(
+                    texts["off-greedy"].get(("dual-" + role, ident, "fg"), ""),
+                    texts["off-greedy"].get(("single-" + role, ident, "fg"), ""))})
         control.append({"role": role, "compared": len(dual), "identical": same,
-                        "identical_rate": same / len(dual) if dual else None})
+                        "identical_rate": same / len(dual) if dual else None, "mismatches": mismatches})
 
     # The only complete production speculative candidate is A-prod.
     candidate = "A-prod"
@@ -158,8 +176,10 @@ def main():
     for x in identity:
         ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
         lines.append(f"| {x['arm'].rsplit('-',1)[0]} | {x['phase']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
-    lines += ["", "Off dual-vs-single batch-numerics control:", "", "| role | identical/compared | rate |", "|---|---:|---:|"]
-    lines += [f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} |" for x in control]
+    lines += ["", "Off dual-vs-single batch-numerics control:", "", "| role | identical/compared | rate | first-divergence indices for mismatches |", "|---|---:|---:|---|"]
+    for x in control:
+        ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
+        lines.append(f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
     lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.", "", "| rule | result | value |", "|---:|---|---|"]
     lines += [f"| {x['rule']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
     failed = [f"rule {x['rule']}: {x['value']}" for x in rules if not x["pass"]]
