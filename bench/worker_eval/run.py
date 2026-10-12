@@ -663,6 +663,8 @@ def main(argv=None):
         try:
             rec = run_session(ev, arm, case, rep, out / case["case_id"] / f"r{rep}", check)
         except (Exception, SystemExit) as e:  # noqa: BLE001  (start_tap exits via SystemExit)
+            if isinstance(e, SystemExit) and e.code == 143:  # SIGTERM: stop the chunk
+                raise
             print(f"  attempt did not run: {type(e).__name__}: {e}", flush=True)
             with open(out / "infra-errors.jsonl", "a") as f:
                 f.write(json.dumps({"time": now_iso(), "case_id": case["case_id"], "repeat": rep,

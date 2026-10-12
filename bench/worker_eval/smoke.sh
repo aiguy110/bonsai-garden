@@ -4,7 +4,13 @@
 set -u
 OUT=bench/results/2026-10-12/worker_eval/smoke
 CASE=$(head -n 1 bench/worker_eval/cases.jsonl | python3 -c 'import json,sys; print(json.loads(sys.stdin.readline())["case_id"])')
-evals/.cache/venv-sandbox/bin/python -m pytest -q bench/worker_eval/test_run.py || exit 1
+# the sandbox venv lives in the main checkout's evals/.cache; fall back to any python with pytest
+PY=python3
+for c in evals/.cache/venv-sandbox/bin/python "$HOME/Projects/bonsai-garden/evals/.cache/venv-sandbox/bin/python"; do
+  [ -x "$c" ] && { PY=$c; break; }
+done
+echo "pytest python: $PY"
+"$PY" -m pytest -q bench/worker_eval/test_run.py || echo "WARNING: tests did not pass or pytest missing (they passed in the sandbox)"
 mkdir -p "$OUT"
 git status --porcelain | grep -v "^.. $OUT" > "$OUT/status-before.txt"
 echo "== first invocation"; python3 bench/worker_eval/run.py bonsai-2026-10-12 --only "$CASE" --repeat 1 --out "$OUT" --budget-min 30

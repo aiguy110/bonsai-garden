@@ -152,3 +152,5 @@ readable in the sandbox, so `thinking: low` and the 16384 cap rest on the README
 instruction for restoring the Bonsai worker and the model registration file, not on a
 recorded 2026-10-12 config. A reviewer with host access can check them against the first
 `autopilot(M1-ngram)` commits' `config.json`.
+
+Note: the replay checkout is a real git repo with working history (ancestors of the start commit only). The original worker's sandbox mounted a worktree whose `.git` pointed outside the container, so git was unusable there.
