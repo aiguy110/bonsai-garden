@@ -689,3 +689,14 @@ Ran `bash bench/worker_eval/diagnose_reboots.sh` (gpu=False) in 16s, exit 0. Ful
 bench/worker_eval/diagnose_reboots.sh wrote bench/results/2026-10-12/worker_eval/reboot-diagnostic-20261012T203153Z
 
 ```
+
+### 2026-10-12T16:33:41-04:00 · worker (gpt-5.6-terra), round 11
+
+Inspected the approved diagnostic at bench/results/2026-10-12/worker_eval/reboot-diagnostic-20261012T203153Z. All four smoke-associated boots terminate abruptly (14:15:56, 16:10:16, 16:19:04, 16:26:22) with no orderly shutdown entry. The retained kernel/suspect logs contain no Xid/NVRM fault, OOM, panic, watchdog, thermal, or power event; pstore is empty and IPMI is unavailable. Each affected boot does show Docker/bwrap sandbox setup shortly before its termination, so the replay correlation remains unresolved. No safe software mitigation is supported by this evidence; another live replay risks another host reset. Need host-level diagnosis/mitigation or approval to resume despite the risk.
+
+```json
+{
+  "request": "stuck",
+  "why": "The acceptance smoke test cannot safely be retried until the repeated abrupt host resets correlated with launching the replay are diagnosed or a host-level mitigation is applied."
+}
+```
