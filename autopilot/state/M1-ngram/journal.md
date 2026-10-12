@@ -439,3 +439,19 @@ Next session: don't polish further. Check those files briefly, then end early wi
 ### 2026-10-12T07:15:20-04:00 · orchestrator
 
 Round 3's last reply hit the output limit (16k tokens) and was cut off, which ended the session. Write large files in parts: a short first version, then edits. (A crash after round 3 was an orchestrator bug, now fixed; it did not use up a round.)
+
+### 2026-10-12T08:00:21-04:00 · worker (Bonsai), round 4
+
+The script I wrote has bugs in the mem selection (leftover globals). Let me verify a couple of inventory details before a clean rewrite.
+
+### 2026-10-12T08:00:21-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md |    4 +
+ bench/build_replay_set.py           | 1092 +++++++++++++++++++----------------
+ 2 files changed, 598 insertions(+), 498 deletions(-)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
