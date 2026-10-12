@@ -54,3 +54,18 @@ Recon round 7 complete (host-side run requested next):
 ### 2026-10-12T02:07:27-04:00 · advisor (run request)
 
 **revise**: Safe to run (read-only, writes only under bench/results/<date>/m1-ngram/recon/, no server or port), but it would crash on import. BLOCKING: (1) PRIMARY_SRC = Path(...) / ("evals" / "results" / ...) raises TypeError because the brackets make Python divide two strings first. Use MAIN_REPO / "evals" / "results" / "2026-10-11-baseline-mem0" and define MAIN_REPO before it. (2) The spec_flags.txt filter misses llama.cpp's '--draft, --draft-n, --draft-max N' (a comma follows 'draft') and lines that begin with a short alias like '-cd, --ctx-size-draft'. It also adds unrelated '-xx, --foo' lines as continuations. Rewrite it: any stripped line starting with '-' is a flag line and is kept if re.search(r'--(spec|draft)', line) matches. Lines not starting with '-' are continuations and follow the keep/drop decision of the flag line above them. NON-BLOCKING: (3) match_tap_records: replace 's is None or s != target or str(s) != target' with 'str(s) != target' as evals/run.py:277 does (the current form drops integer steps; tap tags are strings, so it only works by luck). (4) spec_mmproj_grep.txt: print the path relative to tools/server/, not root.name. (5) mem0_dbs: key by the path relative to the run dir, not db.name. (6) If the windows in mem0_extract_src.txt don't clearly contain the user-prompt builder, also extract the function that receives the messages and existing memories. Compile it with a quick ast.parse check, then resubmit the same run request.
+
+### 2026-10-12T02:28:23-04:00 · worker (Bonsai), round 8
+
+The sandbox is a git worktree of the real repo. Let me read the rest of the script to locate the sections needing the advisor's 6 fixes.
+
+### 2026-10-12T02:28:23-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
