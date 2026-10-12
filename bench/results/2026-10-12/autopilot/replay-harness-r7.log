@@ -1,0 +1,5 @@
+pytest python: /home/josiah/Projects/bonsai-garden/evals/.cache/venv-sandbox/bin/python
+.......................                                                  [100%]
+23 passed in 0.09s
+== first invocation
+[2026-10-12T16:13:40-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r6-9cf273aef422 r1

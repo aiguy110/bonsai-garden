@@ -580,3 +580,33 @@ Health check through turnstile failed: URLError: <urlopen error [Errno 111] Conn
 ```json
 {"fixed":true,"diagnosis":"Transient connection refusal during host reboot; turnstile and llama-swap subsequently started normally. The live config exactly matches known-good.","actions":["Confirmed turnstile :8080, llama-swap :11435, and embedder :8095 are running","Verified live and known-good configs have identical checksums","Ran infra.py check twice; both returned {\"ok\": true}","Made no configuration changes or unnecessary restarts"]}
 ```
+
+### 2026-10-12T16:12:56-04:00 · worker (gpt-5.6-terra), round 7
+
+Harness and fail-fast smoke script remain ready; prior two host attempts were blocked by transient connection refusals before an attempt completed. Retrying the approved one-case replay and resume check.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/smoke.sh",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Retry the approved host smoke test after the transient host reboot: one live bench-route replay followed by a resume invocation that must skip it."
+}
+```
+
+### 2026-10-12T16:13:40-04:00 · advisor (run request)
+
+**approve**: Run the approved smoke test. Afterward report the pytest summary, first-attempt metrics and artifacts, tap HTTP 200 evidence, populated manifest metadata, second invocation stats showing skipped=1 and ran=0, exactly one results.jsonl record, unchanged worktree status, no leftover /tmp/w1-replay-* directories, and any infra-errors.jsonl entries.
+
+### 2026-10-12T16:19:48-04:00 · orchestrator
+
+Health check through turnstile failed: URLError: <urlopen error [Errno 111] Connection refused>
+
+### 2026-10-12T16:21:08-04:00 · fixer (cloud)
+
+Service is healthy; no restart or configuration change was needed.
+
+```json
+{"fixed":true,"diagnosis":"The connection refusal coincided with a host reboot. Turnstile and llama-swap restarted normally afterward, and the active llama-swap config matches the known-good config exactly.","actions":["Confirmed turnstile, llama-swap, and embedder are running and listening on ports 8080, 11435, and 8095","Confirmed /etc/llama-swap/config.yaml is identical to known-good.yaml","Ran infra.py check successfully: {\"ok\": true, \"why\": null}"]}
+```
