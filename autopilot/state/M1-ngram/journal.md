@@ -565,3 +565,60 @@ Traceback (most recent call last):
 ValueError: substring not found
 
 ```
+
+### 2026-10-12T08:39:54-04:00 · worker (claude-sonnet-5-5), round 8
+
+The previous run crashed in load_additive because the ADDITIVE_EXTRACTION_PROMPT terminator in the dump is "\n`\n", not "`;". I fixed the terminator and added unescaping of \`. I did not run it. The advisor's mem-set fixes are not done yet: per-call tool-add vs capture events, per-call cutoffs, response_format, the action column and DELETE handling, and the system-prompt note. This run is to see the rest of the output first, then I'll make those fixes next round.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/build_replay_set.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Re-run the builder after fixing load_additive. The prompt template ends at a line holding a lone backtick, not a backtick plus semicolon. This should get past the crash and show the agent-side output, the DB columns, the n_messages mismatches and the ratios. Read-only, no GPU."
+}
+```
+
+### 2026-10-12T08:40:32-04:00 · advisor (run request)
+
+**approve**: Safe: read-only on the recordings and SQLite (mode=ro), writes only to bench/.replay/m1 and the results manifest, no GPU, no server. The load_additive fix is right: the first ADDITIVE_EXTRACTION_PROMPT (line 11) is the full copy and ends at the lone backtick on mem0_extract_src.txt:486; no earlier line starts with a backtick. The section order in mem_user_prompt matches generateAdditiveExtractionPrompt (1137-1165). Run it and use the output. Fix these next round, together with the open mem-set items from the last review (tool_add vs capture events per call, cutoffs per call, response_format json_object, the `action` column with DELETE handling, the system_prompt_note wording plus the separate ratio for n_messages<=3, and not double-encoding string arguments): (1) The dump is raw JS template-literal source, so decode its escapes the way JS would, in a single pass: \\ -> \, \` -> `, \uXXXX -> the character. A single re.sub over r'\\(u[0-9a-fA-F]{4}|.)' works. Right now the `\\"` on lines 275-276 stays as two backslashes, but mem0 sends `\"`. (2) mem0_extract_src.txt:838 builds the messages as `${m.role}: ${m.content}` joined with '\n'. Cite that line in mem_prompt_assumptions as the evidence for the 'role: content' format, and check whether newMessages (and formatConversationHistory) is built from it. (3) The manifest this run writes uses the old mem bodies. It must be rebuilt after the fixes, and only the rebuilt one should be committed.
+
+### 2026-10-12T08:40:32-04:00 · orchestrator
+
+Added to the standing facts:
+
+- recon/mem0_extract_src.txt is raw JS source: the full ADDITIVE_EXTRACTION_PROMPT is lines 11-486 (a second, truncated copy starts at line 615), and template-literal escapes (\\, \`, \uXXXX) must be decoded to get the runtime prompt text.
+
+### 2026-10-12T08:40:32-04:00 · orchestrator
+
+Ran `python3 bench/build_replay_set.py` (gpu=False) in 0s, exit 0. Full output: `bench/results/2026-10-12/autopilot/replay-set-r8.log`. Last lines:
+
+```
+ADDITIVE prompt chars: 33663
+steps loaded: 18
+{
+ "system_prompt_exact": true,
+ "totals": {
+  "agent": {
+   "requests": 30,
+   "distinct_steps": 6,
+   "prompt_chars": 509067,
+   "recorded_prompt_tokens": 241448,
+   "median_est_over_recorded": 0.457
+  },
+  "mem": {
+   "requests": 12,
+   "distinct_steps": 5,
+   "prompt_chars": 441240,
+   "recorded_prompt_tokens": 104716,
+   "median_est_over_recorded": 1.054
+  }
+ }
+}
+n_messages mismatches: 0 []
+mem0 db columns: {"inventory-mem0-r0": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}, "inventory-mem0-r1": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}, "inventory-mem0-r2": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}}
+outliers (ratio outside 0.75-1.33): [('inventory-baseline-r0/0/5', 0.246), ('inventory-baseline-r0/0/8', 0.272), ('inventory-baseline-r0/0/10', 0.278), ('inventory-baseline-r1/0/2', 0.743), ('inventory-baseline-r1/0/4', 0.381), ('inventory-baseline-r1/0/5', 0.396), ('inventory-baseline-r1/0/7', 0.414), ('inventory-baseline-r1/2/3', 0.745), ('inventory-mem0-r0/0/2', 0.5), ('inventory-mem0-r0/0/4', 0.384), ('inventory-mem0-r0/0/7', 0.406), ('inventory-mem0-r0/0/9', 0.405), ('inventory-mem0-r1/0/4', 0.407), ('inventory-mem0-r1/0/5', 0.391), ('inventory-mem0-r1/0/7', 0.394), ('inventory-mem0-r2/0/4', 0.349), ('inventory-mem0-r2/0/6', 0.384), ('inventory-mem0-r2/0/8', 0.399)]
+wrote /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/.replay/m1 /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/replay_manifest.json
+
+```

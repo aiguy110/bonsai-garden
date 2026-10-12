@@ -144,8 +144,8 @@ def spread(n, k):
 def load_additive(path):
     txt = path.read_text(encoding="utf-8")
     a = txt.index("var ADDITIVE_EXTRACTION_PROMPT = `") + len("var ADDITIVE_EXTRACTION_PROMPT = `")
-    b = txt.index("`;", a)
-    raw = txt[a:b]
+    b = txt.index("\n`\n", a) + 1
+    raw = txt[a:b].replace("\\`", "`")
     # the recon dump shows non-ASCII as \uXXXX escapes (JS source); decode them
     return re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1), 16)), raw)
 

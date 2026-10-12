@@ -1,0 +1,506 @@
+{
+ "system_prompt_exact": true,
+ "system_prompt_note": "agent system prompt = sections from the recorded system message joined by blank lines",
+ "mem_prompt_assumptions": "serializeMemories=JSON list; formatConversationHistory='role: content' lines; existing = latest 10 ADD/UPDATE memories created before the step's last event",
+ "totals": {
+  "agent": {
+   "requests": 30,
+   "distinct_steps": 6,
+   "prompt_chars": 509067,
+   "recorded_prompt_tokens": 241448,
+   "median_est_over_recorded": 0.457
+  },
+  "mem": {
+   "requests": 12,
+   "distinct_steps": 5,
+   "prompt_chars": 441240,
+   "recorded_prompt_tokens": 104716,
+   "median_est_over_recorded": 1.054
+  }
+ },
+ "n_messages_mismatches": [],
+ "mem0_db_columns": {
+  "inventory-mem0-r0": {
+   "memory_history": [
+    "id",
+    "memory_id",
+    "previous_value",
+    "new_value",
+    "action",
+    "created_at",
+    "updated_at",
+    "is_deleted"
+   ],
+   "messages": [
+    "id",
+    "session_scope",
+    "role",
+    "content",
+    "name",
+    "created_at"
+   ]
+  },
+  "inventory-mem0-r1": {
+   "memory_history": [
+    "id",
+    "memory_id",
+    "previous_value",
+    "new_value",
+    "action",
+    "created_at",
+    "updated_at",
+    "is_deleted"
+   ],
+   "messages": [
+    "id",
+    "session_scope",
+    "role",
+    "content",
+    "name",
+    "created_at"
+   ]
+  },
+  "inventory-mem0-r2": {
+   "memory_history": [
+    "id",
+    "memory_id",
+    "previous_value",
+    "new_value",
+    "action",
+    "created_at",
+    "updated_at",
+    "is_deleted"
+   ],
+   "messages": [
+    "id",
+    "session_scope",
+    "role",
+    "content",
+    "name",
+    "created_at"
+   ]
+  }
+ },
+ "requests": [
+  {
+   "id": "inventory-baseline-r0/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 6187,
+   "est_tokens_chars4": 1547,
+   "recorded_prompt_tokens": 1829,
+   "est_over_recorded": 0.846,
+   "predicted_n": 71
+  },
+  {
+   "id": "inventory-baseline-r0/0/2",
+   "role": "agent",
+   "n_messages": 7,
+   "prompt_chars": 8354,
+   "est_tokens_chars4": 2088,
+   "recorded_prompt_tokens": 2761,
+   "est_over_recorded": 0.756,
+   "predicted_n": 8565
+  },
+  {
+   "id": "inventory-baseline-r0/0/5",
+   "role": "agent",
+   "n_messages": 13,
+   "prompt_chars": 12842,
+   "est_tokens_chars4": 3210,
+   "recorded_prompt_tokens": 13032,
+   "est_over_recorded": 0.246,
+   "predicted_n": 305
+  },
+  {
+   "id": "inventory-baseline-r0/0/8",
+   "role": "agent",
+   "n_messages": 19,
+   "prompt_chars": 15176,
+   "est_tokens_chars4": 3794,
+   "recorded_prompt_tokens": 13939,
+   "est_over_recorded": 0.272,
+   "predicted_n": 189
+  },
+  {
+   "id": "inventory-baseline-r0/0/10",
+   "role": "agent",
+   "n_messages": 23,
+   "prompt_chars": 15904,
+   "est_tokens_chars4": 3976,
+   "recorded_prompt_tokens": 14317,
+   "est_over_recorded": 0.278,
+   "predicted_n": 538
+  },
+  {
+   "id": "inventory-baseline-r1/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 6187,
+   "est_tokens_chars4": 1547,
+   "recorded_prompt_tokens": 1829,
+   "est_over_recorded": 0.846,
+   "predicted_n": 71
+  },
+  {
+   "id": "inventory-baseline-r1/0/2",
+   "role": "agent",
+   "n_messages": 9,
+   "prompt_chars": 8794,
+   "est_tokens_chars4": 2198,
+   "recorded_prompt_tokens": 2959,
+   "est_over_recorded": 0.743,
+   "predicted_n": 5684
+  },
+  {
+   "id": "inventory-baseline-r1/0/4",
+   "role": "agent",
+   "n_messages": 15,
+   "prompt_chars": 14778,
+   "est_tokens_chars4": 3694,
+   "recorded_prompt_tokens": 9693,
+   "est_over_recorded": 0.381,
+   "predicted_n": 383
+  },
+  {
+   "id": "inventory-baseline-r1/0/5",
+   "role": "agent",
+   "n_messages": 18,
+   "prompt_chars": 16359,
+   "est_tokens_chars4": 4090,
+   "recorded_prompt_tokens": 10315,
+   "est_over_recorded": 0.396,
+   "predicted_n": 144
+  },
+  {
+   "id": "inventory-baseline-r1/0/7",
+   "role": "agent",
+   "n_messages": 22,
+   "prompt_chars": 18150,
+   "est_tokens_chars4": 4538,
+   "recorded_prompt_tokens": 10960,
+   "est_over_recorded": 0.414,
+   "predicted_n": 511
+  },
+  {
+   "id": "inventory-baseline-r1/2/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 5618,
+   "est_tokens_chars4": 1404,
+   "recorded_prompt_tokens": 1672,
+   "est_over_recorded": 0.84,
+   "predicted_n": 167
+  },
+  {
+   "id": "inventory-baseline-r1/2/3",
+   "role": "agent",
+   "n_messages": 11,
+   "prompt_chars": 10483,
+   "est_tokens_chars4": 2621,
+   "recorded_prompt_tokens": 3517,
+   "est_over_recorded": 0.745,
+   "predicted_n": 118
+  },
+  {
+   "id": "inventory-baseline-r1/2/6",
+   "role": "agent",
+   "n_messages": 18,
+   "prompt_chars": 66065,
+   "est_tokens_chars4": 16516,
+   "recorded_prompt_tokens": 19127,
+   "est_over_recorded": 0.864,
+   "predicted_n": 463
+  },
+  {
+   "id": "inventory-baseline-r1/2/8",
+   "role": "agent",
+   "n_messages": 22,
+   "prompt_chars": 67377,
+   "est_tokens_chars4": 16844,
+   "recorded_prompt_tokens": 20624,
+   "est_over_recorded": 0.817,
+   "predicted_n": 1323
+  },
+  {
+   "id": "inventory-baseline-r1/2/11",
+   "role": "agent",
+   "n_messages": 29,
+   "prompt_chars": 69512,
+   "est_tokens_chars4": 17378,
+   "recorded_prompt_tokens": 22553,
+   "est_over_recorded": 0.771,
+   "predicted_n": 452
+  },
+  {
+   "id": "inventory-mem0-r0/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 7557,
+   "est_tokens_chars4": 1889,
+   "recorded_prompt_tokens": 2153,
+   "est_over_recorded": 0.877,
+   "predicted_n": 175
+  },
+  {
+   "id": "inventory-mem0-r0/0/2",
+   "role": "agent",
+   "n_messages": 8,
+   "prompt_chars": 8548,
+   "est_tokens_chars4": 2137,
+   "recorded_prompt_tokens": 4273,
+   "est_over_recorded": 0.5,
+   "predicted_n": 3121
+  },
+  {
+   "id": "inventory-mem0-r0/0/4",
+   "role": "agent",
+   "n_messages": 13,
+   "prompt_chars": 11601,
+   "est_tokens_chars4": 2900,
+   "recorded_prompt_tokens": 7551,
+   "est_over_recorded": 0.384,
+   "predicted_n": 354
+  },
+  {
+   "id": "inventory-mem0-r0/0/7",
+   "role": "agent",
+   "n_messages": 22,
+   "prompt_chars": 13578,
+   "est_tokens_chars4": 3394,
+   "recorded_prompt_tokens": 8369,
+   "est_over_recorded": 0.406,
+   "predicted_n": 223
+  },
+  {
+   "id": "inventory-mem0-r0/0/9",
+   "role": "agent",
+   "n_messages": 26,
+   "prompt_chars": 15083,
+   "est_tokens_chars4": 3771,
+   "recorded_prompt_tokens": 9312,
+   "est_over_recorded": 0.405,
+   "predicted_n": 428
+  },
+  {
+   "id": "inventory-mem0-r1/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 7557,
+   "est_tokens_chars4": 1889,
+   "recorded_prompt_tokens": 2153,
+   "est_over_recorded": 0.877,
+   "predicted_n": 147
+  },
+  {
+   "id": "inventory-mem0-r1/0/2",
+   "role": "agent",
+   "n_messages": 7,
+   "prompt_chars": 8426,
+   "est_tokens_chars4": 2106,
+   "recorded_prompt_tokens": 2648,
+   "est_over_recorded": 0.796,
+   "predicted_n": 100
+  },
+  {
+   "id": "inventory-mem0-r1/0/4",
+   "role": "agent",
+   "n_messages": 11,
+   "prompt_chars": 9194,
+   "est_tokens_chars4": 2298,
+   "recorded_prompt_tokens": 5651,
+   "est_over_recorded": 0.407,
+   "predicted_n": 2102
+  },
+  {
+   "id": "inventory-mem0-r1/0/5",
+   "role": "agent",
+   "n_messages": 14,
+   "prompt_chars": 12183,
+   "est_tokens_chars4": 3046,
+   "recorded_prompt_tokens": 7798,
+   "est_over_recorded": 0.391,
+   "predicted_n": 122
+  },
+  {
+   "id": "inventory-mem0-r1/0/7",
+   "role": "agent",
+   "n_messages": 19,
+   "prompt_chars": 12920,
+   "est_tokens_chars4": 3230,
+   "recorded_prompt_tokens": 8199,
+   "est_over_recorded": 0.394,
+   "predicted_n": 258
+  },
+  {
+   "id": "inventory-mem0-r2/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 7557,
+   "est_tokens_chars4": 1889,
+   "recorded_prompt_tokens": 2153,
+   "est_over_recorded": 0.877,
+   "predicted_n": 141
+  },
+  {
+   "id": "inventory-mem0-r2/0/2",
+   "role": "agent",
+   "n_messages": 9,
+   "prompt_chars": 8377,
+   "est_tokens_chars4": 2094,
+   "recorded_prompt_tokens": 2623,
+   "est_over_recorded": 0.798,
+   "predicted_n": 4854
+  },
+  {
+   "id": "inventory-mem0-r2/0/4",
+   "role": "agent",
+   "n_messages": 15,
+   "prompt_chars": 11943,
+   "est_tokens_chars4": 2986,
+   "recorded_prompt_tokens": 8554,
+   "est_over_recorded": 0.349,
+   "predicted_n": 258
+  },
+  {
+   "id": "inventory-mem0-r2/0/6",
+   "role": "agent",
+   "n_messages": 20,
+   "prompt_chars": 15407,
+   "est_tokens_chars4": 3852,
+   "recorded_prompt_tokens": 10025,
+   "est_over_recorded": 0.384,
+   "predicted_n": 210
+  },
+  {
+   "id": "inventory-mem0-r2/0/8",
+   "role": "agent",
+   "n_messages": 25,
+   "prompt_chars": 17350,
+   "est_tokens_chars4": 4338,
+   "recorded_prompt_tokens": 10859,
+   "est_over_recorded": 0.399,
+   "predicted_n": 251
+  },
+  {
+   "id": "inventory-mem0-r0/0/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36727,
+   "est_tokens_chars4": 9182,
+   "recorded_prompt_tokens": 8427,
+   "est_over_recorded": 1.09,
+   "predicted_n": 383
+  },
+  {
+   "id": "inventory-mem0-r0/0/1",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36727,
+   "est_tokens_chars4": 9182,
+   "recorded_prompt_tokens": 8646,
+   "est_over_recorded": 1.062,
+   "predicted_n": 6
+  },
+  {
+   "id": "inventory-mem0-r0/0/2",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36727,
+   "est_tokens_chars4": 9182,
+   "recorded_prompt_tokens": 8639,
+   "est_over_recorded": 1.063,
+   "predicted_n": 6
+  },
+  {
+   "id": "inventory-mem0-r0/0/3",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36727,
+   "est_tokens_chars4": 9182,
+   "recorded_prompt_tokens": 8702,
+   "est_over_recorded": 1.055,
+   "predicted_n": 6
+  },
+  {
+   "id": "inventory-mem0-r0/0/4",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36727,
+   "est_tokens_chars4": 9182,
+   "recorded_prompt_tokens": 8724,
+   "est_over_recorded": 1.052,
+   "predicted_n": 6
+  },
+  {
+   "id": "inventory-mem0-r0/0/5",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36727,
+   "est_tokens_chars4": 9182,
+   "recorded_prompt_tokens": 8744,
+   "est_over_recorded": 1.05,
+   "predicted_n": 6
+  },
+  {
+   "id": "inventory-mem0-r0/0/6",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36727,
+   "est_tokens_chars4": 9182,
+   "recorded_prompt_tokens": 8763,
+   "est_over_recorded": 1.048,
+   "predicted_n": 6
+  },
+  {
+   "id": "inventory-mem0-r0/1/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 37534,
+   "est_tokens_chars4": 9384,
+   "recorded_prompt_tokens": 8874,
+   "est_over_recorded": 1.057,
+   "predicted_n": 289
+  },
+  {
+   "id": "inventory-mem0-r0/2/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 37556,
+   "est_tokens_chars4": 9389,
+   "recorded_prompt_tokens": 9183,
+   "est_over_recorded": 1.022,
+   "predicted_n": 2048
+  },
+  {
+   "id": "inventory-mem0-r1/0/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 35519,
+   "est_tokens_chars4": 8880,
+   "recorded_prompt_tokens": 8231,
+   "est_over_recorded": 1.079,
+   "predicted_n": 61
+  },
+  {
+   "id": "inventory-mem0-r1/0/1",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 35519,
+   "est_tokens_chars4": 8880,
+   "recorded_prompt_tokens": 8650,
+   "est_over_recorded": 1.027,
+   "predicted_n": 311
+  },
+  {
+   "id": "inventory-mem0-r1/1/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 38023,
+   "est_tokens_chars4": 9506,
+   "recorded_prompt_tokens": 9133,
+   "est_over_recorded": 1.041,
+   "predicted_n": 384
+  }
+ ]
+}
