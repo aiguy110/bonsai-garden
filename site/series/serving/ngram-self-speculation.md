@@ -36,8 +36,10 @@ Agent requests use slot 0; memory requests use slot 1.
 
 `ngram-mod` with its default 48--64-token drafts was candidate A. Candidate B
 used 8--16-token drafts, to test whether shorter rejected drafts help when the
-slots compete for the GPU. At greedy sampling, neither candidate beat the
-no-speculation arm in the two-slot phases:
+slots compete for the GPU. Every B server start warned that `ngram_mod n_match=12`
+was too small and poor quality was possible, so B was a deliberately risky throughput
+experiment rather than a deployment candidate. At greedy sampling, neither candidate
+beat the no-speculation arm in the two-slot phases:
 
 | foreground decode tok/s | off | A: default mod | B: short mod |
 |---|---:|---:|---:|

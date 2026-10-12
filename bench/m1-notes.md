@@ -26,18 +26,14 @@ Files: `help.txt` (57 KB), `spec_flags.txt` (8.6 KB),
 --spec-type none,draft-simple,draft-eagle3,draft-mtp,draft-dflash,draft-dspark,ngram-simple,ngram-map-k,ngram-map-k4v,ngram-mod,ngram-cache
 ```
 
-The **default is `none`** (no speculation). The **ngram family** is what M1
-targets (self-speculation over n-grams of the current prompt, no separate
-draft weights):
-
-- `ngram-simple` — self-speculation over simple n-gram matches.
-- `ngram-map-k`, `ngram-map-k4v` — n-gram map variants (k=1 vs k=4v).
-- `ngram-mod` — the "mod" n-gram variant (probed in `docs/engine-review.md`; **not** present in the live entry, §1/§3).
-- `ngram-cache` — n-gram with caching.
-
-The **draft family** (`draft-simple`, `draft-eagle3`, `draft-mtp`,
-`draft-dflash`, `draft-dspark`) requires a separate draft weights
-file via `--spec-draft-model`. The current live entry (`serving/llama-swap.bonsai-2-27b.yaml`) carries **no** `--spec-*` flag, so it runs with the default `--spec-type none` (no speculation, §3).
+The **default is `none`** (no speculation). M1 targets the listed `ngram-*` choices, which need no separate draft model.
+`help.txt` enumerates their names but does not define their individual
+algorithms, so this note makes no per-type claims beyond the measured
+`ngram-mod` configurations below. The **draft family** (`draft-simple`,
+`draft-eagle3`, `draft-mtp`, `draft-dflash`, `draft-dspark`) instead has a
+`--spec-draft-model` option. The current live entry
+(`serving/llama-swap.bonsai-2-27b.yaml`) carries **no** `--spec-*` flag, so it
+runs with the default `--spec-type none` (no speculation, §3).
 
 ## 2. ngram / draft flags and defaults (from `help.txt`)
 
@@ -316,7 +312,7 @@ are omitted; index row counts are `-1` and omitted.)
   `timings.draft_n` / `timings.draft_n_accepted`; both are **absent** from
   these recordings (the live entry has no `--spec-*` flags, §1).
 - Example (mem0-r0):
-  - step0 — agent: (11 reqs, prompt_n=36127, cache_n=30196, predicted_n=6654);
+  - step0 — agent: (10 reqs, prompt_n=36127, cache_n=30196, predicted_n=6654);
     mem: (7 reqs, prompt_n=36181, cache_n=24464, predicted_n=419)
   - step1 — agent: (11, 3021, 90003, 8627); mem: (1, 8874, 0, 289)
   - step2 — agent: (14, 2645, 75700, 3691); mem: (1, 9183, 0, 2048)
@@ -357,7 +353,10 @@ B = ngram-mod with `--spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ng
 same algorithm, shorter lookup and much shorter drafts, to cut the cost of rejected drafts
 when both slots share the GPU, and to start drafting on shorter repeats. I keep one type
 so the difference from A is only the draft-size knobs. (ngram-map-k/simple were not
-chosen: their 12/48 defaults have the same long-draft cost.) Not yet measured.
+chosen: their 12/48 defaults have the same long-draft cost.) Every B server start then
+warned: `ngram_mod n_match=12 is too small - poor quality is possible` (for example,
+`replay/B-greedy/server_single-agent.log`); B is therefore a deliberately risky
+throughput experiment, not a deployable setting. Not yet measured.
 
 ### 9b. Corrected greedy summary, off vs A vs B (round 4)
 

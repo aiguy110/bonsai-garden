@@ -1182,3 +1182,18 @@ Validated the completed replay artifacts and documentation. All five requested a
 ### 2026-10-12T11:24:29-04:00 · advisor (finished item)
 
 **revise**: Measurements and required artifacts are complete and traceable; no rerun is needed. Before approval, correct documentation issues in `bench/m1-notes.md`: §7 says mem0-r0 step 0 had 11 agent requests, but `recon/inventory.json` records 10; §1 attributes backend descriptions to `help.txt` although help only enumerates names, so remove or properly source those descriptions. Also disclose that every B server log warns `ngram_mod n_match=12 is too small - poor quality is possible`; this belongs beside the B justification and preferably on the experiment page. The no-deploy conclusion remains supported.
+
+### 2026-10-12T11:26:42-04:00 · worker (gpt-5.6-terra), round 11
+
+Corrected the final documentation review issues and validated the B warning against all four server logs.
+
+```json
+{
+  "request": "done",
+  "summary": "Addressed the final documentation review in `bench/m1-notes.md`: \u00a71 no longer attributes per-backend descriptions to `help.txt`, \u00a77 correctly reports 10 agent requests for mem0-r0 step 0, and the B justification now discloses the `ngram_mod n_match=12 is too small - poor quality is possible` warning with a server-log reference. Added the same B quality-warning disclosure to `site/series/serving/ngram-self-speculation.md`. Local assertions passed, including confirmation that all four B server logs contain that warning. The measured no-deploy conclusion and live configuration remain unchanged."
+}
+```
+
+### 2026-10-12T11:28:21-04:00 · advisor (finished item)
+
+**approve**: Acceptance criteria are met. `bench/spec_replay.py` implements fresh-server single/dual agent and mem phases, production-equivalent :8089 startup, required sampling, hashes, draft statistics, VRAM capture, and gitignored full outputs. All five required result arms contain requests, four server logs, and VRAM data; A/B foreground rows include draft fields. Reported rates and acceptance totals are traceable to the JSONL data and server logs. Documentation includes the corrected mem0 count, B quality warning, output-identity results, mmproj/image caveat, and justified no-deploy decision. The live serving YAML remains without speculation flags.
