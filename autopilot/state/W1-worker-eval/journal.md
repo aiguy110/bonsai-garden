@@ -165,3 +165,68 @@ Round 4 run produced 22 cases (11 Sonnet, 11 Terra; 7 revise; items decide, repl
 Added to the standing facts:
 
 - Sessions that ended without a request can leave a worker call log with no `worker (...)` journal entry (e.g. calls/20261012-082110-worker-replay-set-r6.jsonl, 20261012-113932-worker-write-up-r1.jsonl), so call logs must be matched to journal entries by time window, not by nearest same-round entry.
+
+### 2026-10-12T13:56:02-04:00 · worker (gpt-5.6-terra), round 6
+
+Applied the advisor's round 5 fixes to build_cases.py. Worker logs now match journal entries by window: the first same-round worker entry at or after the log start and before the next worker log's start. Orphan logs therefore become no_journal_worker. I added a bonsai_source skip on the original prompt's description, in both build() and validate(). validate() now also checks the prompt's item/round header. I did not add a start-commit age check to validate(). The script compiles but I haven't run it, so the new row count is unknown. If it is under 20, I'll report that rather than loosen the rules. Next: read the skip counts, then run --check.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/build_cases.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Regenerate cases.jsonl and inventory.json with window-based worker/journal association and the Bonsai-source guard. Check the resulting skip counts."
+}
+```
+
+### 2026-10-12T13:56:43-04:00 · advisor (run request)
+
+**approve**: Safe to run. It reads the archive, journal and git and writes only bench/worker_eval/{cases.jsonl,inventory.json}, and only after validation passes. Window association and the bonsai_source guard are correctly implemented, and I checked the stale-commit logic: autopilot.py:808 commits before call_worker stamps the log, so a before-round commit's author time is never later than its log stamp. In your next report, give the exact included count and every skip reason with its count (no_journal_worker should be 6 + 2 = 8 if the two orphans moved; also report stale_start_commit, journal_request_missing/mismatch, prompt_item_mismatch and bonsai_source). If fewer than 20 rows remain, report it and don't loosen the rules. Before submitting done: (1) Add the start-commit age check to validate() so --check covers it: read the author time with `git show -s --format=%aI <commit>` and require 0 <= source_timestamp - commit_time <= START_COMMIT_MAX_AGE. (2) Update bench/worker_eval/README.md: replace the journal-association description with the window rule (first same-round worker entry in [log start, next worker log start)), document the bonsai_source skip, and say which checks run in --check. (3) Then run `python3 bench/worker_eval/build_cases.py --check` and make sure the committed cases.jsonl/inventory.json come from this run. Minor: the ADVISOR regex and the `raw` return value are unused; remove them or leave them.
+
+### 2026-10-12T13:56:43-04:00 · orchestrator
+
+Added to the standing facts:
+
+- autopilot.py:808 makes the `before <item> round <n>` commit before call_worker creates the call log, so a round's start commit has an author time at or before the log filename stamp.
+
+### 2026-10-12T13:56:44-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/build_cases.py` (gpu=False) in 1s, exit 0. Full output: `bench/results/2026-10-12/autopilot/case-corpus-r6.log`. Last lines:
+
+```
+{
+  "canonical_worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+  "counts": {
+    "advisor_verdict": {
+      "approve": 15,
+      "revise": 7
+    },
+    "item": {
+      "decide": 3,
+      "replay-set": 7,
+      "spec-replay": 10,
+      "write-up": 2
+    },
+    "request_kind": {
+      "done": 8,
+      "run": 14
+    },
+    "source_model": {
+      "claude-sonnet-5-5": 11,
+      "gpt-5.6-terra": 11
+    }
+  },
+  "eligible_revise": 7,
+  "included": 22,
+  "schema_version": 1,
+  "skipped": {
+    "before_cutoff": 24,
+    "before_cutoff_or_bonsai": 1,
+    "no_journal_worker": 10,
+    "rate_limited": 8,
+    "unreviewed_continue_request": 2
+  }
+}
+
+```

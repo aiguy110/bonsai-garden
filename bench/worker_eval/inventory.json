@@ -26,8 +26,7 @@
   "skipped": {
     "before_cutoff": 24,
     "before_cutoff_or_bonsai": 1,
-    "no_journal_worker": 6,
-    "no_recoverable_request": 2,
+    "no_journal_worker": 10,
     "rate_limited": 8,
     "unreviewed_continue_request": 2
   }

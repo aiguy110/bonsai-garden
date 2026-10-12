@@ -143,11 +143,13 @@ def workers_and_advisors(journal_entries):
     return workers
 
 
-def associated_worker(workers, rnd, source_time):
-    choices = [(abs((entry["when"] - source_time).total_seconds()), index, entry, model)
-               for index, entry, model, round_ in workers if round_ == rnd]
-    choices.sort(key=lambda c: c[0])
-    return choices[0] if choices and choices[0][0] < 3000 else None
+def associated_worker(workers, rnd, source_time, next_start):
+    # Window association: first `worker (...), round <n>` entry at/after this log's start
+    # and before the next worker log's start.  Orphan logs (no entry) match nothing.
+    for index, entry, model, round_ in workers:
+        if round_ == rnd and entry["when"] >= source_time and (next_start is None or entry["when"] < next_start):
+            return (0, index, entry, model)
+    return None
 
 
 def advisor_labels(kind):
@@ -182,14 +184,16 @@ def build():
     journal_entries = entries(journal); workers = workers_and_advisors(journal_entries); starts = commits()
     rows, skipped, eligible_revise = [], Counter(), 0
     claimed = {}
-    for path in sorted(calls.glob("*-worker-*.jsonl")):
+    logs = sorted(p for p in calls.glob("*-worker-*.jsonl") if LOG.match(p.name))
+    starts_of = [dt.datetime.strptime(LOG.match(p.name).group(1), "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo) for p in logs]
+    for n, path in enumerate(logs):
         match = LOG.match(path.name)
-        if not match: continue
+        next_start = starts_of[n + 1] if n + 1 < len(logs) else None
         stamp, item, rnd = match.group(1), match.group(2), int(match.group(3))
         source_time = dt.datetime.strptime(stamp, "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo)
         if source_time < CUTOFF - dt.timedelta(hours=1): skipped["before_cutoff"] += 1; continue
         prompt, final, tool_req, event_model, raw = log_data(path)
-        worker_match = associated_worker(workers, rnd, source_time)
+        worker_match = associated_worker(workers, rnd, source_time, next_start)
         if not worker_match: skipped["no_journal_worker"] += 1; continue
         _, worker_index, worker, source_model = worker_match
         if worker_index in claimed: raise SystemExit(f"journal worker entry claimed by two logs: {claimed[worker_index]} and {path.name}")
@@ -216,6 +220,7 @@ def build():
         if verdict == "revise": eligible_revise += 1
         try: changed, old_description = substitute(prompt or "")
         except ValueError: skipped["bad_worker_description"] += 1; continue
+        if "bonsai" in old_description.lower(): skipped["bonsai_source"] += 1; continue
         selected = select_commit(starts.get(("M1-ngram", item, rnd), []), source_time)
         if not selected: skipped["no_unambiguous_start_commit"] += 1; continue
         commit_time, commit, subject = selected
@@ -246,6 +251,9 @@ def validate(rows, eligible_revise):
         if r["request_source"] not in {"tool", "json_fallback"}: errors.append(f"bad request source: {r['case_id']}")
         if len(list(DESCRIPTION.finditer(r["source_first_user_prompt"]))) != 1: errors.append(f"source substitution count: {r['case_id']}")
         rebuilt, _ = substitute(r["source_first_user_prompt"])
+        if "bonsai" in r["worker_description_from"].lower() or "bonsai" in r["source_model"].lower(): errors.append(f"bonsai source: {r['case_id']}")
+        head = re.search(r"^## Current item: (.+?), round (\d+)", r["source_first_user_prompt"], re.M)
+        if not head or head.group(1).strip() != r["item"] or int(head.group(2)) != r["round"]: errors.append(f"prompt item/round mismatch: {r['case_id']}")
         if rebuilt != r["prompt"] or sha(r["source_first_user_prompt"]) != r["source_first_user_prompt_sha256"]: errors.append(f"prompt provenance mismatch: {r['case_id']}")
         if r["advisor_actor"] not in advisor_labels(r["request"]["request"]): errors.append(f"advisor type mismatch: {r['case_id']}")
         if dt.datetime.fromisoformat(r["advisor_timestamp"]) < dt.datetime.fromisoformat(r["worker_entry_timestamp"]): errors.append(f"advisor precedes request: {r['case_id']}")
