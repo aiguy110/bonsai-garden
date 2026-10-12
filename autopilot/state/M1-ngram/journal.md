@@ -1306,3 +1306,7 @@ Verified the completed M1 documentation and host site-check result; no further c
 ### 2026-10-12T11:48:54-04:00 · orchestrator
 
 BLOCKED: merge/publish failed: git -c user.name=bonsai-autopilot -c user.email=autopilot@bonsai-garden.local merge --no-ff -m Merge autopilot milestone M1-ngram auto/M1-ngram:
+
+### 2026-10-12T12:18:28-04:00 · orchestrator
+
+Unblocked by the user.
