@@ -752,3 +752,39 @@ Added to the standing facts:
 
 - replay_manifest.json carries each request's recorded predicted_n, which ranges up to 8565 for agent (baseline-r0/0/2) and is 2048 for mem0-r0/2/0 (cap hit). Replay bodies have no max_tokens, so the probe must set the same per-request max_tokens in both arms, derived from predicted_n, or the decode tok/s and output-identity comparisons are invalid.
 - The M1 mem replay set (replay_manifest.json) has 12 requests: 7 from mem0-r0 step0, none from mem0-r2. Each is ~1.03 est/recorded because the fixed ~33.6k-char ADDITIVE prompt dominates, so mem n-gram results mostly reflect that one shared system prompt.
+
+### 2026-10-12T08:48:12-04:00 · worker (claude-sonnet-5-5), round 1
+
+Wrote bench/spec_replay.py. It builds the server cmd from the production yaml, starts a fresh server for each of the 4 phases, and writes requests.jsonl, vram.txt, notes.txt and server logs to OUTDIR/LABEL-SAMPLING/. It falls back to LABEL-nommproj if a spec config is refused. max_tokens is max(recorded predicted_n, 768 agent / 1024 mem), per the standing facts. It compiles and the cmd parsing checks out, but it has not run against a server. This first run is off/greedy. Next: A (ngram-mod defaults) greedy, then B, then the prod runs.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off greedy",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Baseline (speculation off) greedy replay, 4 phases on fresh servers at :8089 with production flags."
+}
+```
+
+### 2026-10-12T08:49:41-04:00 · advisor (run request)
+
+**approve**: Safe to run: private llama-server on 127.0.0.1:8089 from the production yaml cmd (with --jinja, -np 2, --kv-unified, mmproj, q4_0 KV), LLAMA_ATTN_ROT_DISABLE=1, writes only under the repo, server stopped in finally. Phases, slot pinning, deterministic bg loops and per-request max_tokens=max(predicted_n, floor) match the item and the standing facts. Before the A/greedy run: (1) the fork's timings omit draft_n/draft_n_accepted when nothing was drafted (tools/server/server-common.cpp:82-85), so default them to 0 (t.get('draft_n', 0)) for spec configs so every fg row has integer fields; (2) only fall back to -nommproj on status 'refused' or a server log containing 'unsupported batch.has_embd' / 'not supported by this context'; any other failure (OOM, health timeout) should be noted and exit non-zero, not be labelled an mmproj refusal. Also: abort if :8089/health already answers before Popen (stale server); in analysis count finish_reason=length per arm and report speedups with and without capped/looping outputs, since greedy loops inflate n-gram gains.
+
+### 2026-10-12T08:49:41-04:00 · orchestrator
+
+Added to the standing facts:
+
+- The llama.cpp-bonsai2 server only includes timings.draft_n/draft_n_accepted when n_draft_tokens > 0 (tools/server/server-common.cpp:82-85), so a missing field means 0 drafted, not missing data.
+
+### 2026-10-12T09:02:31-04:00 · orchestrator
+
+Ran `python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off greedy` (gpu=True) in 771s, exit 0. Full output: `bench/results/2026-10-12/autopilot/spec-replay-r1.log`. Last lines:
+
+```
+2026-10-12 08:49:42,140 turnstile lease f9ef893827037d5fdab19e6285c41cae granted after 0s
+2026-10-12 08:49:42,140 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off greedy
+result ok None
+2026-10-12 09:02:31,747 released lease f9ef893827037d5fdab19e6285c41cae
+
+```
