@@ -1287,3 +1287,18 @@ Ran `python3 bench/check_site.py` (gpu=False) in 0s, exit 0. Full output: `bench
 10 pages checked, 0 errors
 
 ```
+
+### 2026-10-12T11:47:37-04:00 · worker (gpt-5.6-terra), round 3
+
+Verified the completed M1 documentation and host site-check result; no further changes are needed.
+
+```json
+{
+  "request": "done",
+  "summary": "M1 write-up is complete. `site/series/serving/ngram-speculation.md` has valid experiment front matter, a <=200-word summary, replay tables/numbers traceable to `bench/results/2026-10-12/m1-ngram/summary.md`, identity/control and reconstruction/mmproj caveats, and the no-deploy decision. `site/series/serving/index.md` and `site/index.md` summarize the M1 outcome with matching updated dates. `docs/engine-review.md`, `docs/roadmap.md`, and `README.md` record that default ngram-mod was slower on busy production replay (agent 26.7 vs 31.3 tok/s; mem0 23.4 vs 25.4) and was not deployed. Host validation passed: `python3 bench/check_site.py` reported `10 pages checked, 0 errors`."
+}
+```
+
+### 2026-10-12T11:48:51-04:00 · advisor (write-up)
+
+**approve**: The write-up is accurate, readable, and complete. Required experiment, series, project, engine-review, roadmap, and README updates are present; the live configuration correctly remains unchanged.
