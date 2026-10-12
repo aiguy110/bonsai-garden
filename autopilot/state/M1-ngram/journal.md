@@ -203,3 +203,18 @@ Item `recon` used all 12 rounds; dropped.
 `recon` is restored. It was dropped on the round limit, not on merit: rounds 1-6 were lost to orchestrator bugs that have since been fixed, and an earlier counter reset was reverted by mistake. The round counter is now 6 of 12, so the next session is round 7. An interrupted `replay-set` round 1 may have left files in the tree; keep or delete them as you see fit.
 
 Next session: address the advisor's 03:25 review (above) in bench/m1-notes.md and bench/m1_recon.py. Then send one `run` request, `python3 bench/m1_recon.py`, and read its output the round after. There is no need to commit through a run request, because the orchestrator commits the worktree after every session. Once the acceptance criteria hold, send `done`.
+
+### 2026-10-12T03:42:08-04:00 · worker (Bonsai), round 7
+
+(no final message; errors: [])
+
+### 2026-10-12T03:42:08-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
