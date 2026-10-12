@@ -700,3 +700,11 @@ Inspected the approved diagnostic at bench/results/2026-10-12/worker_eval/reboot
   "why": "The acceptance smoke test cannot safely be retried until the repeated abrupt host resets correlated with launching the replay are diagnosed or a host-level mitigation is applied."
 }
 ```
+
+### 2026-10-12T16:35:20-04:00 · advisor (triage)
+
+**block**: The fixture suite reportedly passes and the harness artifacts are usable, but acceptance remains unmet: there is no completed results.jsonl record, resume proof, or successful cleanup/status verification. The latest manifest also has model_sha256='unavailable' because its hash cache was corrupted or unreadable and must be repaired before acceptance. The worker's statement that pstore was empty is unsupported: pstore-list.txt says permission denied; nvidia-details.txt also failed because its display arguments were rejected.
+
+### 2026-10-12T16:35:20-04:00 · orchestrator
+
+BLOCKED: triage of `replay-harness` (the worker is stuck: The acceptance smoke test cannot safely be retried until the repeated abrupt host resets correlated with launching the replay are diagnosed or a host-level mitigation is applied.): Human host-level action is required before more inference. Four smoke invocations launched real bench-route requests and were followed by abrupt host resets; none completed. The retained journals show no orderly shutdown, OOM, NVIDIA Xid, panic, watchdog, or thermal event. Please diagnose/stabilize bifrost—especially PSU/GPU power delivery, cabling, BIOS/firmware, and root-only crash evidence—or approve a reversible mitigation such as a conservative RTX 3080 power cap and validate it under controlled load. Then unblock W1 and permit one smoke retry. Do not launch the full N=2 baseline meanwhile.
