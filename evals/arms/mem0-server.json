@@ -1,0 +1,60 @@
+{
+  "name": "mem0-server",
+  "description": "pi + @amaster.ai/pi-memory-mem0 in self-hosted mode against a per-step Python mem0 server (evals/mem0_server.py) outside the sandbox. Same hybrid memory mode, LLM (bonsai-mem via the tap) and embedder as the mem0 arm; local on-disk Qdrant and SQLite history in the run dir. Full mem0 install: spaCy entity extraction (nlp extra) and fastembed BM25 hybrid search, as a stock deployment would have. mem0_server.pip pins the build (a release or a fork's git ref).",
+  "model": "bonsai-agent",
+  "thinking": "low",
+  "packages": [
+    "npm:@amaster.ai/pi-memory-mem0@0.1.24"
+  ],
+  "npm": [],
+  "settings": {
+    "pi-memory-mem0": {
+      "mode": "self-hosted",
+      "baseUrl": "{MEM0}",
+      "requestTimeoutMs": 900000,
+      "memoryMode": "hybrid",
+      "userId": "garden",
+      "topK": 5
+    }
+  },
+  "mem0_server": {
+    "pip": [
+      "mem0ai[nlp]==2.2.1",
+      "fastembed==0.9.0",
+      "spacy==3.8.16",
+      "en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl"
+    ],
+    "env": {
+      "FASTEMBED_CACHE_PATH": "{CACHE}/fastembed"
+    },
+    "config": {
+      "llm": {
+        "provider": "openai",
+        "config": {
+          "model": "bonsai-mem",
+          "api_key": "tap",
+          "openai_base_url": "{HOSTTAP}/mem/v1"
+        }
+      },
+      "embedder": {
+        "provider": "openai",
+        "config": {
+          "model": "qwen3-embedding-0.6b",
+          "api_key": "unused",
+          "openai_base_url": "{HOSTTAP}/embed/v1"
+        }
+      },
+      "vector_store": {
+        "provider": "qdrant",
+        "config": {
+          "collection_name": "garden",
+          "path": "{STORE}/qdrant",
+          "on_disk": true,
+          "embedding_model_dims": 1024
+        }
+      },
+      "history_db_path": "{STORE}/history.db"
+    }
+  },
+  "env": {}
+}

@@ -21,6 +21,7 @@ Outputs (DIR defaults to evals/results/<date>-<arms>):
 import argparse
 import datetime
 import hashlib
+import http.client
 import json
 import os
 import pathlib
@@ -41,6 +42,7 @@ CACHE = EVALS / ".cache"
 WS_ROOT = pathlib.Path("/tmp/bonsai-garden-evals")
 TAP_PORT = 8091  # inside the sandbox, relayed to the tap's Unix socket
 TAP = f"http://127.0.0.1:{TAP_PORT}"
+MEM0_PORT = 8092  # inside the sandbox, relayed to the step's mem0 server (self-hosted arms)
 TURNSTILE = "http://127.0.0.1:8080"
 EMBEDDER = "http://127.0.0.1:8095"
 STEP_TIMEOUT = 1800
@@ -52,6 +54,7 @@ EMBED_UNIT = pathlib.Path.home() / ".config/systemd/user/bonsai-garden-embed.ser
 PI_FLAGS = ["--no-skills", "--no-prompt-templates", "--no-themes"]
 VENV = CACHE / "venv-sandbox"  # python + pinned pytest; built at its sandbox path /opt/venv
 PYTEST = "pytest==8.4.2"
+MEM0_SERVER = EVALS / "mem0_server.py"
 NODE = pathlib.Path(shutil.which("pi")).resolve().parents[6]  # .../installation (node + global pi)
 
 # What the agent sees inside bubblewrap. Neutral names on purpose: the arm, the
@@ -138,6 +141,8 @@ def manifest(args, arms, tasks):
         "python": sh(str(VENV / "bin/python"), "--version"),
         "pytest": PYTEST,
         "sandbox_image": sh("docker", "image", "inspect", SANDBOX_IMAGE, "--format", "{{.Id}}"),
+        "mem0_server_freeze": {a["name"]: sh(str(mem0_venv(a) / "bin/pip"), "freeze")
+                               for a in arms if "mem0_server" in a},
         "repeats": args.repeats,
         "arms": arms,
         "tasks": {name: t["spec"] for name, t in tasks.items()},
@@ -180,12 +185,30 @@ def agent_template(arm):
     return d
 
 
+def mem0_venv(arm):
+    """A cached venv with the arm's mem0 for its per-step server. `pip` is a list of pip
+    requirements: a release (mem0ai==2.2.1) or a fork's git ref
+    (mem0ai @ git+https://github.com/<fork>/mem0@<sha>), plus pinned extras."""
+    spec = arm["mem0_server"]["pip"]
+    d = CACHE / f"mem0srv-{hashlib.sha256(json.dumps(spec).encode()).hexdigest()[:12]}"
+    if (d / ".ready").exists():
+        return d
+    shutil.rmtree(d, ignore_errors=True)
+    subprocess.run([sys.executable, "-m", "venv", str(d)], check=True)
+    p = subprocess.run([str(d / "bin/pip"), "install", "-q", *spec], capture_output=True, text=True,
+                       timeout=1800)
+    if p.returncode != 0:
+        sys.exit(f"pip install {spec} failed:\n{p.stdout}\n{p.stderr}")
+    (d / ".ready").write_text("")
+    return d
+
+
 def build_agent_dir(arm, run_dir):
     agent = run_dir / "agent"
     shutil.copytree(agent_template(arm), agent, symlinks=True,
                     ignore=shutil.ignore_patterns(".ready", "sessions"))
     installed = json.loads((agent / "settings.json").read_text())
-    mapping = {"{MEM}": SB_MEM, "{TAP}": TAP}
+    mapping = {"{MEM}": SB_MEM, "{TAP}": TAP, "{MEM0}": f"http://127.0.0.1:{MEM0_PORT}"}
     settings = {
         "defaultProvider": "garden",
         "defaultModel": arm["model"],
@@ -236,6 +259,67 @@ def stop(p):
             p.wait(10)
         except subprocess.TimeoutExpired:
             p.kill()
+
+
+def free_port():
+    with socket.socket() as s:
+        s.bind(("127.0.0.1", 0))
+        return s.getsockname()[1]
+
+
+def unix_get(sock, path, timeout=60):
+    """GET over a Unix socket; returns parsed JSON."""
+    class Conn(http.client.HTTPConnection):
+        def connect(self):
+            self.sock = socket.socket(socket.AF_UNIX)
+            self.sock.settimeout(timeout)
+            self.sock.connect(str(sock))
+    c = Conn("localhost", timeout=timeout)
+    c.request("GET", path)
+    r = c.getresponse()
+    body = r.read()
+    c.close()
+    if r.status != 200:
+        raise OSError(f"GET {path}: {r.status} {body[:200]!r}")
+    return json.loads(body)
+
+
+def start_mem0_server(ctx, step_i, tap_sock):
+    """The arm's mem0 server for one step, outside the sandbox, on a fresh Unix socket.
+    Its store lives in the run dir, so memory carries across steps (each step gets a
+    fresh process, like each pi session). Its LLM and embedder traffic goes through
+    a host relay to this step's tap, so it is metered and tagged like pi's.
+    Returns (server sock, procs to stop)."""
+    arm, run_dir = ctx["arm"], ctx["run_dir"]
+    port = free_port()
+    relay = subprocess.Popen([sys.executable, str(EVALS / "relay.py"), str(port), str(tap_sock)])
+    store = run_dir / "mem0-server"
+    store.mkdir(exist_ok=True)
+    mapping = {"{HOSTTAP}": f"http://127.0.0.1:{port}", "{STORE}": str(store), "{CACHE}": str(CACHE)}
+    cfg = substitute(arm["mem0_server"]["config"], mapping)
+    (store / "config.json").write_text(json.dumps(cfg, indent=2) + "\n")
+    sock = pathlib.Path(f"/tmp/garden-mem0-{os.getpid()}.sock")
+    sock.unlink(missing_ok=True)
+    # MEM0_DIR keeps mem0's ~/.mem0 (user id, migrations store) inside the run.
+    env = dict(os.environ, MEM0_TELEMETRY="false", MEM0_DIR=str(store / "home"),
+               **substitute(arm["mem0_server"].get("env", {}), mapping))
+    with open(run_dir / f"step{step_i}.mem0.log", "w") as log:
+        srv = subprocess.Popen([str(ctx["mem0_venv"] / "bin/python"), "-I", str(MEM0_SERVER),
+                                "--unix", str(sock), "--config", str(store / "config.json")],
+                               env=env, stdout=log, stderr=subprocess.STDOUT, cwd=store)
+    for _ in range(600):
+        if srv.poll() is not None:
+            stop(relay)
+            sys.exit(f"mem0 server exited; see {run_dir}/step{step_i}.mem0.log")
+        try:
+            if unix_get(sock, "/health", timeout=2).get("status") == "ok":
+                return sock, [srv, relay]
+        except OSError:
+            pass
+        time.sleep(0.1)
+    stop(srv)
+    stop(relay)
+    sys.exit("mem0 server did not start")
 
 
 def text_of(msg):
@@ -302,14 +386,23 @@ def run_step(ctx, step_i, step):
     # Only the workspace, this run's agent dir, and its memory dir are writable or
     # visible; sessions aren't saved, so earlier steps can only come back via memory.
     container = f"garden-{ctx['run_id']}-s{step_i}-{os.getpid()}"
-    sandbox = sandbox_cmd(container, [(ws, SB_WS, "rw"), (agent, SB_AGENT, "rw"),
-                                      (run_dir / "memory", SB_MEM, "rw"), (VENV, SB_VENV, "ro"),
-                                      (sock, "/run/garden/tap.sock", "rw"),
-                                      (EVALS / "relay.py", "/opt/garden/relay.py", "ro")],
-                          env, workdir=SB_WS)
-    # The relay gives pi (and mem0 inside it) the tap at 127.0.0.1:TAP_PORT.
-    sandbox += ["sh", "-c", f"python3 /opt/garden/relay.py {TAP_PORT} /run/garden/tap.sock & "
-                "sleep 0.5; exec \"$@\"", "sh"]
+    mounts = [(ws, SB_WS, "rw"), (agent, SB_AGENT, "rw"), (run_dir / "memory", SB_MEM, "rw"),
+              (VENV, SB_VENV, "ro"), (sock, "/run/garden/tap.sock", "rw"),
+              (EVALS / "relay.py", "/opt/garden/relay.py", "ro")]
+    # The relays give pi (and mem0 inside it) the tap at 127.0.0.1:TAP_PORT and, for
+    # self-hosted arms, the step's mem0 server at 127.0.0.1:MEM0_PORT.
+    relays = f"python3 /opt/garden/relay.py {TAP_PORT} /run/garden/tap.sock & "
+    mem0_sock, mem0_procs = None, []
+    if "mem0_server" in ctx["arm"]:
+        try:
+            mem0_sock, mem0_procs = start_mem0_server(ctx, step_i, sock)
+        except BaseException:
+            stop(tap)
+            raise
+        mounts.append((mem0_sock, "/run/garden/mem0.sock", "rw"))
+        relays += f"python3 /opt/garden/relay.py {MEM0_PORT} /run/garden/mem0.sock & "
+    sandbox = sandbox_cmd(container, mounts, env, workdir=SB_WS)
+    sandbox += ["sh", "-c", relays + "sleep 0.5; exec \"$@\"", "sh"]
     t0 = time.time()
     # pi gets its own process group so nothing it spawns outlives the step, even if
     # the runner itself is interrupted (an orphan would keep talking to the next tap).
@@ -327,6 +420,15 @@ def run_step(ctx, step_i, step):
                 os.killpg(p.pid, signal.SIGKILL)
                 p.wait()
             kill_container(container)  # the docker client dying doesn't stop the container
+            if mem0_sock:
+                try:
+                    dump = unix_get(mem0_sock, "/_dump")
+                    (run_dir / "memories.json").write_text(json.dumps(dump, indent=2) + "\n")
+                except OSError as e:
+                    print(f"mem0 dump failed: {e}", file=sys.stderr)
+                for proc in mem0_procs:
+                    stop(proc)
+                mem0_sock.unlink(missing_ok=True)
             stop(tap)
             sock.unlink(missing_ok=True)
     wall = time.time() - t0
@@ -386,6 +488,7 @@ def run_sequence(args, out, arm, task_name, task, rep, key):
     sh("git", "-C", str(ws), "-c", "user.name=harness", "-c", "user.email=harness@local",
        "commit", "-qm", "initial")
     ctx = {"run_id": run_id, "run_dir": run_dir, "ws": ws, "agent": build_agent_dir(arm, run_dir),
+           "mem0_venv": mem0_venv(arm) if "mem0_server" in arm else None,
            "arm": arm, "task": task_name, "task_dir": task["dir"], "rep": rep, "key": key,
            "tap_log": out / "tap.jsonl"}
     for i, step in enumerate(task["spec"]["steps"]):
@@ -444,7 +547,7 @@ def preflight(arms):
         urllib.request.urlopen(f"{TURNSTILE}/api/queue", timeout=5)
     except OSError as e:
         sys.exit(f"turnstile not reachable: {e}")
-    if any(a["packages"] for a in arms):
+    if any(a["packages"] or "mem0_server" in a for a in arms):
         try:
             urllib.request.urlopen("http://127.0.0.1:8095/health", timeout=5)
         except OSError as e:
@@ -468,11 +571,15 @@ def main():
     for t in args.tasks.split(","):
         d = EVALS / "tasks" / t
         tasks[t] = {"dir": d, "spec": json.loads((d / "task.json").read_text()), "hash": task_hash(d)}
-    out = pathlib.Path(args.out) if args.out else \
+    # Absolute, because it ends up in docker -v mounts and the mem0 server's config.
+    out = pathlib.Path(args.out).resolve() if args.out else \
         EVALS / "results" / f"{datetime.date.today()}-{'-'.join(a['name'] for a in arms)}"
     out.mkdir(parents=True, exist_ok=True)
     preflight(arms)
     ensure_venv()
+    for a in arms:
+        if "mem0_server" in a:
+            mem0_venv(a)
     if not (out / "manifest.json").exists():
         (out / "manifest.json").write_text(json.dumps(manifest(args, arms, tasks), indent=2) + "\n")
     key = bench_key()
