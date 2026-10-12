@@ -195,6 +195,7 @@ class Run:
         except Exception as e:  # keep going; the row records the failure
             row["error"] = repr(e)[:300]
             out = dict(phase=phase, id=item["id"], fg_bg=fgbg, error=row["error"])
+        row["t_end"] = time.time()
         with self.lock:
             self.rows.append(row)
             self.reqs.write(json.dumps(row) + "\n")
@@ -238,10 +239,12 @@ class Run:
             t0 = time.time()
             for i, item in enumerate(fg):
                 self.one(name, item, "fg", i == 0)
-            self.note(f"[{name}] fg wall_s={time.time() - t0:.1f}")
+            t_fg = time.time()
+            self.note(f"[{name}] fg wall_s={t_fg - t0:.1f}")
             stop.set()
             if th:
                 th.join()
+            self.note(f"[{name}] window t0={t0:.3f} t_fg_end={t_fg:.3f} t_join_end={time.time():.3f}")
             if self.srv.poll() is not None:
                 self.note(f"[{name}] server died during phase (exit={self.srv.poll()})")
                 self.log_hits(logp, name)

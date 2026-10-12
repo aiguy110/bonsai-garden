@@ -19,6 +19,35 @@ def rate(rs):
     return 1000 * sum((r.get("predicted_n") or 0) for r in rs) / ms if ms else float("nan")
 
 
+def windows(d, arm):
+    import re
+    w = {}
+    try:
+        for l in open(f"{d}/{arm}/notes.txt"):
+            m = re.search(r"\[(\S+)\] window t0=([\d.]+) t_fg_end=([\d.]+)", l)
+            if m:
+                w[m.group(1)] = (float(m.group(2)), float(m.group(3)))
+    except OSError:
+        pass
+    return w
+
+
+def combined(d, arm, data):
+    """Tokens of fg plus bg rows that ended inside the fg window, over fg wall time."""
+    w = windows(d, arm)
+    print("\nCombined two-slot throughput (fg + bg rows ending before fg ended) / fg wall time:\n")
+    print("| phase | arm | fg wall s | fg tok | bg tok (in window) | combined tok/s |")
+    print("|---|---|---|---|---|---|")
+    for ph in PHASES:
+        if ph not in w:
+            continue
+        t0, t1 = w[ph]
+        fg = sum((r.get("predicted_n") or 0) for r in data[arm] if r["phase"] == ph and r["fg_bg"] == "fg")
+        bg = sum((r.get("predicted_n") or 0) for r in data[arm] if r["phase"] == ph and r["fg_bg"] == "bg"
+                 and r.get("t_end", 1e18) <= t1)
+        print(f"| {ph} | {arm} | {t1 - t0:.0f} | {fg} | {bg} | {(fg + bg) / (t1 - t0):.1f} |")
+
+
 def main():
     d, arms = sys.argv[1], sys.argv[2:]
     data = {a: rows(d, a) for a in arms}
@@ -38,4 +67,13 @@ def main():
                   f"{sum((r.get('predicted_n') or 0) for r in bg)} | {same}/{len(fg)} |")
 
 
-main()
+
+def run():
+    main()
+    d, arms = sys.argv[1], sys.argv[2:]
+    data = {a: rows(d, a) for a in arms}
+    for a in arms:
+        combined(d, a, data)
+
+
+run()

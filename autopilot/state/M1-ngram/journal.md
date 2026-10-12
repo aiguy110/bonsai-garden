@@ -898,3 +898,21 @@ result ok None
 2026-10-12 09:53:52,274 released lease 13de840acf135063892f0ce03c3f615a
 
 ```
+
+### 2026-10-12T09:55:01-04:00 · worker (claude-sonnet-5-5), round 5
+
+(no final message; errors: ['{"type":"error","error":{"type":"rate_limit_error","message":"Claude Max rate limit reached. Wait a moment and try again.","retry_after":5716}}', '{"type":"error","error":{"type":"rate_limit_error","message":"Claude Max rate limit reached. Wait a moment and try again.","retry_after":5713}}', '{"type":"error","error":{"type":"rate_limit_error","message":"Claude Max rate limit reached. Wait a moment and try again.","retry_after":5708}}'])
+
+### 2026-10-12T09:55:01-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md |  4 ++++
+ bench/m1-notes.md                   | 27 +------------------------
+ bench/spec_analyze.py               | 40 ++++++++++++++++++++++++++++++++++++-
+ bench/spec_replay.py                |  5 ++++-
+ 4 files changed, 48 insertions(+), 28 deletions(-)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
