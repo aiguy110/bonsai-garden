@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""bonsai-garden autopilot: Bonsai does the work, a cloud advisor reviews, code enforces.
+"""bonsai-garden autopilot: a worker model does the work, a cloud advisor reviews, code enforces.
 
   autopilot.py loop        run milestones until done or blocked (the systemd service)
   autopilot.py tick        one step, then exit
@@ -7,7 +7,8 @@
   autopilot.py unblock     clear a blocked milestone so the loop resumes
 
 Roles (config.json) are pi model strings, so any of them can be swapped:
-  worker   Bonsai via turnstile (bench key, priority 20), in the eval Docker sandbox
+  worker   in the eval Docker sandbox: garden/<id> is Bonsai via turnstile (bench key,
+           priority 20), meridian/<id> a cloud model through the sandbox's tap
   advisor  cloud model through meridian, read-only tools: plans, reviews every request,
            approves finished items and fact-checks write-ups
   fixer    cloud model with shell access, called only when the local model is down
@@ -55,6 +56,7 @@ PROMPTS = HERE / "prompts"
 JOURNAL_TAIL = 15000
 DIFF_MAX = 40000
 MAX_REPLANS = 2  # per plan position; after that triage can only accept or block
+MERIDIAN = "http://127.0.0.1:3456"
 
 
 def now():
@@ -90,8 +92,15 @@ def last_json(text):
     return None
 
 
+def worker_desc():
+    provider, model = CFG["roles"]["worker"]["model"].split("/", 1)
+    if provider == "garden":
+        return "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU"
+    return f"{model}, a cloud model"
+
+
 def fill(template, **kw):
-    return (PROMPTS / template).read_text().format(**kw)
+    return (PROMPTS / template).read_text().format(**{"worker": worker_desc(), **kw})
 
 
 # ---- state ----
@@ -208,8 +217,27 @@ def worker_memory_arm():
     return json.loads((ROOT / "evals" / "arms" / f"{CFG['worker_memory']}.json").read_text())
 
 
+def meridian_extension():
+    """pi-meridian-extension's source, from the cloud agent's install, with any models it
+    predates but meridian serves (claude-sonnet-5-5) added like their predecessors. It
+    has no npm dependencies, so the worker loads it as a plain extension file."""
+    ensure_cloud_agent()
+    src = (CLOUD_AGENT / "npm/node_modules/pi-meridian-extension/extensions/index.ts").read_text()
+    if '"claude-sonnet-5-5"' in src:
+        return src
+    entry = re.search(r'\t\{\n\t\tid: "claude-sonnet-5",.*?\n\t\},\n', src, re.S).group(0)
+    for anchor, add in [("const ADAPTIVE_MODEL_IDS = new Set([\n", '\t"claude-sonnet-5-5",\n'),
+                        ("const SAMPLING_UNSUPPORTED_MODEL_IDS = new Set([\n", '\t"claude-sonnet-5-5",\n'),
+                        ("const MERIDIAN_MODELS: ProviderModelConfig[] = [\n",
+                         entry.replace('"claude-sonnet-5"', '"claude-sonnet-5-5"').replace("Sonnet 5 ", "Sonnet 5.5 "))]:
+        assert src.count(anchor) == 1, f"pi-meridian-extension changed: {anchor!r}"
+        src = src.replace(anchor, anchor + add)
+    return src
+
+
 def worker_agent_dir():
-    """Rebuilt every session from config, so turning worker_memory off takes effect at once.
+    """Rebuilt every session from config, so switching the worker model or turning
+    worker_memory off takes effect at once.
     With memory on, the worker gets pi-memory-mem0 in "active" mode: only the mem0_memory
     tool, no auto-capture or auto-recall. Those key on the user input, which here is the
     whole ~25k-character prompt, so recall would search with it and capture would extract
@@ -218,10 +246,12 @@ def worker_agent_dir():
     agent.mkdir(parents=True, exist_ok=True)
     arm = worker_memory_arm()
     r = CFG["roles"]["worker"]
-    settings = {"defaultProvider": "garden", "defaultModel": r["model"], "defaultThinkingLevel": r["thinking"],
-                # pi's default 16k reserve let a turn reach 66.5k (turnstile's estimate) + 16k
-                # max_tokens > the 80k window; compact at ~52k instead.
-                "compaction": {"reserveTokens": 28672}}
+    provider, model = r["model"].split("/", 1)
+    settings = {"defaultProvider": provider, "defaultModel": model, "defaultThinkingLevel": r["thinking"]}
+    if provider == "garden":
+        # pi's default 16k reserve let a turn reach 66.5k (turnstile's estimate) + 16k
+        # max_tokens > the 80k window; compact at ~52k instead.
+        settings["compaction"] = {"reserveTokens": 28672}
     if arm:
         tpl = ev.agent_template(arm)
         mark = agent / "npm" / ".template"
@@ -233,15 +263,23 @@ def worker_agent_dir():
         settings.update(packages=json.loads((tpl / "settings.json").read_text())["packages"],
                         **{"pi-memory-mem0": {**mem, "memoryMode": "active"}})
     (agent / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
-    entry = json.loads((ROOT / "agent/models.bonsai-agent.json").read_text())
-    entry["id"] = r["model"]
-    (agent / "models.json").write_text(json.dumps({"providers": {"garden": {
-        "baseUrl": f"{ev.TAP}/agent/v1", "api": "openai-completions", "apiKey": "tap",
-        "compat": {"supportsStore": False, "supportsDeveloperRole": False,
-                   "supportsReasoningEffort": False, "maxTokensField": "max_tokens"},
-        "models": [entry]}}}, indent=2))
-    (agent / "extensions").mkdir(exist_ok=True)
-    shutil.copy(HERE / "extensions" / "submit_request.ts", agent / "extensions" / "submit_request.ts")
+    ext = agent / "extensions"
+    ext.mkdir(exist_ok=True)
+    (agent / "models.json").unlink(missing_ok=True)
+    (ext / "meridian.ts").unlink(missing_ok=True)
+    if provider == "garden":
+        entry = json.loads((ROOT / "agent/models.bonsai-agent.json").read_text())
+        entry["id"] = model
+        (agent / "models.json").write_text(json.dumps({"providers": {"garden": {
+            "baseUrl": f"{ev.TAP}/agent/v1", "api": "openai-completions", "apiKey": "tap",
+            "compat": {"supportsStore": False, "supportsDeveloperRole": False,
+                       "supportsReasoningEffort": False, "maxTokensField": "max_tokens"},
+            "models": [entry]}}}, indent=2))
+    elif provider == "meridian":
+        (ext / "meridian.ts").write_text(meridian_extension())
+    else:
+        raise ValueError(f"worker provider must be garden or meridian, not {provider}")
+    shutil.copy(HERE / "extensions" / "submit_request.ts", ext / "submit_request.ts")
     return agent
 
 
@@ -258,19 +296,24 @@ def last_stop_reason(events):
 
 
 def call_worker(prompt, label, memory_dir=None):
-    """The worker: pi on Bonsai in the eval sandbox, seeing only the autopilot worktree.
+    """The worker: pi in the eval sandbox, seeing only the autopilot worktree. A meridian
+    model is reached through the sandbox's tap, so the sandbox still has no network.
     Returns its final text, the parsed events, and the request it submitted (or None)."""
     r = CFG["roles"]["worker"]
+    cloud = r["model"].startswith("meridian/")
     agent = worker_agent_dir()
     req_file = agent / "request.json"
     req_file.unlink(missing_ok=True)
     events = call_log(f"worker-{label}")
     sock = pathlib.Path(f"/tmp/garden-autopilot-{os.getpid()}.sock")
-    tap = ev.start_tap(RT / "tap.jsonl", {"run": "autopilot", "step": label}, ev.bench_key(), sock)
+    tap = ev.start_tap(RT / "tap.jsonl", {"run": "autopilot", "step": label}, ev.bench_key(), sock,
+                       {"meridian": MERIDIAN} if cloud else None)
     container = f"garden-autopilot-{os.getpid()}"
     mounts = [(WT, SB_REPO, "rw"), (agent, ev.SB_AGENT, "rw"), (ev.VENV, ev.SB_VENV, "ro"),
               (sock, "/run/garden/tap.sock", "rw"), (ev.EVALS / "relay.py", "/opt/garden/relay.py", "ro")]
     env = {"PI_CODING_AGENT_DIR": ev.SB_AGENT}
+    if cloud:
+        env["MERIDIAN_BASE_URL"] = f"{ev.TAP}/meridian"
     arm = worker_memory_arm()
     if arm and memory_dir:
         memory_dir.mkdir(parents=True, exist_ok=True)
@@ -280,7 +323,7 @@ def call_worker(prompt, label, memory_dir=None):
     cmd += ["sh", "-c", f"python3 /opt/garden/relay.py {ev.TAP_PORT} /run/garden/tap.sock & "
             "sleep 0.5; exec \"$@\"", "sh",
             "pi", "-p", "--mode", "json", "--no-session", *ev.PI_FLAGS,
-            "--model", f"garden/{r['model']}", "--thinking", r["thinking"], prompt]
+            "--model", r["model"], "--thinking", r["thinking"], prompt]
     with open(events, "w") as out:
         p = subprocess.Popen(cmd, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.DEVNULL,
                              start_new_session=True)
@@ -701,7 +744,8 @@ def do_work(m, st):
     final, e, req = call_worker(prompt, f"{item['id']}-r{st['round']}", memory_dir=RT / "memory" / m.name)
     enforce_protected(m, pre)
     req = req or last_json(final)  # the fenced json block is the fallback if the tool wasn't used
-    m.journal(f"worker (Bonsai), round {st['round']}", worker_entry(final, e, req))
+    m.journal(f"worker ({CFG['roles']['worker']['model'].split('/', 1)[1]}), round {st['round']}",
+              worker_entry(final, e, req))
     if not req:
         req = {"request": "continue", "note": "(no request)"}
         stat = git("diff", "--stat", pre) or "(no file changes)"

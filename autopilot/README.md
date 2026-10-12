@@ -1,13 +1,13 @@
 # autopilot
 
-Pursues the roadmap (`../docs/roadmap.md`) unattended. Bonsai does the hands-on
-work, a cloud model advises at gates, and deterministic code enforces the rules.
+Pursues the roadmap (`../docs/roadmap.md`) unattended. A worker model does the
+hands-on work, a cloud model advises at gates, and deterministic code enforces the rules.
 Progress is published to the site's [autopilot status page](https://aiguy110.github.io/bonsai-garden/autopilot.html).
 
 ```
 autopilot.py (systemd user service, runs from the main checkout)
-  ├─ worker   pi on bonsai-agent (turnstile, bench key, priority 20) in the eval Docker
-  │           sandbox: no network, no GPU, sees only the milestone's worktree
+  ├─ worker   pi on meridian/claude-sonnet-5-5 (or garden/bonsai-agent) in the eval
+  │           Docker sandbox: no network, no GPU, sees only the milestone's worktree
   ├─ advisor  pi on meridian/claude-opus-5-5, read-only tools: plans, reviews every
   │           request and finished item, fact-checks the write-up
   ├─ fixer    pi on meridian/claude-opus-5-5 with a shell: only when the local model is
@@ -20,6 +20,14 @@ Roles are pi model strings in `config.json`. To swap the advisor, edit the strin
 (any pi provider works). Meridian (`meridian.service`, :3456) serves Claude through
 the Claude Code SDK. The advisor's pi agent dir is `.cache/agent-cloud`, which has
 `pi-meridian-extension`.
+
+The worker is `garden/<id>` (Bonsai through turnstile, bench key, priority 20) or
+`meridian/<id>`. A meridian worker still has no network: the sandbox's tap gets a
+`meridian` route to :3456, and the worker loads the extension's source as a plain
+extension file, patched to know `claude-sonnet-5-5`. Its calls don't count against
+`cloud_calls_per_day`. Bonsai was the worker until 2026-10-12 and mostly failed to
+end its sessions (timeouts, context overflows, cut-off replies). To go back, set the
+worker to `garden/bonsai-agent` with thinking `low`.
 
 ## The loop
 

@@ -1,8 +1,8 @@
 {
   "roles": {
     "worker": {
-      "model": "bonsai-agent",
-      "thinking": "low",
+      "model": "meridian/claude-sonnet-5-5",
+      "thinking": "medium",
       "where": "sandbox"
     },
     "advisor": {
