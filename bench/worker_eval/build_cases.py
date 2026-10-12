@@ -73,12 +73,13 @@ def log_data(path):
     for line in raw.splitlines():
         try: event = json.loads(line)
         except ValueError: continue
+        if not isinstance(event, dict) or not isinstance(event.get("message") or {}, dict): continue
         msg = event.get("message") or {}
         if event.get("type") == "message_start" and msg.get("role") == "user" and first_user is None: first_user = text_of(msg)
         if event.get("type") == "message_end" and msg.get("role") == "assistant" and text_of(msg).strip(): final = text_of(msg)
         blocks = msg.get("content", []) if isinstance(msg.get("content"), list) else []
         for block in blocks:
-            if block.get("type") == "toolCall" and block.get("name") == "submit_request":
+            if isinstance(block, dict) and block.get("type") == "toolCall" and block.get("name") == "submit_request":
                 try: tool_request = json.loads(block["arguments"]) if isinstance(block.get("arguments"), str) else block.get("arguments")
                 except (ValueError, TypeError): pass
         model = model or event.get("model") or msg.get("model")
@@ -104,6 +105,9 @@ def substitute(prompt):
     matches = list(DESCRIPTION.finditer(prompt))
     if len(matches) != 1: raise ValueError(f"expected exactly one worker description, got {len(matches)}")
     return DESCRIPTION.sub(r"\1" + CANONICAL + r"\3", prompt, count=1), matches[0].group(2)
+
+
+START_COMMIT_MAX_AGE = 300  # seconds; commit() skips unchanged trees, so older same-subject commits are stale
 
 
 def git(*args):
@@ -177,6 +181,7 @@ def build():
     if not calls.is_dir(): raise SystemExit(f"call archive not found: {calls}")
     journal_entries = entries(journal); workers = workers_and_advisors(journal_entries); starts = commits()
     rows, skipped, eligible_revise = [], Counter(), 0
+    claimed = {}
     for path in sorted(calls.glob("*-worker-*.jsonl")):
         match = LOG.match(path.name)
         if not match: continue
@@ -187,6 +192,10 @@ def build():
         worker_match = associated_worker(workers, rnd, source_time)
         if not worker_match: skipped["no_journal_worker"] += 1; continue
         _, worker_index, worker, source_model = worker_match
+        if worker_index in claimed: raise SystemExit(f"journal worker entry claimed by two logs: {claimed[worker_index]} and {path.name}")
+        claimed[worker_index] = path.name
+        header = re.search(r"^## Current item: (.+?), round (\d+)", prompt or "", re.M)
+        if not header or header.group(1).strip() != item or int(header.group(2)) != rnd: skipped["prompt_item_mismatch"] += 1; continue
         if worker["when"] < CUTOFF or "bonsai" in (source_model or "").lower(): skipped["before_cutoff_or_bonsai"] += 1; continue
         if any(RATE_LIMIT.search(str(e)) for e in event_errors(path)) or RATE_LIMIT.search(worker["body"]): skipped["rate_limited"] += 1; continue
         fallback, journal_req = last_json(final or ""), last_json(worker["body"])
@@ -198,7 +207,8 @@ def build():
         if not request.get("request"): skipped["malformed_request"] += 1; continue
         # The journal stores the request without `report` (autopilot.py:781-784).
         without_report = {k: v for k, v in request.items() if k != "report"}
-        if journal_req is not None and not same_json(without_report, journal_req): skipped["journal_request_mismatch"] += 1; continue
+        if journal_req is None: skipped["journal_request_missing"] += 1; continue
+        if not same_json(without_report, journal_req): skipped["journal_request_mismatch"] += 1; continue
         if request["request"] in ("continue", "stuck"): skipped[f"unreviewed_{request['request']}_request"] += 1; continue
         advisor = associated_advisor(journal_entries, worker_index, request["request"])
         if not advisor: skipped["no_matching_advisor_verdict"] += 1; continue
@@ -209,6 +219,7 @@ def build():
         selected = select_commit(starts.get(("M1-ngram", item, rnd), []), source_time)
         if not selected: skipped["no_unambiguous_start_commit"] += 1; continue
         commit_time, commit, subject = selected
+        if (source_time - commit_time).total_seconds() > START_COMMIT_MAX_AGE: skipped["stale_start_commit"] += 1; continue
         rows.append({"case_id": f"m1-ngram-{item}-r{rnd}-{sha(path.name + sha(prompt))[:12]}",
           "milestone": "M1-ngram", "item": item, "round": rnd, "source_timestamp": source_time.isoformat(),
           "worker_entry_timestamp": worker["when"].isoformat(),

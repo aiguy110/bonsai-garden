@@ -141,3 +141,27 @@ Ran `python3 bench/worker_eval/build_cases.py` (gpu=False) in 1s, exit 0. Full o
 }
 
 ```
+
+### 2026-10-12T13:54:08-04:00 · worker (gpt-5.6-terra), round 5
+
+Round 4 run produced 22 cases (11 Sonnet, 11 Terra; 7 revise; items decide, replay-set, spec-replay, write-up). Added the advisor's five checks to build_cases.py and the README. Not yet run, so the new count is unknown. It could drop below 20 if stale-commit or journal checks reject rounds; I'll report that rather than loosen rules. Next: read the output, then run --check and finish.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/build_cases.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Regenerate cases.jsonl and inventory.json with the advisor's added checks (unique journal claim, prompt item/round match, required journal request, stale start commit rejection). Then --check next."
+}
+```
+
+### 2026-10-12T13:55:25-04:00 · advisor (run request)
+
+**revise**: Safe to run, but it will exit before writing: the duplicate-claim check fires on real data. Some sessions left a call log but never wrote a worker journal entry, and associated_worker() maps any log to the nearest same-round entry within 3000 s. 20261012-082110-worker-replay-set-r6 (the replaced Bonsai session; only the 08:32:41 orchestrator entry follows it) grabs the Sonnet round 6 entry at 08:33:38, 748 s away. Then 083246-worker-replay-set-r6 (52 s away) claims the same entry and SystemExit fires. 113932-worker-write-up-r1 (no worker entry, fixer incident at 11:42) likewise grabs decide round 1's entry at 11:30:09. In round 4 both orphan logs happened to be dropped as no_recoverable_request; with JSON in their final text, a Bonsai session would have gone in as a Sonnet case. Fix: (1) Associate by window, not by nearest time. For each worker log, sorted by stamp, the matching entry is the first `worker (...), round <n>` entry with time >= the log's start and < the next worker log's start (any item); if there is none, skip it as no_journal_worker. Keep the duplicate-claim SystemExit as an assertion; with windows it should never fire. Expected result: 082110-r6 and 113932-write-up-r1 become no_journal_worker; 102853 and 103330 spec-replay r5 map to 10:30:13 and 10:33:40. (2) As an independent check, skip (as bonsai_source) any round whose worker_description_from (the original prompt's description) mentions Bonsai, and add the same rule to validate(). (3) Optional: also check the prompt item/round header and the start-commit age in validate(), so --check covers them and not only build(). Then resubmit this run. Report stale_start_commit and no_journal_worker counts as they come out; if fewer than 20 rows remain, report that rather than loosening the rules.
+
+### 2026-10-12T13:55:25-04:00 · orchestrator
+
+Added to the standing facts:
+
+- Sessions that ended without a request can leave a worker call log with no `worker (...)` journal entry (e.g. calls/20261012-082110-worker-replay-set-r6.jsonl, 20261012-113932-worker-write-up-r1.jsonl), so call logs must be matched to journal entries by time window, not by nearest same-round entry.

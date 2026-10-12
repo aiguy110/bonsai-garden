@@ -53,3 +53,12 @@ request-before-advisor ordering, advisor type, and exactly one worker-descriptio
 substitution by rebuilding the replay prompt from the recorded first user message.
 If any otherwise eligible round was marked `revise`, at least one such case must be
 retained. Outputs are written only after all validation succeeds.
+
+## Additional provenance checks
+
+- A journal worker entry may be claimed by at most one call log (duplicate is a build error).
+- The prompt's `## Current item: <id>, round <n>` line must match the log filename.
+- The journal's request JSON must be present and equal the recovered request without `report`
+  (`journal_request_missing` / `journal_request_mismatch` skips).
+- The start commit must be at most 300 s older than the call-log stamp
+  (`stale_start_commit` skip), since `commit()` skips unchanged trees.
