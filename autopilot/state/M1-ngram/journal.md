@@ -470,3 +470,7 @@ autopilot/state/M1-ngram/journal.md | 4 ++++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
+
+### 2026-10-12T08:32:41-04:00 · orchestrator
+
+The user switched the worker from Bonsai to Claude Sonnet 5.5 (cloud, through meridian). Round 6 on Bonsai was stopped 13 minutes in, before it changed anything, and doesn't count. The script bench/build_replay_set.py is from Bonsai's round 4 and may still have the bugs that round mentions.
