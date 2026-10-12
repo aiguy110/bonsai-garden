@@ -435,3 +435,36 @@ Wrote bench/worker_eval/arms/schema.json, arms/bonsai-2026-10-12.json, run.py, t
 Added to the standing facts:
 
 - Host-side pytest in this repo goes through `evals/.cache/venv-sandbox/bin/python -m pytest` (evals/run.py:444); a run request that calls `python3 -m pytest` uses the host's own python3, where pytest is likely missing.
+
+### 2026-10-12T14:10:23-04:00 · worker (gpt-5.6-terra), round 2
+
+I applied the advisor's fixes and the 23 local tests still pass. smoke.sh now runs pytest through evals/.cache/venv-sandbox/bin/python. It saves the git status before and after (excluding the results dir) and diffs them. It also prints the record count after each invocation and lists any leftover /tmp/w1-replay-* checkouts. In run.py, run_session now copies tap.jsonl into the attempt dir before deleting the checkout base. main() calls ev.preflight([]) before launching. attempt() now catches SystemExit as well, so a tap failure writes an infra-errors line. OUTPUT_LIMIT no longer matches max_tokens. Records get a flag_triggers field showing what set each flag. I did not call ev.ensure_venv(). The host run of the venv-sandbox pytest is untested here. Next round: read the log and fix any host-side bugs, then submit done.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/smoke.sh",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Host smoke run of one case through the live turnstile bench route, then a second invocation that must skip it."
+}
+```
+
+### 2026-10-12T14:12:35-04:00 · advisor (run request)
+
+**approve**: Safe: writes only under bench/results/2026-10-12/worker_eval/smoke and /tmp/w1-replay-* (removed in finally). Model traffic goes through the tap to turnstile with the bench key, the same route as evals/run.py. Importing autopilot.py and infra.py has no side effects. The pytest step exits before docker can create VENV as an empty root-owned dir. In your next report, give: (1) the pytest summary line from the host venv run. (2) For the first invocation: request_source, replay_kind, cloud_kind, valid_request, validation_errors, wall_s, turns, tools, compaction counts, last_stop, the timeout/context_overflow/output_limit flags and flag_triggers. (3) The second invocation's stats JSON. It must show skipped=1, ran=0, and results.jsonl must have 1 line after both runs. (4) The 'unchanged' line from the status diff and an empty leftover-checkout listing. (5) That the attempt dir has manifest.json, events.jsonl, stderr.txt, final.txt, workspace.diff, record.json and a non-empty tap.jsonl whose entries show HTTP 200 from the agent role. Also show that the run manifest's pi_version, llama_swap_entry, turnstile_routing, model_sha256 and sandbox_image are not 'unavailable: ...' or null. If any infra-errors.jsonl line exists, quote it. Fix before done: attempt() catches SystemExit, so the SIGTERM handler's sys.exit(143) is logged as an infra error and run_all launches up to two more sessions before stopping. Catch SystemExit only around ev.start_tap, or re-raise when code == 143. Also add one README sentence: the replay checkout has working git history (ancestors only), which the original worker's sandbox did not have.
+
+### 2026-10-12T14:12:35-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/worker_eval/run.py make_checkout() gives the replayed worker a real git repo with the start commit's full ancestry, while the original autopilot sandbox mounted a worktree whose .git pointed outside the container (git unusable), so replay rounds can use git history the recorded cloud rounds could not.
+
+### 2026-10-12T14:12:35-04:00 · orchestrator
+
+Ran `bash bench/worker_eval/smoke.sh` (gpu=False) in 0s, exit 1. Full output: `bench/results/2026-10-12/autopilot/replay-harness-r2.log`. Last lines:
+
+```
+bench/worker_eval/smoke.sh: line 7: evals/.cache/venv-sandbox/bin/python: No such file or directory
+
+```

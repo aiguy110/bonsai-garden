@@ -40,7 +40,7 @@ MAX_TIMEOUT_MIN = 180
 DESCRIPTION = re.compile(r"(?m)^(You are the research worker for bonsai-garden, running as )(.+?)(\. The project)$")
 CONTEXT_OVERFLOW = re.compile(r"context_length_exceeded|exceeds? the (available )?context|context (length|window|size)"
                               r"|maximum context|n_ctx|prompt is too long|too many tokens|exceed_context_size", re.I)
-OUTPUT_LIMIT = re.compile(r"output limit|max_tokens|max output|stopReason.?length", re.I)
+OUTPUT_LIMIT = re.compile(r"output limit|max output|stopReason.?length", re.I)
 RATE_LIMIT = re.compile(r"rate.?limit|usage limit|429|quota", re.I)
 
 
@@ -220,6 +220,18 @@ def classify(events, timed_out, exit_code=None):
         "rate_limit": any(RATE_LIMIT.search(m) for m in msgs),
         "pi_exit_nonzero": exit_code not in (None, 0) and not timed_out,
     }
+
+
+def flag_triggers(events):
+    """What set each message-based flag, so a surprising flag can be audited."""
+    out = {}
+    for name, rx in (("context_overflow", CONTEXT_OVERFLOW), ("output_limit", OUTPUT_LIMIT), ("rate_limit", RATE_LIMIT)):
+        hits = [str(m)[:300] for m in events["errors"] if rx.search(str(m))]
+        if hits:
+            out[name] = hits
+    if "length" in events["stop_reasons"]:
+        out.setdefault("output_limit", []).append("stopReason=length")
+    return out
 
 
 # ---- requests ----
@@ -592,8 +604,9 @@ def run_session(ev, arm, case, repeat, adir, check):
             (adir / "request.json").write_text(json.dumps(req, indent=2) + "\n")
         (adir / "workspace.diff").write_text(workspace_diff(checkout))
         tap_bytes = safe(lambda: (base / "tap.jsonl").stat().st_size, 0)
+        safe(lambda: shutil.copy(base / "tap.jsonl", adir / "tap.jsonl"), None)
         rec = build_record(arm, case, repeat, source, req, errs, events, classify(events, timed_out, rc), wall,
-                           {"pi_exit_code": rc, "attempt_dir": str(adir), "tap_log_bytes": tap_bytes,
+                           {"flag_triggers": flag_triggers(events), "pi_exit_code": rc, "attempt_dir": str(adir), "tap_log_bytes": tap_bytes,
                             "finished": now_iso()})
         (adir / "record.json").write_text(json.dumps(rec, indent=2, sort_keys=True) + "\n")
         return rec
@@ -637,6 +650,7 @@ def main(argv=None):
         sys.exit(f"{results} holds records from a different arm definition; use a new --out")
 
     ev = load_ev()
+    ev.preflight([])
     check = orchestrator_check()
     out.mkdir(parents=True, exist_ok=True)
     man = run_manifest(ev, arm, arm_hash, args.cases, cases_hash, args)
@@ -648,7 +662,7 @@ def main(argv=None):
         print(f"[{now_iso()}] {arm['name']} {case['case_id']} r{rep}", flush=True)
         try:
             rec = run_session(ev, arm, case, rep, out / case["case_id"] / f"r{rep}", check)
-        except Exception as e:  # noqa: BLE001
+        except (Exception, SystemExit) as e:  # noqa: BLE001  (start_tap exits via SystemExit)
             print(f"  attempt did not run: {type(e).__name__}: {e}", flush=True)
             with open(out / "infra-errors.jsonl", "a") as f:
                 f.write(json.dumps({"time": now_iso(), "case_id": case["case_id"], "repeat": rep,
