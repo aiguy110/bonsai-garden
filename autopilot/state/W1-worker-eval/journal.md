@@ -526,3 +526,7 @@ I didn't look into why the host rebooted.
 ```json
 {"fixed": true, "diagnosis": "Transient outage from a host reboot (~14:16, uptime 0 min). The health check ran before turnstile (:8080) and llama-swap (:11435) had started, so it got Connection refused. Both services came up on their own at boot. The live llama-swap config is identical to known-good.yaml, and the last autopilot infra entry is a successful baseline, so config was not the cause. Note: turnstile is a systemd user unit, not a system unit.", "actions": ["Checked status of llama-swap (system), turnstile (user unit) and bonsai-garden-embed (user unit): all active", "Confirmed listeners on :8080, :11435, :8095", "Ran infra.py check -> {\"ok\": true}", "Diffed /etc/llama-swap/config.yaml against known-good.yaml: identical, so no restore or restart was needed", "No config edits, restarts or process kills performed"]}
 ```
+
+### 2026-10-12T14:27:57-04:00 · orchestrator
+
+BLOCKED: tick crashed 3 times in a row; last: ValueError: embedded null byte
