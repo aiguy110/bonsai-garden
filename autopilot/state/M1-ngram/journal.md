@@ -386,3 +386,18 @@ Sending `done`; the orchestrator commits the worktree.
 ### 2026-10-12T05:23:00-04:00 · orchestrator
 
 Item `recon` used all 12 rounds; dropped.
+
+### 2026-10-12T06:08:02-04:00 · worker (Bonsai), round 1
+
+**Critical finding**: mem0 step0 first agent request has `n_msg=2` (no recall yet, empty store), but step1/step2 have `n_msg=3` (recall present). And the sequence `first n_msg=3, second=6, third=9...` matches `len(messages[0:i])` exactly. This PROVES the custom recall message is sent and counted. Let me validate the full reconstruction against real inventory data for mem0-r2 step1.
+
+### 2026-10-12T06:08:02-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
