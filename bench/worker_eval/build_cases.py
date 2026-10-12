@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
-"""Build the provenance-preserving cloud-worker corpus for the W1 replay.
+"""Build the provenance-preserving cloud-worker corpus for W1 replays.
 
-This deliberately reads the autopilot call archive and journals; it never imports or
-writes autopilot state.  It is run on the host because .runtime/calls is not part of
-normal worktrees.
+This is host-only: it reads the call archive, one authoritative M1 journal, and git;
+it never writes under autopilot.
 """
 from __future__ import annotations
 
@@ -20,255 +19,231 @@ from collections import Counter
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "bench" / "worker_eval"
-CASES = OUT / "cases.jsonl"
-INVENTORY = OUT / "inventory.json"
+CASES, INVENTORY = OUT / "cases.jsonl", OUT / "inventory.json"
 CANONICAL = "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU"
 CUTOFF = dt.datetime.fromisoformat("2026-10-12T08:33:00-04:00")
 HEADER = re.compile(r"^### ([^·]+) · ([^\n]+)$", re.M)
 WORKER = re.compile(r"^worker \(([^)]+)\), round (\d+)$")
 ADVISOR = re.compile(r"^advisor \(([^)]+)\)$")
 LOG = re.compile(r"^(\d{8}-\d{6})-worker-(.+)-r(\d+)\.jsonl$")
+DESCRIPTION = re.compile(r"(?m)^(You are the research worker for bonsai-garden, running as )(.+?)(\. The project)$")
+RATE_LIMIT = re.compile(r"rate.?limit|usage.?limit|\b429\b", re.I)
 
 
-def sha(text: str) -> str:
-    return hashlib.sha256(text.encode()).hexdigest()
+def sha(text): return hashlib.sha256(text.encode()).hexdigest()
+def bytes_sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def host_paths():
     home = pathlib.Path.home()
     base = pathlib.Path(os.environ.get("GARDEN_SOURCE", home / "Projects" / "bonsai-garden"))
     calls = pathlib.Path(os.environ.get("GARDEN_CALLS", base / "autopilot" / ".runtime" / "calls"))
-    # The current checkout's journal is useful after a merged milestone; the auto
-    # worktree copy is authoritative while a milestone is in progress.
-    journals = [base / "autopilot" / "state" / "M1-ngram" / "journal.md",
-                home / "Projects" / "bonsai-garden-auto" / "M1-ngram" / "autopilot" / "state" / "M1-ngram" / "journal.md",
-                ROOT / "autopilot" / "state" / "M1-ngram" / "journal.md"]
-    return calls, [p for i, p in enumerate(journals) if p.exists() and p not in journals[:i]]
+    # Do not merge journal copies: identical historical entries otherwise interrupt
+    # worker-to-advisor association.  The M1 worktree is preferred explicitly.
+    candidates = [
+        pathlib.Path(os.environ["GARDEN_M1_JOURNAL"]) if os.environ.get("GARDEN_M1_JOURNAL") else None,
+        home / "Projects" / "bonsai-garden-auto" / "M1-ngram" / "autopilot" / "state" / "M1-ngram" / "journal.md",
+        base / "autopilot" / "state" / "M1-ngram" / "journal.md",
+        ROOT / "autopilot" / "state" / "M1-ngram" / "journal.md",
+    ]
+    for path in candidates:
+        if path and path.exists(): return calls, path
+    raise SystemExit("M1-ngram journal not found (set GARDEN_M1_JOURNAL if needed)")
 
 
-def entries(path: pathlib.Path):
-    text = path.read_text(errors="replace")
-    hs = list(HEADER.finditer(text))
-    result = []
-    for i, h in enumerate(hs):
-        try:
-            when = dt.datetime.fromisoformat(h.group(1).strip())
-        except ValueError:
-            continue
-        result.append({"when": when, "actor": h.group(2).strip(),
-                       "body": text[h.end(): hs[i + 1].start() if i + 1 < len(hs) else len(text)].strip(),
-                       "journal": str(path)})
+def entries(path):
+    text = path.read_text(errors="replace"); headers = list(HEADER.finditer(text)); result = []
+    for i, header in enumerate(headers):
+        try: when = dt.datetime.fromisoformat(header.group(1).strip())
+        except ValueError: continue
+        result.append({"when": when, "actor": header.group(2).strip(),
+                       "body": text[header.end():headers[i + 1].start() if i + 1 < len(headers) else len(text)].strip()})
     return result
 
 
 def text_of(message):
     content = message.get("content", "")
-    if isinstance(content, str):
-        return content
-    return "".join(x.get("text", "") for x in content if isinstance(x, dict))
+    return content if isinstance(content, str) else "".join(x.get("text", "") for x in content if isinstance(x, dict))
 
 
 def log_data(path):
-    first_user = final = None
-    tool_request = None
-    model = None
-    for line in path.read_text(errors="replace").splitlines():
-        try:
-            event = json.loads(line)
-        except ValueError:
-            continue
+    first_user = final = None; tool_request = None; model = None
+    raw = path.read_text(errors="replace")
+    for line in raw.splitlines():
+        try: event = json.loads(line)
+        except ValueError: continue
         msg = event.get("message") or {}
-        if event.get("type") == "message_start" and msg.get("role") == "user" and first_user is None:
-            first_user = text_of(msg)
-        if event.get("type") == "message_end" and msg.get("role") == "assistant":
-            if text_of(msg).strip(): final = text_of(msg)
-        # pi's tool-call block is the strongest archival proof that submit_request
-        # was used.  Its arguments may be an object or a JSON string.
-        for block in msg.get("content", []) if isinstance(msg.get("content"), list) else []:
+        if event.get("type") == "message_start" and msg.get("role") == "user" and first_user is None: first_user = text_of(msg)
+        if event.get("type") == "message_end" and msg.get("role") == "assistant" and text_of(msg).strip(): final = text_of(msg)
+        blocks = msg.get("content", []) if isinstance(msg.get("content"), list) else []
+        for block in blocks:
             if block.get("type") == "toolCall" and block.get("name") == "submit_request":
-                args = block.get("arguments")
-                try: tool_request = json.loads(args) if isinstance(args, str) else args
-                except ValueError: pass
+                try: tool_request = json.loads(block["arguments"]) if isinstance(block.get("arguments"), str) else block.get("arguments")
+                except (ValueError, TypeError): pass
         model = model or event.get("model") or msg.get("model")
-    return first_user, final, tool_request, model
+    return first_user, final, tool_request, model, raw
 
 
 def last_json(text):
     for block in reversed(re.findall(r"```json\s*(.*?)```", text, re.S)):
         try:
-            obj = json.loads(block)
-            if isinstance(obj, dict): return obj
+            value = json.loads(block)
+            if isinstance(value, dict): return value
         except ValueError: pass
     decoder = json.JSONDecoder()
-    for i in reversed([i for i, c in enumerate(text) if c == "{"]):
+    for pos in reversed([i for i, char in enumerate(text) if char == "{"]):
         try:
-            obj, _ = decoder.raw_decode(text[i:])
-            if isinstance(obj, dict): return obj
+            value, _ = decoder.raw_decode(text[pos:])
+            if isinstance(value, dict): return value
         except ValueError: pass
     return None
 
 
 def substitute(prompt):
-    # The first worker-template line is intentionally the only alteration.  Do not
-    # replace model mentions in journal material embedded later in the prompt.
-    pat = r"(?m)^(You are the research worker for bonsai-garden, running as )(.+?)(\. The project)$"
-    changed, n = re.subn(pat, r"\1" + CANONICAL + r"\3", prompt, count=1)
-    if n != 1:
-        raise ValueError("worker-description line was not found exactly once")
-    return changed
+    matches = list(DESCRIPTION.finditer(prompt))
+    if len(matches) != 1: raise ValueError(f"expected exactly one worker description, got {len(matches)}")
+    return DESCRIPTION.sub(r"\1" + CANONICAL + r"\3", prompt, count=1), matches[0].group(2)
 
 
 def git(*args):
-    return subprocess.run(["git", *args], cwd=ROOT, text=True, capture_output=True).stdout.strip()
+    p = subprocess.run(["git", *args], cwd=ROOT, text=True, capture_output=True)
+    return p.stdout.strip()
 
 
 def commits():
-    out = git("log", "--all", "--format=%H%x00%s")
+    # Keep every candidate: repeated plan rounds occur in history.  Selection is
+    # tied to the call timestamp, rather than whichever ref git log happened to see last.
+    output = git("log", "--all", "--format=%H%x00%aI%x00%s")
     found = {}
-    for line in out.splitlines():
-        try: h, subject = line.split("\0", 1)
+    for line in output.splitlines():
+        try: commit, stamp, subject = line.split("\0", 2); when = dt.datetime.fromisoformat(stamp)
         except ValueError: continue
-        m = re.fullmatch(r"autopilot\(([^)]+)\): before (.+) round (\d+)", subject)
-        if m: found[(m.group(1), m.group(2), int(m.group(3)))] = (h, subject)
+        match = re.fullmatch(r"autopilot\(([^)]+)\): before (.+) round (\d+)", subject)
+        if match: found.setdefault((match.group(1), match.group(2), int(match.group(3))), []).append((when, commit, subject))
     return found
 
 
-def parse_journal(paths):
-    all_entries = sorted((e for p in paths for e in entries(p)), key=lambda e: e["when"])
-    workers = {}
-    advisors = []
-    for e in all_entries:
-        m = WORKER.match(e["actor"])
-        if m:
-            # Item is not present in the heading. Infer it from the request log name
-            # later; timestamps and round disambiguate entries across plan items.
-            e.update(model=m.group(1), round=int(m.group(2)))
-            workers.setdefault(e["round"], []).append(e)
-        if ADVISOR.match(e["actor"]):
-            v = re.match(r"\*\*(approve|revise|reject)\*\*:\s*(.*)", e["body"], re.S)
-            if v: advisors.append((e, v.group(1), v.group(2).strip()))
-    return all_entries, workers, advisors
+def select_commit(candidates, source_time):
+    eligible = [c for c in candidates if c[0] <= source_time]
+    if not eligible: return None
+    latest = max(c[0] for c in eligible); winners = [c for c in eligible if c[0] == latest]
+    return winners[0] if len(winners) == 1 else None
 
 
-def associated_worker(workers, item, rnd, stamp):
-    choices = workers.get(rnd, [])
-    # Logs have second resolution and journal timestamps occur just after the call.
-    # A 50 minute bound avoids accidentally attaching another item with the same round.
-    target = dt.datetime.strptime(stamp, "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo)
-    choices = sorted(choices, key=lambda e: abs((e["when"] - target).total_seconds()))
-    return choices[0] if choices and abs((choices[0]["when"] - target).total_seconds()) < 3000 else None
+def workers_and_advisors(journal_entries):
+    workers = []
+    for i, entry in enumerate(journal_entries):
+        match = WORKER.match(entry["actor"])
+        if match: workers.append((i, entry, match.group(1), int(match.group(2))))
+    return workers
 
 
-def associated_advisor(all_entries, worker):
-    start = all_entries.index(worker)
-    for e in all_entries[start + 1:]:
-        if WORKER.match(e["actor"]): break
-        m = ADVISOR.match(e["actor"])
-        if m:
-            v = re.match(r"\*\*(approve|revise|reject)\*\*:\s*(.*)", e["body"], re.S)
-            if v: return e, v.group(1), v.group(2).strip()
+def associated_worker(workers, rnd, source_time):
+    choices = [(abs((entry["when"] - source_time).total_seconds()), index, entry, model)
+               for index, entry, model, round_ in workers if round_ == rnd]
+    choices.sort(key=lambda c: c[0])
+    return choices[0] if choices and choices[0][0] < 3000 else None
+
+
+def associated_advisor(journal_entries, worker_index, kind):
+    expected = f"advisor ({kind} request)"
+    for entry in journal_entries[worker_index + 1:]:
+        if WORKER.match(entry["actor"]): break
+        if entry["actor"] != expected: continue
+        verdict = re.match(r"\*\*(approve|revise|reject)\*\*:\s*(.*)", entry["body"], re.S)
+        if verdict: return entry, verdict.group(1), verdict.group(2).strip()
     return None
 
 
+def same_json(a, b): return json.dumps(a, sort_keys=True, separators=(",", ":")) == json.dumps(b, sort_keys=True, separators=(",", ":"))
+
+
 def build():
-    calls, journals = host_paths()
+    calls, journal = host_paths()
     if not calls.is_dir(): raise SystemExit(f"call archive not found: {calls}")
-    if not journals: raise SystemExit("M1-ngram journal not found (set GARDEN_SOURCE if needed)")
-    all_entries, workers, _ = parse_journal(journals)
-    starts = commits()
-    rows, skipped = [], Counter()
+    journal_entries = entries(journal); workers = workers_and_advisors(journal_entries); starts = commits()
+    rows, skipped, eligible_revise = [], Counter(), 0
     for path in sorted(calls.glob("*-worker-*.jsonl")):
-        m = LOG.match(path.name)
-        if not m: continue
-        stamp, item, rnd = m.group(1), m.group(2), int(m.group(3))
+        match = LOG.match(path.name)
+        if not match: continue
+        stamp, item, rnd = match.group(1), match.group(2), int(match.group(3))
         source_time = dt.datetime.strptime(stamp, "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo)
         if source_time < CUTOFF: skipped["before_cutoff"] += 1; continue
-        prompt, final, tool_req, event_model = log_data(path)
-        worker = associated_worker(workers, item, rnd, stamp)
-        if not worker:
-            skipped["no_journal_worker"] += 1; continue
-        source_model = worker["model"] or event_model or "unknown"
-        # This explicit exclusion protects against calls that created no useful work
-        # during the Claude Max incident, even if a malformed journal was recoverable.
-        if item == "spec-replay" and re.search(r"rate.?limit|usage.?limit|\b429\b", worker["body"], re.I):
-            skipped["rate_limited"] += 1; continue
-        journal_req = last_json(worker["body"])
-        request, request_source = (tool_req, "tool") if tool_req else ((journal_req, "journal_request") if journal_req else (last_json(final or ""), "json_fallback"))
-        if not prompt or not request or not isinstance(request, dict) or not request.get("request"):
-            skipped["no_recoverable_request"] += 1; continue
-        advisor = associated_advisor(all_entries, worker)
-        if not advisor:
-            skipped["no_advisor_verdict"] += 1; continue
-        ae, verdict, notes = advisor
-        key = ("M1-ngram", item, rnd)
-        if key not in starts:
-            skipped["no_start_commit"] += 1; continue
-        changed = substitute(prompt)
-        commit, subject = starts[key]
-        rows.append({"case_id": f"m1-ngram-{item}-r{rnd}-{sha(str(path.resolve()) + sha(prompt))[:12]}",
-          "milestone": "M1-ngram", "item": item, "round": rnd,
-          "source_timestamp": source_time.isoformat(), "source_model": source_model,
-          "start_commit": commit, "start_commit_subject": subject,
-          "prompt": changed, "source_first_user_prompt_sha256": sha(prompt),
-          "prompt_sha256": sha(changed), "event_log": str(path), "event_log_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
-          "worker_description_from": re.search(r"running as (.+?)\. The project", prompt).group(1),
-          "worker_description_to": CANONICAL, "request": request, "request_source": request_source,
-          "advisor_timestamp": ae["when"].isoformat(), "advisor_verdict": verdict, "advisor_notes": notes,
-          "journal": worker["journal"]})
-    rows.sort(key=lambda r: (r["source_timestamp"], r["case_id"]))
-    return rows, skipped
+        prompt, final, tool_req, event_model, raw = log_data(path)
+        worker_match = associated_worker(workers, rnd, source_time)
+        if not worker_match: skipped["no_journal_worker"] += 1; continue
+        _, worker_index, worker, source_model = worker_match
+        if RATE_LIMIT.search(raw) or RATE_LIMIT.search(worker["body"]): skipped["rate_limited"] += 1; continue
+        fallback, journal_req = last_json(final or ""), last_json(worker["body"])
+        # Event evidence wins: submit_request, then final assistant JSON. Journal is
+        # cross-check only and is never a request source.
+        if isinstance(tool_req, dict): request, request_source = tool_req, "tool"
+        elif isinstance(fallback, dict): request, request_source = fallback, "json_fallback"
+        else: skipped["no_recoverable_request"] += 1; continue
+        if not request.get("request"): skipped["malformed_request"] += 1; continue
+        if journal_req is not None and not same_json(request, journal_req): skipped["journal_request_mismatch"] += 1; continue
+        advisor = associated_advisor(journal_entries, worker_index, request["request"])
+        if not advisor: skipped["no_matching_advisor_verdict"] += 1; continue
+        advisor_entry, verdict, notes = advisor
+        if verdict == "revise": eligible_revise += 1
+        try: changed, old_description = substitute(prompt or "")
+        except ValueError: skipped["bad_worker_description"] += 1; continue
+        selected = select_commit(starts.get(("M1-ngram", item, rnd), []), source_time)
+        if not selected: skipped["no_unambiguous_start_commit"] += 1; continue
+        commit_time, commit, subject = selected
+        rows.append({"case_id": f"m1-ngram-{item}-r{rnd}-{sha(path.name + sha(prompt))[:12]}",
+          "milestone": "M1-ngram", "item": item, "round": rnd, "source_timestamp": source_time.isoformat(),
+          "source_model": source_model or event_model or "unknown", "start_commit": commit, "start_commit_subject": subject,
+          "source_first_user_prompt": prompt, "source_first_user_prompt_sha256": sha(prompt), "prompt": changed,
+          "prompt_sha256": sha(changed), "event_log": str(path), "event_log_sha256": bytes_sha(path),
+          "worker_description_from": old_description, "worker_description_to": CANONICAL,
+          "request": request, "request_source": request_source, "advisor_timestamp": advisor_entry["when"].isoformat(),
+          "advisor_actor": advisor_entry["actor"], "advisor_verdict": verdict, "advisor_notes": notes,
+          "journal": str(journal), "journal_sha256": bytes_sha(journal)})
+    rows.sort(key=lambda row: (row["source_timestamp"], row["case_id"]))
+    return rows, skipped, eligible_revise
 
 
-def validate(rows):
+def validate(rows, eligible_revise):
     errors = []
-    ids = [r["case_id"] for r in rows]
-    if len(ids) != len(set(ids)): errors.append("case IDs are not unique")
     if len(rows) < 20: errors.append(f"need >=20 cases, got {len(rows)}")
     if len({r["item"] for r in rows}) < 2: errors.append("need >=2 plan items")
-    if any(dt.datetime.fromisoformat(r["source_timestamp"]) < CUTOFF for r in rows): errors.append("pre-cutoff row")
-    if any(r["item"] == "spec-replay" and re.search(r"rate.?limit|usage.?limit|\b429\b", r["advisor_notes"], re.I) for r in rows): errors.append("included rate-limit failure")
+    if len({r["case_id"] for r in rows}) != len(rows): errors.append("case IDs are not unique")
+    if eligible_revise and not any(r["advisor_verdict"] == "revise" for r in rows): errors.append("eligible revise case was not retained")
     for r in rows:
-        if not r["prompt"].strip() or not r["request"]: errors.append(f"empty prompt/request: {r['case_id']}")
-        if r["prompt"].count(CANONICAL) != 1: errors.append(f"bad substitution count: {r['case_id']}")
-        if r["advisor_timestamp"] < r["source_timestamp"]: errors.append(f"advisor precedes request: {r['case_id']}")
+        if dt.datetime.fromisoformat(r["source_timestamp"]) < CUTOFF: errors.append(f"pre-cutoff: {r['case_id']}")
+        if not r["prompt"].strip() or not isinstance(r["request"], dict) or not r["request"].get("request"): errors.append(f"empty prompt/request: {r['case_id']}")
+        if r["request_source"] not in {"tool", "json_fallback"}: errors.append(f"bad request source: {r['case_id']}")
+        if len(list(DESCRIPTION.finditer(r["source_first_user_prompt"]))) != 1: errors.append(f"source substitution count: {r['case_id']}")
+        rebuilt, _ = substitute(r["source_first_user_prompt"])
+        if rebuilt != r["prompt"] or sha(r["source_first_user_prompt"]) != r["source_first_user_prompt_sha256"]: errors.append(f"prompt provenance mismatch: {r['case_id']}")
+        if r["advisor_actor"] != f"advisor ({r['request']['request']} request)": errors.append(f"advisor type mismatch: {r['case_id']}")
+        if dt.datetime.fromisoformat(r["advisor_timestamp"]) < dt.datetime.fromisoformat(r["source_timestamp"]): errors.append(f"advisor precedes request: {r['case_id']}")
         subject = git("show", "-s", "--format=%s", r["start_commit"])
-        expected = f"autopilot({r['milestone']}): before {r['item']} round {r['round']}"
-        if subject != expected: errors.append(f"bad start commit: {r['case_id']}")
-        # Audit proof: reconstruct the original only by changing the first line.
-        original = re.sub(r"(?m)^(You are the research worker for bonsai-garden, running as )(.+?)(\. The project)$", r"\1" + r["worker_description_from"] + r"\3", r["prompt"], count=1)
-        if sha(original) != r["source_first_user_prompt_sha256"]: errors.append(f"prompt provenance mismatch: {r['case_id']}")
-    if rows and any(r["advisor_verdict"] == "revise" for r in rows) is False:
-        # Eligible revise cases are checked during extraction: absent is informative,
-        # not an unconditional error because a corpus could have none.
-        print("warning: no revise cases included", file=sys.stderr)
+        if subject != f"autopilot({r['milestone']}): before {r['item']} round {r['round']}": errors.append(f"bad start commit: {r['case_id']}")
     return errors
 
 
-def inventory(rows, skipped):
-    return {"schema_version": 1, "canonical_worker_description": CANONICAL,
-      "included": len(rows), "counts": {"source_model": dict(Counter(r["source_model"] for r in rows)),
-      "item": dict(Counter(r["item"] for r in rows)), "request_kind": dict(Counter(r["request"].get("request") for r in rows)),
-      "advisor_verdict": dict(Counter(r["advisor_verdict"] for r in rows))}, "skipped": dict(skipped)}
+def inventory(rows, skipped, eligible_revise):
+    return {"schema_version": 1, "canonical_worker_description": CANONICAL, "included": len(rows),
+      "counts": {"source_model": dict(Counter(r["source_model"] for r in rows)), "item": dict(Counter(r["item"] for r in rows)),
+                 "request_kind": dict(Counter(r["request"]["request"] for r in rows)), "advisor_verdict": dict(Counter(r["advisor_verdict"] for r in rows))},
+      "eligible_revise": eligible_revise, "skipped": dict(skipped)}
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--check", action="store_true", help="validate the committed corpus without writing")
-    args = ap.parse_args()
-    rows, skipped = build()
-    errors = validate(rows)
-    inv = inventory(rows, skipped)
+    parser = argparse.ArgumentParser(); parser.add_argument("--check", action="store_true"); args = parser.parse_args()
+    rows, skipped, eligible_revise = build(); errors = validate(rows, eligible_revise); inv = inventory(rows, skipped, eligible_revise)
     rendered = "".join(json.dumps(r, sort_keys=True) + "\n" for r in rows)
     if args.check:
-        if not CASES.exists() or CASES.read_text() != rendered: errors.append("cases.jsonl is not the deterministic build output")
-        if not INVENTORY.exists() or json.loads(INVENTORY.read_text()) != inv: errors.append("inventory.json is not the deterministic build output")
-    else:
-        OUT.mkdir(parents=True, exist_ok=True)
-        CASES.write_text(rendered)
-        INVENTORY.write_text(json.dumps(inv, indent=2, sort_keys=True) + "\n")
-    print(json.dumps(inv, indent=2, sort_keys=True))
+        if not CASES.exists() or CASES.read_text() != rendered: errors.append("cases.jsonl is not deterministic build output")
+        try: inventory_matches = INVENTORY.exists() and json.loads(INVENTORY.read_text()) == inv
+        except json.JSONDecodeError: inventory_matches = False
+        if not inventory_matches: errors.append("inventory.json is not deterministic build output")
     if errors:
-        print("validation failed:\n- " + "\n- ".join(errors), file=sys.stderr)
-        raise SystemExit(1)
+        print(json.dumps(inv, indent=2, sort_keys=True)); print("validation failed:\n- " + "\n- ".join(errors), file=sys.stderr); raise SystemExit(1)
+    if not args.check:
+        OUT.mkdir(parents=True, exist_ok=True); CASES.write_text(rendered); INVENTORY.write_text(json.dumps(inv, indent=2, sort_keys=True) + "\n")
+    print(json.dumps(inv, indent=2, sort_keys=True))
 
 if __name__ == "__main__": main()

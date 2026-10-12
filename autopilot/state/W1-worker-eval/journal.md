@@ -24,3 +24,21 @@ Added the host-only corpus builder and schema documentation. The builder parses 
 ### 2026-10-12T12:53:53-04:00 · advisor (run request)
 
 **revise**: Fix `bench/worker_eval/build_cases.py` before running: (1) `host_paths()` returns multiple copies of the M1 journal (main, old M1 worktree, and current worktree). After sorting, duplicate worker entries make `associated_advisor()` stop at the next duplicate worker, so valid rounds lose their verdicts. Select exactly one authoritative journal with an explicit preference order, rather than merging copies. (2) `commits()` keys only by milestone/item/round and overwrites duplicate subjects; repeated rounds such as `spec-replay` round 5 can therefore receive the wrong start commit. Collect commit timestamps and select the latest matching before-round commit at or before each call timestamp, rejecting ambiguity. (3) Recover fallback requests from the event log's final assistant text before consulting the journal, and label sources only `tool` or `json_fallback` as required; use the journal only to cross-check equality. (4) Make case IDs independent of the absolute archive path, e.g. hash the log filename plus original prompt hash. (5) Require exactly one source worker-description match before substitution, validate advisor type against request kind and compare parsed datetimes, explicitly reject included source logs/worker entries containing rate-limit errors, and make absence of a retained eligible `revise` case an error rather than a warning. (6) Do not write `cases.jsonl` or `inventory.json` when validation fails; currently an empty or invalid build clobbers outputs before exiting nonzero. The script otherwise performs only read-only git/archive operations and writes under `bench/worker_eval/`.
+
+### 2026-10-12T12:54:50-04:00 · worker (gpt-5.6-terra), round 2
+
+Corrected the builder for authoritative single-journal selection, timestamped start-commit resolution, event-first request recovery, strict provenance/substitution checks, rate-limit exclusion, advisor-kind validation, and no-write-on-validation-error. Updated the corpus README. Local syntax/help checks pass; host archive generation is next.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/build_cases.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Run the corrected host-only corpus builder against the call archive, authoritative M1 journal, and git history to generate and validate the required provenance-checked cases and inventory."
+}
+```
+
+### 2026-10-12T12:55:14-04:00 · orchestrator
+
+The advisor's subscription hit its rate limit; pausing 30 min. This session doesn't count as a round.
