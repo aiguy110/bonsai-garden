@@ -389,3 +389,25 @@ Ran `bash bench/worker_eval/build_and_check.sh` (gpu=False) in 11s, exit 0. Full
 }
 
 ```
+
+### 2026-10-12T14:01:26-04:00 · worker (gpt-5.6-terra), round 10
+
+Round 9's build and --check both exited 0. cases.jsonl and inventory.json come from that run and were not edited by hand.
+
+```json
+{
+  "request": "done",
+  "summary": "Result from `bash bench/worker_eval/build_and_check.sh`, exit 0 (bench/results/2026-10-12/autopilot/case-corpus-r9.log). It builds, then runs `build_cases.py --check` on the same archive state.\n\n- **Case set:** `bench/worker_eval/cases.jsonl` has 22 rows, all at or after 08:33 on 2026-10-12.\n- **Counts:**\n  - Items: spec-replay 10, replay-set 7, decide 3, write-up 2, so four distinct items.\n  - Source model: claude-sonnet-5-5 11, gpt-5.6-terra 11.\n  - Request kind: run 14, done 8.\n  - Advisor verdict: approve 15, revise 7. All 7 eligible revise rounds are kept.\n- **Inventory:** `bench/worker_eval/inventory.json` reports the counts above and is committed.\n- **Skips:** before_cutoff 24, before_cutoff_or_bonsai 1, rate_limited 8, no_journal_worker 2, unreviewed_continue_request 2. No rate-limited rounds are included, and `--check` fails on any rate-limit match in an included row's event log.\n- **Differs from the advisor's forecast:** the advisor expected no_journal_worker to be 8. It came out as 2. I did not list the two log names. My guess is that the six older orphans now fall under before_cutoff once logs are scoped to M1, but I did not check that.\n- **What `--check` covers:**\n  - start commits resolve and have the expected before-round subject;\n  - the start-commit age bound;\n  - the prompt's item/round header;\n  - prompts and requests are nonempty;\n  - the model substitution occurs exactly once, and the stored prompt differs from the recorded first user message only there;\n  - verdicts align chronologically with their requests;\n  - case IDs are unique;\n  - the count and item coverage rules.\n- **Docs:** `bench/worker_eval/README.md` documents the schema, the window rule for matching logs to journal entries, the M1 scoping, and the checks.\n- **Left as is:** the optional cleanups the advisor suggested (the README bullet merge, the unused ADVISOR regex and `raw` return value) are not done."
+}
+```
+
+### 2026-10-12T14:02:43-04:00 · advisor (finished item)
+
+**approve**: Acceptance met. 22 rows from 4 items, all 7 eligible revise rounds kept, and build plus --check exit 0 on the same archive state in case-corpus-r9.log, with the committed inventory.json matching it. I checked the skip counts against the call archive and all 59 in-scope M1 worker logs are accounted for. Correction to your report: my forecast of 8 orphans was wrong, and so was your guess. The 6 'older orphans' were this milestone's case-corpus r1, r2, r3 (x3) and r4 logs, which the M1 scoping now drops; before_cutoff stayed at 24. The 2 remaining no_journal_worker logs are 20261012-082110-worker-replay-set-r6 and 20261012-113932-worker-write-up-r1. Minor and not blocking: case m1-ngram-replay-set-r6 has source_timestamp 08:32:46, so 'all at or after 08:33' holds only for the worker journal-entry time, which is what the README documents. The optional cleanups (unused ADVISOR regex and `raw` return value, README bullet merge) can go into the next item that touches build_cases.py.
+
+### 2026-10-12T14:02:43-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/worker_eval/cases.jsonl applies the 08:33 cloud cutoff to the worker journal-entry time, so case m1-ngram-replay-set-r6 (log 20261012-083246, a Sonnet round) has a source_timestamp 14 s before 08:33.
+- build_cases.py --check takes the M1 journal from the first existing candidate in host_paths(), the M1-ngram worktree copy first, and compares journal_sha256, so removing that worktree or changing that copy makes --check fail even though cases.jsonl is unchanged.
