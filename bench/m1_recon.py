@@ -362,7 +362,7 @@ def build_inventory(src: pathlib.Path) -> Dict[str, Any]:
             inv["tap_role_totals"] = roles
             steps[str(step_i)] = inv
         mem0_dbs: Dict[str, Dict[str, Any]] = {}
-        for db in sorted(run_dir.glob("*.db")):
+        for db in sorted(run_dir.rglob("*.db")):
             rel = db.relative_to(run_dir)
             mem0_dbs[str(rel)] = inspect_sqlite(db)
         inventory["runs"].append({"run_id": rid, "steps": steps, "mem0_dbs": mem0_dbs})

@@ -123,3 +123,51 @@ Submitting the `run` request:
 ### 2026-10-12T02:54:32-04:00 · advisor (run request)
 
 **revise**: Safe to run (read-only, writes only under bench/results/<date>/m1-ngram/recon/), and all 6 earlier fixes are in place. One blocking bug: build_inventory (around line 365) uses run_dir.glob("*.db"), but mem0 keeps its databases in run_dir/memory/mem0-vectors.db and memory/mem0-history.db (evals/run.py:356, evals/arms/mem0.json). The search finds nothing, so inventory.json would wrongly show no mem0 databases. Fix: change it to sorted(run_dir.rglob("*.db")). The relative_to(run_dir) key will then read 'memory/mem0-vectors.db'. Change nothing else. Run python3 -m py_compile bench/m1_recon.py, then end the session right away by resubmitting the same run request. In the notes, list the mem0 databases and their row counts for each mem0 run.
+
+### 2026-10-12T02:59:40-04:00 · worker (Bonsai), round 11
+
+I've been inadvertently emitting tool calls instead of ending my message with the fenced request block. Let me end this round cleanly now with no tool calls — just the report text followed by the fenced `json` request.
+
+**Final report — M1 item 1/12 (recon), round 11, complete:**
+
+- **Applied** the advisor's `rglob` fix in `bench/m1_recon.py` (line 365): `run_dir.glob("*.db")` → `run_dir.rglob("*.db")`, so mem0 databases at `run_dir/memory/mem0-vectors.db` and `memory/mem0-history.db` are discovered and keyed as `memory/...` in `inventory.json` (including per-step request totals and per-role `prompt_n`/`cache_n`/`predicted_n`).
+- **Confirmed** all 6 prior advisor fixes are in place: `PRIMARY_SRC` as a real `Path`; spec/draft flag filter with continuation handling; `str(s) != target` tap match; relative `tools/server/` grep paths; rel-keyed dbs; user-prompt builder windows.
+- **Confirmed** `python3 -m py_compile bench/m1_recon.py` clean.
+- **Confirmed** `main()` writes all 8 deliverables to `bench/results/<date>/m1-ngram/recon/` after `resolve_src()`: `help.txt`, `spec_flags.txt`, `spec_mmproj_grep.txt`, `inventory.json`, `event_samples.json`, `sources.txt`, `mem0_extract_src.txt`, `pi_prompt_src.txt`, plus a per-file size summary to stdout.
+- The sandbox run fails by design (recorded traffic is host-only, gitignored, at `/home/josiah/Projects/bonsai-garden/evals/results/...`); the host run populates the recon directory.
+
+Next round: read the host-produced recon outputs, write `bench/m1-notes.md`, and commit to `auto/M1-ngram`.
+
+Submitting the run request now:
+
+```json
+{"request": "run", "command": "python3 bench/m1_recon.py", "gpu": false, "timeout_min": 15, "why": "M1 recon (item 1/12) round 11: host-only, no-GPU, no-network script that populates bench/results/<date>/m1-ngram/recon/ with (a) help.txt + spec_flags.txt (llama-server --help plus --spec*/--draft* flag lines with continuation handling), (b) spec_mmproj_grep.txt (spec/speculative lines within 5 lines of mtmd/multimodal/mctx under tools/server/, paths relative to tools/server/), (c) inventory.json (every step*.events.jsonl: event type+counts, assistant msg count, tool calls by name, per-request tap prompt_n/cache_n/predicted_n plus per-role totals; mem0 *.db tables+row counts keyed rel to run dir via rglob fix), (d) event_samples.json (one full untruncated example per distinct event type from a mem0-arm step), (e) sources.txt + mem0_extract_src.txt (ADDITIVE_EXTRACTION_PROMPT + extraction user-prompt builder) + pi_prompt_src.txt (pi system-prompt builder + built-in tool schemas). All 6 reviewer fixes + rglob fix verified; script compiles. Stdout prints a per-file size summary."}
+```
+
+### 2026-10-12T03:00:02-04:00 · advisor (run request)
+
+**approve**: Safe: read-only (sqlite mode=ro, only `llama-server --help`, no server/port/network), writes only under bench/results/<date>/m1-ngram/recon/. rglob fix at line 365 and prior 6 fixes confirmed. Next round: (1) check all 8 files are non-empty and sources.txt has no NOT FOUND entries; if any are missing, report it and fix the path discovery rather than claiming acceptance. (2) The spec grep regex also matches 'specific'/'special' etc., so for the spec+mmproj verdict, quote only lines that actually gate or disable speculation when mtmd/mctx is loaded; if none, write 'unclear' and plan to settle it empirically in the replay probe (draft_n==0 + server log line). (3) In bench/m1-notes.md, list spec types and ngram/draft flags with defaults from spec_flags.txt, the message-rebuild mapping from event_samples.json, how mem0 assembles its user prompt, and the mem0 DBs with row counts for each mem0 run. (4) Delete bench/.recon_smoke.log and commit script + recon outputs + notes on auto/M1-ngram.
+
+### 2026-10-12T03:00:04-04:00 · orchestrator
+
+Ran `python3 bench/m1_recon.py` (gpu=False) in 2s, exit 0. Full output: `bench/results/2026-10-12/autopilot/recon-r11.log`. Last lines:
+
+```
+[recon] out dir: /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon
+[recon] src dir: /home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0
+[recon] done -> /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon
+{
+  "out_dir": "/home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon",
+  "files": {
+    "event_samples.json": 124668,
+    "help.txt": 57121,
+    "inventory.json": 99448,
+    "mem0_extract_src.txt": 61001,
+    "pi_prompt_src.txt": 59207,
+    "sources.txt": 3115,
+    "spec_flags.txt": 8810,
+    "spec_mmproj_grep.txt": 2952
+  }
+}
+
+```

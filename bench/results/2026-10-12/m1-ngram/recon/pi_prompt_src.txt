@@ -1,0 +1,1080 @@
+# pi_prompt_src.txt
+# pi package: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent
+
+# --- dist/core/system-prompt.js ---
+/**
+ * System prompt construction and project context loading
+ */
+import { getSystemMessageText } from "@earendil-works/pi-ai";
+import { getDocsPath, getExamplesPath, getReadmePath } from "../config.js";
+import { formatSkillsForPrompt } from "./skills.js";
+const SYSTEM_PROMPT_SECTION_NAME = /^[a-z][a-z0-9_-]*$/;
+/** Normalize prompt input into the mutable, collection-complete shape exposed to extensions. */
+export function normalizeBuildSystemPromptOptions(input) {
+    return {
+        customPrompt: input.customPrompt,
+        forceSystemPrompt: input.forceSystemPrompt,
+        selectedTools: [...(input.selectedTools ?? ["read", "bash", "edit", "write"])],
+        toolSnippets: { ...(input.toolSnippets ?? {}) },
+        toolGuidelines: Object.fromEntries(Object.entries(input.toolGuidelines ?? {}).map(([name, guidelines]) => [name, [...guidelines]])),
+        promptGuidelines: [...(input.promptGuidelines ?? [])],
+        appendSystemPrompt: input.appendSystemPrompt ?? "",
+        sections: { ...(input.sections ?? {}) },
+        cwd: input.cwd,
+        contextFiles: (input.contextFiles ?? []).map((file) => ({ ...file })),
+        skills: (input.skills ?? []).map((skill) => ({ ...skill })),
+    };
+}
+function renderProjectContext(contextFiles) {
+    return [
+        "Project-specific instructions and guidelines:",
+        ...contextFiles.map(({ path, content }) => `<project_instructions path="${path}">\n${content}\n</project_instructions>`),
+    ].join("\n\n");
+}
+function buildRules(selectedTools, toolGuidelines, promptGuidelines) {
+    const rules = [];
+    const seen = new Set();
+    const addRule = (rule) => {
+        const normalized = rule.trim();
+        if (!normalized || seen.has(normalized))
+            return;
+        seen.add(normalized);
+        rules.push(normalized);
+    };
+    const hasBash = selectedTools.includes("bash");
+    const hasPowerShell = selectedTools.includes("powershell");
+    const hasGrep = selectedTools.includes("grep");
+    const hasFind = selectedTools.includes("find");
+    const hasLs = selectedTools.includes("ls");
+    if ((hasBash || hasPowerShell) && !hasGrep && !hasFind && !hasLs) {
+        if (hasBash && hasPowerShell) {
+            addRule("Use bash or PowerShell for file operations like listing, searching, and finding files");
+        }
+        else if (hasPowerShell) {
+            addRule("Use PowerShell for file operations like listing, searching, and finding files");
+        }
+        else {
+            addRule("Use bash for file operations like ls, rg, find");
+        }
+    }
+    for (const name of selectedTools) {
+        for (const rule of toolGuidelines[name] ?? [])
+            addRule(rule);
+    }
+    for (const rule of promptGuidelines)
+        addRule(rule);
+    addRule("Be concise in your responses");
+    addRule("Show file paths clearly when working with files");
+    return rules.map((rule) => `- ${rule}`).join("\n");
+}
+/** Build the ordered, independently replaceable sections of the structured system prompt. */
+export function buildSystemPromptSections(input) {
+    const options = normalizeBuildSystemPromptOptions(input);
+    const { customPrompt, selectedTools, toolSnippets, toolGuidelines, promptGuidelines, appendSystemPrompt, sections: customSections, cwd, contextFiles, skills, } = options;
+    for (const name of Object.keys(customSections)) {
+        if (!SYSTEM_PROMPT_SECTION_NAME.test(name) || name === "preamble") {
+            throw new Error(`Invalid system prompt section name: ${name}`);
+        }
+    }
+    const promptSections = {};
+    if (customPrompt) {
+        promptSections.preamble = customPrompt;
+    }
+    else {
+        promptSections.preamble =
+            "You are an expert coding assistant operating inside pi, a coding agent harness. You help users by reading files, executing commands, editing code, and writing new files.";
+        const visibleTools = selectedTools.filter((name) => !!toolSnippets[name]);
+        const tools = visibleTools.length > 0 ? visibleTools.map((name) => `- ${name}: ${toolSnippets[name]}`).join("\n") : "(none)";
+        promptSections.tools = `${tools}\n\nIn addition to the tools above, you may have access to other custom tools depending on the project.`;
+        promptSections.rules = buildRules(selectedTools, toolGuidelines, promptGuidelines);
+        promptSections.docs = `Pi documentation (read only when the user asks about pi itself, its SDK, extensions, themes, skills, or TUI):
+- Main documentation: ${getReadmePath()}
+- Additional docs: ${getDocsPath()}
+- Examples: ${getExamplesPath()} (extensions, custom tools, SDK)
+- When reading pi docs or examples, resolve docs/... under Additional docs and examples/... under Examples, not the current working directory
+- When asked about: extensions (docs/extensions.md, examples/extensions/), themes (docs/themes.md), skills (docs/skills.md), prompt templates (docs/prompt-templates.md), TUI components (docs/tui.md), keybindings (docs/keybindings.md), SDK integrations (docs/sdk.md), custom providers (docs/custom-provider.md), adding models (docs/models.md), pi packages (docs/packages.md), environment variables (docs/environment-variables.md)
+- When working on pi topics, read the docs and examples, and follow .md cross-references before implementing
+- Always read pi .md files completely and follow links to related docs (e.g., tui.md for TUI API details)`;
+    }
+    if (appendSystemPrompt)
+        promptSections.addendum = appendSystemPrompt;
+    if (contextFiles.length > 0)
+        promptSections.project_context = renderProjectContext(contextFiles);
+    const skillFileReadTool = ["read", "bash"].find((tool) => selectedTools.includes(tool));
+    if (skillFileReadTool && skills.length > 0) {
+        const skillsPrompt = formatSkillsForPrompt(skills, skillFileReadTool).trim();
+        if (skillsPrompt)
+            promptSections.skills = skillsPrompt;
+    }
+    promptSections.cwd = cwd.replace(/\\/g, "/");
+    for (const [name, content] of Object.entries(customSections)) {
+        if (content)
+            promptSections[name] = content;
+    }
+    const sections = { preamble: promptSections.preamble };
+    for (const [name, content] of Object.entries(promptSections)) {
+        if (name !== "preamble")
+            sections[name] = `<${name}>\n${content}\n</${name}>`;
+    }
+    return sections;
+}
+/**
+ * The complete prompt state for `input`. A forced prompt is opaque and lives in `content`
+ * with no sections; otherwise `content` is empty and the structured sections carry the prompt.
+ */
+export function buildSystemPromptState(input) {
+    if (input.forceSystemPrompt !== undefined)
+        return { content: input.forceSystemPrompt };
+    return { content: "", sections: buildSystemPromptSections(input) };
+}
+/** Build the system prompt text, rendered exactly as the transcript's system message replays it. */
+export function buildSystemPrompt(input) {
+    return getSystemMessageText({ role: "system", ...buildSystemPromptState(input), timestamp: 0 });
+}
+/**
+ * Diff the sections the model currently has (replayed from the transcript, so never null)
+ * against the desired ones. Returns a `SystemMessage.sections` patch, or undefined when
+ * nothing changed.
+ */
+export function diffSystemPromptSections(previous, current) {
+    const patch = {};
+    for (const [name, text] of Object.entries(current)) {
+        if (previous[name] !== text)
+            patch[name] = text;
+    }
+    for (const name of Object.keys(previous)) {
+        if (current[name] === undefined)
+            patch[name] = null;
+    }
+    return Object.keys(patch).length > 0 ? patch : undefined;
+}
+//# sourceMappingURL=system-prompt.js.map
+
+# --- dist/core/tools/index.js ---
+export { createBashTool, createBashToolDefinition, createLocalBashOperations, } from "./bash.js";
+export { createEditTool, createEditToolDefinition, } from "./edit.js";
+export { withFileMutationQueue } from "./file-mutation-queue.js";
+export { createFindTool, createFindToolDefinition, } from "./find.js";
+export { createGrepTool, createGrepToolDefinition, } from "./grep.js";
+export { createLsTool, createLsToolDefinition, } from "./ls.js";
+export { createLocalPowerShellOperations, createPowerShellTool, createPowerShellToolDefinition, } from "./powershell.js";
+export { createReadTool, createReadToolDefinition, } from "./read.js";
+export { DEFAULT_MAX_BYTES, DEFAULT_MAX_LINES, formatSize, truncateHead, truncateLine, truncateTail, } from "./truncate.js";
+export { createWriteTool, createWriteToolDefinition, } from "./write.js";
+import { createBashTool, createBashToolDefinition } from "./bash.js";
+import { createEditTool, createEditToolDefinition } from "./edit.js";
+import { createFindTool, createFindToolDefinition } from "./find.js";
+import { createGrepTool, createGrepToolDefinition } from "./grep.js";
+import { createLsTool, createLsToolDefinition } from "./ls.js";
+import { createPowerShellTool, createPowerShellToolDefinition } from "./powershell.js";
+import { createReadTool, createReadToolDefinition } from "./read.js";
+import { createWriteTool, createWriteToolDefinition } from "./write.js";
+export const allToolNames = new Set([
+    "read",
+    "bash",
+    "powershell",
+    "edit",
+    "write",
+    "grep",
+    "find",
+    "ls",
+]);
+export function createToolDefinition(toolName, cwd, options) {
+    switch (toolName) {
+        case "read":
+            return createReadToolDefinition(cwd, options?.read);
+        case "bash":
+            return createBashToolDefinition(cwd, options?.bash);
+        case "powershell":
+            return createPowerShellToolDefinition(cwd, options?.powershell);
+        case "edit":
+            return createEditToolDefinition(cwd, options?.edit);
+        case "write":
+            return createWriteToolDefinition(cwd, options?.write);
+        case "grep":
+            return createGrepToolDefinition(cwd, options?.grep);
+        case "find":
+            return createFindToolDefinition(cwd, options?.find);
+        case "ls":
+            return createLsToolDefinition(cwd, options?.ls);
+        default:
+            throw new Error(`Unknown tool name: ${toolName}`);
+    }
+}
+export function createTool(toolName, cwd, options) {
+    switch (toolName) {
+        case "read":
+            return createReadTool(cwd, options?.read);
+        case "bash":
+            return createBashTool(cwd, options?.bash);
+        case "powershell":
+            return createPowerShellTool(cwd, options?.powershell);
+        case "edit":
+            return createEditTool(cwd, options?.edit);
+        case "write":
+            return createWriteTool(cwd, options?.write);
+        case "grep":
+            return createGrepTool(cwd, options?.grep);
+        case "find":
+            return createFindTool(cwd, options?.find);
+        case "ls":
+            return createLsTool(cwd, options?.ls);
+        default:
+            throw new Error(`Unknown tool name: ${toolName}`);
+    }
+}
+export function createCodingToolDefinitions(cwd, options) {
+    return [
+        createReadToolDefinition(cwd, options?.read),
+        createBashToolDefinition(cwd, options?.bash),
+        createEditToolDefinition(cwd, options?.edit),
+        createWriteToolDefinition(cwd, options?.write),
+    ];
+}
+export function createReadOnlyToolDefinitions(cwd, options) {
+    return [
+        createReadToolDefinition(cwd, options?.read),
+        createGrepToolDefinition(cwd, options?.grep),
+        createFindToolDefinition(cwd, options?.find),
+        createLsToolDefinition(cwd, options?.ls),
+    ];
+}
+export function createAllToolDefinitions(cwd, options) {
+    return {
+        read: createReadToolDefinition(cwd, options?.read),
+        bash: createBashToolDefinition(cwd, options?.bash),
+        powershell: createPowerShellToolDefinition(cwd, options?.powershell),
+        edit: createEditToolDefinition(cwd, options?.edit),
+        write: createWriteToolDefinition(cwd, options?.write),
+        grep: createGrepToolDefinition(cwd, options?.grep),
+        find: createFindToolDefinition(cwd, options?.find),
+        ls: createLsToolDefinition(cwd, options?.ls),
+    };
+}
+export function createCodingTools(cwd, options) {
+    return [
+        createReadTool(cwd, options?.read),
+        createBashTool(cwd, options?.bash),
+        createEditTool(cwd, options?.edit),
+        createWriteTool(cwd, options?.write),
+    ];
+}
+export function createReadOnlyTools(cwd, options) {
+    return [
+        createReadTool(cwd, options?.read),
+        createGrepTool(cwd, options?.grep),
+        createFindTool(cwd, options?.find),
+        createLsTool(cwd, options?.ls),
+    ];
+}
+export function createAllTools(cwd, options) {
+    return {
+        read: createReadTool(cwd, options?.read),
+        bash: createBashTool(cwd, options?.bash),
+        powershell: createPowerShellTool(cwd, options?.powershell),
+        edit: createEditTool(cwd, options?.edit),
+        write: createWriteTool(cwd, options?.write),
+        grep: createGrepTool(cwd, options?.grep),
+        find: createFindTool(cwd, options?.find),
+        ls: createLsTool(cwd, options?.ls),
+    };
+}
+//# sourceMappingURL=index.js.map
+
+# --- built-in tool definitions + schemas ---
+
+# tool: bash  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/bash.js
+export function createBashToolDefinition(cwd, options) {
+    return createShellToolDefinition(cwd, bashToolConfig, options);
+}
+
+# tool: edit-diff  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/edit-diff.js
+
+# tool: edit  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/edit.js
+export function createEditToolDefinition(cwd, options) {
+    const ops = options?.operations ?? defaultEditOperations;
+    return {
+        name: "edit",
+        label: "edit",
+        description: "Edit a single file using exact text replacement. Every edits[].oldText must match a unique, non-overlapping region of the original file. If two changes affect the same block or nearby lines, merge them into one edit instead of emitting overlapping edits. Do not include large unchanged regions just to connect distant changes.",
+        promptSnippet: editToolSystemPromptContribution.snippet,
+        promptGuidelines: [...editToolSystemPromptContribution.guidelines],
+        parameters: editSchema,
+        constrainedSampling: { type: "json_schema", strict: "prefer" },
+        renderShell: "self",
+        prepareArguments: prepareEditArguments,
+        async execute(_toolCallId, input, signal, _onUpdate, ctx) {
+            const { path, edits } = validateEditInput(input);
+            const absolutePath = resolveToCwd(path, ctx?.cwd || cwd);
+            return withFileMutationQueue(absolutePath, async () => {
+                // Do not reject from an abort event listener here: that would release the
+                // mutation queue while an in-flight filesystem operation may still finish.
+                // Checking signal.aborted after each await observes the same aborts while
+                // keeping the queue locked until the current operation has settled.
+                const throwIfAborted = () => {
+                    if (signal?.aborted)
+                        throw new Error("Operation aborted");
+                };
+                throwIfAborted();
+                // Check if file exists.
+                try {
+                    await ops.access(absolutePath);
+                }
+                catch (error) {
+                    throwIfAborted();
+                    const errorMessage = error instanceof Error && "code" in error ? `Error code: ${error.code}` : String(error);
+                    throw new Error(`Could not edit file: ${path}. ${errorMessage}.`);
+                }
+                throwIfAborted();
+                // Read the file.
+                const buffer = await ops.readFile(absolutePath);
+                const rawContent = buffer.toString("utf-8");
+                throwIfAborted();
+                // Strip BOM before matching. The model will not include an invisible BOM in oldText.
+                const { bom, text: content } = splitBom(rawContent);
+                const originalEnding = detectLineEnding(content);
+                const normalizedContent = normalizeToLF(content);
+                const { baseContent, newContent } = applyEditsToNormalizedContent(normalizedContent, edits, path);
+                throwIfAborted();
+                const finalContent = bom + restoreLineEndings(newContent, originalEnding);
+                await ops.writeFile(absolutePath, finalContent);
+                throwIfAborted();
+                const diffResult = generateDiffString(baseContent, newContent);
+                const patch = generateUnifiedPatch(path, baseContent, newContent);
+                return {
+                    content: [
+                        {
+                            type: "text",
+                            text: `Successfully replaced ${edits.length} block(s) in ${path}.`,
+                        },
+                    ],
+                    details: { diff: diffResult.diff, patch, firstChangedLine: diffResult.firstChangedLine },
+                };
+            });
+        },
+        ...editRenderers,
+    };
+}
+
+# tool: file-mutation-queue  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/file-mutation-queue.js
+
+# tool: find  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/find.js
+export function createFindToolDefinition(cwd, options) {
+    const customOps = options?.operations;
+    return {
+        name: "find",
+        label: "find",
+        description: `Search for files by glob pattern. Returns matching file paths relative to the search directory. Respects .gitignore. Output is truncated to ${DEFAULT_LIMIT} results or ${DEFAULT_MAX_BYTES / 1024}KB (whichever is hit first).`,
+        promptSnippet: findToolSystemPromptContribution.snippet,
+        parameters: findSchema,
+        async execute(_toolCallId, { pattern, path: searchDir, limit }, signal, _onUpdate, ctx) {
+            return new Promise((resolve, reject) => {
+                if (signal?.aborted) {
+                    reject(new Error("Operation aborted"));
+                    return;
+                }
+                let settled = false;
+                let stopChild;
+                const settle = (fn) => {
+                    if (settled)
+                        return;
+                    settled = true;
+                    signal?.removeEventListener("abort", onAbort);
+                    stopChild = undefined;
+                    fn();
+                };
+                const onAbort = () => {
+                    stopChild?.();
+                    settle(() => reject(new Error("Operation aborted")));
+                };
+                signal?.addEventListener("abort", onAbort, { once: true });
+                (async () => {
+                    try {
+                        const searchPath = resolveToCwd(searchDir || ".", ctx?.cwd || cwd);
+                        const effectiveLimit = limit ?? DEFAULT_LIMIT;
+                        const ops = customOps ?? defaultFindOperations;
+                        // If custom operations provide glob(), use that instead of fd.
+                        if (customOps?.glob) {
+                            if (!(await ops.exists(searchPath))) {
+                                settle(() => reject(new Error(`Path not found: ${searchPath}`)));
+                                return;
+                            }
+                            if (signal?.aborted) {
+                                settle(() => reject(new Error("Operation aborted")));
+                                return;
+                            }
+                            const results = await ops.glob(pattern, searchPath, {
+                                ignore: ["**/node_modules/**", "**/.git/**"],
+                                limit: effectiveLimit,
+                            });
+                            if (signal?.aborted) {
+                                settle(() => reject(new Error("Operation aborted")));
+                                return;
+                            }
+                            if (results.length === 0) {
+                                settle(() => resolve({
+                                    content: [{ type: "text", text: "No files found matching pattern" }],
+                                    details: undefined,
+                                }));
+                                return;
+                            }
+                            // Relativize paths against the search root for stable output.
+                            const relativized = results.map((p) => relativizeFindResultPath(p, searchPath));
+                            const resultLimitReached = relativized.length >= effectiveLimit;
+                            const rawOutput = relativized.join("\n");
+                            const truncation = truncateHead(rawOutput, { maxLines: Number.MAX_SAFE_INTEGER });
+                            let resultOutput = truncation.content;
+                            const details = {};
+                            const notices = [];
+                            if (resultLimitReached) {
+                                notices.push(`${effectiveLimit} results limit reached`);
+                                details.resultLimitReached = effectiveLimit;
+                            }
+                            if (truncation.truncated) {
+                                notices.push(`${formatSize(DEFAULT_MAX_BYTES)} limit reached`);
+                                details.truncation = truncation;
+                            }
+                            if (notices.length > 0) {
+                                resultOutput += `\n\n[${notices.join(". ")}]`;
+                            }
+                            settle(() => resolve({
+                                content: [{ type: "text", text: resultOutput }],
+                                details: Object.keys(details).length > 0 ? details : undefined,
+                            }));
+                            return;
+                        }
+                        // Default implementation uses fd.
+                        const fdPath = await ensureTool("fd");
+                        if (signal?.aborted) {
+                            settle(() => reject(new Error("Operation aborted")));
+                            return;
+                        }
+                        if (!fdPath) {
+                            settle(() => reject(new Error("fd is not available and could not be downloaded")));
+                            return;
+                        }
+                        const args = ["--glob", "--color=never", "--hidden"];
+                        // fd normally ignores .gitignore outside git repos, so keep --no-require-git
+                        // there. Inside repos, use fd's default git-aware behavior so parent
+                        // .gitignore rules stop at nested repo boundaries:
+                        // https://github.com/earendil-works/pi/issues/5960
+                        let insideGitRepo = false;
+                        for (let current = searchPath;;) {
+                            if (await pathExists(path.join(current, ".git"))) {
+                                insideGitRepo = true;
+                                break;
+                            }
+                            const parent = path.dirname(current);
+                            if (parent === current)
+                                break;
+                            current = parent;
+                        }
+                        if (!insideGitRepo)
+                            args.push("--no-require-git");
+                        args.push("--max-results", String(effectiveLimit));
+                        // fd --glob matches against the basename unless --full-path is set; in --full-path
+                        // mode it matches against the absolute candidate path, so a path-containing
+                        // pattern like 'src/**/*.spec.ts' needs a leading '**/' to match anything.
+                        let effectivePattern = pattern;
+                        if (pattern.includes("/")) {
+                            args.push("--full-path");
+                            if (!pattern.startsWith("/") && !pattern.startsWith("**/") && pattern !== "**") {
+                                effectivePattern = `**/${pattern}`;
+                            }
+                            // fd matches full paths using native separators on Windows.
+                            if (process.platform === "win32")
+                                effectivePattern = effectivePattern.replaceAll("/", String.raw `[/\\]`);
+                        }
+                        args.push("--", effectivePattern, searchPath);
+                        const child = spawn(fdPath, args, { stdio: ["ignore", "pipe", "pipe"] });
+                        const rl = createInterface({ input: child.stdout });
+                        let stderr = "";
+                        const lines = [];
+                        stopChild = () => {
+                            if (!child.killed) {
+                                child.kill();
+                            }
+                        };
+                        const cleanup = () => {
+                            rl.close();
+                        };
+                        child.stderr?.on("data", (chunk) => {
+                            stderr += chunk.toString();
+                        });
+                        rl.on("line", (line) => {
+                            lines.push(line);
+                        });
+                        child.on("error", (error) => {
+                            cleanup();
+                            settle(() => reject(new Error(`Failed to run fd: ${error.message}`)));
+                        });
+                        child.on("close", (code) => {
+                            cleanup();
+                            if (signal?.aborted) {
+                                settle(() => reject(new Error("Operation aborted")));
+                                return;
+                            }
+                            const output = lines.join("\n");
+                            if (code !== 0) {
+                                const errorMsg = stderr.trim() || `fd exited with code ${code}`;
+                                if (!output) {
+                                    settle(() => reject(new Error(errorMsg)));
+                                    return;
+                                }
+                            }
+                            if (!output) {
+                                settle(() => resolve({
+                                    content: [{ type: "text", text: "No files found matching pattern" }],
+                                    details: undefined,
+                                }));
+                                return;
+                            }
+                            const relativized = [];
+                            for (const rawLine of lines) {
+                                const line = rawLine.replace(/\r$/, "").trim();
+                                if (!line)
+                                    continue;
+                                relativized.push(relativizeFindResultPath(line, searchPath));
+                            }
+                            const resultLimitReached = relativized.length >= effectiveLimit;
+                            const rawOutput = relativized.join("\n");
+                            const truncation = truncateHead(rawOutput, { maxLines: Number.MAX_SAFE_INTEGER });
+                            let resultOutput = truncation.content;
+                            const details = {};
+                            const notices = [];
+                            if (resultLimitReached) {
+                                notices.push(`${effectiveLimit} results limit reached. Use limit=${effectiveLimit * 2} for more, or refine pattern`);
+                                details.resultLimitReached = effectiveLimit;
+                            }
+                            if (truncation.truncated) {
+                                notices.push(`${formatSize(DEFAULT_MAX_BYTES)} limit reached`);
+                                details.truncation = truncation;
+                            }
+                            if (notices.length > 0) {
+                                resultOutput += `\n\n[${notices.join(". ")}]`;
+                            }
+                            settle(() => resolve({
+                                content: [{ type: "text", text: resultOutput }],
+                                details: Object.keys(details).length > 0 ? details : undefined,
+                            }));
+                        });
+                    }
+                    catch (e) {
+                        if (signal?.aborted) {
+                            settle(() => reject(new Error("Operation aborted")));
+                            return;
+                        }
+                        const error = e instanceof Error ? e : new Error(String(e));
+                        settle(() => reject(error));
+                    }
+                })();
+            });
+        },
+        ...findRenderers,
+    };
+}
+
+# tool: grep  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/grep.js
+export function createGrepToolDefinition(cwd, options) {
+    const customOps = options?.operations;
+    return {
+        name: "grep",
+        label: "grep",
+        description: `Search file contents for a pattern. Returns matching lines with file paths and line numbers. Respects .gitignore. Output is truncated to ${DEFAULT_LIMIT} matches or ${DEFAULT_MAX_BYTES / 1024}KB (whichever is hit first). Long lines are truncated to ${GREP_MAX_LINE_LENGTH} chars.`,
+        promptSnippet: grepToolSystemPromptContribution.snippet,
+        parameters: grepSchema,
+        async execute(_toolCallId, { pattern, path: searchDir, glob, ignoreCase, literal, context, limit, }, signal, _onUpdate, ctx) {
+            return new Promise((resolve, reject) => {
+                if (signal?.aborted) {
+                    reject(new Error("Operation aborted"));
+                    return;
+                }
+                let settled = false;
+                const settle = (fn) => {
+                    if (!settled) {
+                        settled = true;
+                        fn();
+                    }
+                };
+                (async () => {
+                    try {
+                        const rgPath = await ensureTool("rg");
+                        if (!rgPath) {
+                            settle(() => reject(new Error("ripgrep (rg) is not available and could not be downloaded")));
+                            return;
+                        }
+                        const searchPath = resolveToCwd(searchDir || ".", ctx?.cwd || cwd);
+                        const ops = customOps ?? defaultGrepOperations;
+                        let isDirectory;
+                        try {
+                            isDirectory = await ops.isDirectory(searchPath);
+                        }
+                        catch {
+                            settle(() => reject(new Error(`Path not found: ${searchPath}`)));
+                            return;
+                        }
+                        const contextValue = context && context > 0 ? context : 0;
+                        const effectiveLimit = Math.max(1, limit ?? DEFAULT_LIMIT);
+                        const formatPath = (filePath) => {
+                            if (isDirectory) {
+                                const relative = path.relative(searchPath, filePath);
+                                if (relative && !relative.startsWith("..")) {
+                                    return relative.replace(/\\/g, "/");
+                                }
+                            }
+                            return path.basename(filePath);
+                        };
+                        const fileCache = new Map();
+                        const getFileLines = async (filePath) => {
+                            let lines = fileCache.get(filePath);
+                            if (!lines) {
+                                try {
+                                    const content = await ops.readFile(filePath);
+                                    lines = content.replace(/\r\n/g, "\n").replace(/\r/g, "\n").split("\n");
+                                }
+                                catch {
+                                    lines = [];
+                                }
+                                fileCache.set(filePath, lines);
+                            }
+                            return lines;
+                        };
+                        const args = ["--json", "--line-number", "--color=never", "--hidden"];
+                        if (ignoreCase)
+                            args.push("--ignore-case");
+                        if (literal)
+                            args.push("--fixed-strings");
+                        if (glob)
+                            args.push("--glob", glob);
+                        args.push("--", pattern, searchPath);
+                        const child = spawn(rgPath, args, { stdio: ["ignore", "pipe", "pipe"] });
+                        const rl = createInterface({ input: child.stdout });
+                        let stderr = "";
+                        let matchCount = 0;
+                        let matchLimitReached = false;
+                        let linesTruncated = false;
+                        let aborted = false;
+                        let killedDueToLimit = false;
+                        const outputLines = [];
+                        const cleanup = () => {
+                            rl.close();
+                            signal?.removeEventListener("abort", onAbort);
+                        };
+                        const stopChild = (dueToLimit = false) => {
+                            if (!child.killed) {
+                                killedDueToLimit = dueToLimit;
+                                child.kill();
+                            }
+                        };
+                        const onAbort = () => {
+                            aborted = true;
+                            stopChild();
+                        };
+                        signal?.addEventListener("abort", onAbort, { once: true });
+                        child.stderr?.on("data", (chunk) => {
+                            stderr += chunk.toString();
+                        });
+                        const formatBlock = async (filePath, lineNumber) => {
+                            const relativePath = formatPath(filePath);
+                            const lines = await getFileLines(filePath);
+                            if (!lines.length)
+                                return [`${relativePath}:${lineNumber}: (unable to read file)`];
+                            const block = [];
+                            const start = contextValue > 0 ? Math.max(1, lineNumber - contextValue) : lineNumber;
+                            const end = contextValue > 0 ? Math.min(lines.length, lineNumber + contextValue) : lineNumber;
+                            for (let current = start; current <= end; current++) {
+                                const lineText = lines[current - 1] ?? "";
+                                const sanitized = lineText.replace(/\r/g, "");
+                                const isMatchLine = current === lineNumber;
+                                // Truncate long lines so grep output stays compact.
+                                const { text: truncatedText, wasTruncated } = truncateLine(sanitized);
+                                if (wasTruncated)
+                                    linesTruncated = true;
+                                if (isMatchLine)
+                                    block.push(`${relativePath}:${current}: ${truncatedText}`);
+                                else
+                                    block.push(`${relativePath}-${current}- ${truncatedText}`);
+                            }
+                            return block;
+                        };
+                        // Collect matches during streaming, then format them after rg exits.
+                        const matches = [];
+                        rl.on("line", (line) => {
+                            if (!line.trim() || matchCount >= effectiveLimit)
+                                return;
+                            let event;
+                            try {
+                                event = JSON.parse(line);
+                            }
+                            catch {
+                                return;
+                            }
+                            if (event.type === "match") {
+                                matchCount++;
+                                const filePath = event.data?.path?.text;
+                                const lineNumber = event.data?.line_number;
+                                const lineText = event.data?.lines?.text;
+                                if (filePath && typeof lineNumber === "number")
+                                    matches.push({ filePath, lineNumber, lineText });
+                                if (matchCount >= effectiveLimit) {
+                                    matchLimitReached = true;
+                                    stopChild(true);
+                                }
+                            }
+                        });
+                        child.on("error", (error) => {
+                            cleanup();
+                            settle(() => reject(new Error(`Failed to run ripgrep: ${error.message}`)));
+                        });
+                        child.on("close", async (code) => {
+                            cleanup();
+                            if (aborted) {
+                                settle(() => reject(new Error("Operation aborted")));
+                                return;
+                            }
+                            if (!killedDueToLimit && code !== 0 && code !== 1) {
+                                const errorMsg = stderr.trim() || `ripgrep exited with code ${code}`;
+                                settle(() => reject(new Error(errorMsg)));
+                                return;
+                            }
+                            if (matchCount === 0) {
+                                settle(() => resolve({ content: [{ type: "text", text: "No matches found" }], details: undefined }));
+                                return;
+                            }
+                            // Format matches after streaming finishes so custom readFile() backends can be async.
+                            for (const match of matches) {
+                                if (contextValue === 0 && match.lineText !== undefined) {
+                                    const relativePath = formatPath(match.filePath);
+                                    const sanitized = match.lineText
+                                        .replace(/\r\n/g, "\n")
+                                        .replace(/\r/g, "")
+                                        .replace(/\n$/, "");
+                                    const { text: truncatedText, wasTruncated } = truncateLine(sanitized);
+                                    if (wasTruncated)
+                                        linesTruncated = true;
+                                    outputLines.push(`${relativePath}:${match.lineNumber}: ${truncatedText}`);
+                                }
+                                else {
+                                    const block = await formatBlock(match.filePath, match.lineNumber);
+                                    outputLines.push(...block);
+                                }
+                            }
+                            const rawOutput = outputLines.join("\n");
+                            // Apply byte truncation. There is no line limit here because the match limit already capped rows.
+                            const truncation = truncateHead(rawOutput, { maxLines: Number.MAX_SAFE_INTEGER });
+                            let output = truncation.content;
+                            const details = {};
+                            // Build actionable notices for truncation and match limits.
+                            const notices = [];
+                            if (matchLimitReached) {
+                                notices.push(`${effectiveLimit} matches limit reached. Use limit=${effectiveLimit * 2} for more, or refine pattern`);
+                                details.matchLimitReached = effectiveLimit;
+                            }
+                            if (truncation.truncated) {
+                                notices.push(`${formatSize(DEFAULT_MAX_BYTES)} limit reached`);
+                                details.truncation = truncation;
+                            }
+                            if (linesTruncated) {
+                                notices.push(`Some lines truncated to ${GREP_MAX_LINE_LENGTH} chars. Use read tool to see full lines`);
+                                details.linesTruncated = true;
+                            }
+                            if (notices.length > 0)
+                                output += `\n\n[${notices.join(". ")}]`;
+                            settle(() => resolve({
+                                content: [{ type: "text", text: output }],
+                                details: Object.keys(details).length > 0 ? details : undefined,
+                            }));
+                        });
+                    }
+                    catch (err) {
+                        settle(() => reject(err));
+                    }
+                })();
+            });
+        },
+        ...grepRenderers,
+    };
+}
+
+# tool: ls  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/ls.js
+export function createLsToolDefinition(cwd, options) {
+    const ops = options?.operations ?? defaultLsOperations;
+    return {
+        name: "ls",
+        label: "ls",
+        description: `List directory contents. Returns entries sorted alphabetically, with '/' suffix for directories. Includes dotfiles. Output is truncated to ${DEFAULT_LIMIT} entries or ${DEFAULT_MAX_BYTES / 1024}KB (whichever is hit first).`,
+        promptSnippet: lsToolSystemPromptContribution.snippet,
+        parameters: lsSchema,
+        async execute(_toolCallId, { path, limit }, signal, _onUpdate, ctx) {
+            return new Promise((resolve, reject) => {
+                if (signal?.aborted) {
+                    reject(new Error("Operation aborted"));
+                    return;
+                }
+                const onAbort = () => reject(new Error("Operation aborted"));
+                signal?.addEventListener("abort", onAbort, { once: true });
+                (async () => {
+                    try {
+                        const dirPath = resolveToCwd(path || ".", ctx?.cwd || cwd);
+                        const effectiveLimit = limit ?? DEFAULT_LIMIT;
+                        // Check if path exists.
+                        if (!(await ops.exists(dirPath))) {
+                            reject(new Error(`Path not found: ${dirPath}`));
+                            return;
+                        }
+                        // Check if path is a directory.
+                        const stat = await ops.stat(dirPath);
+                        if (!stat.isDirectory()) {
+                            reject(new Error(`Not a directory: ${dirPath}`));
+                            return;
+                        }
+                        // Read directory entries.
+                        let entries;
+                        try {
+                            entries = await ops.readdir(dirPath);
+                        }
+                        catch (e) {
+                            reject(new Error(`Cannot read directory: ${e.message}`));
+                            return;
+                        }
+                        // Sort alphabetically, case-insensitive.
+                        entries.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+                        // Format entries with directory indicators.
+                        const results = [];
+                        let entryLimitReached = false;
+                        for (const entry of entries) {
+                            if (results.length >= effectiveLimit) {
+                                entryLimitReached = true;
+                                break;
+                            }
+                            const fullPath = nodePath.join(dirPath, entry);
+                            let suffix = "";
+                            try {
+                                const entryStat = await ops.stat(fullPath);
+                                if (entryStat.isDirectory())
+                                    suffix = "/";
+                            }
+                            catch {
+                                // Skip entries we cannot stat.
+                                continue;
+                            }
+                            results.push(entry + suffix);
+                        }
+                        signal?.removeEventListener("abort", onAbort);
+                        if (results.length === 0) {
+                            resolve({ content: [{ type: "text", text: "(empty directory)" }], details: undefined });
+                            return;
+                        }
+                        const rawOutput = results.join("\n");
+                        // Apply byte truncation. There is no separate line limit because entry count is already capped.
+                        const truncation = truncateHead(rawOutput, { maxLines: Number.MAX_SAFE_INTEGER });
+                        let output = truncation.content;
+                        const details = {};
+                        // Build actionable notices for truncation and entry limits.
+                        const notices = [];
+                        if (entryLimitReached) {
+                            notices.push(`${effectiveLimit} entries limit reached. Use limit=${effectiveLimit * 2} for more`);
+                            details.entryLimitReached = effectiveLimit;
+                        }
+                        if (truncation.truncated) {
+                            notices.push(`${formatSize(DEFAULT_MAX_BYTES)} limit reached`);
+                            details.truncation = truncation;
+                        }
+                        if (notices.length > 0) {
+                            output += `\n\n[${notices.join(". ")}]`;
+                        }
+                        resolve({
+                            content: [{ type: "text", text: output }],
+                            details: Object.keys(details).length > 0 ? details : undefined,
+                        });
+                    }
+                    catch (e) {
+                        signal?.removeEventListener("abort", onAbort);
+                        reject(e);
+                    }
+                })();
+            });
+        },
+        ...lsRenderers,
+    };
+}
+
+# tool: output-accumulator  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/output-accumulator.js
+
+# tool: powershell  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/powershell.js
+
+# tool: read  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/read.js
+export function createReadToolDefinition(cwd, options) {
+    const autoResizeImages = options?.autoResizeImages ?? true;
+    const ops = options?.operations ?? defaultReadOperations;
+    return {
+        name: "read",
+        label: "read",
+        description: `Read the contents of a file. Supports text files and images (jpg, png, gif, webp, bmp). Images are sent as attachments. For text files, output is truncated to ${DEFAULT_MAX_LINES} lines or ${DEFAULT_MAX_BYTES / 1024}KB (whichever is hit first). Use offset/limit for large files. When you need the full file, continue with offset until complete.`,
+        promptSnippet: readToolSystemPromptContribution.snippet,
+        promptGuidelines: [...readToolSystemPromptContribution.guidelines],
+        parameters: readSchema,
+        constrainedSampling: { type: "json_schema", strict: "prefer" },
+        async execute(_toolCallId, { path, offset, limit }, signal, _onUpdate, ctx) {
+            return new Promise((resolve, reject) => {
+                if (signal?.aborted) {
+                    reject(new Error("Operation aborted"));
+                    return;
+                }
+                let aborted = false;
+                const onAbort = () => {
+                    aborted = true;
+                    reject(new Error("Operation aborted"));
+                };
+                signal?.addEventListener("abort", onAbort, { once: true });
+                (async () => {
+                    try {
+                        const absolutePath = await resolveReadPathAsync(path, ctx?.cwd || cwd);
+                        if (aborted)
+                            return;
+                        // Check if file exists and is readable.
+                        await ops.access(absolutePath);
+                        if (aborted)
+                            return;
+                        const mimeType = ops.detectImageMimeType ? await ops.detectImageMimeType(absolutePath) : undefined;
+                        let content;
+                        let details;
+                        const nonVisionImageNote = getNonVisionImageNote(ctx?.model);
+                        if (mimeType) {
+                            // Read image as binary.
+                            const buffer = await ops.readFile(absolutePath);
+                            const processed = await processImage(buffer, mimeType, { autoResizeImages });
+                            if (!processed.ok) {
+                                let textNote = `Read image file [${mimeType}]\n${processed.message}`;
+                                if (nonVisionImageNote)
+                                    textNote += `\n${nonVisionImageNote}`;
+                                content = [{ type: "text", text: textNote }];
+                            }
+                            else {
+                                let textNote = `Read image file [${processed.mimeType}]`;
+                                if (processed.hints.length > 0)
+                                    textNote += `\n${processed.hints.join("\n")}`;
+                                if (nonVisionImageNote)
+                                    textNote += `\n${nonVisionImageNote}`;
+                                content = [
+                                    { type: "text", text: textNote },
+                                    { type: "image", data: processed.data, mimeType: processed.mimeType },
+                                ];
+                            }
+                        }
+                        else {
+                            // Read text content.
+                            const buffer = await ops.readFile(absolutePath);
+                            const textContent = buffer.toString("utf-8");
+                            const allLines = textContent.split("\n");
+                            const totalFileLines = allLines.length;
+                            // Apply offset if specified. Convert from 1-indexed input to 0-indexed array access.
+                            const startLine = offset ? Math.max(0, offset - 1) : 0;
+                            const startLineDisplay = startLine + 1;
+                            // Check if offset is out of bounds.
+                            if (startLine >= allLines.length) {
+                                throw new Error(`Offset ${offset} is beyond end of file (${allLines.length} lines total)`);
+                            }
+                            let selectedContent;
+                            let userLimitedLines;
+                            // If limit is specified by the user, honor it first. Otherwise truncateHead decides.
+                            if (limit !== undefined) {
+                                const endLine = Math.min(startLine + limit, allLines.length);
+                                selectedContent = allLines.slice(startLine, endLine).join("\n");
+                                userLimitedLines = endLine - startLine;
+                            }
+                            else {
+                                selectedContent = allLines.slice(startLine).join("\n");
+                            }
+                            // Apply truncation, respecting both line and byte limits.
+                            const truncation = truncateHead(selectedContent);
+                            let outputText;
+                            if (truncation.firstLineExceedsLimit) {
+                                // First line alone exceeds the byte limit. Point the model at a bash fallback.
+                                const firstLineSize = formatSize(Buffer.byteLength(allLines[startLine], "utf-8"));
+                                outputText = `[Line ${startLineDisplay} is ${firstLineSize}, exceeds ${formatSize(DEFAULT_MAX_BYTES)} limit. Use bash: sed -n '${startLineDisplay}p' ${path} | head -c ${DEFAULT_MAX_BYTES}]`;
+                                details = { truncation };
+                            }
+                            else if (truncation.truncated) {
+                                // Truncation occurred. Build an actionable continuation notice.
+                                const endLineDisplay = startLineDisplay + truncation.outputLines - 1;
+                                const nextOffset = endLineDisplay + 1;
+                                outputText = truncation.content;
+                                if (truncation.truncatedBy === "lines") {
+                                    outputText += `\n\n[Showing lines ${startLineDisplay}-${endLineDisplay} of ${totalFileLines}. Use offset=${nextOffset} to continue.]`;
+                                }
+                                else {
+                                    outputText += `\n\n[Showing lines ${startLineDisplay}-${endLineDisplay} of ${totalFileLines} (${formatSize(DEFAULT_MAX_BYTES)} limit). Use offset=${nextOffset} to continue.]`;
+                                }
+                                details = { truncation };
+                            }
+                            else if (userLimitedLines !== undefined && startLine + userLimitedLines < allLines.length) {
+                                // User-specified limit stopped early, but the file still has more content.
+                                const remaining = allLines.length - (startLine + userLimitedLines);
+                                const nextOffset = startLine + userLimitedLines + 1;
+                                outputText = `${truncation.content}\n\n[${remaining} more lines in file. Use offset=${nextOffset} to continue.]`;
+                            }
+                            else {
+                                // No truncation and no remaining user-limited content.
+                                outputText = truncation.content;
+                            }
+                            content = [{ type: "text", text: outputText }];
+                        }
+                        if (aborted)
+                            return;
+                        signal?.removeEventListener("abort", onAbort);
+                        resolve({ content, details });
+                    }
+                    catch (error) {
+                        signal?.removeEventListener("abort", onAbort);
+                        if (!aborted)
+                            reject(error);
+                    }
+                })();
+            });
+        },
+        ...readRenderers,
+    };
+}
+
+# tool: render-utils  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/render-utils.js
+
+# tool: write  file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/write.js
+export function createWriteToolDefinition(cwd, options) {
+    const ops = options?.operations ?? defaultWriteOperations;
+    return {
+        name: "write",
+        label: "write",
+        description: "Write content to a file. Creates the file if it doesn't exist, overwrites if it does. Automatically creates parent directories.",
+        promptSnippet: writeToolSystemPromptContribution.snippet,
+        promptGuidelines: [...writeToolSystemPromptContribution.guidelines],
+        parameters: writeSchema,
+        constrainedSampling: { type: "json_schema", strict: "prefer" },
+        async execute(_toolCallId, { path, content }, signal, _onUpdate, ctx) {
+            const absolutePath = resolveToCwd(path, ctx?.cwd || cwd);
+            const dir = dirname(absolutePath);
+            return withFileMutationQueue(absolutePath, async () => {
+                // Do not reject from an abort event listener here: that would release the
+                // mutation queue while an in-flight filesystem operation may still finish.
+                // Checking signal.aborted after each await observes the same aborts while
+                // keeping the queue locked until the current operation has settled.
+                const throwIfAborted = () => {
+                    if (signal?.aborted)
+                        throw new Error("Operation aborted");
+                };
+                throwIfAborted();
+                // Create parent directories if needed.
+                await ops.mkdir(dir);
+                throwIfAborted();
+                // Write the file contents.
+                await ops.writeFile(absolutePath, content);
+                throwIfAborted();
+                return {
+                    content: [{ type: "text", text: `Successfully wrote to ${path}` }],
+                    details: undefined,
+                };
+            });
+        },
+        ...writeRenderers,
+    };
+}
