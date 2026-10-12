@@ -35,8 +35,8 @@ sandbox's tap gets one extra route:
   if it is about to expire, the tick fails until `codex` has been run once.
 
 Worker calls don't count against `cloud_calls_per_day`. When the worker or advisor
-hits a subscription rate limit, the loop pauses (up to an hour, using the
-`retry_after` it is given), and the failed session doesn't count as a round.
+hits a subscription rate limit, the loop pauses (up to 4 hours, using the
+wait the error names), and the failed session doesn't count as a round.
 
 History: Bonsai was the worker until 2026-10-12 and mostly failed to end its sessions
 (timeouts, context overflows, cut-off replies). Then `meridian/claude-sonnet-5-5`

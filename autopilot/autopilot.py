@@ -192,8 +192,12 @@ class RateLimited(Exception):
 def check_rate_limit(e, role):
     hits = [x for x in e["errors"] if re.search(r"rate.?limit|usage.?limit|\b429\b", str(x), re.I)]
     if hits:
-        m = re.search(r"retry.?after\D{0,4}(\d+)", str(hits[-1]), re.I)
-        raise RateLimited(role, int(m.group(1)) if m else 1800)
+        msg = str(hits[-1])
+        if m := re.search(r"retry.?after\D{0,4}(\d+)", msg, re.I):
+            raise RateLimited(role, int(m.group(1)))
+        if m := re.search(r"try again in\W{0,3}(\d+)\s*(s|min|h)", msg, re.I):  # Codex: "Try again in ~111 min."
+            raise RateLimited(role, int(m.group(1)) * {"s": 1, "min": 60, "h": 3600}[m.group(2).lower()] + 60)
+        raise RateLimited(role, 1800)
 
 
 # ---- model calls ----
@@ -914,7 +918,7 @@ def tick():
         return "budget"
     except RateLimited as e:
         global RATE_WAIT
-        RATE_WAIT = min(max(e.wait, 300), 3600)
+        RATE_WAIT = min(max(e.wait, 300), 4 * 3600)
         m.journal("orchestrator", f"The {e.role}'s subscription hit its rate limit; pausing "
                   f"{RATE_WAIT // 60} min. This session doesn't count as a round.")
         commit(f"autopilot({m.name}): rate limited")
