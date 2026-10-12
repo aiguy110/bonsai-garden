@@ -358,3 +358,51 @@ same algorithm, shorter lookup and much shorter drafts, to cut the cost of rejec
 when both slots share the GPU, and to start drafting on shorter repeats. I keep one type
 so the difference from A is only the draft-size knobs. (ngram-map-k/simple were not
 chosen: their 12/48 defaults have the same long-draft cost.) Not yet measured.
+
+### 9b. Corrected greedy summary, off vs A vs B (round 4)
+
+Table: `results/2026-10-12/m1-ngram/replay/summary-greedy.md` (made by `bench/spec_analyze.py`).
+fg tok/s is sum(predicted_n)/sum(predicted_ms); "no-length" drops finish_reason=length rows.
+The earlier §9 reading of A's single-agent 86.0 tok/s as a gain is wrong.
+
+- A single-agent 86.0 comes from three length rows (baseline-r1/2/8, mem0-r0/0/2, mem0-r2/0/2).
+  Off finished mem0-r0/0/2 and mem0-r2/0/2 normally with tool_calls (1020 and 3701 tokens);
+  under A they ran to max_tokens in loops (draft acceptance ~95%). Without length rows A is
+  54.3 vs off 56.2 tok/s. Loops caused by spec are a quality regression, not a speedup.
+- No arm beats off anywhere without loops: single-mem 55.6 / 53.1 (A) / 50.7 (B); dual-agent
+  26.3 / 26.1 no-length (A) / 23.0 (B); dual-mem 25.0 / 23.8 / 22.4. B's acceptance is higher
+  (single-agent 1194/2757, dual-agent 679/1562) but short drafts do not pay for the verify cost.
+- Output identity: only off-vs-itself is trivially 30/30. Even with draft_n 0, baseline-r0/0/0
+  differs (530c... off vs cdad... A; f20f... B), so enabling spec changes greedy numerics by
+  itself. Same-sha share vs off: single-agent A 3/30, B 2/30; single-mem 10/12 both; dual-agent
+  0/30 both (dual mismatch expected even for off, see standing facts); dual-mem 11/12 both.
+- 'restore checkpoint' lines in the A/B server logs: 0 in every phase, so no checkpointed
+  rollback was exercised (or it is not logged at default verbosity).
+- Prod-sampling arm pick: highest dual-agent greedy fg tok/s is A (25.5 vs B 23.0), and it is
+  also A with length rows excluded (26.1 vs 23.0). So prod runs: off, then A.
+- Combined two-slot throughput over phase wall time was not recorded in the A/B/off runs;
+  spec_replay.py now notes `fg wall_s` per phase, so prod runs have it (bg rows are in
+  requests.jsonl).
+
+### 9b. Corrected greedy summary, off vs A vs B (round 4)
+
+Table: `results/2026-10-12/m1-ngram/replay/summary-greedy.md` (made by `bench/spec_analyze.py`).
+fg tok/s is sum(predicted_n)/sum(predicted_ms); "no-length" drops finish_reason=length rows.
+The earlier §9 reading of A's single-agent 86.0 tok/s as a gain is wrong.
+
+- A single-agent 86.0 comes from three length rows (baseline-r1/2/8, mem0-r0/0/2, mem0-r2/0/2).
+  Off finished mem0-r0/0/2 and mem0-r2/0/2 normally with tool_calls (1020 and 3701 tokens);
+  under A they ran to max_tokens in loops. Without length rows A is 54.3 vs off 56.2 tok/s.
+  Loops caused by spec are a quality regression, not a speedup.
+- No arm beats off anywhere without loops: single-mem 55.6 / 53.1 (A) / 50.7 (B); dual-agent
+  26.3 / 26.1 no-length (A) / 23.0 (B); dual-mem 25.0 / 23.8 / 22.4. B accepts more
+  (single-agent 1194/2757, dual-agent 679/1562) but short drafts do not pay for verification.
+- Output identity: enabling spec changes greedy numerics even with draft_n 0
+  (baseline-r0/0/0: 530c... off vs cdad... A vs f20f... B). Same-sha share vs off:
+  single-agent A 3/30, B 2/30; single-mem 10/12 both; dual-agent 0/30 both (dual mismatch is
+  expected even for off, see standing facts); dual-mem 11/12 both.
+- 'restore checkpoint' lines in A/B server logs: 0 in every phase.
+- Prod-sampling pick: highest dual-agent greedy fg tok/s is A (25.5 vs B 23.0), also with
+  length rows excluded (26.1 vs 23.0). Prod runs: off, then A.
+- Combined two-slot throughput over wall time was not recorded for off/A/B greedy;
+  spec_replay.py now notes `fg wall_s` per phase, so prod runs have it.

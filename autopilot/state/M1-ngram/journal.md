@@ -862,3 +862,39 @@ result ok None
 2026-10-12 09:32:59,218 released lease e99c2d554185f101d95d53053967be09
 
 ```
+
+### 2026-10-12T09:34:33-04:00 · worker (claude-sonnet-5-5), round 4
+
+B/greedy done. Fg tok/s with no length rows: B is slower than off in every phase (single-agent 55.0 vs 56.2, dual-agent 23.0 vs 26.3). A's 86.0 single-agent comes from two spec-induced greedy loops, so there is no real gain. A is the better spec arm on dual-agent greedy (25.5 vs B 23.0). Wrote bench/spec_analyze.py, summary-greedy.md and m1-notes §9b. spec_replay.py now records fg wall_s per phase. Next: off/prod now, then A/prod.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "off-prod baseline replay (prod sampling), 4 phases on fresh servers."
+}
+```
+
+### 2026-10-12T09:35:25-04:00 · advisor (run request)
+
+**approve**: Safe to run: private :8089 server from the production yaml, stale-server check, writes only under the repo; prod sampling params match the item. Fixes before or alongside the A/prod run: (1) bench/m1-notes.md has §9b duplicated (lines 362 and 387); delete one. (2) §9b says A's 86.0 'comes from three length rows'; only mem0-r0/0/2 and mem0-r2/0/2 drive it (baseline-r1/2/8 had draft_n 0, ran at 48.8 tok/s and is also a length row with spec off). (3) fg wall_s is taken before stop.set()/th.join(), so the in-flight bg request's tokens fall outside the window and bg tokens / fg wall_s overcounts. Log bg-join time too (or a per-row end timestamp and count only bg rows that finished before fg ended), and have spec_analyze.py print combined fg+bg tok/s over wall time per phase, since that is the decision metric for 'both slots busy'. (4) For prod runs, out_sha256 identity vs off is meaningless (temperature 1.0); report fg tok/s with and without length rows, draft acceptance, length rows, combined throughput and tool_call_json_valid failures, and check whether A still loops on mem0-r0/0/2 and mem0-r2/0/2 under sampling. (5) In a no-deploy decision, also state that spec changes greedy outputs even with zero drafts and that image input with spec on is untested (has_embd throw).
+
+### 2026-10-12T09:35:25-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/spec_replay.py phase() records fg wall_s before stop.set()/th.join(), so bg tokens from the request in flight when fg ends complete outside that window; combined two-slot throughput must use a window that includes the bg join, or exclude bg rows that finished after fg ended.
+
+### 2026-10-12T09:53:52-04:00 · orchestrator
+
+Ran `python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod` (gpu=True) in 1107s, exit 0. Full output: `bench/results/2026-10-12/autopilot/spec-replay-r4.log`. Last lines:
+
+```
+2026-10-12 09:35:26,345 turnstile lease 13de840acf135063892f0ce03c3f615a granted after 0s
+2026-10-12 09:35:26,346 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod
+result ok None
+2026-10-12 09:53:52,274 released lease 13de840acf135063892f0ce03c3f615a
+
+```

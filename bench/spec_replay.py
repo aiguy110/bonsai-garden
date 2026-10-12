@@ -235,8 +235,10 @@ class Run:
             th = threading.Thread(target=loop, daemon=True) if bg else None
             if th:
                 th.start()
+            t0 = time.time()
             for i, item in enumerate(fg):
                 self.one(name, item, "fg", i == 0)
+            self.note(f"[{name}] fg wall_s={time.time() - t0:.1f}")
             stop.set()
             if th:
                 th.join()
