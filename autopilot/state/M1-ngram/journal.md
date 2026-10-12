@@ -474,3 +474,51 @@ Next session: don't polish further. Check those files briefly, then end early wi
 ### 2026-10-12T08:32:41-04:00 · orchestrator
 
 The user switched the worker from Bonsai to Claude Sonnet 5.5 (cloud, through meridian). Round 6 on Bonsai was stopped 13 minutes in, before it changed anything, and doesn't count. The script bench/build_replay_set.py is from Bonsai's round 4 and may still have the bugs that round mentions.
+
+### 2026-10-12T08:33:38-04:00 · worker (claude-sonnet-5-5), round 6
+
+The Bonsai round-4 script compiled but had two defects. run() was a stub, so main() never executed. Paths were hardcoded to /home/dev/garden, which doesn't exist on the host. I wired run() to main(), made the paths repo-relative through ROOT, and added bench/.replay/ to .gitignore. I have not run the script, so I don't know yet whether it works or meets the acceptance checks. Next round I'll read the output and the manifest, check the est/recorded ratios, and write the outlier notes in bench/m1-notes.md.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/build_replay_set.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "First real run of the replay-set builder. It reads host recordings and SQLite stores and writes bench/.replay/m1/{agent,mem}.jsonl and replay_manifest.json. Reads only, no GPU."
+}
+```
+
+### 2026-10-12T08:34:39-04:00 · advisor (run request)
+
+**revise**: Safe, but don't run it yet: it crashes almost immediately, and even when fixed it writes nothing. The script is mostly correct in intent but broken in execution. Read the whole file (it's 645 lines) and fix all of the following, then submit a run. Write it in parts if needed.
+
+CRASHES, in execution order:
+(a) build_replay_set.py:416-421, the first `all_pairs` comprehension, iterates `indexed` keys (tuples) and does p["arm"], which raises TypeError. Delete it; the rebuild below it is the real one.
+(b) `openai_tool_list()` is called with no args but is defined as openai_tool_list(mem0_tool), which raises TypeError.
+(c) `mem0_db_rows_order` is undefined.
+(d) The mem loop has `(rid, stkey), info = indexed.items() if False else None`, which unpacks None. Delete that dead loop.
+(e) build_mem_entry uses `global INDEXED`, but INDEXED is a function defined at the bottom. Pass the events_file in as an argument and delete the INDEXED stub.
+(f) build_mem_entry is called with index=None and then computes idx-10, which raises TypeError. Compute the call's ordinal within the run.
+
+NO OUTPUT: main() returns the lists and writes nothing. Write bench/.replay/m1/agent.jsonl, bench/.replay/m1/mem.jsonl and bench/results/2026-10-12/m1-ngram/replay_manifest.json. The manifest needs, per request: id, role, n_messages, prompt chars, chars/4 estimate, recorded_prompt_tokens and est/recorded ratio, plus totals, the per-role median ratio and system_prompt_exact. Print a short summary to stdout (counts, distinct steps, median ratio per role) so the run log alone shows whether acceptance is met. --dry-run, --per-step and --agent-max are parsed but unused. Cap the agent set at 30 by taking at most --per-step turns per step (spread across the step, not just the first ones) from at least 4 steps over both arms. As written, 8 steps × all turns would exceed 30.
+
+BODY CORRECTNESS: the probe will POST these bodies to llama-server, so they must be valid OpenAI chat format.
+(g) tool_calls need `id`, `type: function` and `function: {name, arguments: <JSON string>}`. The code uses `parameters` with a dict.
+(h) pi `toolResult` messages must become {role: 'tool', tool_call_id, content}. Role 'custom' is not an OpenAI role. Map pi's custom recall message to whatever pi actually sends; pi_prompt_src.txt shows the conversion (likely user). The recorded n_messages already counts it, so compare your n_messages to recorded_n_messages per request and report mismatches.
+(i) tools must be a list of {type: 'function', function: {name, description, parameters}}. json.dumps of the CORE_TOOLS dict is wrong. Include mem0_memory only in the mem0 arm; it's currently in CORE_TOOLS for both arms.
+(j) The item asks for the system prompt to be rebuilt from pi_prompt_src.txt. rebuild_pi_system joins `sections` from the agent_end messages. First check that agent_end messages actually contain a role=system entry with `sections`. If they don't, every step is skipped silently (the `continue` at raw_system is None) and you get 0 agent entries. Log skips loudly. Set system_prompt_exact honestly.
+(k) id format must be '<run>/<step>/<turn>' per the item.
+(l) mem bodies must NOT carry `tools`. They must carry chat_template_kwargs {enable_thinking: false}. Carry max_tokens over: tap records have no max_tokens field, so put predicted_n in meta and flag predicted_n==2048 as cap-hit (standing fact). The probe decides the cap.
+(m) Tap records have no `timestamp`, and the run_date parsing is nonsense anyway (run_date[10:]). Take the date from the events' session header, or use 2026-10-11 for this recording set. Don't fall back to now().
+(n) memory_history: mem0's history schema has no `text` column; it's something like new_value/old_value/action/created_at. As written, the fallback yields empty texts. Print the PRAGMA table_info once and use the real columns, keeping ADD events created before the call. Each mem0 history.db also has a `messages` table (10 rows in r0). That is likely mem0's own last-k message store, so use it for 'Last k Messages' instead of hardcoding [] if it fits. Check the section names and order against generateAdditiveExtractionPrompt in mem0_extract_src.txt, not from memory.
+(o) There are only about 3 mem0 runs with about 1 mem call per step, so 6-12 mem requests needs nearly all of them. Don't drop any. Choosing the 'new messages' from the step's last user message and first assistant text is fine if documented.
+
+HYGIENE: delete bench/.tmp_explore.py. It's an untracked scratch file, and it's broken anyway (Path + str). Then submit the run. Next round, check the stdout summary against the acceptance criteria before writing the outlier notes in m1-notes.md.
+
+### 2026-10-12T08:34:39-04:00 · orchestrator
+
+Added to the standing facts:
+
+- In inventory.json the tap records carry only role/path/model/status/n_messages/prompt_n/cache_n/predicted_n (no max_tokens, no timestamp). Recorded max_tokens can only be inferred, e.g. predicted_n==2048 suggests a cap was hit.
+- Each mem0 run's memory/mem0-history.db has tables memory_history and messages (bench/results/2026-10-12/m1-ngram/recon/inventory.json, mem0_dbs). memory_history uses mem0's history schema, not a `text` column.

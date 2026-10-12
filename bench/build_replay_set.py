@@ -28,14 +28,15 @@ import sqlite3
 import statistics
 from datetime import datetime, timezone
 
-DEFAULT_INVENTORY = pathlib.Path(
-    "/home/dev/garden/bench/results/2026-10-12/m1-ngram/recon/inventory.json"
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+DEFAULT_INVENTORY = ROOT / (
+    "bench/results/2026-10-12/m1-ngram/recon/inventory.json"
 )
-DEFAULT_PROMPT_SRC = pathlib.Path(
-    "/home/dev/garden/bench/results/2026-10-12/m1-ngram/recon/mem0_extract_src.txt"
+DEFAULT_PROMPT_SRC = ROOT / (
+    "bench/results/2026-10-12/m1-ngram/recon/mem0_extract_src.txt"
 )
-DEFAULT_REPLAY_DIR = pathlib.Path("/home/dev/garden/bench/.replay/m1")
-DEFAULT_MANIFEST_DIR = pathlib.Path("/home/dev/garden/bench/results/2026-10-12/m1-ngram")
+DEFAULT_REPLAY_DIR = ROOT / ("bench/.replay/m1")
+DEFAULT_MANIFEST_DIR = ROOT / ("bench/results/2026-10-12/m1-ngram")
 
 # pi system prompt: the order pi's system message is assembled from.
 PI_SECTION_ORDER = [
@@ -633,7 +634,7 @@ def build_mem_entry(run_id, st, i, rec, db_path, rows, additive_prompt, index):
 
 
 def run():
-    pass
+    main()
 
 
 def INDEXED(x, y):
