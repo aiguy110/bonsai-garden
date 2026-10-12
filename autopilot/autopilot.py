@@ -493,6 +493,7 @@ def do_plan(m, st):
     if not plan or not plan.get("items"):
         m.journal("advisor (plan)", "No usable plan JSON:\n\n" + final[-3000:])
         return
+    m.dir.mkdir(parents=True, exist_ok=True)
     (m.dir / "plan.json").write_text(json.dumps(plan, indent=2) + "\n")
     m.journal("advisor (plan)", "\n".join(f"{i + 1}. **{it['title']}**: {it['acceptance']}"
                                           for i, it in enumerate(plan["items"])))
