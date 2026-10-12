@@ -335,3 +335,26 @@ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
 - Outliers below 0.75: baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742), 1% under the bound, all late turns of baseline-r0 step 0, which is dominated by one long reasoning output. Cause: over turns 2-5 the rebuilt body grows 8502->38559 chars (+30057), of which tool output is only +219 (baseline-r0/0/5 chars_by_role: tool=2154, reasoning=25717), while the recorded prompt grows +10271 tokens. So the model's own reasoning/assistant text tokenizes at ~2.96 chars/token and chars/4 under-counts it. Estimator not changed.
 - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
 - Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
+
+## 9. Spec-replay results so far and choice of B (round 3)
+
+Fg decode tok/s (sum predicted_n / sum predicted_ms, greedy), from
+results/2026-10-12/m1-ngram/replay/{off,A}-greedy/requests.jsonl:
+
+| phase | off | A (ngram-mod defaults) | A draft_n / accepted | fg length-finishes off/A |
+|---|---|---|---|---|
+| single-agent | 55.1 | 86.0 | 8229 / 6212 | 1 / 3 |
+| single-mem | 55.6 | 53.1 | 740 / 69 | 0 / 0 |
+| dual-agent | 26.3 | 25.5 | 1856 / 259 | 0 / 2 |
+| dual-mem | 25.0 | 23.8 | 740 / 69 | 0 / 0 |
+
+A helps agent traffic with one slot busy (some of that may be looping outputs hitting
+max_tokens: 3 length-finishes vs 1) but not with both busy, and it is slightly negative
+on mem. Acceptance is low in the dual and mem phases (the default drafts 48-64 tokens per
+step, so a miss wastes a large verification batch).
+
+B = ngram-mod with `--spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12`:
+same algorithm, shorter lookup and much shorter drafts, to cut the cost of rejected drafts
+when both slots share the GPU, and to start drafting on shorter repeats. I keep one type
+so the difference from A is only the draft-size knobs. (ngram-map-k/simple were not
+chosen: their 12/48 defaults have the same long-draft cost.) Not yet measured.

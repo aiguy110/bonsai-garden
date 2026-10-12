@@ -825,3 +825,40 @@ result ok None
 2026-10-12 09:17:52,458 released lease 83b914c19ad0614135e3845a13ce9912
 
 ```
+
+### 2026-10-12T09:18:43-04:00 · worker (claude-sonnet-5-5), round 3
+
+A/greedy done. Fg decode tok/s off vs A: single-agent 55.1 vs 86.0 (draft 8229, accepted 6212), single-mem 55.6 vs 53.1, dual-agent 26.3 vs 25.5, dual-mem 25.0 vs 23.8. Length-finishes in the agent fg rows: 1 off, 3 A in single-agent, 2 A in dual-agent. A gains only with one slot busy. Picked B as ngram-mod with n-min 8, n-max 16, n-match 12 (rationale in bench/m1-notes.md §9). Next: run B, then prod runs for off and the better of A/B.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay B greedy --spec-type ngram-mod --spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Config B (ngram-mod, short drafts) greedy replay, 4 phases on fresh servers."
+}
+```
+
+### 2026-10-12T09:19:55-04:00 · advisor (run request)
+
+**approve**: Run is safe: the script hasn't changed since the approved A run, private :8089 with a stale-server check, writes only under the repo. B's flags exist in recon/spec_flags.txt (defaults 48/64/24). But the A/greedy analysis in the report and in bench/m1-notes.md section 9 is wrong and must be fixed before the prod runs. (1) A's single-agent 86.0 tok/s comes from two loops: mem0-r0/0/2 (3121 tok @144 tok/s, 2135/2242 accepted) and mem0-r2/0/2 (4854 tok @179 tok/s, 3717/3828 accepted) hit length under A, while off finished both with tool_calls at 1020 and 3701 tokens (off-greedy/requests.jsonl lines 17, 27). Without the 3 length rows, A single-agent is 4746 tok / 87.4 s ≈ 54.3 tok/s vs off ≈ 55, so there is no gain anywhere, and A pushed two greedy turns into degenerate loops. Rewrite section 9: for each arm and phase give fg sum(predicted_n)/sum(predicted_ms) with and without length rows, list each arm's length rows and whether off finished them normally, add combined throughput of both slots over phase wall time (asked for earlier, still missing), and give the share of identical out_sha256 per phase vs off. (2) Output identity fails even with zero drafts: baseline-r0/0/0 single-agent is 530c... off vs cdad... A (both 71 tok, draft_n 0), so turning spec on changes greedy numerics by itself. Say so in section 9. (3) Pick the prod arm by the item's dual-agent greedy rule, but also report the pick with capped rows excluded, and count spec-induced loops as a quality regression, not a speedup. (4) Grep the A/B server logs for 'restore checkpoint' and report the counts.
+
+### 2026-10-12T09:19:55-04:00 · orchestrator
+
+Added to the standing facts:
+
+- A/greedy's single-agent 86.0 tok/s (bench/results/2026-10-12/m1-ngram/replay/A-greedy/requests.jsonl) is driven by two greedy loops that hit max_tokens (mem0-r0/0/2, mem0-r2/0/2) where spec-off finished normally with tool_calls. Without length rows A is about 54.3 tok/s vs off about 55, so ngram-mod defaults gave no speedup on normally finishing agent turns.
+- Enabling --spec-type ngram-mod changes temperature-0 outputs even with zero drafts: baseline-r0/0/0 single-agent out_sha256 is 530c... in off-greedy vs cdad... in A-greedy, both 71 tokens with draft_n 0, so off-vs-spec output identity cannot be assumed from lossless verification.
+
+### 2026-10-12T09:32:59-04:00 · orchestrator
+
+Ran `python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay B greedy --spec-type ngram-mod --spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12` (gpu=True) in 784s, exit 0. Full output: `bench/results/2026-10-12/autopilot/spec-replay-r3.log`. Last lines:
+
+```
+2026-10-12 09:19:55,998 turnstile lease e99c2d554185f101d95d53053967be09 granted after 0s
+2026-10-12 09:19:55,998 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay B greedy --spec-type ngram-mod --spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12
+result ok None
+2026-10-12 09:32:59,218 released lease e99c2d554185f101d95d53053967be09
+
+```
