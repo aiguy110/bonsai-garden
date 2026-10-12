@@ -1,2 +1,2 @@
  M autopilot/state/W1-worker-eval/journal.md
-?? bench/results/2026-10-12/autopilot/replay-harness-r7.log
+?? bench/results/2026-10-12/autopilot/replay-harness-r8.log

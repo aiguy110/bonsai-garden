@@ -610,3 +610,31 @@ Service is healthy; no restart or configuration change was needed.
 ```json
 {"fixed":true,"diagnosis":"The connection refusal coincided with a host reboot. Turnstile and llama-swap restarted normally afterward, and the active llama-swap config matches the known-good config exactly.","actions":["Confirmed turnstile, llama-swap, and embedder are running and listening on ports 8080, 11435, and 8095","Confirmed /etc/llama-swap/config.yaml is identical to known-good.yaml","Ran infra.py check successfully: {\"ok\": true, \"why\": null}"]}
 ```
+
+### 2026-10-12T16:21:33-04:00 · worker (gpt-5.6-terra), round 8
+
+Reviewed the replay harness and fail-fast smoke script. It resolves the main-checkout sandbox venv before Docker, preserves tap logs, re-raises SIGTERM 143, and asserts no leftover checkouts. Prior host attempts failed only at the orchestrator preflight during reboot-related connection refusals, before an attempt ran. Retrying the approved smoke test is the next required validation.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/smoke.sh",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Run one live bench-route replay and its resume invocation; verify the required artifacts, metrics, manifest metadata, unchanged worktree, and cleanup."
+}
+```
+
+### 2026-10-12T16:22:30-04:00 · advisor (run request)
+
+**approve**: Safe and appropriate smoke validation. smoke.sh is fail-fast, writes only under bench/results/2026-10-12/worker_eval/smoke and /tmp/w1-replay-*, and explicitly checks cleanup. run.py uses a network-isolated Docker sandbox, routes inference through the metering tap to turnstile with the bench key, does not start or modify live services, and removes its temporary checkout in finally. Afterward report the pytest summary, attempt metrics/artifacts, tap HTTP 200 evidence, populated manifest metadata, second-run skipped=1/ran=0 stats, exactly one results.jsonl record, unchanged worktree result, no leftover checkouts, and any infra-errors.jsonl entries.
+
+### 2026-10-12T16:27:04-04:00 · orchestrator
+
+Health check through turnstile failed: URLError: <urlopen error [Errno 111] Connection refused>
+
+### 2026-10-12T16:28:42-04:00 · fixer (cloud)
+
+```json
+{"fixed":true,"diagnosis":"The refusal was transient during a host reboot, when turnstile was not yet listening. After boot, turnstile, llama-swap, and the embedder started normally. The live llama-swap config already exactly matches the known-good config.","actions":["Confirmed all three services are active and ports 8080, 11435, and 8095 are listening","Avoided unnecessary config changes or restarts","Ran the required health check twice; both returned {\"ok\": true}"]}
+```
