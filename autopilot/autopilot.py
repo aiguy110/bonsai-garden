@@ -140,6 +140,8 @@ class Milestone:
         self.dir.mkdir(parents=True, exist_ok=True)
         with open(self.dir / "journal.md", "a") as f:
             f.write(f"\n### {now()} · {actor}\n\n{text.strip()}\n")
+            f.flush()
+            os.fsync(f.fileno())
 
     def facts(self):
         p = self.dir / "facts.md"
@@ -156,7 +158,9 @@ class Milestone:
 
     def journal_tail(self):
         p = self.dir / "journal.md"
-        t = p.read_text() if p.exists() else "(empty)"
+        # An interrupted filesystem write can leave NUL-filled journal regions.
+        # Preserve the on-disk evidence, but never pass NULs in subprocess argv.
+        t = p.read_text().replace("\x00", "") if p.exists() else "(empty)"
         return t if len(t) <= JOURNAL_TAIL else "…\n" + t[-JOURNAL_TAIL:]
 
 
