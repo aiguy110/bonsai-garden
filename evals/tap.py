@@ -13,6 +13,8 @@ stripped; the request goes to that route's upstream with `Authorization: Bearer
 $KEYVAR` (the key is read from the environment, so it never lands in a config
 file). `--inject role='{"json": ...}'` deep-merges fields into that role's
 request bodies (tap wins over the client), for things turnstile can't do yet.
+`--path role=/codex/responses` replaces the /v1/ rule for that role with exact
+paths, for an https upstream (the Codex backend) where the key must open nothing else.
 """
 import argparse
 import http.client
@@ -20,6 +22,7 @@ import http.server
 import json
 import os
 import posixpath
+import re
 import socketserver
 import sys
 import threading
@@ -44,6 +47,7 @@ class Tap(http.server.BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.1"
     routes = {}
     injects = {}
+    paths = {}
     log_path = None
     tag = {}
 
@@ -70,7 +74,11 @@ class Tap(http.server.BaseHTTPRequestHandler):
             self.send_error(404, "unknown role prefix")
             return
         role, (base, key), path = route
-        if not path.startswith("/v1/") or posixpath.normpath(path.split("?")[0]) != path.split("?")[0].rstrip("/"):
+        if role in self.paths:
+            if path.split("?")[0] not in self.paths[role]:
+                self.send_error(403, "path not allowed for this role")
+                return
+        elif not path.startswith("/v1/") or posixpath.normpath(path.split("?")[0]) != path.split("?")[0].rstrip("/"):
             # Only the OpenAI API: never turnstile's console/activity API or llama-swap's
             # logs, which hold other sessions' transcripts.
             self.send_error(403, "only /v1/ paths are forwarded")
@@ -85,7 +93,8 @@ class Tap(http.server.BaseHTTPRequestHandler):
             except ValueError:
                 req = None
         u = urllib.parse.urlsplit(base)
-        conn = http.client.HTTPConnection(u.hostname, u.port, timeout=3600)
+        cls = http.client.HTTPSConnection if u.scheme == "https" else http.client.HTTPConnection
+        conn = cls(u.hostname, u.port, timeout=3600)
         hdrs = {k: v for k, v in self.headers.items() if k.lower() not in HOP | {"authorization"}}
         if key:
             hdrs["Authorization"] = f"Bearer {key}"
@@ -119,7 +128,7 @@ class Tap(http.server.BaseHTTPRequestHandler):
                     except ValueError:
                         continue
                     timings = d.get("timings") or timings
-                    usage = d.get("usage") or usage
+                    usage = d.get("usage") or (d.get("response") or {}).get("usage") or usage
         self.wfile.write(b"0\r\n\r\n")
         self.wfile.flush()
         if timings is None and usage is None:
@@ -146,16 +155,20 @@ def main():
     ap.add_argument("--unix", help="listen on this Unix socket instead of TCP (for sandboxed clients)")
     ap.add_argument("--log", required=True)
     ap.add_argument("--route", action="append", default=[],
-                    help="role=http://host:port[:ENVVAR_WITH_KEY]")
+                    help="role=http(s)://host[:port][/path][:ENVVAR_WITH_KEY]")
+    ap.add_argument("--path", action="append", default=[], help="role=/exact/path (repeatable)")
     ap.add_argument("--inject", action="append", default=[], help="role=JSON")
     ap.add_argument("--tag", action="append", default=[], help="k=v added to every record")
     a = ap.parse_args()
     for r in a.route:
         role, rest = r.split("=", 1)
         base, var = rest, None
-        if rest.count(":") > 2:
+        if re.fullmatch(r"[A-Z_][A-Z0-9_]*", rest.rsplit(":", 1)[-1]):
             base, var = rest.rsplit(":", 1)
         Tap.routes[role] = (base, os.environ.get(var) if var else None)
+    for pth in a.path:
+        role, x = pth.split("=", 1)
+        Tap.paths.setdefault(role, set()).add(x)
     for i in a.inject:
         role, js = i.split("=", 1)
         Tap.injects[role] = json.loads(js)

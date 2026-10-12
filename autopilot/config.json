@@ -1,7 +1,7 @@
 {
   "roles": {
     "worker": {
-      "model": "meridian/claude-sonnet-5-5",
+      "model": "openai-codex/gpt-5.6-terra",
       "thinking": "medium",
       "where": "sandbox"
     },

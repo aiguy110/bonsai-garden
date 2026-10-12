@@ -6,7 +6,7 @@ Progress is published to the site's [autopilot status page](https://aiguy110.git
 
 ```
 autopilot.py (systemd user service, runs from the main checkout)
-  ├─ worker   pi on meridian/claude-sonnet-5-5 (or garden/bonsai-agent) in the eval
+  ├─ worker   pi on openai-codex/gpt-5.6-terra (or meridian/…, garden/…) in the eval
   │           Docker sandbox: no network, no GPU, sees only the milestone's worktree
   ├─ advisor  pi on meridian/claude-opus-5-5, read-only tools: plans, reviews every
   │           request and finished item, fact-checks the write-up
@@ -21,12 +21,25 @@ Roles are pi model strings in `config.json`. To swap the advisor, edit the strin
 the Claude Code SDK. The advisor's pi agent dir is `.cache/agent-cloud`, which has
 `pi-meridian-extension`.
 
-The worker is `garden/<id>` (Bonsai through turnstile, bench key, priority 20) or
-`meridian/<id>`. A meridian worker still has no network: the sandbox's tap gets a
-`meridian` route to :3456, and the worker loads the extension's source as a plain
-extension file, patched to know `claude-sonnet-5-5`. Its calls don't count against
-`cloud_calls_per_day`. Bonsai was the worker until 2026-10-12 and mostly failed to
-end its sessions (timeouts, context overflows, cut-off replies). To go back, set the
+The worker is `garden/<id>` (Bonsai through turnstile, bench key, priority 20),
+`meridian/<id>` or `openai-codex/<id>`. A cloud worker still has no network; the
+sandbox's tap gets one extra route:
+- `meridian`: to :3456. The worker loads the extension's source as a plain extension
+  file, patched to know `claude-sonnet-5-5`.
+- `codex`: to `https://chatgpt.com/backend-api`, only `/codex/responses`, over SSE.
+  This is pi's built-in ChatGPT-subscription provider. The tap adds the Codex CLI's
+  access token (`~/.codex/auth.json`, read each session) on the host. The sandbox
+  only gets a placeholder carrying the account id. Only the CLI refreshes the token:
+  if it is about to expire, the tick fails until `codex` has been run once.
+
+Worker calls don't count against `cloud_calls_per_day`. When the worker or advisor
+hits a subscription rate limit, the loop pauses (up to an hour, using the
+`retry_after` it is given), and the failed session doesn't count as a round.
+
+History: Bonsai was the worker until 2026-10-12 and mostly failed to end its sessions
+(timeouts, context overflows, cut-off replies). Then `meridian/claude-sonnet-5-5`
+took over, and from 2026-10-12 10:30 `openai-codex/gpt-5.6-terra` (thinking
+`medium`), to keep the Claude limit for the advisor. To go back to Bonsai, set the
 worker to `garden/bonsai-agent` with thinking `low`.
 
 ## The loop

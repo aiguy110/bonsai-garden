@@ -15,8 +15,10 @@ harness (W2–W4) has a number to move.
     reserve 28672);
   - the reply cut off at the 16k output limit, once entirely inside thinking;
   - 60–80 tool calls per round, mostly bash. Compaction ran 1–4 times per round.
-- Since 2026-10-12 08:33 the worker is `meridian/claude-sonnet-5-5`. Its rounds take
-  1–3 minutes and 4–13 tool calls, and every one has ended with a valid request.
+- From 2026-10-12 08:33 the worker was `meridian/claude-sonnet-5-5`. Its rounds took
+  1–3 minutes and 4–13 tool calls, and every one ended with a valid request. From
+  10:30 it is `openai-codex/gpt-5.6-terra`. Rounds that failed at a rate limit
+  (M1 `spec-replay` rounds 5–12) are not cases.
 - Every round leaves a commit `autopilot(<m>): before <item> round <n>` on branch
   `auto/<m>`: the repo state the worker started from. The worker's full event log
   is `autopilot/.runtime/calls/<stamp>-worker-<item>-r<n>.jsonl` in the main
@@ -39,10 +41,10 @@ harness (W2–W4) has a number to move.
 
 ## Done when
 
-1. A case set of at least 20 Sonnet worker rounds (from 2026-10-12 08:33 on), in
+1. A case set of at least 20 cloud worker rounds (from 2026-10-12 08:33 on), in
    `bench/worker_eval/cases.jsonl`. Each case has: the start commit, the exact
    prompt (with the line naming the worker model replaced by the replayed model's),
-   the request Sonnet sent, and the advisor verdict. Rounds with a `revise` verdict
+   the request the cloud worker sent, and the advisor verdict. Rounds with a `revise` verdict
    stay in the set, marked as such. Cover at least two different plan items.
 2. A worker-arm format (`bench/worker_eval/arms/<name>.json`): model, thinking
    level, max output tokens, compaction reserve, session timeout, worker memory, and
@@ -54,7 +56,7 @@ harness (W2–W4) has a number to move.
    worktree, against the live Bonsai through turnstile (bench key). It is
    resumable and runs in chunks that fit one `run` request (≤150 min). Per case it
    records: request sent (via the tool, the JSON fallback, or none), whether the
-   orchestrator's checks accept it, whether its kind matches Sonnet's, wall time,
+   orchestrator's checks accept it, whether its kind matches the cloud worker's, wall time,
    turns, tool calls by tool, tool errors, compactions, the stop reason of the last
    reply, and errors (timeout, context overflow, output limit).
 4. `bonsai-2026-10-12` run on every case at N=2. Report the valid-request rate,

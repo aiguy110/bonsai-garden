@@ -6,7 +6,8 @@ not a result. A second mem0 arm, `mem0-server`, runs Python mem0 (the reference
 implementation) instead of the JS port.
 
 Bonsai couldn't keep up as the autopilot's worker (11 of 21 rounds sent no request),
-so since 2026-10-12 the worker is Claude Sonnet 5.5. The priority now is the
+so since 2026-10-12 the worker is a cloud model (Claude Sonnet 5.5, then GPT-5.6
+Terra through Codex). The priority now is the
 [local worker track](#local-worker-track): making the stack good enough that Bonsai
 can do this research itself. Order: M1, then W1, W2 (with M6 alongside), W3, W4,
 then M2 onward.
@@ -42,10 +43,10 @@ grow. Each step is measured on W1.
 
 | # | Milestone | Question | Done when |
 |---|---|---|---|
-| W1 | **Worker eval** | Could Bonsai do the autopilot's own rounds? | Real Sonnet worker rounds (start commit, prompt, request, verdict) replayed on Bonsai; valid-request rate, kind match, time and failure modes. Spec: [`autopilot/milestones/W1-worker-eval.md`](../autopilot/milestones/W1-worker-eval.md) |
+| W1 | **Worker eval** | Could Bonsai do the autopilot's own rounds? | Real cloud worker rounds (start commit, prompt, request, verdict) replayed on Bonsai; valid-request rate, kind match, time and failure modes. Spec: [`autopilot/milestones/W1-worker-eval.md`](../autopilot/milestones/W1-worker-eval.md) |
 | W2 | **Worker harness** | Which pi and server settings close the gap? | [Candidates](#w2-candidates) each run as a worker arm on W1 against the 2026-10-12 Bonsai arm; keep what helps |
 | W3 | **Passive worker memory** | Does memory let the worker survive compaction and fresh sessions? | Auto-recall and capture keyed on the item and the round report, not the whole prompt; measured on W1 cases that span several rounds of one item |
-| W4 | **Routing** | How much real work can go local? | The planner marks local-capable items; Bonsai tries them first and hands an item to Sonnet after N failed rounds. The status page tracks the local share |
+| W4 | **Routing** | How much real work can go local? | The planner marks local-capable items; Bonsai tries them first and hands an item to the cloud worker after N failed rounds. The status page tracks the local share |
 
 ### W2 candidates
 
@@ -130,7 +131,7 @@ either side of that design:
 ## Autonomous pursuit ("autopilot")
 
 Implemented in [`autopilot/`](../autopilot/README.md). A worker model does the
-work in a sandbox: Bonsai until 2026-10-12, Claude Sonnet 5.5 since, until the
+work in a sandbox: Bonsai until 2026-10-12, then a cloud model (Claude Sonnet 5.5, then GPT-5.6 Terra), until the
 local worker track brings Bonsai back. A cloud advisor (`meridian/claude-opus-5-5` via pi, swappable) plans,
 reviews every request and fact-checks write-ups. Deterministic code runs the
 probes and evals, enforces protected paths, and publishes. Live-server changes go

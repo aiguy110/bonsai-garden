@@ -230,17 +230,20 @@ def build_agent_dir(arm, run_dir):
 
 # ---- one step ----
 
-def start_tap(log, tags, key, sock, routes=None):
+def start_tap(log, tags, key, sock, routes=None, paths=None, env=None):
     """A tap on a fresh Unix socket: the sandbox's only way out. It reaches turnstile
     (agent and mem roles, with the bench key) and the embedder, plus any extra
-    `routes` ({role: url}) the caller adds, nothing else."""
-    env = dict(os.environ, GARDEN_BENCH_KEY=key)
+    `routes` ({role: url[:KEYVAR]}) the caller adds, nothing else. `paths`
+    ({role: [path]}) limits a role to exact paths; `env` holds the KEYVARs."""
+    env = dict(os.environ, GARDEN_BENCH_KEY=key, **(env or {}))
     cmd = [sys.executable, str(EVALS / "tap.py"), "--unix", str(sock), "--log", str(log),
            "--route", f"agent={TURNSTILE}:GARDEN_BENCH_KEY",
            "--route", f"mem={TURNSTILE}:GARDEN_BENCH_KEY",
            "--route", f"embed={EMBEDDER}"]
     for role, url in (routes or {}).items():
         cmd += ["--route", f"{role}={url}"]
+    for role, ps in (paths or {}).items():
+        cmd += [x for pth in ps for x in ("--path", f"{role}={pth}")]
     for k, v in tags.items():
         cmd += ["--tag", f"{k}={v}"]
     p = subprocess.Popen(cmd, env=env, stderr=subprocess.PIPE, text=True)

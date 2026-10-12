@@ -8,7 +8,7 @@
 
 Roles (config.json) are pi model strings, so any of them can be swapped:
   worker   in the eval Docker sandbox: garden/<id> is Bonsai via turnstile (bench key,
-           priority 20), meridian/<id> a cloud model through the sandbox's tap
+           priority 20), meridian/<id> or openai-codex/<id> a cloud model through the sandbox's tap
   advisor  cloud model through meridian, read-only tools: plans, reviews every request,
            approves finished items and fact-checks write-ups
   fixer    cloud model with shell access, called only when the local model is down
@@ -25,6 +25,7 @@ reviews, the advisor triages it: accept with caveats, re-plan, or block.
 Finished milestones are merged to main and pushed, which publishes the site; a status
 page (site/autopilot.md) is pushed as things happen.
 """
+import base64
 import datetime
 import fcntl
 import json
@@ -57,6 +58,9 @@ JOURNAL_TAIL = 15000
 DIFF_MAX = 40000
 MAX_REPLANS = 2  # per plan position; after that triage can only accept or block
 MERIDIAN = "http://127.0.0.1:3456"
+CODEX = "https://chatgpt.com/backend-api"  # pi's openai-codex provider (ChatGPT subscription)
+CODEX_AUTH = pathlib.Path.home() / ".codex" / "auth.json"
+CODEX_CLAIM = "https://api.openai.com/auth"
 
 
 def now():
@@ -170,8 +174,26 @@ def spend():
     p.write_text(json.dumps(b))
 
 
+RATE_WAIT = 1800
+
+
 class OutOfBudget(Exception):
     pass
+
+
+class RateLimited(Exception):
+    """A subscription's rate or usage limit (Claude Max through meridian, or Codex). The
+    loop pauses instead of spending rounds on sessions that fail at once."""
+    def __init__(self, role, wait):
+        super().__init__(role)
+        self.role, self.wait = role, wait
+
+
+def check_rate_limit(e, role):
+    hits = [x for x in e["errors"] if re.search(r"rate.?limit|usage.?limit|\b429\b", str(x), re.I)]
+    if hits:
+        m = re.search(r"retry.?after\D{0,4}(\d+)", str(hits[-1]), re.I)
+        raise RateLimited(role, int(m.group(1)) if m else 1800)
 
 
 # ---- model calls ----
@@ -207,6 +229,7 @@ def call_cloud(role, prompt, label):
                            text=True, timeout=3600)
     e = ev.parse_events(events)
     say(f"{role}/{label}: exit {p.returncode}, {e['turns']} turns, {e['tool_calls']} tools")
+    check_rate_limit(e, role)
     return e["final"], e
 
 
@@ -277,10 +300,33 @@ def worker_agent_dir():
             "models": [entry]}}}, indent=2))
     elif provider == "meridian":
         (ext / "meridian.ts").write_text(meridian_extension())
+    elif provider == "openai-codex":
+        # The tap has no WebSocket support, so pi must use SSE.
+        settings["transport"] = "sse"
+        (agent / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
+        (agent / "models.json").write_text(json.dumps({"providers": {"openai-codex": {
+            "baseUrl": f"{ev.TAP}/codex/codex", "apiKey": codex_placeholder(codex_token()[1])}}}, indent=2))
     else:
-        raise ValueError(f"worker provider must be garden or meridian, not {provider}")
+        raise ValueError(f"worker provider must be garden, meridian or openai-codex, not {provider}")
     shutil.copy(HERE / "extensions" / "submit_request.ts", ext / "submit_request.ts")
     return agent
+
+
+def codex_token():
+    """The Codex CLI's access token, read fresh each session. Only the CLI refreshes it
+    (refreshing here would rotate the refresh token under it); it lasts about 10 days."""
+    tok = json.loads(CODEX_AUTH.read_text())["tokens"]["access_token"]
+    claims = json.loads(base64.urlsafe_b64decode(tok.split(".")[1] + "=="))
+    if claims["exp"] < time.time() + 3600:
+        raise RuntimeError("the Codex login expires within the hour: run `codex` once to refresh it")
+    return tok, claims[CODEX_CLAIM]["chatgpt_account_id"]
+
+
+def codex_placeholder(account):
+    """What the sandbox gets instead of the token: an unsigned JWT carrying only the
+    account id, which pi reads from it. The tap swaps in the real token on the host."""
+    enc = lambda d: base64.urlsafe_b64encode(json.dumps(d).encode()).decode().rstrip("=")
+    return f"{enc({'alg': 'none'})}.{enc({CODEX_CLAIM: {'chatgpt_account_id': account}})}.x"
 
 
 def last_stop_reason(events):
@@ -296,23 +342,31 @@ def last_stop_reason(events):
 
 
 def call_worker(prompt, label, memory_dir=None):
-    """The worker: pi in the eval sandbox, seeing only the autopilot worktree. A meridian
-    model is reached through the sandbox's tap, so the sandbox still has no network.
-    Returns its final text, the parsed events, and the request it submitted (or None)."""
+    """The worker: pi in the eval sandbox, seeing only the autopilot worktree. A cloud
+    model (meridian or Codex) is reached through the sandbox's tap, so the sandbox still
+    has no network. Returns its final text, the parsed events, and the request it
+    submitted (or None)."""
     r = CFG["roles"]["worker"]
-    cloud = r["model"].startswith("meridian/")
+    provider = r["model"].split("/", 1)[0]
     agent = worker_agent_dir()
     req_file = agent / "request.json"
     req_file.unlink(missing_ok=True)
     events = call_log(f"worker-{label}")
     sock = pathlib.Path(f"/tmp/garden-autopilot-{os.getpid()}.sock")
+    routes, paths, tap_env = {}, {}, {}
+    if provider == "meridian":
+        routes["meridian"] = MERIDIAN
+    elif provider == "openai-codex":
+        routes["codex"] = f"{CODEX}:CODEX_TOKEN"
+        paths["codex"] = ["/codex/responses"]
+        tap_env["CODEX_TOKEN"] = codex_token()[0]
     tap = ev.start_tap(RT / "tap.jsonl", {"run": "autopilot", "step": label}, ev.bench_key(), sock,
-                       {"meridian": MERIDIAN} if cloud else None)
+                       routes, paths, tap_env)
     container = f"garden-autopilot-{os.getpid()}"
     mounts = [(WT, SB_REPO, "rw"), (agent, ev.SB_AGENT, "rw"), (ev.VENV, ev.SB_VENV, "ro"),
               (sock, "/run/garden/tap.sock", "rw"), (ev.EVALS / "relay.py", "/opt/garden/relay.py", "ro")]
     env = {"PI_CODING_AGENT_DIR": ev.SB_AGENT}
-    if cloud:
+    if provider == "meridian":
         env["MERIDIAN_BASE_URL"] = f"{ev.TAP}/meridian"
     arm = worker_memory_arm()
     if arm and memory_dir:
@@ -341,6 +395,7 @@ def call_worker(prompt, label, memory_dir=None):
     e = ev.parse_events(events)
     e["last_stop"] = last_stop_reason(events)
     say(f"worker/{label}: {e['turns']} turns, {e['tool_calls']} tools, errors {e['errors'][:2]}")
+    check_rate_limit(e, "worker")
     try:
         req = json.loads(req_file.read_text()) if req_file.exists() else None
     except ValueError:
@@ -741,7 +796,13 @@ def do_work(m, st):
                   memory=MEMORY_NOTE if worker_memory_arm() else "")
     commit(f"autopilot({m.name}): before {item['id']} round {st['round']}")
     pre = git("rev-parse", "HEAD")
-    final, e, req = call_worker(prompt, f"{item['id']}-r{st['round']}", memory_dir=RT / "memory" / m.name)
+    try:
+        final, e, req = call_worker(prompt, f"{item['id']}-r{st['round']}", memory_dir=RT / "memory" / m.name)
+    except RateLimited:
+        enforce_protected(m, pre)
+        st["round"] -= 1  # the session failed at the limit: it doesn't count
+        m.save(st)
+        raise
     enforce_protected(m, pre)
     req = req or last_json(final)  # the fenced json block is the fallback if the tool wasn't used
     m.journal(f"worker ({CFG['roles']['worker']['model'].split('/', 1)[1]}), round {st['round']}",
@@ -840,6 +901,13 @@ def tick():
         commit(f"autopilot({m.name}): out of budget")
         maybe_publish_status(force=True)
         return "budget"
+    except RateLimited as e:
+        global RATE_WAIT
+        RATE_WAIT = min(max(e.wait, 300), 3600)
+        m.journal("orchestrator", f"The {e.role}'s subscription hit its rate limit; pausing "
+                  f"{RATE_WAIT // 60} min. This session doesn't count as a round.")
+        commit(f"autopilot({m.name}): rate limited")
+        return "ratelimit"
     if m.status()["phase"] != "blocked":
         try:
             push(WT, f"auto/{m.name}", f"{CFG['remote']}/main...HEAD")
@@ -894,7 +962,9 @@ def main():
                         crashes = 0
                     except Exception as e2:
                         say(f"could not record the block: {e2}")
-            if state in ("idle", "blocked", "budget", "error", "done"):
+            if state == "ratelimit":
+                time.sleep(RATE_WAIT)
+            elif state in ("idle", "blocked", "budget", "error", "done"):
                 time.sleep(1800 if state != "error" else 300)
         return
     sys.exit(__doc__)
