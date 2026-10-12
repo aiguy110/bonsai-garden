@@ -482,10 +482,15 @@ def publish(msg, merge_branch=None):
     git("fetch", "-q", CFG["remote"], cwd=ROOT)
     if not PUB.exists():
         git("worktree", "add", "--detach", str(PUB), f"{CFG['remote']}/main", cwd=ROOT)
+    git("reset", "-q", "--hard", cwd=PUB)  # a failed merge leaves conflicts that block checkout
     git("checkout", "-q", "--detach", f"{CFG['remote']}/main", cwd=PUB)
     if merge_branch:
-        git("-c", "user.name=bonsai-autopilot", "-c", "user.email=autopilot@bonsai-garden.local",
-            "merge", "--no-ff", "-m", msg, merge_branch, cwd=PUB)
+        try:
+            git("-c", "user.name=bonsai-autopilot", "-c", "user.email=autopilot@bonsai-garden.local",
+                "merge", "--no-ff", "-m", msg, merge_branch, cwd=PUB)
+        except RuntimeError:
+            git("merge", "--abort", cwd=PUB, check=False)
+            raise
     write_status_page()
     git("add", "-A", cwd=PUB)
     if git("status", "--porcelain", cwd=PUB):
@@ -942,7 +947,8 @@ def main():
         WT = m.wt if m else None
         if m and m.status()["phase"] == "blocked":
             st = m.status()
-            st["phase"] = "work" if m.plan() else "plan"
+            plan = m.plan()
+            st["phase"] = "plan" if not plan else "publish" if st["item"] >= len(plan) else "work"
             st.pop("blocked", None)
             if st["round"] >= CFG["worker_rounds_per_item"] or st["reviews"] >= CFG["review_rounds_per_item"]:
                 st.update(round=0, reviews=0)  # blocked by triage: the user's go-ahead buys fresh rounds
