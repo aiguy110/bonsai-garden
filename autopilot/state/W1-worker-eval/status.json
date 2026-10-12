@@ -1,11 +1,10 @@
 {
-  "phase": "blocked",
+  "phase": "work",
   "item": 1,
   "round": 4,
   "reviews": 0,
   "base": "4d8b3d15167ab43c45f33d8dd2252f527964e80d",
   "dropped": [],
   "caveats": {},
-  "replans": 0,
-  "blocked": "tick crashed 3 times in a row; last: ValueError: embedded null byte"
+  "replans": 0
 }

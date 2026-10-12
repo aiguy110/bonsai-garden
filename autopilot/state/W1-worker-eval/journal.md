@@ -530,3 +530,7 @@ I didn't look into why the host rebooted.
 ### 2026-10-12T14:27:57-04:00 · orchestrator
 
 BLOCKED: tick crashed 3 times in a row; last: ValueError: embedded null byte
+
+### 2026-10-12T16:03:51-04:00 · orchestrator
+
+Unblocked by the user.
