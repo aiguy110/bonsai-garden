@@ -420,3 +420,18 @@ Next session: don't polish further. Check those files briefly, then end early wi
 ### 2026-10-12T06:53:30-04:00 · orchestrator
 
 The autopilot now triages items at limits instead of dropping them. `recon` was dropped under the old rule one review short of done, so it is re-recorded as accepted with caveats, and the 05:22 review's corrections are now standing facts. From now on, end each session with the `submit_request` tool.
+
+### 2026-10-12T07:12:16-04:00 · worker (Bonsai), round 3
+
+Let me check the recon script to see how it read the SQLite mem0 DBs and their schema, and confirm the mem0 DB structure I'll build from.
+
+### 2026-10-12T07:12:16-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md | 4 ++++
+ 1 file changed, 4 insertions(+)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
