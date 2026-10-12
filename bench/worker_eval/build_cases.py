@@ -184,7 +184,14 @@ def build():
     journal_entries = entries(journal); workers = workers_and_advisors(journal_entries); starts = commits()
     rows, skipped, eligible_revise = [], Counter(), 0
     claimed = {}
-    logs = sorted(p for p in calls.glob("*-worker-*.jsonl") if LOG.match(p.name))
+    # Scope to M1 logs: milestone heading of the prompt, and not after the last journal entry.
+    last_entry = max(e["when"] for e in journal_entries)
+    def in_scope(p):
+        when = dt.datetime.strptime(LOG.match(p.name).group(1), "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo)
+        if when > last_entry: return False
+        head = log_data(p)[0] or ""
+        return re.search(r"^## Milestone\s+# M1:", head, re.M) is not None
+    logs = sorted(p for p in calls.glob("*-worker-*.jsonl") if LOG.match(p.name) and in_scope(p))
     starts_of = [dt.datetime.strptime(LOG.match(p.name).group(1), "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo) for p in logs]
     for n, path in enumerate(logs):
         match = LOG.match(path.name)
@@ -257,6 +264,7 @@ def validate(rows, eligible_revise):
         if rebuilt != r["prompt"] or sha(r["source_first_user_prompt"]) != r["source_first_user_prompt_sha256"]: errors.append(f"prompt provenance mismatch: {r['case_id']}")
         if r["advisor_actor"] not in advisor_labels(r["request"]["request"]): errors.append(f"advisor type mismatch: {r['case_id']}")
         if dt.datetime.fromisoformat(r["advisor_timestamp"]) < dt.datetime.fromisoformat(r["worker_entry_timestamp"]): errors.append(f"advisor precedes request: {r['case_id']}")
+        if any(RATE_LIMIT.search(str(e)) for e in event_errors(r["event_log"])): errors.append(f"rate-limit failure included: {r['case_id']}")
         subject = git("show", "-s", "--format=%s", r["start_commit"])
         if subject != f"autopilot({r['milestone']}): before {r['item']} round {r['round']}": errors.append(f"bad start commit: {r['case_id']}")
         try: age = (dt.datetime.fromisoformat(r["source_timestamp"]) - dt.datetime.fromisoformat(git("show", "-s", "--format=%aI", r["start_commit"]))).total_seconds()

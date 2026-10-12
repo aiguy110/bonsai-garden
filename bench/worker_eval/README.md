@@ -54,8 +54,10 @@ substitution by rebuilding the replay prompt from the recorded first user messag
 If any otherwise eligible round was marked `revise`, at least one such case must be
 retained. Outputs are written only after all validation succeeds.
 
-## Additional provenance checks
+### Scoping and further provenance checks
 
+- Only logs whose prompt has `## Milestone` / `# M1:` and whose stamp is not after the last M1 journal entry are scanned; others (W1 logs etc.) are dropped silently so output does not change as new rounds run.
+- `--check` also re-runs `parse_events` on every included log and fails on any rate-limit match.
 - Call logs are associated with journal entries by window: for each worker log (sorted by
   stamp), the first `worker (...), round <n>` entry with time in [log start, next worker
   log start). A log with none is skipped as `no_journal_worker` (orphan sessions).

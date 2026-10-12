@@ -254,3 +254,46 @@ Round 6's build produced 22 cases (11 Sonnet, 11 Terra; 15 approve, 7 revise; it
 Added to the standing facts:
 
 - autopilot/.runtime/calls/ mixes worker logs from all milestones and the filenames (<stamp>-worker-<item>-r<n>.jsonl) carry no milestone, so any corpus builder or --check must scope logs by the prompt's milestone heading or a fixed time window, or its output changes as new rounds run (bench/worker_eval/build_cases.py build()).
+
+### 2026-10-12T13:59:17-04:00 · worker (gpt-5.6-terra), round 8
+
+Added M1 scoping (prompt milestone heading `# M1:` plus a stamp <= last journal entry; out-of-scope logs are dropped silently). validate() now re-runs parse_events and fails on any rate-limit match. Merged the README sections and documented the scoping. Added bench/worker_eval/build_and_check.sh, which runs build and then --check. Not run yet. Expected: 22 rows, with no_journal_worker down to the real M1 orphans only. If the milestone regex doesn't match the prompt format, the count will drop to 0, and I'll fix that next round.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/build_and_check.sh",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Rebuild cases.jsonl/inventory.json with M1 scoping, then run --check on the same archive state."
+}
+```
+
+### 2026-10-12T13:59:52-04:00 · advisor (run request)
+
+**approve**: Safe: read-only on the archive, the M1 journal and git; writes only bench/worker_eval/{cases.jsonl,inventory.json} after validation; set -e makes --check run only after a successful build, so both use the same archive state. The `^## Milestone\s+# M1:` regex matches the recorded prompt format, and the last-journal-entry bound (12:18:31, M1 journal is static) independently excludes every W1 log. In your next report: (1) the exact included count and every skip reason with its count. no_journal_worker should drop back to the real M1 orphans (expected 8: the original 6 plus 082110-replay-set-r6 and 113932-write-up-r1). If it is anything else, list the log names. (2) Confirm that --check exited 0. If both pass and there are at least 20 rows across at least 2 items, with at least one revise case, submit done. The committed inventory.json must be the one this run wrote. Optional cleanup before done: the README's 'Scoping and further provenance checks' bullets partly repeat the paragraph above them (start-commit age, item/round header, --check coverage). Fold them into one list. The unused ADVISOR regex and the unused `raw` return value from log_data() can go.
+
+### 2026-10-12T13:59:58-04:00 · orchestrator
+
+Ran `bash bench/worker_eval/build_and_check.sh` (gpu=False) in 6s, exit 1. Full output: `bench/results/2026-10-12/autopilot/case-corpus-r8.log`. Last lines:
+
+```
+Traceback (most recent call last):
+  File "/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/worker_eval/build_cases.py", line 298, in <module>
+    if __name__ == "__main__": main()
+                               ^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/worker_eval/build_cases.py", line 285, in main
+    rows, skipped, eligible_revise = build(); errors = validate(rows, eligible_revise); inv = inventory(rows, skipped, eligible_revise)
+                                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/worker_eval/build_cases.py", line 267, in validate
+    if any(RATE_LIMIT.search(str(e)) for e in event_errors(r["event_log"])): errors.append(f"rate-limit failure included: {r['case_id']}")
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/worker_eval/build_cases.py", line 165, in event_errors
+    return module.parse_events(path)["errors"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/evals/run.py", line 342, in parse_events
+    for line in path.read_text(errors="replace").splitlines():
+                ^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'read_text'
+
+```
