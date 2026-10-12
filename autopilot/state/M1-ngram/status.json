@@ -1,10 +1,8 @@
 {
   "phase": "work",
-  "item": 1,
-  "round": 1,
+  "item": 0,
+  "round": 6,
   "reviews": 0,
-  "base": "b81d31403ff5e5435508b72129cd56124ca00bee",
-  "dropped": [
-    "recon"
-  ]
+  "base": "222c36ba39ab51f4370a472264094e7a3a7d1045",
+  "dropped": []
 }
