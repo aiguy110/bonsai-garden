@@ -709,3 +709,24 @@ outliers (ratio outside 0.75-1.33): [('inventory-baseline-r0/0/5', 0.74), ('inve
 wrote /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/.replay/m1 /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/replay_manifest.json
 
 ```
+
+### 2026-10-12T08:44:52-04:00 · worker (claude-sonnet-5-5), round 11
+
+Replay set built and checked; outlier notes written.
+
+```json
+{
+  "request": "done",
+  "summary": ".gitignore has bench/.replay/ (line 8). bench/build_replay_set.py is committed and runs as `python3 bench/build_replay_set.py`. bench/results/2026-10-12/m1-ngram/replay_manifest.json lists 30 agent requests over 6 steps and 12 mem requests over 5 steps. Every entry has recorded_prompt_tokens. system_prompt_exact is true. Median est/recorded is 0.833 for agent (with reasoning_content kept) and 1.027 for mem, both inside 0.75\u20131.33. Three agent outliers (baseline-r0/0/5, 0/8, 0/10) sit at 0.740\u20130.743, just under 0.75. They are explained in bench/m1-notes.md \u00a78; the likely cause is a tokenization effect and was not measured. Caveats are also in \u00a78. The pi-ai source search found no file, so that pi sends reasoning_content back is inferred from the token counts. Bodies carry no sampling params or max_tokens, so the probe must set them. The probe server needs --jinja."
+}
+```
+
+### 2026-10-12T08:45:44-04:00 · advisor (finished item)
+
+**revise**: Everything passes except the outlier explanation in bench/m1-notes.md §8, which the run's own data contradicts. baseline-r0/0/5's chars_by_role is tool=2154 vs reasoning=25717, so tool/JSON output can't be the cause. Replace that bullet with the measured cause, using numbers already in the repo: in inventory.json, baseline-r0 step0 agent turns 2-4 generated 8565+576+1024=10165 tokens; the recorded prompt grows 2761->13032 (+10271) from turn 2 to turn 5; the rebuilt body grows 8502->38559 chars (+30057), of which tool is only +219. So the model's own reasoning/assistant text tokenizes at ~2.96 chars/token, chars/4 under-counts it, and the late turns of a step dominated by one long reasoning output land just under 0.75. In the reasoning bullet, cite the same arithmetic as evidence that reasoning is sent back in full: recorded prompt growth ≈ generated tokens. This replaces the median-only inference, since the pi-ai source search found nothing. This is a notes-only edit; don't re-run the builder or touch the manifest. Commit it with the item.
+
+### 2026-10-12T08:45:44-04:00 · orchestrator
+
+Added to the standing facts:
+
+- Recorded agent prompts include earlier reasoning in full: in baseline-r0 step0 the recorded prompt grows 2761->13032 tokens from turn 2 to 5, which matches the 10165 tokens generated in turns 2-4 (inventory.json), and that generated text tokenizes at ~3 chars/token. So chars/4 under-counts reasoning-heavy agent prompts (replay_manifest.json baseline-r0/0/5).

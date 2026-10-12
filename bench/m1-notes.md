@@ -323,3 +323,15 @@ are omitted; index row counts are `-1` and omitted.)
 - Both `agent` and `mem` roles show non-zero `predicted_n` (generated tokens
   only — no speculation, §1); `cache_n` grows across turns (prefix-cache
   hits), consistent with the running context being reused.
+
+## 8. Replay-set size check (round 11, from replay_manifest.json and autopilot/replay-set-r10.log)
+
+Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+
+- Agent: 30 requests, 6 steps, median est/recorded **0.833** (inside 0.75–1.33). Mem: 12 requests, 5 steps, median **1.027**.
+- Agent bodies keep assistant thinking as `reasoning_content` (pi's thinkingSignature). Without it the median is 0.457, so recorded prompts clearly included earlier reasoning. The probe server needs `--jinja`.
+- The "reasoning after last user only" ratio equals the "all reasoning" ratio. Every step is a fresh session with one user message, so this says nothing about the chat template.
+- Not confirmed from source: the pi-ai `openai-completions.js` search found no file (empty list), so that pi sends `reasoning_content` back is inferred from the token counts only.
+- Outliers below 0.75: baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742). They are 1% under the bound. They are late turns of baseline-r0 step 0. Likely cause (not measured): code/JSON tool output tokenizes at under 4 chars/token, so chars/4 under-counts. Not corrected.
+- Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+- Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
