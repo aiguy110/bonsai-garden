@@ -522,3 +522,46 @@ Added to the standing facts:
 
 - In inventory.json the tap records carry only role/path/model/status/n_messages/prompt_n/cache_n/predicted_n (no max_tokens, no timestamp). Recorded max_tokens can only be inferred, e.g. predicted_n==2048 suggests a cap was hit.
 - Each mem0 run's memory/mem0-history.db has tables memory_history and messages (bench/results/2026-10-12/m1-ngram/recon/inventory.json, mem0_dbs). memory_history uses mem0's history schema, not a `text` column.
+
+### 2026-10-12T08:36:41-04:00 · worker (claude-sonnet-5-5), round 7
+
+I rewrote bench/build_replay_set.py from scratch, because the old file had the crashes the advisor listed. I did not run it. It compiles, and I deleted bench/.tmp_explore.py. The builder reads the first system message_start for tools, and the agent_end messages for history. The system prompt is the recorded sections joined with blank lines, so system_prompt_exact should be true. pi's custom mem0-recall message becomes a user message, tool results become role tool, and tool_calls get id, type and a JSON-string arguments field. Tools come from the recorded toolsAdded as OpenAI function entries, so mem0_memory appears only in the mem0 arm. The agent set takes the 3 best-scoring steps per arm and spreads 5 turns across each, which is at most 30 requests. Ids are <run>/<step>/<turn>, and n_messages is compared against the tap record. The mem set has one request per mem tap record in the mem0 arm, up to 12. Each has the verbatim system prompt, a user prompt assembled per the mem0 template, and enable_thinking false. predicted_n goes in meta, with a 2048 cap-hit flag. The run prints the mem0 DB columns, the n_messages mismatches and the median ratios per role. Two things are assumed: serializeMemories as a JSON list and formatConversationHistory as 'role: content' lines, because neither is in the source dump. Next round I'll check the output against the acceptance criteria and write the outlier notes in bench/m1-notes.md.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/build_replay_set.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Run the rewritten replay-set builder on host recordings. It writes bench/.replay/m1/{agent,mem}.jsonl and replay_manifest.json, and prints counts, n_messages mismatches, mem0 DB columns, and median est/recorded ratios per role. Read-only, no GPU."
+}
+```
+
+### 2026-10-12T08:39:15-04:00 · advisor (run request)
+
+**approve**: Safe: read-only on recordings and SQLite (mode=ro), writes only to bench/.replay/m1 and the results dir, no GPU, no server. It should run end to end, so run it and use the output. Before the next run, fix these mem-set problems: (1) Not every mem tap record is an auto-capture. The mem0_memory tool's `add` action also runs mem0 add with infer on, and every one of those is an extraction LLM call (site/series/memory-layers/mem0-in-pi.md:101-160: r0 step1 has 6 tool adds plus 1 capture). Giving every record in a step the same 'user prompt + first assistant text' prompt is wrong for those calls. Build that step's add events in timestamp order: one per mem0_memory toolCall with action=add (find in tools.js or the recon how the tool passes content to add(); probably a single user message, so new_msgs='user: <content>'), plus the auto-capture (user prompt + first assistant message with text). Match them to the mem tap records in order, log any count mismatch, and record kind=tool_add|capture in meta. (2) The cutoff is per step (last message timestamp), so a call's 'existing memories' and 'last k' include memories written later in the same step, sometimes by that very call. Use a per-call cutoff: the toolResult timestamp for a tool add, the timestamp of the capture's assistant message for the capture. (3) mem0 calls generateResponse(..., {type:'json_object'}) (mem0_extract_src.txt:866-870). response_format is not a sampling param and it constrains decoding, which matters for speculation. Put response_format {type:'json_object'} in every mem body. (4) mem0 TS history uses `action`, not `event`. Detect either column, and if it's `action`, also drop memory ids whose latest action is DELETE. (5) getSystemMessageText is imported but not in pi_prompt_src.txt (line 8), so the '\n\n' join is an assumption. Set system_prompt_exact=true only with the 2-message first-request ratios as support. Report the agent ratio for requests with n_messages<=3 separately as evidence, and change system_prompt_note to say the join is inferred. (6) If arguments is already a string, don't json.dumps it again. In the next round, read the printed db columns, mismatches and ratios, then make the fixes above and re-run. Write the bench/m1-notes.md outlier notes only after the re-run.
+
+### 2026-10-12T08:39:15-04:00 · orchestrator
+
+Added to the standing facts:
+
+- mem0 tap records include extraction calls triggered by the agent's mem0_memory add tool as well as the once-per-prompt auto-capture (site/series/memory-layers/mem0-in-pi.md:101-160), so each mem replay request needs its own new-messages content and per-call cutoff.
+- mem0 extraction requests carry response_format {type: json_object} (mem0_extract_src.txt:866-870), so mem replay bodies must include it; it constrains decoding and may interact with speculation.
+
+### 2026-10-12T08:39:15-04:00 · orchestrator
+
+Ran `python3 bench/build_replay_set.py` (gpu=False) in 0s, exit 1. Full output: `bench/results/2026-10-12/autopilot/replay-set-r7.log`. Last lines:
+
+```
+Traceback (most recent call last):
+  File "/home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/build_replay_set.py", line 358, in <module>
+    main()
+  File "/home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/build_replay_set.py", line 229, in main
+    additive = load_additive(RECON / "mem0_extract_src.txt")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/build_replay_set.py", line 147, in load_additive
+    b = txt.index("`;", a)
+        ^^^^^^^^^^^^^^^^^^
+ValueError: substring not found
+
+```
