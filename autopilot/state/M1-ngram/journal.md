@@ -1115,3 +1115,33 @@ result ok None
 2026-10-12 10:50:27,968 released lease 6279215a9028a9b840224a75d2614169
 
 ```
+
+### 2026-10-12T10:52:14-04:00 · worker (gpt-5.6-terra), round 7
+
+Verified corrected off-prod: all four phases are present, 140 rows have no errors and all carry t_end; notes has four measurement windows. Its conservative completed-output dual rates are 47.8 tok/s (dual-agent) and 35.4 tok/s (dual-mem). Greedy comparison confirms A (ngram-mod defaults) is the selected production-sampling spec arm: dual-agent foreground 25.5 tok/s versus B 23.0 (off 26.3).
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Measure the selected A n-gram configuration under production sampling on the corrected replay probe, against the validated off-prod baseline. This uses a fresh private production-equivalent server on :8089 for every phase."
+}
+```
+
+### 2026-10-12T10:52:46-04:00 · advisor (run request)
+
+**approve**: Safe and appropriate to run. bench/spec_replay.py launches the production-equivalent command only on private port 8089, writes under the specified repository output directory and bench/.replay, and terminates each server between phases. It does not touch live services or configuration. Afterward verify all four phases completed, successful rows have t_end plus draft fields, and notes.txt contains all four measurement windows. Report combined rates as conservative completed-output throughput, not exact aggregate GPU decode throughput.
+
+### 2026-10-12T11:13:27-04:00 · orchestrator
+
+Ran `python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod` (gpu=True) in 1241s, exit 0. Full output: `bench/results/2026-10-12/autopilot/spec-replay-r7.log`. Last lines:
+
+```
+2026-10-12 10:52:47,033 turnstile lease 51e31f3d16b70d4c2bcb768e0d954e59 granted after 0s
+2026-10-12 10:52:47,033 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod
+result ok None
+2026-10-12 11:13:27,259 released lease 51e31f3d16b70d4c2bcb768e0d954e59
+
+```
