@@ -224,7 +224,11 @@ def worker_agent_dir():
                 "compaction": {"reserveTokens": 28672}}
     if arm:
         tpl = ev.agent_template(arm)
-        shutil.copytree(tpl / "npm", agent / "npm", symlinks=True, dirs_exist_ok=True)
+        mark = agent / "npm" / ".template"
+        if not mark.exists() or mark.read_text() != tpl.name:
+            shutil.rmtree(agent / "npm", ignore_errors=True)
+            shutil.copytree(tpl / "npm", agent / "npm", symlinks=True)
+            mark.write_text(tpl.name)
         mem = ev.substitute(arm["settings"]["pi-memory-mem0"], {"{MEM}": ev.SB_MEM, "{TAP}": ev.TAP})
         settings.update(packages=json.loads((tpl / "settings.json").read_text())["packages"],
                         **{"pi-memory-mem0": {**mem, "memoryMode": "active"}})
@@ -239,6 +243,18 @@ def worker_agent_dir():
     (agent / "extensions").mkdir(exist_ok=True)
     shutil.copy(HERE / "extensions" / "submit_request.ts", agent / "extensions" / "submit_request.ts")
     return agent
+
+
+def last_stop_reason(events):
+    stop = None
+    for line in events.read_text(errors="replace").splitlines():
+        try:
+            m = json.loads(line)
+        except ValueError:
+            continue
+        if m.get("type") == "message_end" and (m.get("message") or {}).get("role") == "assistant":
+            stop = m["message"].get("stopReason")
+    return stop
 
 
 def call_worker(prompt, label, memory_dir=None):
@@ -280,6 +296,7 @@ def call_worker(prompt, label, memory_dir=None):
             ev.stop(tap)
             sock.unlink(missing_ok=True)
     e = ev.parse_events(events)
+    e["last_stop"] = last_stop_reason(events)
     say(f"worker/{label}: {e['turns']} turns, {e['tool_calls']} tools, errors {e['errors'][:2]}")
     try:
         req = json.loads(req_file.read_text()) if req_file.exists() else None
@@ -688,7 +705,10 @@ def do_work(m, st):
     if not req:
         req = {"request": "continue", "note": "(no request)"}
         stat = git("diff", "--stat", pre) or "(no file changes)"
-        m.journal("orchestrator", "The session ended without a request (cut off by the time limit or an "
+        cause = ("Your last reply hit the output limit (16k tokens) and was cut off, which ends the session. "
+                 "Write large files in parts: a short first version, then edits. "
+                 if e.get("last_stop") == "length" else "")
+        m.journal("orchestrator", f"{cause}The session ended without a request (cut off by the time limit or an "
                   f"error), so nothing ran. Files changed in it:\n\n```\n{stat}\n```\n\nNext session: don't "
                   "polish further. Check those files briefly, then end early with submit_request (a `run` "
                   "request). Running the script is how you test it.")

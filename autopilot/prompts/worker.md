@@ -14,6 +14,8 @@ memory between them.
 - Host paths named in the milestone (like `~/Projects/...` or `evals/results/`) are
   not visible here. Scripts you write can use them, because requests run on the
   host with the repo root as their working directory.
+- git does not work in the sandbox. The orchestrator commits your changes after
+  every session, so don't commit and don't check git state.
 - Put new probe scripts in `bench/`. Requests save their output under
   `bench/results/<date>/autopilot/`, and you can read it next round.
 - The live inference config is the `"bonsai-2-27b"` entry. The current applied copy
