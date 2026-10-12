@@ -1248,3 +1248,15 @@ Regenerated decision artifacts after strengthening mmproj verification and docum
 ### 2026-10-12T11:39:30-04:00 · advisor (finished item)
 
 **approve**: Acceptance criteria are met. The foreground-only performance, draft, validity, identity, divergence, and phase-specific VRAM figures recompute from the replay artifacts. All six decision predicates and values are documented. deploy.json correctly records no deployment, and the serving configuration remains unchanged.
+
+### 2026-10-12T11:42:08-04:00 · orchestrator
+
+Health check through turnstile failed: URLError: <urlopen error [Errno 111] Connection refused>
+
+### 2026-10-12T11:43:41-04:00 · fixer (cloud)
+
+Service is restored. The connection refusal coincided with a host reboot; enabled services then started automatically. No configuration changes or manual restarts were needed. Live config matches known-good, all ports are listening, and two health checks passed.
+
+```json
+{"fixed":true,"diagnosis":"Host reboot caused a temporary connection-refused window before turnstile and llama-swap restarted automatically.","actions":["Confirmed turnstile, llama-swap, and embedder are active","Confirmed ports 8080, 11435, and 8095 are listening","Verified live llama-swap config matches known-good","Ran infra.py check twice; both returned {\"ok\": true}"]}
+```
