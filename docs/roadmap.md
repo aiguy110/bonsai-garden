@@ -64,11 +64,14 @@ grow. Each step is measured on W1.
   is.
 - **Editing.** pi's `edit` is exact-text replacement; 9 of Bonsai's 42 edits failed,
   and it did most work through bash (17% of 728 calls failed). Try hash-anchored
-  line edits ("hashline", from oh-my-pi), which exist as pi extensions.
+  line edits ("hashline", from oh-my-pi) first as a plain pi extension: several
+  ports exist (e.g. `pi-hashline-edit`, `pi-hashline-context-edit`).
 - **Session discipline.** Turn and time budgets in the `submit_request` extension:
   warnings first, then only that tool allowed. Smaller items when the worker is local.
 - **Compaction** (M6): the reserve, and what the summary keeps.
-- **Harness:** oh-my-pi as a whole-harness arm, if the extensions above leave a gap.
+- **Harness:** oh-my-pi as a whole-harness arm, only after the hashline extension and
+  the other candidates above, and only if they leave a gap. Check first that our
+  extensions (`submit_request`, pi-memory-mem0) run under it.
   Its larger tool set and system prompt cost context the 80k window doesn't have.
 
 ## Milestones
