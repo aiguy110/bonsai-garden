@@ -730,3 +730,25 @@ Replay set built and checked; outlier notes written.
 Added to the standing facts:
 
 - Recorded agent prompts include earlier reasoning in full: in baseline-r0 step0 the recorded prompt grows 2761->13032 tokens from turn 2 to 5, which matches the 10165 tokens generated in turns 2-4 (inventory.json), and that generated text tokenizes at ~3 chars/token. So chars/4 under-counts reasoning-heavy agent prompts (replay_manifest.json baseline-r0/0/5).
+
+### 2026-10-12T08:46:15-04:00 · worker (claude-sonnet-5-5), round 12
+
+Notes-only fix to bench/m1-notes.md §8 per advisor.
+
+```json
+{
+  "request": "done",
+  "summary": ".gitignore has bench/.replay/. bench/build_replay_set.py runs as `python3 bench/build_replay_set.py`. bench/results/2026-10-12/m1-ngram/replay_manifest.json lists 30 agent requests over 6 steps and 12 mem requests over 5 steps, each with recorded_prompt_tokens. system_prompt_exact is true. Median est/recorded is 0.833 for agent and 1.027 for mem, both inside 0.75\u20131.33. Three agent outliers (baseline-r0/0/5, 0/8, 0/10) sit at 0.740\u20130.743. bench/m1-notes.md \u00a78 now explains them with the measured arithmetic: reasoning tokenizes at ~2.96 chars/token, and tool output is only +219 chars of the growth. The same arithmetic is the evidence that reasoning is sent back in full. The pi-ai source search found no file, so that is inferred from token counts. Bodies carry no sampling params or max_tokens, so the probe must set them, and the probe server needs --jinja."
+}
+```
+
+### 2026-10-12T08:46:54-04:00 · advisor (finished item)
+
+**approve**: Acceptance met. All 42 manifest entries have recorded_prompt_tokens. The medians (agent 0.833, mem 1.027) match replay-set-r10.log. The §8 outlier arithmetic traces to inventory.json: 2761 -> 11377 -> 11981 -> 13032 tokens, generated 8565+576+1024, tool chars +219. Small nit: 30057/10271 is about 2.93 chars/token, and the 2.96 figure comes from dividing by the 10165 generated tokens. Not worth a revision. Make sure the uncommitted bench/m1-notes.md §8 edit goes into the item commit. For the probe item, set per-request max_tokens from the manifest's predicted_n (e.g. max(predicted_n, some floor), keeping 2048 for the capped mem0-r0/2/0). Otherwise long-reasoning turns like baseline-r0/0/2 (8565 tokens) get cut off at a different length in each arm, which breaks the decode tok/s and output-identity comparisons. The mem set has no mem0-r2 requests, and 7 of its 12 come from mem0-r0 step0. State that when reporting mem results.
+
+### 2026-10-12T08:46:54-04:00 · orchestrator
+
+Added to the standing facts:
+
+- replay_manifest.json carries each request's recorded predicted_n, which ranges up to 8565 for agent (baseline-r0/0/2) and is 2048 for mem0-r0/2/0 (cap hit). Replay bodies have no max_tokens, so the probe must set the same per-request max_tokens in both arms, derived from predicted_n, or the decode tok/s and output-identity comparisons are invalid.
+- The M1 mem replay set (replay_manifest.json) has 12 requests: 7 from mem0-r0 step0, none from mem0-r2. Each is ~1.03 est/recorded because the fixed ~33.6k-char ADDITIVE prompt dominates, so mem n-gram results mostly reflect that one shared system prompt.
