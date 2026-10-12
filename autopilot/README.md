@@ -21,7 +21,8 @@ Roles are pi model strings in `config.json`. To swap the advisor, edit the strin
 the Claude Code SDK. The advisor's pi agent dir is `.cache/agent-cloud`, which has
 `pi-meridian-extension`. An `openai-codex/<id>` advisor gets the Codex CLI's token
 through the environment (`CODEX_TOKEN`, named in the agent dir's `models.json`).
-Since 2026-10-12 10:30 the advisor and fixer are GPT-5.6 Sol (thinking `high`).
+Since 2026-10-12 10:30 the advisor and fixer are GPT-5.6 Sol (thinking `high`), with
+Opus 5.5 as the fallback.
 
 The worker is `garden/<id>` (Bonsai through turnstile, bench key, priority 20),
 `meridian/<id>` or `openai-codex/<id>`. A cloud worker still has no network; the
@@ -34,9 +35,15 @@ sandbox's tap gets one extra route:
   only gets a placeholder carrying the account id. Only the CLI refreshes the token:
   if it is about to expire, the tick fails until `codex` has been run once.
 
-Worker calls don't count against `cloud_calls_per_day`. When the worker or advisor
-hits a subscription rate limit, the loop pauses (up to 4 hours, using the
-wait the error names), and the failed session doesn't count as a round.
+Worker calls don't count against `cloud_calls_per_day`.
+
+**Failover.** Each role may name a `fallback` model and thinking level. OpenAI is
+preferred; Claude through meridian is the fallback (Terra → Sonnet 5.5, Sol → Opus 5.5).
+When a session hits a subscription's rate or usage limit, that provider is marked
+capped in `.runtime/caps.json` until the reset the error names (30 min if it names
+none). Until then every role on that provider uses its fallback. If the fallback's
+provider is capped too, the loop pauses until the first cap lifts (at most 4 hours).
+The failed session doesn't count as a round.
 
 History: Bonsai was the worker until 2026-10-12 and mostly failed to end its sessions
 (timeouts, context overflows, cut-off replies). Then `meridian/claude-sonnet-5-5`

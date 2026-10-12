@@ -97,7 +97,10 @@ def last_json(text):
 
 
 def worker_desc():
-    provider, model = CFG["roles"]["worker"]["model"].split("/", 1)
+    try:
+        provider, model = role_cfg("worker")["model"].split("/", 1)
+    except RateLimited:
+        provider, model = CFG["roles"]["worker"]["model"].split("/", 1)
     if provider == "garden":
         return "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU"
     return f"{model}, a cloud model"
@@ -183,21 +186,44 @@ class OutOfBudget(Exception):
 
 class RateLimited(Exception):
     """A subscription's rate or usage limit (Claude Max through meridian, or Codex). The
-    loop pauses instead of spending rounds on sessions that fail at once."""
-    def __init__(self, role, wait):
+    loop switches the role to its fallback, or pauses if that is capped too, instead of
+    spending rounds on sessions that fail at once."""
+    def __init__(self, role, wait, model=None):
         super().__init__(role)
-        self.role, self.wait = role, wait
+        self.role, self.wait, self.model = role, wait, model
 
 
-def check_rate_limit(e, role):
+def caps():
+    """Providers whose subscription is capped, with the epoch time the cap lifts."""
+    p = RT / "caps.json"
+    c = json.loads(p.read_text()) if p.exists() else {}
+    return {k: v for k, v in c.items() if v > time.time()}
+
+
+def role_cfg(role):
+    """The role's model and thinking: its primary unless that provider is capped, then
+    its fallback. Raises RateLimited, with the wait until one is free, if both are."""
+    r, c = CFG["roles"][role], caps()
+    for cand in [r, {**r, **r["fallback"]} if r.get("fallback") else None]:
+        if cand and cand["model"].split("/", 1)[0] not in c:
+            return cand
+    used = [r["model"]] + ([r["fallback"]["model"]] if r.get("fallback") else [])
+    raise RateLimited(role, min(c[m.split("/", 1)[0]] for m in used) - time.time())
+
+
+def check_rate_limit(e, role, model):
     hits = [x for x in e["errors"] if re.search(r"rate.?limit|usage.?limit|\b429\b", str(x), re.I)]
     if hits:
         msg = str(hits[-1])
         if m := re.search(r"retry.?after\D{0,4}(\d+)", msg, re.I):
-            raise RateLimited(role, int(m.group(1)))
-        if m := re.search(r"try again in\W{0,3}(\d+)\s*(s|min|h)", msg, re.I):  # Codex: "Try again in ~111 min."
-            raise RateLimited(role, int(m.group(1)) * {"s": 1, "min": 60, "h": 3600}[m.group(2).lower()] + 60)
-        raise RateLimited(role, 1800)
+            wait = int(m.group(1))
+        elif m := re.search(r"try again in\W{0,3}(\d+)\s*(s|min|h)", msg, re.I):  # Codex: "Try again in ~111 min."
+            wait = int(m.group(1)) * {"s": 1, "min": 60, "h": 3600}[m.group(2).lower()] + 60
+        else:
+            wait = 1800
+        RT.mkdir(parents=True, exist_ok=True)
+        (RT / "caps.json").write_text(json.dumps({**caps(), model.split("/", 1)[0]: time.time() + wait}))
+        raise RateLimited(role, wait, model)
 
 
 # ---- model calls ----
@@ -224,8 +250,8 @@ def call_cloud(role, prompt, label):
     ensure_cloud_agent()
     if budget_left() <= 0:
         raise OutOfBudget(role)
+    r = role_cfg(role)
     spend()
-    r = CFG["roles"][role]
     events = call_log(f"{role}-{label}")
     env = dict(os.environ, PI_CODING_AGENT_DIR=str(CLOUD_AGENT))
     if r["model"].startswith("openai-codex/"):
@@ -239,7 +265,7 @@ def call_cloud(role, prompt, label):
                            text=True, timeout=3600)
     e = ev.parse_events(events)
     say(f"{role}/{label}: exit {p.returncode}, {e['turns']} turns, {e['tool_calls']} tools")
-    check_rate_limit(e, role)
+    check_rate_limit(e, role, r["model"])
     return e["final"], e
 
 
@@ -268,7 +294,7 @@ def meridian_extension():
     return src
 
 
-def worker_agent_dir():
+def worker_agent_dir(r):
     """Rebuilt every session from config, so switching the worker model or turning
     worker_memory off takes effect at once.
     With memory on, the worker gets pi-memory-mem0 in "active" mode: only the mem0_memory
@@ -278,7 +304,6 @@ def worker_agent_dir():
     agent = RT / "agent-worker"
     agent.mkdir(parents=True, exist_ok=True)
     arm = worker_memory_arm()
-    r = CFG["roles"]["worker"]
     provider, model = r["model"].split("/", 1)
     settings = {"defaultProvider": provider, "defaultModel": model, "defaultThinkingLevel": r["thinking"]}
     if provider == "garden":
@@ -356,9 +381,9 @@ def call_worker(prompt, label, memory_dir=None):
     model (meridian or Codex) is reached through the sandbox's tap, so the sandbox still
     has no network. Returns its final text, the parsed events, and the request it
     submitted (or None)."""
-    r = CFG["roles"]["worker"]
+    r = role_cfg("worker")
     provider = r["model"].split("/", 1)[0]
-    agent = worker_agent_dir()
+    agent = worker_agent_dir(r)
     req_file = agent / "request.json"
     req_file.unlink(missing_ok=True)
     events = call_log(f"worker-{label}")
@@ -405,7 +430,7 @@ def call_worker(prompt, label, memory_dir=None):
     e = ev.parse_events(events)
     e["last_stop"] = last_stop_reason(events)
     say(f"worker/{label}: {e['turns']} turns, {e['tool_calls']} tools, errors {e['errors'][:2]}")
-    check_rate_limit(e, "worker")
+    check_rate_limit(e, "worker", r["model"])
     try:
         req = json.loads(req_file.read_text()) if req_file.exists() else None
     except ValueError:
@@ -918,9 +943,19 @@ def tick():
         return "budget"
     except RateLimited as e:
         global RATE_WAIT
-        RATE_WAIT = min(max(e.wait, 300), 4 * 3600)
-        m.journal("orchestrator", f"The {e.role}'s subscription hit its rate limit; pausing "
-                  f"{RATE_WAIT // 60} min. This session doesn't count as a round.")
+        until = lambda t: datetime.datetime.fromtimestamp(t).strftime("%H:%M")
+        try:
+            nxt = role_cfg(e.role)["model"]
+            RATE_WAIT = 0
+            m.journal("orchestrator", f"`{e.model}` hit its subscription's usage limit; the {e.role} uses "
+                      f"`{nxt}` until {until(caps()[e.model.split('/', 1)[0]])}. "
+                      "This session doesn't count as a round.")
+        except RateLimited as both:
+            RATE_WAIT = min(max(both.wait, 300), 4 * 3600)
+            what = (f"`{e.model}` hit its subscription's usage limit, and the {e.role}'s other model is "
+                    "capped too" if e.model else f"Both of the {e.role}'s models are capped")
+            m.journal("orchestrator", f"{what}; pausing {RATE_WAIT // 60} min. "
+                      "This session doesn't count as a round.")
         commit(f"autopilot({m.name}): rate limited")
         return "ratelimit"
     if m.status()["phase"] != "blocked":
