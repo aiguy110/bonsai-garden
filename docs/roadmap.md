@@ -3,7 +3,13 @@
 Status as of 2026-10-12: serving is done (two slots, turnstile co-admission). One
 memory eval has run: 1 task, N=3, mem0 2/3 vs baseline 0/3. That is suggestive,
 not a result. A second mem0 arm, `mem0-server`, runs Python mem0 (the reference
-implementation) instead of the JS port. The autopilot works M1, then M2.
+implementation) instead of the JS port.
+
+Bonsai couldn't keep up as the autopilot's worker (11 of 21 rounds sent no request),
+so since 2026-10-12 the worker is Claude Sonnet 5.5. The priority now is the
+[local worker track](#local-worker-track): making the stack good enough that Bonsai
+can do this research itself. Order: M1, then W1, W2 (with M6 alongside), W3, W4,
+then M2 onward.
 
 ## Terms
 
@@ -28,6 +34,42 @@ implementation) instead of the JS port. The autopilot works M1, then M2.
   Second, the checker *passes* on a known-good finished workspace, so the checker is
   not broken. The known-good workspace is kept outside anything an eval agent can
   see.
+
+## Local worker track
+
+The share of autopilot work a local model can do is the number this track tries to
+grow. Each step is measured on W1.
+
+| # | Milestone | Question | Done when |
+|---|---|---|---|
+| W1 | **Worker eval** | Could Bonsai do the autopilot's own rounds? | Real Sonnet worker rounds (start commit, prompt, request, verdict) replayed on Bonsai; valid-request rate, kind match, time and failure modes. Spec: [`autopilot/milestones/W1-worker-eval.md`](../autopilot/milestones/W1-worker-eval.md) |
+| W2 | **Worker harness** | Which pi and server settings close the gap? | [Candidates](#w2-candidates) each run as a worker arm on W1 against the 2026-10-12 Bonsai arm; keep what helps |
+| W3 | **Passive worker memory** | Does memory let the worker survive compaction and fresh sessions? | Auto-recall and capture keyed on the item and the round report, not the whole prompt; measured on W1 cases that span several rounds of one item |
+| W4 | **Routing** | How much real work can go local? | The planner marks local-capable items; Bonsai tries them first and hands an item to Sonnet after N failed rounds. The status page tracks the local share |
+
+### W2 candidates
+
+- **Thinking.** Within one worker session there is only one user message, so every
+  earlier turn's thinking appears to stay in the prompt (`bench/m1-notes.md`):
+  prompt growth matched tokens generated. Candidates:
+  - drop thinking older than the last few turns before each request, which frees
+    context for everything else;
+  - a larger output limit (16k now), which that freed context can pay for;
+  - llama.cpp's reasoning budget, settable per request (`reasoning_budget_tokens`,
+    `reasoning_budget_message`), so it can be tested through the tap without a
+    live-config change. At the budget it forces the message and the end-of-thinking
+    tag, and the model carries on with its answer.
+- **Tool output.** pi caps a tool result at 50 KB / 2000 lines, about 12k tokens, which
+  is large for an 80k window. Try a smaller cap that tells the model where the rest
+  is.
+- **Editing.** pi's `edit` is exact-text replacement; 9 of Bonsai's 42 edits failed,
+  and it did most work through bash (17% of 728 calls failed). Try hash-anchored
+  line edits ("hashline", from oh-my-pi), which exist as pi extensions.
+- **Session discipline.** Turn and time budgets in the `submit_request` extension:
+  warnings first, then only that tool allowed. Smaller items when the worker is local.
+- **Compaction** (M6): the reserve, and what the summary keeps.
+- **Harness:** oh-my-pi as a whole-harness arm, if the extensions above leave a gap.
+  Its larger tool set and system prompt cost context the 80k window doesn't have.
 
 ## Milestones
 
@@ -84,8 +126,9 @@ either side of that design:
 
 ## Autonomous pursuit ("autopilot")
 
-Implemented in [`autopilot/`](../autopilot/README.md). Bonsai does the work in a
-sandbox. A cloud advisor (`meridian/claude-opus-5-5` via pi, swappable) plans,
+Implemented in [`autopilot/`](../autopilot/README.md). A worker model does the
+work in a sandbox: Bonsai until 2026-10-12, Claude Sonnet 5.5 since, until the
+local worker track brings Bonsai back. A cloud advisor (`meridian/claude-opus-5-5` via pi, swappable) plans,
 reviews every request and fact-checks write-ups. Deterministic code runs the
 probes and evals, enforces protected paths, and publishes. Live-server changes go
 through `autopilot/infra.py`:
@@ -98,8 +141,8 @@ with caveats, re-planned, or blocked for the user. It is never silently dropped.
 If the local model goes down, a cloud fixer takes over. Progress is published to
 the site's autopilot status page.
 
-M1 (n-gram speculation) is the first milestone and the test case. Bonsai measures,
-then possibly changes, the server it runs on. M2 (continuity suite) is queued next.
+M1 (n-gram speculation) is the first milestone and the test case: it measures,
+then possibly changes, the live server. W1 (worker eval) is queued next.
 Milestones run in the order of `milestones` in `autopilot/config.json`, and each
 needs a spec in `autopilot/milestones/<name>.md`.
 

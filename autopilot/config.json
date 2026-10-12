@@ -18,7 +18,7 @@
       "tools": "read,bash,edit,write,grep,find,ls"
     }
   },
-  "cloud_calls_per_day": 25,
+  "cloud_calls_per_day": 30,
   "worker_rounds_per_item": 12,
   "review_rounds_per_item": 3,
   "worker_timeout_min": 45,
@@ -46,7 +46,7 @@
   },
   "milestones": [
     "M1-ngram",
-    "M2-continuity"
+    "W1-worker-eval"
   ],
   "worktree_root": "/home/josiah/Projects/bonsai-garden-auto",
   "cloud_extension": "npm:pi-meridian-extension@0.2.5"
