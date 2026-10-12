@@ -1,0 +1,10 @@
++ sh -c for\ z\ in\ /sys/class/thermal/thermal_zone\*\;\ do\ \[\ -e\ \"\$z\"\ \]\ \|\|\ continue\;\ echo\ \"==\ \$z\"\;\ cat\ \"\$z/type\"\ \"\$z/temp\"\ 2\>\&1\;\ done 
+
+== /sys/class/thermal/thermal_zone0
+acpitz
+16800
+== /sys/class/thermal/thermal_zone1
+iwlwifi_1
+63000
+
+[exit 0]

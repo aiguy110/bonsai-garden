@@ -1,0 +1,17 @@
++ hostnamectl 
+
+ Static hostname: bifrost
+       Icon name: computer-desktop
+         Chassis: desktop 🖥️
+      Machine ID: 6431c727fbd0400fa6b57b18dfb988a8
+         Boot ID: 1dd5b41d9e7c4a109cd8ac6704e779a5
+Operating System: Ubuntu 24.04.4 LTS
+          Kernel: Linux 6.8.0-146-generic
+    Architecture: x86-64
+ Hardware Vendor: Gigabyte Technology Co., Ltd.
+  Hardware Model: B550I AORUS PRO AX
+Firmware Version: F10
+   Firmware Date: Fri 2020-09-18
+    Firmware Age: 6y 3w 3d
+
+[exit 0]

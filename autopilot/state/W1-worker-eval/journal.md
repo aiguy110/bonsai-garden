@@ -662,3 +662,30 @@ Reviewed the fail-fast smoke script. It runs the fixture suite using the same re
 Added to the standing facts:
 
 - Four worker-eval smoke attempts wrote manifests and began the first replay at 2026-10-12 14:15:54, 16:07:38, 16:13:40, and 16:22:31 (`bench/results/2026-10-12/worker_eval/smoke/`); each was followed within minutes by a host reboot and none produced a completed `results.jsonl` record.
+
+### 2026-10-12T16:31:20-04:00 · worker (gpt-5.6-terra), round 10
+
+Added `bench/worker_eval/diagnose_reboots.sh`, a syntax-checked read-only diagnostic collector scoped to the four interrupted smoke-run times. It preserves command output/errors and recent per-boot kernel/suspect-event context under `bench/results/`; next step is to inspect host evidence and diagnose or mitigate before retrying smoke.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/diagnose_reboots.sh",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Collect read-only host evidence for the repeated worker-eval smoke/reboot correlation before another live replay: retained boot and kernel journals, NVIDIA Xid/status, OOM, thermal/power, watchdog, reboot/shutdown, IPMI, and pstore evidence. The script writes only a timestamped directory under bench/results/."
+}
+```
+
+### 2026-10-12T16:31:53-04:00 · advisor (run request)
+
+**approve**: Safe, read-only diagnostic collection. It does not contact or modify live services, acquire a GPU lease, or start inference. Writes are confined to a timestamped bench/results directory. It plausibly captures the relevant reboot, kernel, NVIDIA, OOM, thermal/power, watchdog, pstore, and IPMI evidence across enough retained boots. After running, inspect command exit markers and correlate each smoke start with the end of its boot; distinguish orderly shutdown/reboot records from abrupt journal termination. Minor issue: the invocation printf is sent to stdout rather than README.txt, but this does not block the run.
+
+### 2026-10-12T16:32:09-04:00 · orchestrator
+
+Ran `bash bench/worker_eval/diagnose_reboots.sh` (gpu=False) in 16s, exit 0. Full output: `bench/results/2026-10-12/autopilot/replay-harness-r10.log`. Last lines:
+
+```
+bench/worker_eval/diagnose_reboots.sh wrote bench/results/2026-10-12/worker_eval/reboot-diagnostic-20261012T203153Z
+
+```

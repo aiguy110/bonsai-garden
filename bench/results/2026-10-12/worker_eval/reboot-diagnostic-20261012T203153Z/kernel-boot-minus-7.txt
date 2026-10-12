@@ -1,0 +1,1299 @@
++ journalctl --no-pager -k -b -7 -n 2000 -o short-iso-precise 
+
+2026-10-08T22:18:11.006909-04:00 bifrost kernel: Linux version 6.8.0-142-generic (buildd@lcy02-amd64-049) (x86_64-linux-gnu-gcc-13 (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, GNU ld (GNU Binutils for Ubuntu) 2.42) #142-Ubuntu SMP PREEMPT_DYNAMIC Wed Sep  2 14:24:27 UTC 2026 (Ubuntu 6.8.0-142.142-generic 6.8.12)
+2026-10-08T22:18:11.006934-04:00 bifrost kernel: Command line: BOOT_IMAGE=/boot/vmlinuz-6.8.0-142-generic root=UUID=944d802d-afd2-4380-ac19-08a3521bacdf ro quiet splash usbcore.autosuspend=-1 vt.handoff=7
+2026-10-08T22:18:11.006946-04:00 bifrost kernel: KERNEL supported cpus:
+2026-10-08T22:18:11.006955-04:00 bifrost kernel:   Intel GenuineIntel
+2026-10-08T22:18:11.006964-04:00 bifrost kernel:   AMD AuthenticAMD
+2026-10-08T22:18:11.006973-04:00 bifrost kernel:   Hygon HygonGenuine
+2026-10-08T22:18:11.006984-04:00 bifrost kernel:   Centaur CentaurHauls
+2026-10-08T22:18:11.006995-04:00 bifrost kernel:   zhaoxin   Shanghai  
+2026-10-08T22:18:11.007004-04:00 bifrost kernel: BIOS-provided physical RAM map:
+2026-10-08T22:18:11.007013-04:00 bifrost kernel: BIOS-e820: [mem 0x0000000000000000-0x000000000009ffff] usable
+2026-10-08T22:18:11.007022-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000000a0000-0x00000000000fffff] reserved
+2026-10-08T22:18:11.007031-04:00 bifrost kernel: BIOS-e820: [mem 0x0000000000100000-0x0000000009dfffff] usable
+2026-10-08T22:18:11.007041-04:00 bifrost kernel: BIOS-e820: [mem 0x0000000009e00000-0x0000000009ffffff] reserved
+2026-10-08T22:18:11.007057-04:00 bifrost kernel: BIOS-e820: [mem 0x000000000a000000-0x000000000a1fffff] usable
+2026-10-08T22:18:11.007067-04:00 bifrost kernel: BIOS-e820: [mem 0x000000000a200000-0x000000000a20ffff] ACPI NVS
+2026-10-08T22:18:11.007077-04:00 bifrost kernel: BIOS-e820: [mem 0x000000000a210000-0x000000000affffff] usable
+2026-10-08T22:18:11.007086-04:00 bifrost kernel: BIOS-e820: [mem 0x000000000b000000-0x000000000b01ffff] reserved
+2026-10-08T22:18:11.007095-04:00 bifrost kernel: BIOS-e820: [mem 0x000000000b020000-0x000000009a398fff] usable
+2026-10-08T22:18:11.007107-04:00 bifrost kernel: BIOS-e820: [mem 0x000000009a399000-0x000000009a399fff] reserved
+2026-10-08T22:18:11.007116-04:00 bifrost kernel: BIOS-e820: [mem 0x000000009a39a000-0x000000009a3d2fff] usable
+2026-10-08T22:18:11.007125-04:00 bifrost kernel: BIOS-e820: [mem 0x000000009a3d3000-0x000000009a3d3fff] reserved
+2026-10-08T22:18:11.007134-04:00 bifrost kernel: BIOS-e820: [mem 0x000000009a3d4000-0x00000000bb071fff] usable
+2026-10-08T22:18:11.007143-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000bb072000-0x00000000bb3d4fff] reserved
+2026-10-08T22:18:11.007152-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000bb3d5000-0x00000000bb41dfff] ACPI data
+2026-10-08T22:18:11.007162-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000bb41e000-0x00000000bcea0fff] ACPI NVS
+2026-10-08T22:18:11.007171-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000bcea1000-0x00000000bddfefff] reserved
+2026-10-08T22:18:11.007180-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000bddff000-0x00000000beffffff] usable
+2026-10-08T22:18:11.007189-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000bf000000-0x00000000bfffffff] reserved
+2026-10-08T22:18:11.007198-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000f0000000-0x00000000f7ffffff] reserved
+2026-10-08T22:18:11.007207-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fd200000-0x00000000fd2fffff] reserved
+2026-10-08T22:18:11.007216-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fd600000-0x00000000fd7fffff] reserved
+2026-10-08T22:18:11.007225-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fea00000-0x00000000fea0ffff] reserved
+2026-10-08T22:18:11.007234-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000feb80000-0x00000000fec01fff] reserved
+2026-10-08T22:18:11.007244-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fec10000-0x00000000fec10fff] reserved
+2026-10-08T22:18:11.007253-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fec30000-0x00000000fec30fff] reserved
+2026-10-08T22:18:11.007264-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fed00000-0x00000000fed00fff] reserved
+2026-10-08T22:18:11.007273-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fed40000-0x00000000fed44fff] reserved
+2026-10-08T22:18:11.007282-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fed80000-0x00000000fed8ffff] reserved
+2026-10-08T22:18:11.007291-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fedc2000-0x00000000fedcffff] reserved
+2026-10-08T22:18:11.007300-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000fedd4000-0x00000000fedd5fff] reserved
+2026-10-08T22:18:11.007317-04:00 bifrost kernel: BIOS-e820: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+2026-10-08T22:18:11.007326-04:00 bifrost kernel: BIOS-e820: [mem 0x0000000100000000-0x000000083f37ffff] usable
+2026-10-08T22:18:11.007335-04:00 bifrost kernel: BIOS-e820: [mem 0x000000083f380000-0x000000083fffffff] reserved
+2026-10-08T22:18:11.007344-04:00 bifrost kernel: NX (Execute Disable) protection: active
+2026-10-08T22:18:11.007353-04:00 bifrost kernel: APIC: Static calls initialized
+2026-10-08T22:18:11.007362-04:00 bifrost kernel: e820: update [mem 0xb6c02018-0xb6c0f857] usable ==> usable
+2026-10-08T22:18:11.007372-04:00 bifrost kernel: e820: update [mem 0xb6c02018-0xb6c0f857] usable ==> usable
+2026-10-08T22:18:11.007381-04:00 bifrost kernel: e820: update [mem 0xb6bdb018-0xb6c01457] usable ==> usable
+2026-10-08T22:18:11.007390-04:00 bifrost kernel: e820: update [mem 0xb6bdb018-0xb6c01457] usable ==> usable
+2026-10-08T22:18:11.007399-04:00 bifrost kernel: extended physical RAM map:
+2026-10-08T22:18:11.007408-04:00 bifrost kernel: reserve setup_data: [mem 0x0000000000000000-0x000000000009ffff] usable
+2026-10-08T22:18:11.007417-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000000a0000-0x00000000000fffff] reserved
+2026-10-08T22:18:11.007426-04:00 bifrost kernel: reserve setup_data: [mem 0x0000000000100000-0x0000000009dfffff] usable
+2026-10-08T22:18:11.007435-04:00 bifrost kernel: reserve setup_data: [mem 0x0000000009e00000-0x0000000009ffffff] reserved
+2026-10-08T22:18:11.007444-04:00 bifrost kernel: reserve setup_data: [mem 0x000000000a000000-0x000000000a1fffff] usable
+2026-10-08T22:18:11.007455-04:00 bifrost kernel: reserve setup_data: [mem 0x000000000a200000-0x000000000a20ffff] ACPI NVS
+2026-10-08T22:18:11.007464-04:00 bifrost kernel: reserve setup_data: [mem 0x000000000a210000-0x000000000affffff] usable
+2026-10-08T22:18:11.007473-04:00 bifrost kernel: reserve setup_data: [mem 0x000000000b000000-0x000000000b01ffff] reserved
+2026-10-08T22:18:11.007482-04:00 bifrost kernel: reserve setup_data: [mem 0x000000000b020000-0x000000009a398fff] usable
+2026-10-08T22:18:11.007491-04:00 bifrost kernel: reserve setup_data: [mem 0x000000009a399000-0x000000009a399fff] reserved
+2026-10-08T22:18:11.007500-04:00 bifrost kernel: reserve setup_data: [mem 0x000000009a39a000-0x000000009a3d2fff] usable
+2026-10-08T22:18:11.007509-04:00 bifrost kernel: reserve setup_data: [mem 0x000000009a3d3000-0x000000009a3d3fff] reserved
+2026-10-08T22:18:11.007518-04:00 bifrost kernel: reserve setup_data: [mem 0x000000009a3d4000-0x00000000b6bdb017] usable
+2026-10-08T22:18:11.007527-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000b6bdb018-0x00000000b6c01457] usable
+2026-10-08T22:18:11.007536-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000b6c01458-0x00000000b6c02017] usable
+2026-10-08T22:18:11.007545-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000b6c02018-0x00000000b6c0f857] usable
+2026-10-08T22:18:11.007554-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000b6c0f858-0x00000000bb071fff] usable
+2026-10-08T22:18:11.007563-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000bb072000-0x00000000bb3d4fff] reserved
+2026-10-08T22:18:11.007572-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000bb3d5000-0x00000000bb41dfff] ACPI data
+2026-10-08T22:18:11.007581-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000bb41e000-0x00000000bcea0fff] ACPI NVS
+2026-10-08T22:18:11.007590-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000bcea1000-0x00000000bddfefff] reserved
+2026-10-08T22:18:11.007601-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000bddff000-0x00000000beffffff] usable
+2026-10-08T22:18:11.007610-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000bf000000-0x00000000bfffffff] reserved
+2026-10-08T22:18:11.007619-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000f0000000-0x00000000f7ffffff] reserved
+2026-10-08T22:18:11.007628-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fd200000-0x00000000fd2fffff] reserved
+2026-10-08T22:18:11.007637-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fd600000-0x00000000fd7fffff] reserved
+2026-10-08T22:18:11.007646-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fea00000-0x00000000fea0ffff] reserved
+2026-10-08T22:18:11.007655-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000feb80000-0x00000000fec01fff] reserved
+2026-10-08T22:18:11.007664-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fec10000-0x00000000fec10fff] reserved
+2026-10-08T22:18:11.007673-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fec30000-0x00000000fec30fff] reserved
+2026-10-08T22:18:11.007682-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fed00000-0x00000000fed00fff] reserved
+2026-10-08T22:18:11.007691-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fed40000-0x00000000fed44fff] reserved
+2026-10-08T22:18:11.007702-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fed80000-0x00000000fed8ffff] reserved
+2026-10-08T22:18:11.007711-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fedc2000-0x00000000fedcffff] reserved
+2026-10-08T22:18:11.007720-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000fedd4000-0x00000000fedd5fff] reserved
+2026-10-08T22:18:11.007729-04:00 bifrost kernel: reserve setup_data: [mem 0x00000000ff000000-0x00000000ffffffff] reserved
+2026-10-08T22:18:11.007738-04:00 bifrost kernel: reserve setup_data: [mem 0x0000000100000000-0x000000083f37ffff] usable
+2026-10-08T22:18:11.007749-04:00 bifrost kernel: reserve setup_data: [mem 0x000000083f380000-0x000000083fffffff] reserved
+2026-10-08T22:18:11.007758-04:00 bifrost kernel: efi: EFI v2.7 by American Megatrends
+2026-10-08T22:18:11.007768-04:00 bifrost kernel: efi: ACPI=0xbce8a000 ACPI 2.0=0xbce8a014 TPMFinalLog=0xbce54000 SMBIOS=0xbdc29000 SMBIOS 3.0=0xbdc28000 MEMATTR=0xb792e698 ESRT=0xb79aec18 MOKvar=0xbdc70000 INITRD=0xb6e37e98 RNG=0xbb3e4018 TPMEventLog=0xbb3dd018 
+2026-10-08T22:18:11.007777-04:00 bifrost kernel: random: crng init done
+2026-10-08T22:18:11.007787-04:00 bifrost kernel: efi: Remove mem310: MMIO range=[0xf0000000-0xf7ffffff] (128MB) from e820 map
+2026-10-08T22:18:11.007796-04:00 bifrost kernel: e820: remove [mem 0xf0000000-0xf7ffffff] reserved
+2026-10-08T22:18:11.007805-04:00 bifrost kernel: efi: Remove mem311: MMIO range=[0xfd200000-0xfd2fffff] (1MB) from e820 map
+2026-10-08T22:18:11.007814-04:00 bifrost kernel: e820: remove [mem 0xfd200000-0xfd2fffff] reserved
+2026-10-08T22:18:11.007823-04:00 bifrost kernel: efi: Remove mem312: MMIO range=[0xfd600000-0xfd7fffff] (2MB) from e820 map
+2026-10-08T22:18:11.007832-04:00 bifrost kernel: e820: remove [mem 0xfd600000-0xfd7fffff] reserved
+2026-10-08T22:18:11.007841-04:00 bifrost kernel: efi: Not removing mem313: MMIO range=[0xfea00000-0xfea0ffff] (64KB) from e820 map
+2026-10-08T22:18:11.007850-04:00 bifrost kernel: efi: Remove mem314: MMIO range=[0xfeb80000-0xfec01fff] (0MB) from e820 map
+2026-10-08T22:18:11.007860-04:00 bifrost kernel: e820: remove [mem 0xfeb80000-0xfec01fff] reserved
+2026-10-08T22:18:11.007869-04:00 bifrost kernel: efi: Not removing mem315: MMIO range=[0xfec10000-0xfec10fff] (4KB) from e820 map
+2026-10-08T22:18:11.007878-04:00 bifrost kernel: efi: Not removing mem316: MMIO range=[0xfec30000-0xfec30fff] (4KB) from e820 map
+2026-10-08T22:18:11.007889-04:00 bifrost kernel: efi: Not removing mem317: MMIO range=[0xfed00000-0xfed00fff] (4KB) from e820 map
+2026-10-08T22:18:11.007898-04:00 bifrost kernel: efi: Not removing mem318: MMIO range=[0xfed40000-0xfed44fff] (20KB) from e820 map
+2026-10-08T22:18:11.007907-04:00 bifrost kernel: efi: Not removing mem319: MMIO range=[0xfed80000-0xfed8ffff] (64KB) from e820 map
+2026-10-08T22:18:11.007916-04:00 bifrost kernel: efi: Not removing mem320: MMIO range=[0xfedc2000-0xfedcffff] (56KB) from e820 map
+2026-10-08T22:18:11.007925-04:00 bifrost kernel: efi: Not removing mem321: MMIO range=[0xfedd4000-0xfedd5fff] (8KB) from e820 map
+2026-10-08T22:18:11.007934-04:00 bifrost kernel: efi: Remove mem322: MMIO range=[0xff000000-0xffffffff] (16MB) from e820 map
+2026-10-08T22:18:11.007943-04:00 bifrost kernel: e820: remove [mem 0xff000000-0xffffffff] reserved
+2026-10-08T22:18:11.007953-04:00 bifrost kernel: secureboot: Secure boot disabled
+2026-10-08T22:18:11.007962-04:00 bifrost kernel: SMBIOS 3.2.0 present.
+2026-10-08T22:18:11.007971-04:00 bifrost kernel: DMI: Gigabyte Technology Co., Ltd. B550I AORUS PRO AX/B550I AORUS PRO AX, BIOS F10 09/18/2020
+2026-10-08T22:18:11.007980-04:00 bifrost kernel: tsc: Fast TSC calibration using PIT
+2026-10-08T22:18:11.007989-04:00 bifrost kernel: tsc: Detected 3593.530 MHz processor
+2026-10-08T22:18:11.007998-04:00 bifrost kernel: e820: update [mem 0x00000000-0x00000fff] usable ==> reserved
+2026-10-08T22:18:11.008007-04:00 bifrost kernel: e820: remove [mem 0x000a0000-0x000fffff] usable
+2026-10-08T22:18:11.008017-04:00 bifrost kernel: last_pfn = 0x83f380 max_arch_pfn = 0x400000000
+2026-10-08T22:18:11.008028-04:00 bifrost kernel: total RAM covered: 3071M
+2026-10-08T22:18:11.008040-04:00 bifrost kernel: Found optimal setting for mtrr clean up
+2026-10-08T22:18:11.008058-04:00 bifrost kernel:  gran_size: 64K         chunk_size: 64M         num_reg: 3          lose cover RAM: 0G
+2026-10-08T22:18:11.008068-04:00 bifrost kernel: MTRR map: 7 entries (3 fixed + 4 variable; max 20), built from 9 variable MTRRs
+2026-10-08T22:18:11.008077-04:00 bifrost kernel: x86/PAT: Configuration [0-7]: WB  WC  UC- UC  WB  WP  UC- WT  
+2026-10-08T22:18:11.008087-04:00 bifrost kernel: e820: update [mem 0xbd540000-0xbd54ffff] usable ==> reserved
+2026-10-08T22:18:11.008096-04:00 bifrost kernel: e820: update [mem 0xc0000000-0xffffffff] usable ==> reserved
+2026-10-08T22:18:11.008108-04:00 bifrost kernel: last_pfn = 0xbf000 max_arch_pfn = 0x400000000
+2026-10-08T22:18:11.008118-04:00 bifrost kernel: esrt: Reserving ESRT space from 0x00000000b79aec18 to 0x00000000b79aec50.
+2026-10-08T22:18:11.008127-04:00 bifrost kernel: e820: update [mem 0xb79ae000-0xb79aefff] usable ==> reserved
+2026-10-08T22:18:11.008137-04:00 bifrost kernel: Using GB pages for direct mapping
+2026-10-08T22:18:11.008146-04:00 bifrost kernel: secureboot: Secure boot disabled
+2026-10-08T22:18:11.008155-04:00 bifrost kernel: RAMDISK: [mem 0xb0062000-0xb4816fff]
+2026-10-08T22:18:11.008164-04:00 bifrost kernel: ACPI: Early table checksum verification disabled
+2026-10-08T22:18:11.008176-04:00 bifrost kernel: ACPI: RSDP 0x00000000BCE8A014 000024 (v02 ALASKA)
+2026-10-08T22:18:11.008185-04:00 bifrost kernel: ACPI: XSDT 0x00000000BCE89728 0000DC (v01 ALASKA A M I    01072009 AMI  01000013)
+2026-10-08T22:18:11.008195-04:00 bifrost kernel: ACPI: FACP 0x00000000BB405000 000114 (v06 ALASKA A M I    01072009 AMI  00010013)
+2026-10-08T22:18:11.008204-04:00 bifrost kernel: ACPI: DSDT 0x00000000BB3FE000 006130 (v02 ALASKA A M I    01072009 INTL 20190509)
+2026-10-08T22:18:11.008214-04:00 bifrost kernel: ACPI: FACS 0x00000000BCE84000 000040
+2026-10-08T22:18:11.008223-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB414000 009916 (v01 GBT    GSWApp   00000001 INTL 20190509)
+2026-10-08T22:18:11.008233-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB40B000 008C98 (v02 AMD    AmdTable 00000002 MSFT 04000000)
+2026-10-08T22:18:11.008242-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB407000 003CB6 (v01 AMD    AMD AOD  00000001 INTL 20190509)
+2026-10-08T22:18:11.008251-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB406000 000221 (v02 ALASKA CPUSSDT  01072009 AMI  01072009)
+2026-10-08T22:18:11.008262-04:00 bifrost kernel: ACPI: FIDT 0x00000000BB3FD000 00009C (v01 ALASKA A M I    01072009 AMI  00010013)
+2026-10-08T22:18:11.008272-04:00 bifrost kernel: ACPI: MCFG 0x00000000BB3FC000 00003C (v01 ALASKA A M I    01072009 MSFT 00010013)
+2026-10-08T22:18:11.008282-04:00 bifrost kernel: ACPI: HPET 0x00000000BB3FB000 000038 (v01 ALASKA A M I    01072009 AMI  00000005)
+2026-10-08T22:18:11.008292-04:00 bifrost kernel: ACPI: BGRT 0x00000000BB3FA000 000038 (v01 ALASKA A M I    01072009 AMI  00010013)
+2026-10-08T22:18:11.008301-04:00 bifrost kernel: ACPI: TPM2 0x00000000BB3F9000 00004C (v04 ALASKA A M I    00000001 AMI  00000000)
+2026-10-08T22:18:11.008311-04:00 bifrost kernel: ACPI: IVRS 0x00000000BB3F8000 0000D0 (v02 AMD    AmdTable 00000001 AMD  00000000)
+2026-10-08T22:18:11.008320-04:00 bifrost kernel: ACPI: PCCT 0x00000000BB3F7000 00006E (v02 AMD    AmdTable 00000001 AMD  00000000)
+2026-10-08T22:18:11.008330-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB3F3000 003F19 (v02 AMD    AmdTable 00000001 AMD  00000001)
+2026-10-08T22:18:11.008339-04:00 bifrost kernel: ACPI: CRAT 0x00000000BB3F2000 000ED8 (v01 AMD    AmdTable 00000001 AMD  00000001)
+2026-10-08T22:18:11.008349-04:00 bifrost kernel: ACPI: CDIT 0x00000000BB3F1000 000029 (v01 AMD    AmdTable 00000001 AMD  00000001)
+2026-10-08T22:18:11.008358-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB3F0000 0005F6 (v01 AMD    ArticDGP 00000001 INTL 20190509)
+2026-10-08T22:18:11.008369-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB3EC000 003684 (v01 AMD    ArticN   00000001 INTL 20190509)
+2026-10-08T22:18:11.008379-04:00 bifrost kernel: ACPI: WSMT 0x00000000BB3EB000 000028 (v01 ALASKA A M I    01072009 AMI  00010013)
+2026-10-08T22:18:11.008388-04:00 bifrost kernel: ACPI: APIC 0x00000000BB3EA000 00015E (v03 ALASKA A M I    01072009 AMI  00010013)
+2026-10-08T22:18:11.008397-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB3E9000 00008D (v01 AMD    ArticDIS 00000001 INTL 20190509)
+2026-10-08T22:18:11.008407-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB3E7000 00147F (v01 AMD    ArticC   00000001 INTL 20190509)
+2026-10-08T22:18:11.008416-04:00 bifrost kernel: ACPI: SSDT 0x00000000BB3E6000 0000BF (v01 AMD    AmdTable 00001000 INTL 20190509)
+2026-10-08T22:18:11.008426-04:00 bifrost kernel: ACPI: FPDT 0x00000000BB3E5000 000044 (v01 ALASKA A M I    01072009 AMI  01000013)
+2026-10-08T22:18:11.008435-04:00 bifrost kernel: ACPI: Reserving FACP table memory at [mem 0xbb405000-0xbb405113]
+2026-10-08T22:18:11.008447-04:00 bifrost kernel: ACPI: Reserving DSDT table memory at [mem 0xbb3fe000-0xbb40412f]
+2026-10-08T22:18:11.008456-04:00 bifrost kernel: ACPI: Reserving FACS table memory at [mem 0xbce84000-0xbce8403f]
+2026-10-08T22:18:11.008468-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb414000-0xbb41d915]
+2026-10-08T22:18:11.008479-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb40b000-0xbb413c97]
+2026-10-08T22:18:11.008488-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb407000-0xbb40acb5]
+2026-10-08T22:18:11.008497-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb406000-0xbb406220]
+2026-10-08T22:18:11.008507-04:00 bifrost kernel: ACPI: Reserving FIDT table memory at [mem 0xbb3fd000-0xbb3fd09b]
+2026-10-08T22:18:11.008518-04:00 bifrost kernel: ACPI: Reserving MCFG table memory at [mem 0xbb3fc000-0xbb3fc03b]
+2026-10-08T22:18:11.008528-04:00 bifrost kernel: ACPI: Reserving HPET table memory at [mem 0xbb3fb000-0xbb3fb037]
+2026-10-08T22:18:11.008537-04:00 bifrost kernel: ACPI: Reserving BGRT table memory at [mem 0xbb3fa000-0xbb3fa037]
+2026-10-08T22:18:11.008546-04:00 bifrost kernel: ACPI: Reserving TPM2 table memory at [mem 0xbb3f9000-0xbb3f904b]
+2026-10-08T22:18:11.008556-04:00 bifrost kernel: ACPI: Reserving IVRS table memory at [mem 0xbb3f8000-0xbb3f80cf]
+2026-10-08T22:18:11.008565-04:00 bifrost kernel: ACPI: Reserving PCCT table memory at [mem 0xbb3f7000-0xbb3f706d]
+2026-10-08T22:18:11.008574-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb3f3000-0xbb3f6f18]
+2026-10-08T22:18:11.008584-04:00 bifrost kernel: ACPI: Reserving CRAT table memory at [mem 0xbb3f2000-0xbb3f2ed7]
+2026-10-08T22:18:11.008595-04:00 bifrost kernel: ACPI: Reserving CDIT table memory at [mem 0xbb3f1000-0xbb3f1028]
+2026-10-08T22:18:11.008604-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb3f0000-0xbb3f05f5]
+2026-10-08T22:18:11.008614-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb3ec000-0xbb3ef683]
+2026-10-08T22:18:11.008623-04:00 bifrost kernel: ACPI: Reserving WSMT table memory at [mem 0xbb3eb000-0xbb3eb027]
+2026-10-08T22:18:11.008632-04:00 bifrost kernel: ACPI: Reserving APIC table memory at [mem 0xbb3ea000-0xbb3ea15d]
+2026-10-08T22:18:11.008642-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb3e9000-0xbb3e908c]
+2026-10-08T22:18:11.008651-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb3e7000-0xbb3e847e]
+2026-10-08T22:18:11.008660-04:00 bifrost kernel: ACPI: Reserving SSDT table memory at [mem 0xbb3e6000-0xbb3e60be]
+2026-10-08T22:18:11.008670-04:00 bifrost kernel: ACPI: Reserving FPDT table memory at [mem 0xbb3e5000-0xbb3e5043]
+2026-10-08T22:18:11.008679-04:00 bifrost kernel: No NUMA configuration found
+2026-10-08T22:18:11.008688-04:00 bifrost kernel: Faking a node at [mem 0x0000000000000000-0x000000083f37ffff]
+2026-10-08T22:18:11.008697-04:00 bifrost kernel: NODE_DATA(0) allocated [mem 0x83f355000-0x83f37ffff]
+2026-10-08T22:18:11.008707-04:00 bifrost kernel: Zone ranges:
+2026-10-08T22:18:11.008718-04:00 bifrost kernel:   DMA      [mem 0x0000000000001000-0x0000000000ffffff]
+2026-10-08T22:18:11.008728-04:00 bifrost kernel:   DMA32    [mem 0x0000000001000000-0x00000000ffffffff]
+2026-10-08T22:18:11.008737-04:00 bifrost kernel:   Normal   [mem 0x0000000100000000-0x000000083f37ffff]
+2026-10-08T22:18:11.008747-04:00 bifrost kernel:   Device   empty
+2026-10-08T22:18:11.008756-04:00 bifrost kernel: Movable zone start for each node
+2026-10-08T22:18:11.008765-04:00 bifrost kernel: Early memory node ranges
+2026-10-08T22:18:11.008775-04:00 bifrost kernel:   node   0: [mem 0x0000000000001000-0x000000000009ffff]
+2026-10-08T22:18:11.008784-04:00 bifrost kernel:   node   0: [mem 0x0000000000100000-0x0000000009dfffff]
+2026-10-08T22:18:11.008793-04:00 bifrost kernel:   node   0: [mem 0x000000000a000000-0x000000000a1fffff]
+2026-10-08T22:18:11.008802-04:00 bifrost kernel:   node   0: [mem 0x000000000a210000-0x000000000affffff]
+2026-10-08T22:18:11.008812-04:00 bifrost kernel:   node   0: [mem 0x000000000b020000-0x000000009a398fff]
+2026-10-08T22:18:11.008822-04:00 bifrost kernel:   node   0: [mem 0x000000009a39a000-0x000000009a3d2fff]
+2026-10-08T22:18:11.008833-04:00 bifrost kernel:   node   0: [mem 0x000000009a3d4000-0x00000000bb071fff]
+2026-10-08T22:18:11.008843-04:00 bifrost kernel:   node   0: [mem 0x00000000bddff000-0x00000000beffffff]
+2026-10-08T22:18:11.008854-04:00 bifrost kernel:   node   0: [mem 0x0000000100000000-0x000000083f37ffff]
+2026-10-08T22:18:11.008863-04:00 bifrost kernel: Initmem setup node 0 [mem 0x0000000000001000-0x000000083f37ffff]
+2026-10-08T22:18:11.008874-04:00 bifrost kernel: On node 0, zone DMA: 1 pages in unavailable ranges
+2026-10-08T22:18:11.008883-04:00 bifrost kernel: On node 0, zone DMA: 96 pages in unavailable ranges
+2026-10-08T22:18:11.008893-04:00 bifrost kernel: On node 0, zone DMA32: 512 pages in unavailable ranges
+2026-10-08T22:18:11.008902-04:00 bifrost kernel: On node 0, zone DMA32: 16 pages in unavailable ranges
+2026-10-08T22:18:11.008912-04:00 bifrost kernel: On node 0, zone DMA32: 32 pages in unavailable ranges
+2026-10-08T22:18:11.008923-04:00 bifrost kernel: On node 0, zone DMA32: 1 pages in unavailable ranges
+2026-10-08T22:18:11.008932-04:00 bifrost kernel: On node 0, zone DMA32: 1 pages in unavailable ranges
+2026-10-08T22:18:11.008942-04:00 bifrost kernel: On node 0, zone DMA32: 11661 pages in unavailable ranges
+2026-10-08T22:18:11.008951-04:00 bifrost kernel: On node 0, zone Normal: 4096 pages in unavailable ranges
+2026-10-08T22:18:11.008963-04:00 bifrost kernel: On node 0, zone Normal: 3200 pages in unavailable ranges
+2026-10-08T22:18:11.008972-04:00 bifrost kernel: ACPI: PM-Timer IO Port: 0x808
+2026-10-08T22:18:11.008982-04:00 bifrost kernel: ACPI: LAPIC_NMI (acpi_id[0xff] high edge lint[0x1])
+2026-10-08T22:18:11.008991-04:00 bifrost kernel: IOAPIC[0]: apic_id 17, version 33, address 0xfec00000, GSI 0-23
+2026-10-08T22:18:11.009000-04:00 bifrost kernel: IOAPIC[1]: apic_id 18, version 33, address 0xfec01000, GSI 24-55
+2026-10-08T22:18:11.009010-04:00 bifrost kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+2026-10-08T22:18:11.009019-04:00 bifrost kernel: ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+2026-10-08T22:18:11.009028-04:00 bifrost kernel: ACPI: Using ACPI (MADT) for SMP configuration information
+2026-10-08T22:18:11.009038-04:00 bifrost kernel: ACPI: HPET id: 0x10228201 base: 0xfed00000
+2026-10-08T22:18:11.009054-04:00 bifrost kernel: e820: update [mem 0xb73e6000-0xb743cfff] usable ==> reserved
+2026-10-08T22:18:11.009063-04:00 bifrost kernel: smpboot: Allowing 16 CPUs, 0 hotplug CPUs
+2026-10-08T22:18:11.009076-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0x00000000-0x00000fff]
+2026-10-08T22:18:11.009085-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0x000a0000-0x000fffff]
+2026-10-08T22:18:11.009095-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0x09e00000-0x09ffffff]
+2026-10-08T22:18:11.009104-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0x0a200000-0x0a20ffff]
+2026-10-08T22:18:11.009114-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0x0b000000-0x0b01ffff]
+2026-10-08T22:18:11.009124-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0x9a399000-0x9a399fff]
+2026-10-08T22:18:11.009135-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0x9a3d3000-0x9a3d3fff]
+2026-10-08T22:18:11.009144-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0xb73e6000-0xb743cfff]
+2026-10-08T22:18:11.009154-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0xb79ae000-0xb79aefff]
+2026-10-08T22:18:11.009163-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0xbb072000-0xbddfefff]
+2026-10-08T22:18:11.009173-04:00 bifrost kernel: PM: hibernation: Registered nosave memory: [mem 0xbf000000-0xffffffff]
+2026-10-08T22:18:11.009182-04:00 bifrost kernel: [mem 0xc0000000-0xfe9fffff] available for PCI devices
+2026-10-08T22:18:11.009194-04:00 bifrost kernel: Booting paravirtualized kernel on bare hardware
+2026-10-08T22:18:11.009203-04:00 bifrost kernel: clocksource: refined-jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1910969940391419 ns
+2026-10-08T22:18:11.009212-04:00 bifrost kernel: setup_percpu: NR_CPUS:8192 nr_cpumask_bits:16 nr_cpu_ids:16 nr_node_ids:1
+2026-10-08T22:18:11.009222-04:00 bifrost kernel: percpu: Embedded 86 pages/cpu s229376 r8192 d114688 u524288
+2026-10-08T22:18:11.009231-04:00 bifrost kernel: pcpu-alloc: s229376 r8192 d114688 u524288 alloc=1*2097152
+2026-10-08T22:18:11.009241-04:00 bifrost kernel: pcpu-alloc: [0] 00 01 02 03 [0] 04 05 06 07 
+2026-10-08T22:18:11.009250-04:00 bifrost kernel: pcpu-alloc: [0] 08 09 10 11 [0] 12 13 14 15 
+2026-10-08T22:18:11.009260-04:00 bifrost kernel: Kernel command line: BOOT_IMAGE=/boot/vmlinuz-6.8.0-142-generic root=UUID=944d802d-afd2-4380-ac19-08a3521bacdf ro quiet splash usbcore.autosuspend=-1 vt.handoff=7
+2026-10-08T22:18:11.009269-04:00 bifrost kernel: Unknown kernel command line parameters "splash", will be passed to user space.
+2026-10-08T22:18:11.009279-04:00 bifrost kernel: Dentry cache hash table entries: 4194304 (order: 13, 33554432 bytes, linear)
+2026-10-08T22:18:11.009288-04:00 bifrost kernel: Inode-cache hash table entries: 2097152 (order: 12, 16777216 bytes, linear)
+2026-10-08T22:18:11.009299-04:00 bifrost kernel: Fallback order for Node 0: 0 
+2026-10-08T22:18:11.009309-04:00 bifrost kernel: Built 1 zonelists, mobility grouping on.  Total pages: 8238065
+2026-10-08T22:18:11.009318-04:00 bifrost kernel: Policy zone: Normal
+2026-10-08T22:18:11.009328-04:00 bifrost kernel: mem auto-init: stack:all(zero), heap alloc:on, heap free:off
+2026-10-08T22:18:11.009338-04:00 bifrost kernel: software IO TLB: area num 16.
+2026-10-08T22:18:11.009348-04:00 bifrost kernel: Memory: 32616264K/33475968K available (22528K kernel code, 4441K rwdata, 14428K rodata, 4932K init, 4776K bss, 859444K reserved, 0K cma-reserved)
+2026-10-08T22:18:11.009357-04:00 bifrost kernel: SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=16, Nodes=1
+2026-10-08T22:18:11.009367-04:00 bifrost kernel: ftrace: allocating 58336 entries in 228 pages
+2026-10-08T22:18:11.009376-04:00 bifrost kernel: ftrace: allocated 228 pages with 4 groups
+2026-10-08T22:18:11.009387-04:00 bifrost kernel: Dynamic Preempt: voluntary
+2026-10-08T22:18:11.009399-04:00 bifrost kernel: rcu: Preemptible hierarchical RCU implementation.
+2026-10-08T22:18:11.009414-04:00 bifrost kernel: rcu:         RCU restricting CPUs from NR_CPUS=8192 to nr_cpu_ids=16.
+2026-10-08T22:18:11.009425-04:00 bifrost kernel:         Trampoline variant of Tasks RCU enabled.
+2026-10-08T22:18:11.009436-04:00 bifrost kernel:         Rude variant of Tasks RCU enabled.
+2026-10-08T22:18:11.009446-04:00 bifrost kernel:         Tracing variant of Tasks RCU enabled.
+2026-10-08T22:18:11.009457-04:00 bifrost kernel: rcu: RCU calculated value of scheduler-enlistment delay is 100 jiffies.
+2026-10-08T22:18:11.009469-04:00 bifrost kernel: rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=16
+2026-10-08T22:18:11.009478-04:00 bifrost kernel: RCU Tasks: Setting shift to 4 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=16.
+2026-10-08T22:18:11.009488-04:00 bifrost kernel: RCU Tasks Rude: Setting shift to 4 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=16.
+2026-10-08T22:18:11.009498-04:00 bifrost kernel: RCU Tasks Trace: Setting shift to 4 and lim to 1 rcu_task_cb_adjust=1 rcu_task_cpu_ids=16.
+2026-10-08T22:18:11.009509-04:00 bifrost kernel: NR_IRQS: 524544, nr_irqs: 1096, preallocated irqs: 16
+2026-10-08T22:18:11.009519-04:00 bifrost kernel: rcu: srcu_init: Setting srcu_struct sizes based on contention.
+2026-10-08T22:18:11.009528-04:00 bifrost kernel: Console: colour dummy device 80x25
+2026-10-08T22:18:11.009540-04:00 bifrost kernel: printk: legacy console [tty0] enabled
+2026-10-08T22:18:11.009549-04:00 bifrost kernel: ACPI: Core revision 20230628
+2026-10-08T22:18:11.009559-04:00 bifrost kernel: clocksource: hpet: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 133484873504 ns
+2026-10-08T22:18:11.009568-04:00 bifrost kernel: APIC: Switch to symmetric I/O mode setup
+2026-10-08T22:18:11.009578-04:00 bifrost kernel: AMD-Vi: Using global IVHD EFR:0x58f77ef22294ade, EFR2:0x0
+2026-10-08T22:18:11.009587-04:00 bifrost kernel: ..TIMER: vector=0x30 apic1=0 pin1=2 apic2=-1 pin2=-1
+2026-10-08T22:18:11.009597-04:00 bifrost kernel: clocksource: tsc-early: mask: 0xffffffffffffffff max_cycles: 0x33cc72d5301, max_idle_ns: 440795238443 ns
+2026-10-08T22:18:11.009607-04:00 bifrost kernel: Calibrating delay loop (skipped), value calculated using timer frequency.. 7187.06 BogoMIPS (lpj=3593530)
+2026-10-08T22:18:11.009617-04:00 bifrost kernel: x86/cpu: User Mode Instruction Prevention (UMIP) activated
+2026-10-08T22:18:11.009626-04:00 bifrost kernel: LVT offset 1 assigned for vector 0xf9
+2026-10-08T22:18:11.009635-04:00 bifrost kernel: LVT offset 2 assigned for vector 0xf4
+2026-10-08T22:18:11.009645-04:00 bifrost kernel: process: using mwait in idle threads
+2026-10-08T22:18:11.009656-04:00 bifrost kernel: Last level iTLB entries: 4KB 1024, 2MB 1024, 4MB 512
+2026-10-08T22:18:11.009666-04:00 bifrost kernel: Last level dTLB entries: 4KB 2048, 2MB 2048, 4MB 1024, 1GB 0
+2026-10-08T22:18:11.009676-04:00 bifrost kernel: Spectre V1 : Mitigation: usercopy/swapgs barriers and __user pointer sanitization
+2026-10-08T22:18:11.009685-04:00 bifrost kernel: Spectre V2 : Mitigation: Retpolines
+2026-10-08T22:18:11.009695-04:00 bifrost kernel: Spectre V2 : Spectre v2 / SpectreRSB: Filling RSB on context switch and VMEXIT
+2026-10-08T22:18:11.009705-04:00 bifrost kernel: Spectre V2 : Enabling Speculation Barrier for firmware calls
+2026-10-08T22:18:11.009714-04:00 bifrost kernel: active return thunk: retbleed_return_thunk
+2026-10-08T22:18:11.009723-04:00 bifrost kernel: RETBleed: Mitigation: untrained return thunk
+2026-10-08T22:18:11.009733-04:00 bifrost kernel: Spectre V2 : mitigation: Enabling conditional Indirect Branch Prediction Barrier
+2026-10-08T22:18:11.009742-04:00 bifrost kernel: Spectre V2 : Selecting STIBP always-on mode to complement retbleed mitigation
+2026-10-08T22:18:11.009752-04:00 bifrost kernel: Spectre V2 : User space: Mitigation: STIBP always-on protection
+2026-10-08T22:18:11.009762-04:00 bifrost kernel: Speculative Store Bypass: Mitigation: Speculative Store Bypass disabled via prctl
+2026-10-08T22:18:11.009773-04:00 bifrost kernel: active return thunk: srso_return_thunk
+2026-10-08T22:18:11.009783-04:00 bifrost kernel: Speculative Return Stack Overflow: Mitigation: Safe RET
+2026-10-08T22:18:11.009793-04:00 bifrost kernel: VMSCAPE: Mitigation: IBPB before exit to userspace
+2026-10-08T22:18:11.009804-04:00 bifrost kernel: x86/fpu: Supporting XSAVE feature 0x001: 'x87 floating point registers'
+2026-10-08T22:18:11.009813-04:00 bifrost kernel: x86/fpu: Supporting XSAVE feature 0x002: 'SSE registers'
+2026-10-08T22:18:11.009823-04:00 bifrost kernel: x86/fpu: Supporting XSAVE feature 0x004: 'AVX registers'
+2026-10-08T22:18:11.009832-04:00 bifrost kernel: x86/fpu: xstate_offset[2]:  576, xstate_sizes[2]:  256
+2026-10-08T22:18:11.009842-04:00 bifrost kernel: x86/fpu: Enabled xstate features 0x7, context size is 832 bytes, using 'compacted' format.
+2026-10-08T22:18:11.009852-04:00 bifrost kernel: Freeing SMP alternatives memory: 48K
+2026-10-08T22:18:11.009861-04:00 bifrost kernel: pid_max: default: 32768 minimum: 301
+2026-10-08T22:18:11.009870-04:00 bifrost kernel: LSM: initializing lsm=lockdown,capability,landlock,yama,apparmor,integrity
+2026-10-08T22:18:11.009882-04:00 bifrost kernel: landlock: Up and running.
+2026-10-08T22:18:11.009891-04:00 bifrost kernel: Yama: becoming mindful.
+2026-10-08T22:18:11.009901-04:00 bifrost kernel: AppArmor: AppArmor initialized
+2026-10-08T22:18:11.009910-04:00 bifrost kernel: Mount-cache hash table entries: 65536 (order: 7, 524288 bytes, linear)
+2026-10-08T22:18:11.009920-04:00 bifrost kernel: Mountpoint-cache hash table entries: 65536 (order: 7, 524288 bytes, linear)
+2026-10-08T22:18:11.009930-04:00 bifrost kernel: smpboot: CPU0: AMD Ryzen 7 3700X 8-Core Processor (family: 0x17, model: 0x71, stepping: 0x0)
+2026-10-08T22:18:11.009940-04:00 bifrost kernel: Performance Events: Fam17h+ core perfctr, AMD PMU driver.
+2026-10-08T22:18:11.009949-04:00 bifrost kernel: ... version:                0
+2026-10-08T22:18:11.009959-04:00 bifrost kernel: ... bit width:              48
+2026-10-08T22:18:11.009968-04:00 bifrost kernel: ... generic registers:      6
+2026-10-08T22:18:11.009977-04:00 bifrost kernel: ... value mask:             0000ffffffffffff
+2026-10-08T22:18:11.009987-04:00 bifrost kernel: ... max period:             00007fffffffffff
+2026-10-08T22:18:11.009996-04:00 bifrost kernel: ... fixed-purpose events:   0
+2026-10-08T22:18:11.010005-04:00 bifrost kernel: ... event mask:             000000000000003f
+2026-10-08T22:18:11.010016-04:00 bifrost kernel: signal: max sigframe size: 1776
+2026-10-08T22:18:11.010026-04:00 bifrost kernel: rcu: Hierarchical SRCU implementation.
+2026-10-08T22:18:11.010035-04:00 bifrost kernel: rcu:         Max phase no-delay instances is 400.
+2026-10-08T22:18:11.010051-04:00 bifrost kernel: NMI watchdog: Enabled. Permanently consumes one hw-PMU counter.
+2026-10-08T22:18:11.010060-04:00 bifrost kernel: smp: Bringing up secondary CPUs ...
+2026-10-08T22:18:11.010070-04:00 bifrost kernel: smpboot: x86: Booting SMP configuration:
+2026-10-08T22:18:11.010083-04:00 bifrost kernel: .... node  #0, CPUs:        #1  #2  #3  #4  #5  #6  #7
+2026-10-08T22:18:11.010092-04:00 bifrost kernel: __common_interrupt: 1.55 No irq handler for vector
+2026-10-08T22:18:11.010103-04:00 bifrost kernel: __common_interrupt: 2.55 No irq handler for vector
+2026-10-08T22:18:11.010112-04:00 bifrost kernel: __common_interrupt: 3.55 No irq handler for vector
+2026-10-08T22:18:11.010122-04:00 bifrost kernel: __common_interrupt: 4.55 No irq handler for vector
+2026-10-08T22:18:11.010131-04:00 bifrost kernel: __common_interrupt: 5.55 No irq handler for vector
+2026-10-08T22:18:11.010140-04:00 bifrost kernel: __common_interrupt: 6.55 No irq handler for vector
+2026-10-08T22:18:11.010150-04:00 bifrost kernel: __common_interrupt: 7.55 No irq handler for vector
+2026-10-08T22:18:11.010162-04:00 bifrost kernel:   #8  #9 #10 #11 #12 #13 #14 #15
+2026-10-08T22:18:11.010172-04:00 bifrost kernel: __common_interrupt: 8.55 No irq handler for vector
+2026-10-08T22:18:11.010181-04:00 bifrost kernel: Spectre V2 : Update user space SMT mitigation: STIBP always-on
+2026-10-08T22:18:11.010191-04:00 bifrost kernel: __common_interrupt: 9.55 No irq handler for vector
+2026-10-08T22:18:11.010200-04:00 bifrost kernel: __common_interrupt: 10.55 No irq handler for vector
+2026-10-08T22:18:11.010209-04:00 bifrost kernel: smp: Brought up 1 node, 16 CPUs
+2026-10-08T22:18:11.010219-04:00 bifrost kernel: smpboot: Max logical packages: 1
+2026-10-08T22:18:11.010229-04:00 bifrost kernel: smpboot: Total of 16 processors activated (114992.96 BogoMIPS)
+2026-10-08T22:18:11.010238-04:00 bifrost kernel: devtmpfs: initialized
+2026-10-08T22:18:11.010247-04:00 bifrost kernel: x86/mm: Memory block size: 128MB
+2026-10-08T22:18:11.010257-04:00 bifrost kernel: ACPI: PM: Registering ACPI NVS region [mem 0x0a200000-0x0a20ffff] (65536 bytes)
+2026-10-08T22:18:11.010267-04:00 bifrost kernel: ACPI: PM: Registering ACPI NVS region [mem 0xbb41e000-0xbcea0fff] (27799552 bytes)
+2026-10-08T22:18:11.010276-04:00 bifrost kernel: clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 1911260446275000 ns
+2026-10-08T22:18:11.010288-04:00 bifrost kernel: futex hash table entries: 4096 (order: 6, 262144 bytes, linear)
+2026-10-08T22:18:11.010298-04:00 bifrost kernel: pinctrl core: initialized pinctrl subsystem
+2026-10-08T22:18:11.010307-04:00 bifrost kernel: PM: RTC time: 02:18:04, date: 2026-10-09
+2026-10-08T22:18:11.010316-04:00 bifrost kernel: NET: Registered PF_NETLINK/PF_ROUTE protocol family
+2026-10-08T22:18:11.010326-04:00 bifrost kernel: DMA: preallocated 4096 KiB GFP_KERNEL pool for atomic allocations
+2026-10-08T22:18:11.010336-04:00 bifrost kernel: DMA: preallocated 4096 KiB GFP_KERNEL|GFP_DMA pool for atomic allocations
+2026-10-08T22:18:11.010345-04:00 bifrost kernel: DMA: preallocated 4096 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+2026-10-08T22:18:11.010365-04:00 bifrost kernel: audit: initializing netlink subsys (disabled)
+2026-10-08T22:18:11.010376-04:00 bifrost kernel: audit: type=2000 audit(1791512284.170:1): state=initialized audit_enabled=0 res=1
+2026-10-08T22:18:11.010385-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'fair_share'
+2026-10-08T22:18:11.010395-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'bang_bang'
+2026-10-08T22:18:11.010404-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'step_wise'
+2026-10-08T22:18:11.010412-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'user_space'
+2026-10-08T22:18:11.010422-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'power_allocator'
+2026-10-08T22:18:11.010431-04:00 bifrost kernel: cpuidle: using governor ladder
+2026-10-08T22:18:11.010440-04:00 bifrost kernel: cpuidle: using governor menu
+2026-10-08T22:18:11.010449-04:00 bifrost kernel: Detected 1 PCC Subspaces
+2026-10-08T22:18:11.010461-04:00 bifrost kernel: Registering PCC driver as Mailbox controller
+2026-10-08T22:18:11.010470-04:00 bifrost kernel: efi: Freeing EFI boot services memory: 85876K
+2026-10-08T22:18:11.010479-04:00 bifrost kernel: acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.5
+2026-10-08T22:18:11.010491-04:00 bifrost kernel: PCI: ECAM [mem 0xf0000000-0xf7ffffff] (base 0xf0000000) for domain 0000 [bus 00-7f]
+2026-10-08T22:18:11.010500-04:00 bifrost kernel: PCI: Using configuration type 1 for base access
+2026-10-08T22:18:11.010509-04:00 bifrost kernel: kprobes: kprobe jump-optimization is enabled. All kprobes are optimized if possible.
+2026-10-08T22:18:11.010519-04:00 bifrost kernel: HugeTLB: registered 1.00 GiB page size, pre-allocated 0 pages
+2026-10-08T22:18:11.010528-04:00 bifrost kernel: HugeTLB: 16380 KiB vmemmap can be freed for a 1.00 GiB page
+2026-10-08T22:18:11.010537-04:00 bifrost kernel: HugeTLB: registered 2.00 MiB page size, pre-allocated 0 pages
+2026-10-08T22:18:11.010547-04:00 bifrost kernel: HugeTLB: 28 KiB vmemmap can be freed for a 2.00 MiB page
+2026-10-08T22:18:11.010556-04:00 bifrost kernel: fbcon: Taking over console
+2026-10-08T22:18:11.010565-04:00 bifrost kernel: ACPI: Added _OSI(Module Device)
+2026-10-08T22:18:11.010574-04:00 bifrost kernel: ACPI: Added _OSI(Processor Device)
+2026-10-08T22:18:11.010584-04:00 bifrost kernel: ACPI: Added _OSI(Processor Aggregator Device)
+2026-10-08T22:18:11.010593-04:00 bifrost kernel: ACPI: 11 ACPI AML tables successfully acquired and loaded
+2026-10-08T22:18:11.010604-04:00 bifrost kernel: ACPI: [Firmware Bug]: BIOS _OSI(Linux) query ignored
+2026-10-08T22:18:11.010614-04:00 bifrost kernel: ACPI: _OSC evaluation for CPUs failed, trying _PDC
+2026-10-08T22:18:11.010623-04:00 bifrost kernel: ACPI: Interpreter enabled
+2026-10-08T22:18:11.010632-04:00 bifrost kernel: ACPI: PM: (supports S0 S3 S4 S5)
+2026-10-08T22:18:11.010641-04:00 bifrost kernel: ACPI: Using IOAPIC for interrupt routing
+2026-10-08T22:18:11.010651-04:00 bifrost kernel: PCI: Using host bridge windows from ACPI; if necessary, use "pci=nocrs" and report a bug
+2026-10-08T22:18:11.010661-04:00 bifrost kernel: PCI: Using E820 reservations for host bridge windows
+2026-10-08T22:18:11.010670-04:00 bifrost kernel: ACPI: Enabled 4 GPEs in block 00 to 1F
+2026-10-08T22:18:11.010680-04:00 bifrost kernel: ACPI: PCI Root Bridge [PCI0] (domain 0000 [bus 00-ff])
+2026-10-08T22:18:11.010869-04:00 bifrost kernel: acpi PNP0A08:00: _OSC: OS supports [ExtendedConfig ASPM ClockPM Segments MSI EDR HPX-Type3]
+2026-10-08T22:18:11.011023-04:00 bifrost kernel: acpi PNP0A08:00: _OSC: platform does not support [SHPCHotplug LTR DPC]
+2026-10-08T22:18:11.011224-04:00 bifrost kernel: acpi PNP0A08:00: _OSC: OS now controls [PCIeHotplug PME AER PCIeCapability]
+2026-10-08T22:18:11.011365-04:00 bifrost kernel: acpi PNP0A08:00: [Firmware Info]: ECAM [mem 0xf0000000-0xf7ffffff] for domain 0000 [bus 00-7f] only partially covers this bridge
+2026-10-08T22:18:11.011381-04:00 bifrost kernel: PCI host bridge to bus 0000:00
+2026-10-08T22:18:11.011512-04:00 bifrost kernel: pci_bus 0000:00: root bus resource [io  0x0000-0x03af window]
+2026-10-08T22:18:11.011634-04:00 bifrost kernel: pci_bus 0000:00: root bus resource [io  0x03e0-0x0cf7 window]
+2026-10-08T22:18:11.011754-04:00 bifrost kernel: pci_bus 0000:00: root bus resource [io  0x03b0-0x03df window]
+2026-10-08T22:18:11.011876-04:00 bifrost kernel: pci_bus 0000:00: root bus resource [io  0x0d00-0xffff window]
+2026-10-08T22:18:11.011995-04:00 bifrost kernel: pci_bus 0000:00: root bus resource [mem 0x000a0000-0x000dffff window]
+2026-10-08T22:18:11.012127-04:00 bifrost kernel: pci_bus 0000:00: root bus resource [mem 0xc0000000-0xfec2ffff window]
+2026-10-08T22:18:11.012255-04:00 bifrost kernel: pci_bus 0000:00: root bus resource [mem 0xfee00000-0xffffffff window]
+2026-10-08T22:18:11.012389-04:00 bifrost kernel: pci_bus 0000:00: root bus resource [bus 00-ff]
+2026-10-08T22:18:11.012552-04:00 bifrost kernel: pci 0000:00:00.0: [1022:1480] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.012774-04:00 bifrost kernel: pci 0000:00:00.2: [1022:1481] type 00 class 0x080600 conventional PCI endpoint
+2026-10-08T22:18:11.012935-04:00 bifrost kernel: pci 0000:00:01.0: [1022:1482] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.013126-04:00 bifrost kernel: pci 0000:00:01.1: [1022:1483] type 01 class 0x060400 PCIe Root Port
+2026-10-08T22:18:11.013277-04:00 bifrost kernel: pci 0000:00:01.1: PCI bridge to [bus 01]
+2026-10-08T22:18:11.013427-04:00 bifrost kernel: pci 0000:00:01.1:   bridge window [mem 0xfc800000-0xfc8fffff]
+2026-10-08T22:18:11.013575-04:00 bifrost kernel: pci 0000:00:01.1: enabling Extended Tags
+2026-10-08T22:18:11.013725-04:00 bifrost kernel: pci 0000:00:01.1: PME# supported from D0 D3hot D3cold
+2026-10-08T22:18:11.013880-04:00 bifrost kernel: pci 0000:00:01.2: [1022:1483] type 01 class 0x060400 PCIe Root Port
+2026-10-08T22:18:11.014033-04:00 bifrost kernel: pci 0000:00:01.2: PCI bridge to [bus 02-07]
+2026-10-08T22:18:11.014196-04:00 bifrost kernel: pci 0000:00:01.2:   bridge window [io  0xf000-0xffff]
+2026-10-08T22:18:11.014373-04:00 bifrost kernel: pci 0000:00:01.2:   bridge window [mem 0xfc500000-0xfc7fffff]
+2026-10-08T22:18:11.014528-04:00 bifrost kernel: pci 0000:00:01.2: enabling Extended Tags
+2026-10-08T22:18:11.014680-04:00 bifrost kernel: pci 0000:00:01.2: PME# supported from D0 D3hot D3cold
+2026-10-08T22:18:11.014833-04:00 bifrost kernel: pci 0000:00:02.0: [1022:1482] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.014986-04:00 bifrost kernel: pci 0000:00:03.0: [1022:1482] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.015150-04:00 bifrost kernel: pci 0000:00:03.1: [1022:1483] type 01 class 0x060400 PCIe Root Port
+2026-10-08T22:18:11.015304-04:00 bifrost kernel: pci 0000:00:03.1: PCI bridge to [bus 08]
+2026-10-08T22:18:11.015454-04:00 bifrost kernel: pci 0000:00:03.1:   bridge window [io  0xe000-0xefff]
+2026-10-08T22:18:11.015602-04:00 bifrost kernel: pci 0000:00:03.1:   bridge window [mem 0xfb000000-0xfc0fffff]
+2026-10-08T22:18:11.015752-04:00 bifrost kernel: pci 0000:00:03.1:   bridge window [mem 0xd0000000-0xe1ffffff 64bit pref]
+2026-10-08T22:18:11.015906-04:00 bifrost kernel: pci 0000:00:03.1: PME# supported from D0 D3hot D3cold
+2026-10-08T22:18:11.016061-04:00 bifrost kernel: pci 0000:00:04.0: [1022:1482] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.016216-04:00 bifrost kernel: pci 0000:00:05.0: [1022:1482] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.016368-04:00 bifrost kernel: pci 0000:00:07.0: [1022:1482] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.016523-04:00 bifrost kernel: pci 0000:00:07.1: [1022:1484] type 01 class 0x060400 PCIe Root Port
+2026-10-08T22:18:11.016674-04:00 bifrost kernel: pci 0000:00:07.1: PCI bridge to [bus 09]
+2026-10-08T22:18:11.016822-04:00 bifrost kernel: pci 0000:00:07.1: enabling Extended Tags
+2026-10-08T22:18:11.016970-04:00 bifrost kernel: pci 0000:00:07.1: PME# supported from D0 D3hot D3cold
+2026-10-08T22:18:11.017137-04:00 bifrost kernel: pci 0000:00:08.0: [1022:1482] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.017290-04:00 bifrost kernel: pci 0000:00:08.1: [1022:1484] type 01 class 0x060400 PCIe Root Port
+2026-10-08T22:18:11.017439-04:00 bifrost kernel: pci 0000:00:08.1: PCI bridge to [bus 0a]
+2026-10-08T22:18:11.017593-04:00 bifrost kernel: pci 0000:00:08.1:   bridge window [mem 0xfc200000-0xfc4fffff]
+2026-10-08T22:18:11.017742-04:00 bifrost kernel: pci 0000:00:08.1: enabling Extended Tags
+2026-10-08T22:18:11.017894-04:00 bifrost kernel: pci 0000:00:08.1: PME# supported from D0 D3hot D3cold
+2026-10-08T22:18:11.018048-04:00 bifrost kernel: pci 0000:00:14.0: [1022:790b] type 00 class 0x0c0500 conventional PCI endpoint
+2026-10-08T22:18:11.018208-04:00 bifrost kernel: pci 0000:00:14.3: [1022:790e] type 00 class 0x060100 conventional PCI endpoint
+2026-10-08T22:18:11.018359-04:00 bifrost kernel: pci 0000:00:18.0: [1022:1440] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.018506-04:00 bifrost kernel: pci 0000:00:18.1: [1022:1441] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.018654-04:00 bifrost kernel: pci 0000:00:18.2: [1022:1442] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.018802-04:00 bifrost kernel: pci 0000:00:18.3: [1022:1443] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.018954-04:00 bifrost kernel: pci 0000:00:18.4: [1022:1444] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.019110-04:00 bifrost kernel: pci 0000:00:18.5: [1022:1445] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.019267-04:00 bifrost kernel: pci 0000:00:18.6: [1022:1446] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.019419-04:00 bifrost kernel: pci 0000:00:18.7: [1022:1447] type 00 class 0x060000 conventional PCI endpoint
+2026-10-08T22:18:11.019581-04:00 bifrost kernel: pci 0000:01:00.0: [144d:a808] type 00 class 0x010802 PCIe Endpoint
+2026-10-08T22:18:11.019741-04:00 bifrost kernel: pci 0000:01:00.0: BAR 0 [mem 0xfc800000-0xfc803fff 64bit]
+2026-10-08T22:18:11.019899-04:00 bifrost kernel: pci 0000:00:01.1: PCI bridge to [bus 01]
+2026-10-08T22:18:11.020073-04:00 bifrost kernel: pci 0000:02:00.0: [1022:43ee] type 00 class 0x0c0330 PCIe Legacy Endpoint
+2026-10-08T22:18:11.020230-04:00 bifrost kernel: pci 0000:02:00.0: BAR 0 [mem 0xfc7a0000-0xfc7a7fff 64bit]
+2026-10-08T22:18:11.020387-04:00 bifrost kernel: pci 0000:02:00.0: enabling Extended Tags
+2026-10-08T22:18:11.020543-04:00 bifrost kernel: pci 0000:02:00.0: PME# supported from D3hot D3cold
+2026-10-08T22:18:11.020702-04:00 bifrost kernel: pci 0000:02:00.1: [1022:43eb] type 00 class 0x010601 PCIe Legacy Endpoint
+2026-10-08T22:18:11.020858-04:00 bifrost kernel: pci 0000:02:00.1: BAR 5 [mem 0xfc780000-0xfc79ffff]
+2026-10-08T22:18:11.021012-04:00 bifrost kernel: pci 0000:02:00.1: ROM [mem 0xfc700000-0xfc77ffff pref]
+2026-10-08T22:18:11.021174-04:00 bifrost kernel: pci 0000:02:00.1: enabling Extended Tags
+2026-10-08T22:18:11.021334-04:00 bifrost kernel: pci 0000:02:00.1: PME# supported from D3hot D3cold
+2026-10-08T22:18:11.021492-04:00 bifrost kernel: pci 0000:02:00.2: [1022:43e9] type 01 class 0x060400 PCIe Switch Upstream Port
+2026-10-08T22:18:11.021652-04:00 bifrost kernel: pci 0000:02:00.2: PCI bridge to [bus 03-07]
+2026-10-08T22:18:11.021806-04:00 bifrost kernel: pci 0000:02:00.2:   bridge window [io  0xf000-0xffff]
+2026-10-08T22:18:11.021961-04:00 bifrost kernel: pci 0000:02:00.2:   bridge window [mem 0xfc500000-0xfc6fffff]
+2026-10-08T22:18:11.022123-04:00 bifrost kernel: pci 0000:02:00.2: enabling Extended Tags
+2026-10-08T22:18:11.022279-04:00 bifrost kernel: pci 0000:02:00.2: PME# supported from D3hot D3cold
+2026-10-08T22:18:11.022429-04:00 bifrost kernel: pci 0000:00:01.2: PCI bridge to [bus 02-07]
+2026-10-08T22:18:11.022595-04:00 bifrost kernel: pci 0000:03:00.0: [1022:43ea] type 01 class 0x060400 PCIe Switch Downstream Port
+2026-10-08T22:18:11.022756-04:00 bifrost kernel: pci 0000:03:00.0: PCI bridge to [bus 04]
+2026-10-08T22:18:11.022917-04:00 bifrost kernel: pci 0000:03:00.0: enabling Extended Tags
+2026-10-08T22:18:11.023086-04:00 bifrost kernel: pci 0000:03:00.0: PME# supported from D3hot D3cold
+2026-10-08T22:18:11.023251-04:00 bifrost kernel: pci 0000:03:04.0: [1022:43ea] type 01 class 0x060400 PCIe Switch Downstream Port
+2026-10-08T22:18:11.023417-04:00 bifrost kernel: pci 0000:03:04.0: PCI bridge to [bus 05]
+2026-10-08T22:18:11.023580-04:00 bifrost kernel: pci 0000:03:04.0: enabling Extended Tags
+2026-10-08T22:18:11.023742-04:00 bifrost kernel: pci 0000:03:04.0: PME# supported from D3hot D3cold
+2026-10-08T22:18:11.023905-04:00 bifrost kernel: pci 0000:03:08.0: [1022:43ea] type 01 class 0x060400 PCIe Switch Downstream Port
+2026-10-08T22:18:11.024117-04:00 bifrost kernel: pci 0000:03:08.0: PCI bridge to [bus 06]
+2026-10-08T22:18:11.024284-04:00 bifrost kernel: pci 0000:03:08.0:   bridge window [io  0xf000-0xffff]
+2026-10-08T22:18:11.024455-04:00 bifrost kernel: pci 0000:03:08.0:   bridge window [mem 0xfc600000-0xfc6fffff]
+2026-10-08T22:18:11.024615-04:00 bifrost kernel: pci 0000:03:08.0: enabling Extended Tags
+2026-10-08T22:18:11.024779-04:00 bifrost kernel: pci 0000:03:08.0: PME# supported from D3hot D3cold
+2026-10-08T22:18:11.024942-04:00 bifrost kernel: pci 0000:03:09.0: [1022:43ea] type 01 class 0x060400 PCIe Switch Downstream Port
+2026-10-08T22:18:11.025112-04:00 bifrost kernel: pci 0000:03:09.0: PCI bridge to [bus 07]
+2026-10-08T22:18:11.025277-04:00 bifrost kernel: pci 0000:03:09.0:   bridge window [mem 0xfc500000-0xfc5fffff]
+2026-10-08T22:18:11.025437-04:00 bifrost kernel: pci 0000:03:09.0: enabling Extended Tags
+2026-10-08T22:18:11.025596-04:00 bifrost kernel: pci 0000:03:09.0: PME# supported from D3hot D3cold
+2026-10-08T22:18:11.025753-04:00 bifrost kernel: pci 0000:02:00.2: PCI bridge to [bus 03-07]
+2026-10-08T22:18:11.025912-04:00 bifrost kernel: pci 0000:03:00.0: PCI bridge to [bus 04]
+2026-10-08T22:18:11.026080-04:00 bifrost kernel: pci 0000:03:04.0: PCI bridge to [bus 05]
+2026-10-08T22:18:11.026250-04:00 bifrost kernel: pci 0000:06:00.0: [10ec:8125] type 00 class 0x020000 PCIe Endpoint
+2026-10-08T22:18:11.026420-04:00 bifrost kernel: pci 0000:06:00.0: BAR 0 [io  0xf000-0xf0ff]
+2026-10-08T22:18:11.026588-04:00 bifrost kernel: pci 0000:06:00.0: BAR 2 [mem 0xfc600000-0xfc60ffff 64bit]
+2026-10-08T22:18:11.026758-04:00 bifrost kernel: pci 0000:06:00.0: BAR 4 [mem 0xfc610000-0xfc613fff 64bit]
+2026-10-08T22:18:11.026925-04:00 bifrost kernel: pci 0000:06:00.0: supports D1 D2
+2026-10-08T22:18:11.027150-04:00 bifrost kernel: pci 0000:06:00.0: PME# supported from D0 D1 D2 D3hot D3cold
+2026-10-08T22:18:11.027294-04:00 bifrost kernel: pci 0000:03:08.0: PCI bridge to [bus 06]
+2026-10-08T22:18:11.027435-04:00 bifrost kernel: pci 0000:07:00.0: [8086:2723] type 00 class 0x028000 PCIe Endpoint
+2026-10-08T22:18:11.027572-04:00 bifrost kernel: pci 0000:07:00.0: BAR 0 [mem 0xfc500000-0xfc503fff 64bit]
+2026-10-08T22:18:11.027706-04:00 bifrost kernel: pci 0000:07:00.0: PME# supported from D0 D3hot D3cold
+2026-10-08T22:18:11.027836-04:00 bifrost kernel: pci 0000:03:09.0: PCI bridge to [bus 07]
+2026-10-08T22:18:11.027968-04:00 bifrost kernel: pci 0000:08:00.0: [10de:2206] type 00 class 0x030000 PCIe Legacy Endpoint
+2026-10-08T22:18:11.028196-04:00 bifrost kernel: pci 0000:08:00.0: BAR 0 [mem 0xfb000000-0xfbffffff]
+2026-10-08T22:18:11.028322-04:00 bifrost kernel: pci 0000:08:00.0: BAR 1 [mem 0xd0000000-0xdfffffff 64bit pref]
+2026-10-08T22:18:11.028447-04:00 bifrost kernel: pci 0000:08:00.0: BAR 3 [mem 0xe0000000-0xe1ffffff 64bit pref]
+2026-10-08T22:18:11.028572-04:00 bifrost kernel: pci 0000:08:00.0: BAR 5 [io  0xe000-0xe07f]
+2026-10-08T22:18:11.028708-04:00 bifrost kernel: pci 0000:08:00.0: ROM [mem 0xfc000000-0xfc07ffff pref]
+2026-10-08T22:18:11.028836-04:00 bifrost kernel: pci 0000:08:00.0: Video device with shadowed ROM at [mem 0x000c0000-0x000dffff]
+2026-10-08T22:18:11.028965-04:00 bifrost kernel: pci 0000:08:00.0: PME# supported from D0 D3hot
+2026-10-08T22:18:11.029095-04:00 bifrost kernel: pci 0000:08:00.0: 63.012 Gb/s available PCIe bandwidth, limited by 16.0 GT/s PCIe x4 link at 0000:00:03.1 (capable of 252.048 Gb/s with 16.0 GT/s PCIe x16 link)
+2026-10-08T22:18:11.029221-04:00 bifrost kernel: pci 0000:08:00.1: [10de:1aef] type 00 class 0x040300 PCIe Endpoint
+2026-10-08T22:18:11.029350-04:00 bifrost kernel: pci 0000:08:00.1: BAR 0 [mem 0xfc080000-0xfc083fff]
+2026-10-08T22:18:11.029472-04:00 bifrost kernel: pci 0000:00:03.1: PCI bridge to [bus 08]
+2026-10-08T22:18:11.029601-04:00 bifrost kernel: pci 0000:09:00.0: [1022:148a] type 00 class 0x130000 PCIe Endpoint
+2026-10-08T22:18:11.029729-04:00 bifrost kernel: pci 0000:09:00.0: enabling Extended Tags
+2026-10-08T22:18:11.029851-04:00 bifrost kernel: pci 0000:00:07.1: PCI bridge to [bus 09]
+2026-10-08T22:18:11.029977-04:00 bifrost kernel: pci 0000:0a:00.0: [1022:1485] type 00 class 0x130000 PCIe Endpoint
+2026-10-08T22:18:11.030108-04:00 bifrost kernel: pci 0000:0a:00.0: enabling Extended Tags
+2026-10-08T22:18:11.030245-04:00 bifrost kernel: pci 0000:0a:00.1: [1022:1486] type 00 class 0x108000 PCIe Endpoint
+2026-10-08T22:18:11.030375-04:00 bifrost kernel: pci 0000:0a:00.1: BAR 2 [mem 0xfc300000-0xfc3fffff]
+2026-10-08T22:18:11.030500-04:00 bifrost kernel: pci 0000:0a:00.1: BAR 5 [mem 0xfc408000-0xfc409fff]
+2026-10-08T22:18:11.030624-04:00 bifrost kernel: pci 0000:0a:00.1: enabling Extended Tags
+2026-10-08T22:18:11.030753-04:00 bifrost kernel: pci 0000:0a:00.3: [1022:149c] type 00 class 0x0c0330 PCIe Endpoint
+2026-10-08T22:18:11.030880-04:00 bifrost kernel: pci 0000:0a:00.3: BAR 0 [mem 0xfc200000-0xfc2fffff 64bit]
+2026-10-08T22:18:11.031009-04:00 bifrost kernel: pci 0000:0a:00.3: enabling Extended Tags
+2026-10-08T22:18:11.031158-04:00 bifrost kernel: pci 0000:0a:00.3: PME# supported from D0 D3hot D3cold
+2026-10-08T22:18:11.031288-04:00 bifrost kernel: pci 0000:0a:00.4: [1022:1487] type 00 class 0x040300 PCIe Endpoint
+2026-10-08T22:18:11.031420-04:00 bifrost kernel: pci 0000:0a:00.4: BAR 0 [mem 0xfc400000-0xfc407fff]
+2026-10-08T22:18:11.031544-04:00 bifrost kernel: pci 0000:0a:00.4: enabling Extended Tags
+2026-10-08T22:18:11.031668-04:00 bifrost kernel: pci 0000:0a:00.4: PME# supported from D0 D3hot D3cold
+2026-10-08T22:18:11.031790-04:00 bifrost kernel: pci 0000:00:08.1: PCI bridge to [bus 0a]
+2026-10-08T22:18:11.031800-04:00 bifrost kernel: ACPI: PCI: Interrupt link LNKA configured for IRQ 0
+2026-10-08T22:18:11.031808-04:00 bifrost kernel: ACPI: PCI: Interrupt link LNKB configured for IRQ 0
+2026-10-08T22:18:11.031816-04:00 bifrost kernel: ACPI: PCI: Interrupt link LNKC configured for IRQ 0
+2026-10-08T22:18:11.031823-04:00 bifrost kernel: ACPI: PCI: Interrupt link LNKD configured for IRQ 0
+2026-10-08T22:18:11.031830-04:00 bifrost kernel: ACPI: PCI: Interrupt link LNKE configured for IRQ 0
+2026-10-08T22:18:11.031838-04:00 bifrost kernel: ACPI: PCI: Interrupt link LNKF configured for IRQ 0
+2026-10-08T22:18:11.031845-04:00 bifrost kernel: ACPI: PCI: Interrupt link LNKG configured for IRQ 0
+2026-10-08T22:18:11.031855-04:00 bifrost kernel: ACPI: PCI: Interrupt link LNKH configured for IRQ 0
+2026-10-08T22:18:11.031862-04:00 bifrost kernel: iommu: Default domain type: Translated
+2026-10-08T22:18:11.031870-04:00 bifrost kernel: iommu: DMA domain TLB invalidation policy: lazy mode
+2026-10-08T22:18:11.031877-04:00 bifrost kernel: SCSI subsystem initialized
+2026-10-08T22:18:11.031884-04:00 bifrost kernel: libata version 3.00 loaded.
+2026-10-08T22:18:11.031892-04:00 bifrost kernel: ACPI: bus type USB registered
+2026-10-08T22:18:11.031899-04:00 bifrost kernel: usbcore: registered new interface driver usbfs
+2026-10-08T22:18:11.031906-04:00 bifrost kernel: usbcore: registered new interface driver hub
+2026-10-08T22:18:11.031913-04:00 bifrost kernel: usbcore: registered new device driver usb
+2026-10-08T22:18:11.031920-04:00 bifrost kernel: pps_core: LinuxPPS API ver. 1 registered
+2026-10-08T22:18:11.031928-04:00 bifrost kernel: pps_core: Software ver. 5.3.6 - Copyright 2005-2007 Rodolfo Giometti <giometti@linux.it>
+2026-10-08T22:18:11.031935-04:00 bifrost kernel: PTP clock support registered
+2026-10-08T22:18:11.031942-04:00 bifrost kernel: EDAC MC: Ver: 3.0.0
+2026-10-08T22:18:11.031949-04:00 bifrost kernel: efivars: Registered efivars operations
+2026-10-08T22:18:11.031957-04:00 bifrost kernel: NetLabel: Initializing
+2026-10-08T22:18:11.031966-04:00 bifrost kernel: NetLabel:  domain hash size = 128
+2026-10-08T22:18:11.031973-04:00 bifrost kernel: NetLabel:  protocols = UNLABELED CIPSOv4 CALIPSO
+2026-10-08T22:18:11.031981-04:00 bifrost kernel: NetLabel:  unlabeled traffic allowed by default
+2026-10-08T22:18:11.031988-04:00 bifrost kernel: mctp: management component transport protocol core
+2026-10-08T22:18:11.031996-04:00 bifrost kernel: NET: Registered PF_MCTP protocol family
+2026-10-08T22:18:11.032003-04:00 bifrost kernel: PCI: Using ACPI for IRQ routing
+2026-10-08T22:18:11.032010-04:00 bifrost kernel: PCI: pci_cache_line_size set to 64 bytes
+2026-10-08T22:18:11.032017-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0x09e00000-0x0bffffff]
+2026-10-08T22:18:11.032025-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0x0a200000-0x0bffffff]
+2026-10-08T22:18:11.032032-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0x0b000000-0x0bffffff]
+2026-10-08T22:18:11.032039-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0x9a399000-0x9bffffff]
+2026-10-08T22:18:11.032051-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0x9a3d3000-0x9bffffff]
+2026-10-08T22:18:11.032061-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0xb6bdb018-0xb7ffffff]
+2026-10-08T22:18:11.032068-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0xb6c02018-0xb7ffffff]
+2026-10-08T22:18:11.032075-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0xb73e6000-0xb7ffffff]
+2026-10-08T22:18:11.032083-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0xb79ae000-0xb7ffffff]
+2026-10-08T22:18:11.032090-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0xbb072000-0xbbffffff]
+2026-10-08T22:18:11.032097-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0xbf000000-0xbfffffff]
+2026-10-08T22:18:11.032105-04:00 bifrost kernel: e820: reserve RAM buffer [mem 0x83f380000-0x83fffffff]
+2026-10-08T22:18:11.032235-04:00 bifrost kernel: pci 0000:08:00.0: vgaarb: setting as boot VGA device
+2026-10-08T22:18:11.032360-04:00 bifrost kernel: pci 0000:08:00.0: vgaarb: bridge control possible
+2026-10-08T22:18:11.032484-04:00 bifrost kernel: pci 0000:08:00.0: vgaarb: VGA device added: decodes=io+mem,owns=io+mem,locks=none
+2026-10-08T22:18:11.032493-04:00 bifrost kernel: vgaarb: loaded
+2026-10-08T22:18:11.032500-04:00 bifrost kernel: hpet0: at MMIO 0xfed00000, IRQs 2, 8, 0
+2026-10-08T22:18:11.032507-04:00 bifrost kernel: hpet0: 3 comparators, 32-bit 14.318180 MHz counter
+2026-10-08T22:18:11.032517-04:00 bifrost kernel: clocksource: Switched to clocksource tsc-early
+2026-10-08T22:18:11.032524-04:00 bifrost kernel: VFS: Disk quotas dquot_6.6.0
+2026-10-08T22:18:11.032532-04:00 bifrost kernel: VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)
+2026-10-08T22:18:11.032539-04:00 bifrost kernel: AppArmor: AppArmor Filesystem Enabled
+2026-10-08T22:18:11.032547-04:00 bifrost kernel: pnp: PnP ACPI init
+2026-10-08T22:18:11.032653-04:00 bifrost kernel: system 00:00: [mem 0xf0000000-0xf7ffffff] has been reserved
+2026-10-08T22:18:11.032756-04:00 bifrost kernel: system 00:01: [mem 0xfd200000-0xfd2fffff] has been reserved
+2026-10-08T22:18:11.032858-04:00 bifrost kernel: system 00:03: [io  0x0a00-0x0a2f] has been reserved
+2026-10-08T22:18:11.032958-04:00 bifrost kernel: system 00:03: [io  0x0a30-0x0a3f] has been reserved
+2026-10-08T22:18:11.033064-04:00 bifrost kernel: system 00:03: [io  0x0a40-0x0a4f] has been reserved
+2026-10-08T22:18:11.033172-04:00 bifrost kernel: system 00:03: [mem 0xfe000000-0xfe00ffff] has been reserved
+2026-10-08T22:18:11.033273-04:00 bifrost kernel: system 00:04: [io  0x04d0-0x04d1] has been reserved
+2026-10-08T22:18:11.033373-04:00 bifrost kernel: system 00:04: [io  0x040b] has been reserved
+2026-10-08T22:18:11.033473-04:00 bifrost kernel: system 00:04: [io  0x04d6] has been reserved
+2026-10-08T22:18:11.033573-04:00 bifrost kernel: system 00:04: [io  0x0c00-0x0c01] has been reserved
+2026-10-08T22:18:11.033672-04:00 bifrost kernel: system 00:04: [io  0x0c14] has been reserved
+2026-10-08T22:18:11.033771-04:00 bifrost kernel: system 00:04: [io  0x0c50-0x0c51] has been reserved
+2026-10-08T22:18:11.033871-04:00 bifrost kernel: system 00:04: [io  0x0c52] has been reserved
+2026-10-08T22:18:11.033973-04:00 bifrost kernel: system 00:04: [io  0x0c6c] has been reserved
+2026-10-08T22:18:11.034080-04:00 bifrost kernel: system 00:04: [io  0x0c6f] has been reserved
+2026-10-08T22:18:11.034188-04:00 bifrost kernel: system 00:04: [io  0x0cd0-0x0cd1] has been reserved
+2026-10-08T22:18:11.034288-04:00 bifrost kernel: system 00:04: [io  0x0cd2-0x0cd3] has been reserved
+2026-10-08T22:18:11.034387-04:00 bifrost kernel: system 00:04: [io  0x0cd4-0x0cd5] has been reserved
+2026-10-08T22:18:11.034486-04:00 bifrost kernel: system 00:04: [io  0x0cd6-0x0cd7] has been reserved
+2026-10-08T22:18:11.034586-04:00 bifrost kernel: system 00:04: [io  0x0cd8-0x0cdf] has been reserved
+2026-10-08T22:18:11.034686-04:00 bifrost kernel: system 00:04: [io  0x0800-0x089f] has been reserved
+2026-10-08T22:18:11.034786-04:00 bifrost kernel: system 00:04: [io  0x0b00-0x0b0f] has been reserved
+2026-10-08T22:18:11.034885-04:00 bifrost kernel: system 00:04: [io  0x0b20-0x0b3f] has been reserved
+2026-10-08T22:18:11.034989-04:00 bifrost kernel: system 00:04: [io  0x0900-0x090f] has been reserved
+2026-10-08T22:18:11.035098-04:00 bifrost kernel: system 00:04: [io  0x0910-0x091f] has been reserved
+2026-10-08T22:18:11.035204-04:00 bifrost kernel: system 00:04: [mem 0xfec00000-0xfec00fff] could not be reserved
+2026-10-08T22:18:11.035304-04:00 bifrost kernel: system 00:04: [mem 0xfec01000-0xfec01fff] could not be reserved
+2026-10-08T22:18:11.035408-04:00 bifrost kernel: system 00:04: [mem 0xfedc0000-0xfedc0fff] has been reserved
+2026-10-08T22:18:11.035509-04:00 bifrost kernel: system 00:04: [mem 0xfee00000-0xfee00fff] has been reserved
+2026-10-08T22:18:11.035607-04:00 bifrost kernel: system 00:04: [mem 0xfed80000-0xfed8ffff] could not be reserved
+2026-10-08T22:18:11.035706-04:00 bifrost kernel: system 00:04: [mem 0xfec10000-0xfec10fff] has been reserved
+2026-10-08T22:18:11.035808-04:00 bifrost kernel: system 00:04: [mem 0xff000000-0xffffffff] has been reserved
+2026-10-08T22:18:11.035817-04:00 bifrost kernel: pnp: PnP ACPI: found 5 devices
+2026-10-08T22:18:11.035825-04:00 bifrost kernel: clocksource: acpi_pm: mask: 0xffffff max_cycles: 0xffffff, max_idle_ns: 2085701024 ns
+2026-10-08T22:18:11.035833-04:00 bifrost kernel: NET: Registered PF_INET protocol family
+2026-10-08T22:18:11.035841-04:00 bifrost kernel: IP idents hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+2026-10-08T22:18:11.035851-04:00 bifrost kernel: tcp_listen_portaddr_hash hash table entries: 16384 (order: 6, 262144 bytes, linear)
+2026-10-08T22:18:11.035858-04:00 bifrost kernel: Table-perturb hash table entries: 65536 (order: 6, 262144 bytes, linear)
+2026-10-08T22:18:11.035866-04:00 bifrost kernel: TCP established hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+2026-10-08T22:18:11.035873-04:00 bifrost kernel: TCP bind hash table entries: 65536 (order: 9, 2097152 bytes, linear)
+2026-10-08T22:18:11.035881-04:00 bifrost kernel: TCP: Hash tables configured (established 262144 bind 65536)
+2026-10-08T22:18:11.035888-04:00 bifrost kernel: MPTCP token hash table entries: 32768 (order: 8, 786432 bytes, linear)
+2026-10-08T22:18:11.035896-04:00 bifrost kernel: UDP hash table entries: 16384 (order: 7, 524288 bytes, linear)
+2026-10-08T22:18:11.035903-04:00 bifrost kernel: UDP-Lite hash table entries: 16384 (order: 7, 524288 bytes, linear)
+2026-10-08T22:18:11.035910-04:00 bifrost kernel: NET: Registered PF_UNIX/PF_LOCAL protocol family
+2026-10-08T22:18:11.035918-04:00 bifrost kernel: NET: Registered PF_XDP protocol family
+2026-10-08T22:18:11.036041-04:00 bifrost kernel: pci 0000:00:01.1: PCI bridge to [bus 01]
+2026-10-08T22:18:11.036174-04:00 bifrost kernel: pci 0000:00:01.1:   bridge window [mem 0xfc800000-0xfc8fffff]
+2026-10-08T22:18:11.036309-04:00 bifrost kernel: pci 0000:03:00.0: PCI bridge to [bus 04]
+2026-10-08T22:18:11.036439-04:00 bifrost kernel: pci 0000:03:04.0: PCI bridge to [bus 05]
+2026-10-08T22:18:11.036570-04:00 bifrost kernel: pci 0000:03:08.0: PCI bridge to [bus 06]
+2026-10-08T22:18:11.036699-04:00 bifrost kernel: pci 0000:03:08.0:   bridge window [io  0xf000-0xffff]
+2026-10-08T22:18:11.036826-04:00 bifrost kernel: pci 0000:03:08.0:   bridge window [mem 0xfc600000-0xfc6fffff]
+2026-10-08T22:18:11.036956-04:00 bifrost kernel: pci 0000:03:09.0: PCI bridge to [bus 07]
+2026-10-08T22:18:11.037088-04:00 bifrost kernel: pci 0000:03:09.0:   bridge window [mem 0xfc500000-0xfc5fffff]
+2026-10-08T22:18:11.037222-04:00 bifrost kernel: pci 0000:02:00.2: PCI bridge to [bus 03-07]
+2026-10-08T22:18:11.037346-04:00 bifrost kernel: pci 0000:02:00.2:   bridge window [io  0xf000-0xffff]
+2026-10-08T22:18:11.037472-04:00 bifrost kernel: pci 0000:02:00.2:   bridge window [mem 0xfc500000-0xfc6fffff]
+2026-10-08T22:18:11.037595-04:00 bifrost kernel: pci 0000:00:01.2: PCI bridge to [bus 02-07]
+2026-10-08T22:18:11.037716-04:00 bifrost kernel: pci 0000:00:01.2:   bridge window [io  0xf000-0xffff]
+2026-10-08T22:18:11.037834-04:00 bifrost kernel: pci 0000:00:01.2:   bridge window [mem 0xfc500000-0xfc7fffff]
+2026-10-08T22:18:11.037954-04:00 bifrost kernel: pci 0000:00:03.1: PCI bridge to [bus 08]
+2026-10-08T22:18:11.038078-04:00 bifrost kernel: pci 0000:00:03.1:   bridge window [io  0xe000-0xefff]
+2026-10-08T22:18:11.038205-04:00 bifrost kernel: pci 0000:00:03.1:   bridge window [mem 0xfb000000-0xfc0fffff]
+2026-10-08T22:18:11.038326-04:00 bifrost kernel: pci 0000:00:03.1:   bridge window [mem 0xd0000000-0xe1ffffff 64bit pref]
+2026-10-08T22:18:11.038447-04:00 bifrost kernel: pci 0000:00:07.1: PCI bridge to [bus 09]
+2026-10-08T22:18:11.038569-04:00 bifrost kernel: pci 0000:00:08.1: PCI bridge to [bus 0a]
+2026-10-08T22:18:11.038691-04:00 bifrost kernel: pci 0000:00:08.1:   bridge window [mem 0xfc200000-0xfc4fffff]
+2026-10-08T22:18:11.038820-04:00 bifrost kernel: pci_bus 0000:00: resource 4 [io  0x0000-0x03af window]
+2026-10-08T22:18:11.038931-04:00 bifrost kernel: pci_bus 0000:00: resource 5 [io  0x03e0-0x0cf7 window]
+2026-10-08T22:18:11.039030-04:00 bifrost kernel: pci_bus 0000:00: resource 6 [io  0x03b0-0x03df window]
+2026-10-08T22:18:11.039178-04:00 bifrost kernel: pci_bus 0000:00: resource 7 [io  0x0d00-0xffff window]
+2026-10-08T22:18:11.039277-04:00 bifrost kernel: pci_bus 0000:00: resource 8 [mem 0x000a0000-0x000dffff window]
+2026-10-08T22:18:11.039376-04:00 bifrost kernel: pci_bus 0000:00: resource 9 [mem 0xc0000000-0xfec2ffff window]
+2026-10-08T22:18:11.039479-04:00 bifrost kernel: pci_bus 0000:00: resource 10 [mem 0xfee00000-0xffffffff window]
+2026-10-08T22:18:11.039587-04:00 bifrost kernel: pci_bus 0000:01: resource 1 [mem 0xfc800000-0xfc8fffff]
+2026-10-08T22:18:11.039696-04:00 bifrost kernel: pci_bus 0000:02: resource 0 [io  0xf000-0xffff]
+2026-10-08T22:18:11.039800-04:00 bifrost kernel: pci_bus 0000:02: resource 1 [mem 0xfc500000-0xfc7fffff]
+2026-10-08T22:18:11.039913-04:00 bifrost kernel: pci_bus 0000:03: resource 0 [io  0xf000-0xffff]
+2026-10-08T22:18:11.040023-04:00 bifrost kernel: pci_bus 0000:03: resource 1 [mem 0xfc500000-0xfc6fffff]
+2026-10-08T22:18:11.040153-04:00 bifrost kernel: pci_bus 0000:06: resource 0 [io  0xf000-0xffff]
+2026-10-08T22:18:11.040268-04:00 bifrost kernel: pci_bus 0000:06: resource 1 [mem 0xfc600000-0xfc6fffff]
+2026-10-08T22:18:11.040385-04:00 bifrost kernel: pci_bus 0000:07: resource 1 [mem 0xfc500000-0xfc5fffff]
+2026-10-08T22:18:11.040499-04:00 bifrost kernel: pci_bus 0000:08: resource 0 [io  0xe000-0xefff]
+2026-10-08T22:18:11.040604-04:00 bifrost kernel: pci_bus 0000:08: resource 1 [mem 0xfb000000-0xfc0fffff]
+2026-10-08T22:18:11.040708-04:00 bifrost kernel: pci_bus 0000:08: resource 2 [mem 0xd0000000-0xe1ffffff 64bit pref]
+2026-10-08T22:18:11.040815-04:00 bifrost kernel: pci_bus 0000:0a: resource 1 [mem 0xfc200000-0xfc4fffff]
+2026-10-08T22:18:11.040949-04:00 bifrost kernel: pci 0000:08:00.1: extending delay after power-on from D3hot to 20 msec
+2026-10-08T22:18:11.041083-04:00 bifrost kernel: pci 0000:08:00.1: D0 power state depends on 0000:08:00.0
+2026-10-08T22:18:11.041095-04:00 bifrost kernel: PCI: CLS 64 bytes, default 64
+2026-10-08T22:18:11.041218-04:00 bifrost kernel: pci 0000:00:00.2: AMD-Vi: IOMMU performance counters supported
+2026-10-08T22:18:11.041229-04:00 bifrost kernel: Trying to unpack rootfs image as initramfs...
+2026-10-08T22:18:11.041352-04:00 bifrost kernel: pci 0000:00:01.0: Adding to iommu group 0
+2026-10-08T22:18:11.041474-04:00 bifrost kernel: pci 0000:00:01.1: Adding to iommu group 1
+2026-10-08T22:18:11.041595-04:00 bifrost kernel: pci 0000:00:01.2: Adding to iommu group 2
+2026-10-08T22:18:11.041717-04:00 bifrost kernel: pci 0000:00:02.0: Adding to iommu group 3
+2026-10-08T22:18:11.041840-04:00 bifrost kernel: pci 0000:00:03.0: Adding to iommu group 4
+2026-10-08T22:18:11.041963-04:00 bifrost kernel: pci 0000:00:03.1: Adding to iommu group 5
+2026-10-08T22:18:11.042091-04:00 bifrost kernel: pci 0000:00:04.0: Adding to iommu group 6
+2026-10-08T22:18:11.042223-04:00 bifrost kernel: pci 0000:00:05.0: Adding to iommu group 7
+2026-10-08T22:18:11.042346-04:00 bifrost kernel: pci 0000:00:07.0: Adding to iommu group 8
+2026-10-08T22:18:11.042469-04:00 bifrost kernel: pci 0000:00:07.1: Adding to iommu group 9
+2026-10-08T22:18:11.042596-04:00 bifrost kernel: pci 0000:00:08.0: Adding to iommu group 10
+2026-10-08T22:18:11.042719-04:00 bifrost kernel: pci 0000:00:08.1: Adding to iommu group 11
+2026-10-08T22:18:11.042843-04:00 bifrost kernel: pci 0000:00:14.0: Adding to iommu group 12
+2026-10-08T22:18:11.042966-04:00 bifrost kernel: pci 0000:00:14.3: Adding to iommu group 12
+2026-10-08T22:18:11.043098-04:00 bifrost kernel: pci 0000:00:18.0: Adding to iommu group 13
+2026-10-08T22:18:11.043225-04:00 bifrost kernel: pci 0000:00:18.1: Adding to iommu group 13
+2026-10-08T22:18:11.043345-04:00 bifrost kernel: pci 0000:00:18.2: Adding to iommu group 13
+2026-10-08T22:18:11.043466-04:00 bifrost kernel: pci 0000:00:18.3: Adding to iommu group 13
+2026-10-08T22:18:11.043589-04:00 bifrost kernel: pci 0000:00:18.4: Adding to iommu group 13
+2026-10-08T22:18:11.043717-04:00 bifrost kernel: pci 0000:00:18.5: Adding to iommu group 13
+2026-10-08T22:18:11.043840-04:00 bifrost kernel: pci 0000:00:18.6: Adding to iommu group 13
+2026-10-08T22:18:11.043964-04:00 bifrost kernel: pci 0000:00:18.7: Adding to iommu group 13
+2026-10-08T22:18:11.044102-04:00 bifrost kernel: pci 0000:01:00.0: Adding to iommu group 14
+2026-10-08T22:18:11.044242-04:00 bifrost kernel: pci 0000:02:00.0: Adding to iommu group 15
+2026-10-08T22:18:11.044373-04:00 bifrost kernel: pci 0000:02:00.1: Adding to iommu group 15
+2026-10-08T22:18:11.044503-04:00 bifrost kernel: pci 0000:02:00.2: Adding to iommu group 15
+2026-10-08T22:18:11.044637-04:00 bifrost kernel: pci 0000:03:00.0: Adding to iommu group 15
+2026-10-08T22:18:11.044775-04:00 bifrost kernel: pci 0000:03:04.0: Adding to iommu group 15
+2026-10-08T22:18:11.044914-04:00 bifrost kernel: pci 0000:03:08.0: Adding to iommu group 15
+2026-10-08T22:18:11.045058-04:00 bifrost kernel: pci 0000:03:09.0: Adding to iommu group 15
+2026-10-08T22:18:11.045205-04:00 bifrost kernel: pci 0000:06:00.0: Adding to iommu group 15
+2026-10-08T22:18:11.045343-04:00 bifrost kernel: pci 0000:07:00.0: Adding to iommu group 15
+2026-10-08T22:18:11.045472-04:00 bifrost kernel: pci 0000:08:00.0: Adding to iommu group 16
+2026-10-08T22:18:11.045599-04:00 bifrost kernel: pci 0000:08:00.1: Adding to iommu group 16
+2026-10-08T22:18:11.045727-04:00 bifrost kernel: pci 0000:09:00.0: Adding to iommu group 17
+2026-10-08T22:18:11.045853-04:00 bifrost kernel: pci 0000:0a:00.0: Adding to iommu group 18
+2026-10-08T22:18:11.045978-04:00 bifrost kernel: pci 0000:0a:00.1: Adding to iommu group 19
+2026-10-08T22:18:11.046113-04:00 bifrost kernel: pci 0000:0a:00.3: Adding to iommu group 20
+2026-10-08T22:18:11.046248-04:00 bifrost kernel: pci 0000:0a:00.4: Adding to iommu group 21
+2026-10-08T22:18:11.046260-04:00 bifrost kernel: AMD-Vi: Extended features (0x58f77ef22294ade, 0x0): PPR X2APIC NX GT IA GA PC GA_vAPIC
+2026-10-08T22:18:11.046269-04:00 bifrost kernel: AMD-Vi: Interrupt remapping enabled
+2026-10-08T22:18:11.046280-04:00 bifrost kernel: AMD-Vi: X2APIC enabled
+2026-10-08T22:18:11.046287-04:00 bifrost kernel: AMD-Vi: Virtual APIC enabled
+2026-10-08T22:18:11.046296-04:00 bifrost kernel: PCI-DMA: Using software bounce buffering for IO (SWIOTLB)
+2026-10-08T22:18:11.046303-04:00 bifrost kernel: software IO TLB: mapped [mem 0x00000000ac062000-0x00000000b0062000] (64MB)
+2026-10-08T22:18:11.046311-04:00 bifrost kernel: LVT offset 0 assigned for vector 0x400
+2026-10-08T22:18:11.046319-04:00 bifrost kernel: perf: AMD IBS detected (0x000003ff)
+2026-10-08T22:18:11.046326-04:00 bifrost kernel: perf/amd_iommu: Detected AMD IOMMU #0 (2 banks, 4 counters/bank).
+2026-10-08T22:18:11.046333-04:00 bifrost kernel: Initialise system trusted keyrings
+2026-10-08T22:18:11.046341-04:00 bifrost kernel: Key type blacklist registered
+2026-10-08T22:18:11.046349-04:00 bifrost kernel: workingset: timestamp_bits=36 max_order=23 bucket_order=0
+2026-10-08T22:18:11.046356-04:00 bifrost kernel: zbud: loaded
+2026-10-08T22:18:11.046363-04:00 bifrost kernel: squashfs: version 4.0 (2009/01/31) Phillip Lougher
+2026-10-08T22:18:11.046373-04:00 bifrost kernel: fuse: init (API version 7.39)
+2026-10-08T22:18:11.046380-04:00 bifrost kernel: integrity: Platform Keyring initialized
+2026-10-08T22:18:11.046387-04:00 bifrost kernel: integrity: Machine keyring initialized
+2026-10-08T22:18:11.046395-04:00 bifrost kernel: Key type asymmetric registered
+2026-10-08T22:18:11.046402-04:00 bifrost kernel: Asymmetric key parser 'x509' registered
+2026-10-08T22:18:11.046410-04:00 bifrost kernel: Block layer SCSI generic (bsg) driver version 0.4 loaded (major 243)
+2026-10-08T22:18:11.046418-04:00 bifrost kernel: io scheduler mq-deadline registered
+2026-10-08T22:18:11.046546-04:00 bifrost kernel: pcieport 0000:00:01.1: PME: Signaling with IRQ 28
+2026-10-08T22:18:11.046669-04:00 bifrost kernel: pcieport 0000:00:01.1: AER: enabled with IRQ 28
+2026-10-08T22:18:11.046793-04:00 bifrost kernel: pcieport 0000:00:01.2: PME: Signaling with IRQ 29
+2026-10-08T22:18:11.046914-04:00 bifrost kernel: pcieport 0000:00:01.2: AER: enabled with IRQ 29
+2026-10-08T22:18:11.047041-04:00 bifrost kernel: pcieport 0000:00:03.1: PME: Signaling with IRQ 30
+2026-10-08T22:18:11.047222-04:00 bifrost kernel: pcieport 0000:00:03.1: AER: enabled with IRQ 30
+2026-10-08T22:18:11.047387-04:00 bifrost kernel: pcieport 0000:00:07.1: PME: Signaling with IRQ 32
+2026-10-08T22:18:11.047546-04:00 bifrost kernel: pcieport 0000:00:07.1: AER: enabled with IRQ 32
+2026-10-08T22:18:11.047716-04:00 bifrost kernel: pcieport 0000:00:08.1: PME: Signaling with IRQ 33
+2026-10-08T22:18:11.047883-04:00 bifrost kernel: pcieport 0000:00:08.1: AER: enabled with IRQ 33
+2026-10-08T22:18:11.047898-04:00 bifrost kernel: shpchp: Standard Hot Plug PCI Controller Driver version: 0.4
+2026-10-08T22:18:11.047908-04:00 bifrost kernel: input: Power Button as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0C:00/input/input0
+2026-10-08T22:18:11.047919-04:00 bifrost kernel: ACPI: button: Power Button [PWRB]
+2026-10-08T22:18:11.047929-04:00 bifrost kernel: input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input1
+2026-10-08T22:18:11.047939-04:00 bifrost kernel: ACPI: button: Power Button [PWRF]
+2026-10-08T22:18:11.047954-04:00 bifrost kernel: Estimated ratio of average max frequency by base frequency (times 1024): 1141
+2026-10-08T22:18:11.047964-04:00 bifrost kernel: Monitor-Mwait will be used to enter C-1 state
+2026-10-08T22:18:11.047975-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C000: Found 2 idle states
+2026-10-08T22:18:11.047985-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C002: Found 2 idle states
+2026-10-08T22:18:11.047995-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C004: Found 2 idle states
+2026-10-08T22:18:11.048005-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C006: Found 2 idle states
+2026-10-08T22:18:11.048015-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C008: Found 2 idle states
+2026-10-08T22:18:11.048025-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C00A: Found 2 idle states
+2026-10-08T22:18:11.048035-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C00C: Found 2 idle states
+2026-10-08T22:18:11.048052-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C00E: Found 2 idle states
+2026-10-08T22:18:11.048062-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C001: Found 2 idle states
+2026-10-08T22:18:11.048072-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C003: Found 2 idle states
+2026-10-08T22:18:11.048086-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C005: Found 2 idle states
+2026-10-08T22:18:11.048096-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C007: Found 2 idle states
+2026-10-08T22:18:11.048106-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C009: Found 2 idle states
+2026-10-08T22:18:11.048115-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C00B: Found 2 idle states
+2026-10-08T22:18:11.048125-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C00D: Found 2 idle states
+2026-10-08T22:18:11.048136-04:00 bifrost kernel: ACPI: \_SB_.PLTF.C00F: Found 2 idle states
+2026-10-08T22:18:11.048147-04:00 bifrost kernel: Freeing initrd memory: 73428K
+2026-10-08T22:18:11.048158-04:00 bifrost kernel: tsc: Refined TSC clocksource calibration: 3593.248 MHz
+2026-10-08T22:18:11.048170-04:00 bifrost kernel: clocksource: tsc: mask: 0xffffffffffffffff max_cycles: 0x33cb68e6ea4, max_idle_ns: 440795288133 ns
+2026-10-08T22:18:11.048181-04:00 bifrost kernel: clocksource: Switched to clocksource tsc
+2026-10-08T22:18:11.048191-04:00 bifrost kernel: ACPI: \_TZ_.TZ10: _PSL evaluation failure
+2026-10-08T22:18:11.048354-04:00 bifrost kernel: thermal LNXTHERM:00: registered as thermal_zone0
+2026-10-08T22:18:11.048373-04:00 bifrost kernel: ACPI: thermal: Thermal Zone [TZ10] (17 C)
+2026-10-08T22:18:11.048384-04:00 bifrost kernel: Serial: 8250/16550 driver, 32 ports, IRQ sharing enabled
+2026-10-08T22:18:11.048394-04:00 bifrost kernel: Linux agpgart interface v0.103
+2026-10-08T22:18:11.048550-04:00 bifrost kernel: tpm_crb MSFT0101:00: Disabling hwrng
+2026-10-08T22:18:11.048565-04:00 bifrost kernel: loop: module loaded
+2026-10-08T22:18:11.048576-04:00 bifrost kernel: ACPI: bus type drm_connector registered
+2026-10-08T22:18:11.048586-04:00 bifrost kernel: tun: Universal TUN/TAP device driver, 1.6
+2026-10-08T22:18:11.048596-04:00 bifrost kernel: PPP generic driver version 2.4.2
+2026-10-08T22:18:11.048606-04:00 bifrost kernel: i8042: PNP: No PS/2 controller found.
+2026-10-08T22:18:11.048616-04:00 bifrost kernel: mousedev: PS/2 mouse device common for all mice
+2026-10-08T22:18:11.048760-04:00 bifrost kernel: rtc_cmos 00:02: RTC can wake from S4
+2026-10-08T22:18:11.048892-04:00 bifrost kernel: rtc_cmos 00:02: registered as rtc0
+2026-10-08T22:18:11.049026-04:00 bifrost kernel: rtc_cmos 00:02: setting system clock to 2026-10-09T02:18:07 UTC (1791512287)
+2026-10-08T22:18:11.049197-04:00 bifrost kernel: rtc_cmos 00:02: alarms up to one month, y3k, 114 bytes nvram, hpet irqs
+2026-10-08T22:18:11.049210-04:00 bifrost kernel: i2c_dev: i2c /dev entries driver
+2026-10-08T22:18:11.049221-04:00 bifrost kernel: device-mapper: core: CONFIG_IMA_DISABLE_HTABLE is disabled. Duplicate IMA measurements will not be recorded in the IMA log.
+2026-10-08T22:18:11.049231-04:00 bifrost kernel: device-mapper: uevent: version 1.0.3
+2026-10-08T22:18:11.049241-04:00 bifrost kernel: device-mapper: ioctl: 4.48.0-ioctl (2023-03-01) initialised: dm-devel@redhat.com
+2026-10-08T22:18:11.049252-04:00 bifrost kernel: amd_pstate: driver load is disabled, boot with specific mode to enable this
+2026-10-08T22:18:11.049262-04:00 bifrost kernel: ledtrig-cpu: registered to indicate activity on CPUs
+2026-10-08T22:18:11.049272-04:00 bifrost kernel: [drm] Initialized simpledrm 1.0.0 20200625 for simple-framebuffer.0 on minor 0
+2026-10-08T22:18:11.049286-04:00 bifrost kernel: Console: switching to colour frame buffer device 100x37
+2026-10-08T22:18:11.049447-04:00 bifrost kernel: simple-framebuffer simple-framebuffer.0: [drm] fb0: simpledrmdrmfb frame buffer device
+2026-10-08T22:18:11.049463-04:00 bifrost kernel: drop_monitor: Initializing network drop monitor service
+2026-10-08T22:18:11.049473-04:00 bifrost kernel: NET: Registered PF_INET6 protocol family
+2026-10-08T22:18:11.049483-04:00 bifrost kernel: Segment Routing with IPv6
+2026-10-08T22:18:11.049493-04:00 bifrost kernel: In-situ OAM (IOAM) with IPv6
+2026-10-08T22:18:11.049503-04:00 bifrost kernel: NET: Registered PF_PACKET protocol family
+2026-10-08T22:18:11.049513-04:00 bifrost kernel: Key type dns_resolver registered
+2026-10-08T22:18:11.049523-04:00 bifrost kernel: microcode: Current revision: 0x08701034
+2026-10-08T22:18:11.049533-04:00 bifrost kernel: microcode: Updated early from: 0x08701021
+2026-10-08T22:18:11.049547-04:00 bifrost kernel: resctrl: L3 allocation detected
+2026-10-08T22:18:11.049557-04:00 bifrost kernel: resctrl: MB allocation detected
+2026-10-08T22:18:11.049567-04:00 bifrost kernel: resctrl: L3 monitoring detected
+2026-10-08T22:18:11.049577-04:00 bifrost kernel: IPI shorthand broadcast: enabled
+2026-10-08T22:18:11.049587-04:00 bifrost kernel: sched_clock: Marking stable (2559001544, 265921)->(2575994475, -16727010)
+2026-10-08T22:18:11.049597-04:00 bifrost kernel: registered taskstats version 1
+2026-10-08T22:18:11.049607-04:00 bifrost kernel: Loading compiled-in X.509 certificates
+2026-10-08T22:18:11.049617-04:00 bifrost kernel: Loaded X.509 cert 'Build time autogenerated kernel key: aaf6cface807121d2b25f83f2288de5f0eb7acff'
+2026-10-08T22:18:11.049626-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Live Patch Signing 2025 Kmod: d541cef61dc7e793b7eb7e899970a2eef0b5dc8c'
+2026-10-08T22:18:11.049636-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Live Patch Signing: 14df34d1a87cf37625abec039ef2bf521249b969'
+2026-10-08T22:18:11.049646-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Kernel Module Signing 2025 Kmod: 4627603d2357a2a3f81006370894c221175893e9'
+2026-10-08T22:18:11.049656-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Kernel Module Signing: 88f752e560a1e0737e31163a466ad7b70a850c19'
+2026-10-08T22:18:11.049668-04:00 bifrost kernel: blacklist: Loading compiled-in revocation X.509 certificates
+2026-10-08T22:18:11.049678-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing: 61482aa2830d0ab2ad5af10b7250da9033ddcef0'
+2026-10-08T22:18:11.049688-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (2017): 242ade75ac4a15e50d50c84b0d45ff3eae707a03'
+2026-10-08T22:18:11.049698-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (ESM 2018): 365188c1d374d6b07c3c8f240f8ef722433d6a8b'
+2026-10-08T22:18:11.049708-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (2019): c0746fd6c5da3ae827864651ad66ae47fe24b3e8'
+2026-10-08T22:18:11.049718-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (2021 v1): a8d54bbb3825cfb94fa13c9f8a594a195c107b8d'
+2026-10-08T22:18:11.049728-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (2021 v2): 4cf046892d6fd3c9a5b03f98d845f90851dc6a8c'
+2026-10-08T22:18:11.049737-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (2021 v3): 100437bb6de6e469b581e61cd66bce3ef4ed53af'
+2026-10-08T22:18:11.049747-04:00 bifrost kernel: Loaded X.509 cert 'Canonical Ltd. Secure Boot Signing (Ubuntu Core 2019): c1d57b8f6b743f23ee41f4f7ee292f06eecadfb9'
+2026-10-08T22:18:11.049757-04:00 bifrost kernel: Key type .fscrypt registered
+2026-10-08T22:18:11.049769-04:00 bifrost kernel: Key type fscrypt-provisioning registered
+2026-10-08T22:18:11.049779-04:00 bifrost kernel: Key type trusted registered
+2026-10-08T22:18:11.049788-04:00 bifrost kernel: Key type encrypted registered
+2026-10-08T22:18:11.049798-04:00 bifrost kernel: AppArmor: AppArmor sha256 policy hashing enabled
+2026-10-08T22:18:11.049807-04:00 bifrost kernel: Loading compiled-in module X.509 certificates
+2026-10-08T22:18:11.049817-04:00 bifrost kernel: Loaded X.509 cert 'Build time autogenerated kernel key: aaf6cface807121d2b25f83f2288de5f0eb7acff'
+2026-10-08T22:18:11.049827-04:00 bifrost kernel: ima: Allocated hash algorithm: sha256
+2026-10-08T22:18:11.049836-04:00 bifrost kernel: ima: No architecture policies found
+2026-10-08T22:18:11.049846-04:00 bifrost kernel: evm: Initialising EVM extended attributes:
+2026-10-08T22:18:11.049856-04:00 bifrost kernel: evm: security.selinux
+2026-10-08T22:18:11.049866-04:00 bifrost kernel: evm: security.SMACK64
+2026-10-08T22:18:11.049876-04:00 bifrost kernel: evm: security.SMACK64EXEC
+2026-10-08T22:18:11.049885-04:00 bifrost kernel: evm: security.SMACK64TRANSMUTE
+2026-10-08T22:18:11.049898-04:00 bifrost kernel: evm: security.SMACK64MMAP
+2026-10-08T22:18:11.049909-04:00 bifrost kernel: evm: security.apparmor
+2026-10-08T22:18:11.049918-04:00 bifrost kernel: evm: security.ima
+2026-10-08T22:18:11.049928-04:00 bifrost kernel: evm: security.capability
+2026-10-08T22:18:11.049937-04:00 bifrost kernel: evm: HMAC attrs: 0x1
+2026-10-08T22:18:11.049947-04:00 bifrost kernel: PM:   Magic number: 14:181:308
+2026-10-08T22:18:11.050103-04:00 bifrost kernel: tty tty37: hash matches
+2026-10-08T22:18:11.050250-04:00 bifrost kernel: memory memory166: hash matches
+2026-10-08T22:18:11.050265-04:00 bifrost kernel: acpi_cpufreq: overriding BIOS provided _PSD data
+2026-10-08T22:18:11.050275-04:00 bifrost kernel: RAS: Correctable Errors collector initialized.
+2026-10-08T22:18:11.050287-04:00 bifrost kernel: clk: Disabling unused clocks
+2026-10-08T22:18:11.050297-04:00 bifrost kernel: Freeing unused decrypted memory: 2028K
+2026-10-08T22:18:11.050306-04:00 bifrost kernel: Freeing unused kernel image (initmem) memory: 4932K
+2026-10-08T22:18:11.050316-04:00 bifrost kernel: Write protecting the kernel read-only data: 38912k
+2026-10-08T22:18:11.050326-04:00 bifrost kernel: Freeing unused kernel image (rodata/data gap) memory: 1956K
+2026-10-08T22:18:11.050335-04:00 bifrost kernel: x86/mm: Checked W+X mappings: passed, no W+X pages found.
+2026-10-08T22:18:11.050345-04:00 bifrost kernel: Run /init as init process
+2026-10-08T22:18:11.050354-04:00 bifrost kernel:   with arguments:
+2026-10-08T22:18:11.050364-04:00 bifrost kernel:     /init
+2026-10-08T22:18:11.050373-04:00 bifrost kernel:     splash
+2026-10-08T22:18:11.050382-04:00 bifrost kernel:   with environment:
+2026-10-08T22:18:11.050392-04:00 bifrost kernel:     HOME=/
+2026-10-08T22:18:11.050404-04:00 bifrost kernel:     TERM=linux
+2026-10-08T22:18:11.050570-04:00 bifrost kernel: xhci_hcd 0000:02:00.0: xHCI Host Controller
+2026-10-08T22:18:11.050739-04:00 bifrost kernel: xhci_hcd 0000:02:00.0: new USB bus registered, assigned bus number 1
+2026-10-08T22:18:11.050911-04:00 bifrost kernel: ahci 0000:02:00.1: version 3.0
+2026-10-08T22:18:11.051080-04:00 bifrost kernel: ahci 0000:02:00.1: SSS flag set, parallel bus scan disabled
+2026-10-08T22:18:11.051214-04:00 bifrost kernel: ahci 0000:02:00.1: AHCI 0001.0301 32 slots 6 ports 6 Gbps 0x3f impl SATA mode
+2026-10-08T22:18:11.051340-04:00 bifrost kernel: ahci 0000:02:00.1: flags: 64bit ncq sntf stag pm led clo only pmp pio slum part sxs deso sadm sds apst 
+2026-10-08T22:18:11.051468-04:00 bifrost kernel: scsi host0: ahci
+2026-10-08T22:18:11.051608-04:00 bifrost kernel: scsi host1: ahci
+2026-10-08T22:18:11.051736-04:00 bifrost kernel: scsi host2: ahci
+2026-10-08T22:18:11.051854-04:00 bifrost kernel: scsi host3: ahci
+2026-10-08T22:18:11.051977-04:00 bifrost kernel: scsi host4: ahci
+2026-10-08T22:18:11.052105-04:00 bifrost kernel: scsi host5: ahci
+2026-10-08T22:18:11.052116-04:00 bifrost kernel: ata1: SATA max UDMA/133 abar m131072@0xfc780000 port 0xfc780100 irq 41 lpm-pol 0
+2026-10-08T22:18:11.052123-04:00 bifrost kernel: ata2: SATA max UDMA/133 abar m131072@0xfc780000 port 0xfc780180 irq 41 lpm-pol 0
+2026-10-08T22:18:11.052131-04:00 bifrost kernel: ata3: SATA max UDMA/133 abar m131072@0xfc780000 port 0xfc780200 irq 41 lpm-pol 0
+2026-10-08T22:18:11.052138-04:00 bifrost kernel: ata4: SATA max UDMA/133 abar m131072@0xfc780000 port 0xfc780280 irq 41 lpm-pol 0
+2026-10-08T22:18:11.052146-04:00 bifrost kernel: ata5: SATA max UDMA/133 abar m131072@0xfc780000 port 0xfc780300 irq 41 lpm-pol 0
+2026-10-08T22:18:11.052156-04:00 bifrost kernel: ata6: SATA max UDMA/133 abar m131072@0xfc780000 port 0xfc780380 irq 41 lpm-pol 0
+2026-10-08T22:18:11.052297-04:00 bifrost kernel: r8169 0000:06:00.0 eth0: RTL8125B, 18:c0:4d:6a:1b:1f, XID 641, IRQ 42
+2026-10-08T22:18:11.052433-04:00 bifrost kernel: r8169 0000:06:00.0 eth0: jumbo features [frames: 9194 bytes, tx checksumming: ko]
+2026-10-08T22:18:11.052561-04:00 bifrost kernel: nvme nvme0: pci function 0000:01:00.0
+2026-10-08T22:18:11.052708-04:00 bifrost kernel: nvme nvme0: missing or invalid SUBNQN field.
+2026-10-08T22:18:11.052853-04:00 bifrost kernel: nvme nvme0: Shutdown timeout set to 8 seconds
+2026-10-08T22:18:11.053022-04:00 bifrost kernel: xhci_hcd 0000:02:00.0: hcc params 0x0200ef81 hci version 0x110 quirks 0x0000000000000010
+2026-10-08T22:18:11.053198-04:00 bifrost kernel: xhci_hcd 0000:02:00.0: xHCI Host Controller
+2026-10-08T22:18:11.053367-04:00 bifrost kernel: xhci_hcd 0000:02:00.0: new USB bus registered, assigned bus number 2
+2026-10-08T22:18:11.053532-04:00 bifrost kernel: xhci_hcd 0000:02:00.0: Host supports USB 3.1 Enhanced SuperSpeed
+2026-10-08T22:18:11.053745-04:00 bifrost kernel: usb usb1: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 6.08
+2026-10-08T22:18:11.053950-04:00 bifrost kernel: usb usb1: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+2026-10-08T22:18:11.054160-04:00 bifrost kernel: usb usb1: Product: xHCI Host Controller
+2026-10-08T22:18:11.054354-04:00 bifrost kernel: usb usb1: Manufacturer: Linux 6.8.0-142-generic xhci-hcd
+2026-10-08T22:18:11.054548-04:00 bifrost kernel: usb usb1: SerialNumber: 0000:02:00.0
+2026-10-08T22:18:11.054742-04:00 bifrost kernel: hub 1-0:1.0: USB hub found
+2026-10-08T22:18:11.054927-04:00 bifrost kernel: hub 1-0:1.0: 10 ports detected
+2026-10-08T22:18:11.055161-04:00 bifrost kernel: usb usb2: We don't know the algorithms for LPM for this host, disabling LPM.
+2026-10-08T22:18:11.055365-04:00 bifrost kernel: usb usb2: New USB device found, idVendor=1d6b, idProduct=0003, bcdDevice= 6.08
+2026-10-08T22:18:11.055564-04:00 bifrost kernel: usb usb2: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+2026-10-08T22:18:11.055754-04:00 bifrost kernel: usb usb2: Product: xHCI Host Controller
+2026-10-08T22:18:11.055949-04:00 bifrost kernel: usb usb2: Manufacturer: Linux 6.8.0-142-generic xhci-hcd
+2026-10-08T22:18:11.056215-04:00 bifrost kernel: usb usb2: SerialNumber: 0000:02:00.0
+2026-10-08T22:18:11.056405-04:00 bifrost kernel: hub 2-0:1.0: USB hub found
+2026-10-08T22:18:11.056583-04:00 bifrost kernel: hub 2-0:1.0: 4 ports detected
+2026-10-08T22:18:11.056744-04:00 bifrost kernel: xhci_hcd 0000:0a:00.3: xHCI Host Controller
+2026-10-08T22:18:11.056901-04:00 bifrost kernel: xhci_hcd 0000:0a:00.3: new USB bus registered, assigned bus number 3
+2026-10-08T22:18:11.057075-04:00 bifrost kernel: xhci_hcd 0000:0a:00.3: hcc params 0x0278ffe5 hci version 0x110 quirks 0x0000000000000010
+2026-10-08T22:18:11.057245-04:00 bifrost kernel: xhci_hcd 0000:0a:00.3: xHCI Host Controller
+2026-10-08T22:18:11.057414-04:00 bifrost kernel: xhci_hcd 0000:0a:00.3: new USB bus registered, assigned bus number 4
+2026-10-08T22:18:11.057580-04:00 bifrost kernel: xhci_hcd 0000:0a:00.3: Host supports USB 3.1 Enhanced SuperSpeed
+2026-10-08T22:18:11.057783-04:00 bifrost kernel: usb usb3: New USB device found, idVendor=1d6b, idProduct=0002, bcdDevice= 6.08
+2026-10-08T22:18:11.057987-04:00 bifrost kernel: usb usb3: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+2026-10-08T22:18:11.058188-04:00 bifrost kernel: usb usb3: Product: xHCI Host Controller
+2026-10-08T22:18:11.058403-04:00 bifrost kernel: usb usb3: Manufacturer: Linux 6.8.0-142-generic xhci-hcd
+2026-10-08T22:18:11.058605-04:00 bifrost kernel: usb usb3: SerialNumber: 0000:0a:00.3
+2026-10-08T22:18:11.058793-04:00 bifrost kernel: hub 3-0:1.0: USB hub found
+2026-10-08T22:18:11.059011-04:00 bifrost kernel: hub 3-0:1.0: 4 ports detected
+2026-10-08T22:18:11.059209-04:00 bifrost kernel: usb usb4: We don't know the algorithms for LPM for this host, disabling LPM.
+2026-10-08T22:18:11.059377-04:00 bifrost kernel: usb usb4: New USB device found, idVendor=1d6b, idProduct=0003, bcdDevice= 6.08
+2026-10-08T22:18:11.059547-04:00 bifrost kernel: usb usb4: New USB device strings: Mfr=3, Product=2, SerialNumber=1
+2026-10-08T22:18:11.059732-04:00 bifrost kernel: usb usb4: Product: xHCI Host Controller
+2026-10-08T22:18:11.059922-04:00 bifrost kernel: usb usb4: Manufacturer: Linux 6.8.0-142-generic xhci-hcd
+2026-10-08T22:18:11.060125-04:00 bifrost kernel: usb usb4: SerialNumber: 0000:0a:00.3
+2026-10-08T22:18:11.060309-04:00 bifrost kernel: hub 4-0:1.0: USB hub found
+2026-10-08T22:18:11.060473-04:00 bifrost kernel: hub 4-0:1.0: 4 ports detected
+2026-10-08T22:18:11.060603-04:00 bifrost kernel: nvme nvme0: 16/0/0 default/read/poll queues
+2026-10-08T22:18:11.060614-04:00 bifrost kernel:  nvme0n1: p1 p2
+2026-10-08T22:18:11.060623-04:00 bifrost kernel: ata1: SATA link down (SStatus 0 SControl 300)
+2026-10-08T22:18:11.060794-04:00 bifrost kernel: usb 1-7: new full-speed USB device number 2 using xhci_hcd
+2026-10-08T22:18:11.060964-04:00 bifrost kernel: usb 1-7: New USB device found, idVendor=048d, idProduct=5702, bcdDevice= 0.01
+2026-10-08T22:18:11.061126-04:00 bifrost kernel: usb 1-7: New USB device strings: Mfr=1, Product=2, SerialNumber=0
+2026-10-08T22:18:11.061281-04:00 bifrost kernel: usb 1-7: Product: ITE Device
+2026-10-08T22:18:11.061430-04:00 bifrost kernel: usb 1-7: Manufacturer: ITE Tech. Inc.
+2026-10-08T22:18:11.061440-04:00 bifrost kernel: ata2: SATA link up 6.0 Gbps (SStatus 133 SControl 300)
+2026-10-08T22:18:11.061451-04:00 bifrost kernel: ata2.00: ATA-9: Fanxiang S101 1TB, W0220A0, max UDMA/133
+2026-10-08T22:18:11.061459-04:00 bifrost kernel: ata2.00: 2000409264 sectors, multi 1: LBA48 NCQ (depth 32), AA
+2026-10-08T22:18:11.061466-04:00 bifrost kernel: ata2.00: configured for UDMA/133
+2026-10-08T22:18:11.061605-04:00 bifrost kernel: scsi 1:0:0:0: Direct-Access     ATA      Fanxiang S101 1T 0A0  PQ: 0 ANSI: 5
+2026-10-08T22:18:11.061738-04:00 bifrost kernel: sd 1:0:0:0: Attached scsi generic sg0 type 0
+2026-10-08T22:18:11.061872-04:00 bifrost kernel: sd 1:0:0:0: [sda] 2000409264 512-byte logical blocks: (1.02 TB/954 GiB)
+2026-10-08T22:18:11.062008-04:00 bifrost kernel: sd 1:0:0:0: [sda] Write Protect is off
+2026-10-08T22:18:11.062147-04:00 bifrost kernel: sd 1:0:0:0: [sda] Mode Sense: 00 3a 00 00
+2026-10-08T22:18:11.062279-04:00 bifrost kernel: sd 1:0:0:0: [sda] Write cache: enabled, read cache: enabled, doesn't support DPO or FUA
+2026-10-08T22:18:11.062423-04:00 bifrost kernel: sd 1:0:0:0: [sda] Preferred minimum I/O size 512 bytes
+2026-10-08T22:18:11.062433-04:00 bifrost kernel:  sda: sda1
+2026-10-08T22:18:11.062574-04:00 bifrost kernel: sd 1:0:0:0: [sda] Attached SCSI disk
+2026-10-08T22:18:11.062741-04:00 bifrost kernel: usb 1-8: new full-speed USB device number 3 using xhci_hcd
+2026-10-08T22:18:11.062752-04:00 bifrost kernel: ata3: SATA link down (SStatus 0 SControl 330)
+2026-10-08T22:18:11.062915-04:00 bifrost kernel: usb 1-8: New USB device found, idVendor=8087, idProduct=0029, bcdDevice= 0.01
+2026-10-08T22:18:11.063075-04:00 bifrost kernel: usb 1-8: New USB device strings: Mfr=0, Product=0, SerialNumber=0
+2026-10-08T22:18:11.063087-04:00 bifrost kernel: ata4: SATA link down (SStatus 0 SControl 330)
+2026-10-08T22:18:11.063095-04:00 bifrost kernel: ata5: SATA link down (SStatus 0 SControl 330)
+2026-10-08T22:18:11.063105-04:00 bifrost kernel: ata6: SATA link down (SStatus 0 SControl 330)
+2026-10-08T22:18:11.063251-04:00 bifrost kernel: r8169 0000:06:00.0 eno1: renamed from eth0
+2026-10-08T22:18:11.063261-04:00 bifrost kernel: hid: raw HID events driver (C) Jiri Kosina
+2026-10-08T22:18:11.063269-04:00 bifrost kernel: usbcore: registered new interface driver usbhid
+2026-10-08T22:18:11.063276-04:00 bifrost kernel: usbhid: USB HID core driver
+2026-10-08T22:18:11.063420-04:00 bifrost kernel: hid-generic 0003:048D:5702.0001: hiddev0,hidraw0: USB HID v1.12 Device [ITE Tech. Inc. ITE Device] on usb-0000:02:00.0-7/input0
+2026-10-08T22:18:11.063431-04:00 bifrost kernel: EXT4-fs (nvme0n1p2): mounted filesystem 944d802d-afd2-4380-ac19-08a3521bacdf ro with ordered data mode. Quota mode: none.
+2026-10-08T22:18:11.063439-04:00 bifrost systemd[1]: Inserted module 'autofs4'
+2026-10-08T22:18:11.063449-04:00 bifrost systemd[1]: systemd 255.4-1ubuntu8.17 running in system mode (+PAM +AUDIT +SELINUX +APPARMOR +IMA +SMACK +SECCOMP +GCRYPT -GNUTLS +OPENSSL +ACL +BLKID +CURL +ELFUTILS +FIDO2 +IDN2 -IDN +IPTC +KMOD +LIBCRYPTSETUP +LIBFDISK +PCRE2 -PWQUALITY +P11KIT +QRENCODE +TPM2 +BZIP2 +LZ4 +XZ +ZLIB +ZSTD -BPF_FRAMEWORK -XKBCOMMON +UTMP +SYSVINIT default-hierarchy=unified)
+2026-10-08T22:18:11.063461-04:00 bifrost systemd[1]: Detected architecture x86-64.
+2026-10-08T22:18:11.063468-04:00 bifrost systemd[1]: Hostname set to <bifrost>.
+2026-10-08T22:18:11.063476-04:00 bifrost systemd[1]: Queued start job for default target graphical.target.
+2026-10-08T22:18:11.063485-04:00 bifrost systemd[1]: Created slice system-chrome\x2dremote\x2ddesktop.slice - Slice /system/chrome-remote-desktop.
+2026-10-08T22:18:11.063493-04:00 bifrost systemd[1]: Created slice system-modprobe.slice - Slice /system/modprobe.
+2026-10-08T22:18:11.063501-04:00 bifrost systemd[1]: Created slice system-systemd\x2dfsck.slice - Slice /system/systemd-fsck.
+2026-10-08T22:18:11.063509-04:00 bifrost systemd[1]: Created slice user.slice - User and Session Slice.
+2026-10-08T22:18:11.063517-04:00 bifrost systemd[1]: Started systemd-ask-password-wall.path - Forward Password Requests to Wall Directory Watch.
+2026-10-08T22:18:11.063529-04:00 bifrost systemd[1]: Set up automount proc-sys-fs-binfmt_misc.automount - Arbitrary Executable File Formats File System Automount Point.
+2026-10-08T22:18:11.063537-04:00 bifrost systemd[1]: Expecting device dev-disk-by\x2duuid-5ff7c1b7\x2d1fac\x2d4cc7\x2da4e4\x2d3b05496646df.device - /dev/disk/by-uuid/5ff7c1b7-1fac-4cc7-a4e4-3b05496646df...
+2026-10-08T22:18:11.063548-04:00 bifrost systemd[1]: Expecting device dev-disk-by\x2duuid-C023\x2d5270.device - /dev/disk/by-uuid/C023-5270...
+2026-10-08T22:18:11.063556-04:00 bifrost systemd[1]: Reached target integritysetup.target - Local Integrity Protected Volumes.
+2026-10-08T22:18:11.063564-04:00 bifrost systemd[1]: Reached target nss-user-lookup.target - User and Group Name Lookups.
+2026-10-08T22:18:11.063573-04:00 bifrost systemd[1]: Reached target remote-fs.target - Remote File Systems.
+2026-10-08T22:18:11.063581-04:00 bifrost systemd[1]: Reached target slices.target - Slice Units.
+2026-10-08T22:18:11.063589-04:00 bifrost systemd[1]: Reached target snapd.mounts-pre.target - Mounting snaps.
+2026-10-08T22:18:11.063597-04:00 bifrost systemd[1]: Reached target swap.target - Swaps.
+2026-10-08T22:18:11.063605-04:00 bifrost systemd[1]: Reached target veritysetup.target - Local Verity Protected Volumes.
+2026-10-08T22:18:11.063612-04:00 bifrost systemd[1]: Listening on syslog.socket - Syslog Socket.
+2026-10-08T22:18:11.063620-04:00 bifrost systemd[1]: Listening on systemd-fsckd.socket - fsck to fsckd communication Socket.
+2026-10-08T22:18:11.063630-04:00 bifrost systemd[1]: Listening on systemd-initctl.socket - initctl Compatibility Named Pipe.
+2026-10-08T22:18:11.063638-04:00 bifrost systemd[1]: Listening on systemd-journald-dev-log.socket - Journal Socket (/dev/log).
+2026-10-08T22:18:11.063646-04:00 bifrost systemd[1]: Listening on systemd-journald.socket - Journal Socket.
+2026-10-08T22:18:11.063654-04:00 bifrost systemd[1]: Listening on systemd-oomd.socket - Userspace Out-Of-Memory (OOM) Killer Socket.
+2026-10-08T22:18:11.063662-04:00 bifrost systemd[1]: systemd-pcrextend.socket - TPM2 PCR Extension (Varlink) was skipped because of an unmet condition check (ConditionSecurity=measured-uki).
+2026-10-08T22:18:11.063670-04:00 bifrost systemd[1]: Listening on systemd-udevd-control.socket - udev Control Socket.
+2026-10-08T22:18:11.063677-04:00 bifrost systemd[1]: Listening on systemd-udevd-kernel.socket - udev Kernel Socket.
+2026-10-08T22:18:11.063685-04:00 bifrost systemd[1]: Mounting dev-hugepages.mount - Huge Pages File System...
+2026-10-08T22:18:11.063693-04:00 bifrost systemd[1]: Mounting dev-mqueue.mount - POSIX Message Queue File System...
+2026-10-08T22:18:11.063701-04:00 bifrost systemd[1]: Mounting sys-kernel-debug.mount - Kernel Debug File System...
+2026-10-08T22:18:11.063708-04:00 bifrost systemd[1]: Mounting sys-kernel-tracing.mount - Kernel Trace File System...
+2026-10-08T22:18:11.063718-04:00 bifrost systemd[1]: Starting systemd-journald.service - Journal Service...
+2026-10-08T22:18:11.063726-04:00 bifrost systemd[1]: Starting keyboard-setup.service - Set the console keyboard layout...
+2026-10-08T22:18:11.063734-04:00 bifrost systemd[1]: Starting kmod-static-nodes.service - Create List of Static Device Nodes...
+2026-10-08T22:18:11.063742-04:00 bifrost systemd[1]: Starting modprobe@configfs.service - Load Kernel Module configfs...
+2026-10-08T22:18:11.063749-04:00 bifrost systemd[1]: Starting modprobe@dm_mod.service - Load Kernel Module dm_mod...
+2026-10-08T22:18:11.063758-04:00 bifrost systemd[1]: Starting modprobe@drm.service - Load Kernel Module drm...
+2026-10-08T22:18:11.063766-04:00 bifrost systemd[1]: Starting modprobe@efi_pstore.service - Load Kernel Module efi_pstore...
+2026-10-08T22:18:11.063774-04:00 bifrost systemd[1]: Starting modprobe@fuse.service - Load Kernel Module fuse...
+2026-10-08T22:18:11.063783-04:00 bifrost systemd[1]: Starting modprobe@loop.service - Load Kernel Module loop...
+2026-10-08T22:18:11.063792-04:00 bifrost systemd[1]: systemd-fsck-root.service - File System Check on Root Device was skipped because of an unmet condition check (ConditionPathExists=!/run/initramfs/fsck-root).
+2026-10-08T22:18:11.063799-04:00 bifrost systemd[1]: Starting systemd-modules-load.service - Load Kernel Modules...
+2026-10-08T22:18:11.063807-04:00 bifrost systemd[1]: systemd-pcrmachine.service - TPM2 PCR Machine ID Measurement was skipped because of an unmet condition check (ConditionSecurity=measured-uki).
+2026-10-08T22:18:11.063815-04:00 bifrost systemd[1]: Starting systemd-remount-fs.service - Remount Root and Kernel File Systems...
+2026-10-08T22:18:11.063823-04:00 bifrost systemd[1]: systemd-tpm2-setup-early.service - TPM2 SRK Setup (Early) was skipped because of an unmet condition check (ConditionSecurity=measured-uki).
+2026-10-08T22:18:11.063831-04:00 bifrost systemd[1]: Starting systemd-udev-trigger.service - Coldplug All udev Devices...
+2026-10-08T22:18:11.063839-04:00 bifrost kernel: pstore: Using crash dump compression: deflate
+2026-10-08T22:18:11.063846-04:00 bifrost systemd[1]: Mounted dev-hugepages.mount - Huge Pages File System.
+2026-10-08T22:18:11.063854-04:00 bifrost systemd[1]: Mounted dev-mqueue.mount - POSIX Message Queue File System.
+2026-10-08T22:18:11.063862-04:00 bifrost systemd[1]: Mounted sys-kernel-debug.mount - Kernel Debug File System.
+2026-10-08T22:18:11.063873-04:00 bifrost systemd[1]: Mounted sys-kernel-tracing.mount - Kernel Trace File System.
+2026-10-08T22:18:11.063881-04:00 bifrost systemd[1]: Finished kmod-static-nodes.service - Create List of Static Device Nodes.
+2026-10-08T22:18:11.063888-04:00 bifrost systemd[1]: modprobe@configfs.service: Deactivated successfully.
+2026-10-08T22:18:11.063896-04:00 bifrost systemd[1]: Finished modprobe@configfs.service - Load Kernel Module configfs.
+2026-10-08T22:18:11.063904-04:00 bifrost systemd[1]: modprobe@dm_mod.service: Deactivated successfully.
+2026-10-08T22:18:11.063911-04:00 bifrost kernel: pstore: Registered efi_pstore as persistent store backend
+2026-10-08T22:18:11.063919-04:00 bifrost systemd[1]: Finished modprobe@dm_mod.service - Load Kernel Module dm_mod.
+2026-10-08T22:18:11.063927-04:00 bifrost systemd[1]: modprobe@drm.service: Deactivated successfully.
+2026-10-08T22:18:11.063935-04:00 bifrost systemd[1]: Finished modprobe@drm.service - Load Kernel Module drm.
+2026-10-08T22:18:11.063961-04:00 bifrost systemd-journald[451]: Collecting audit messages is disabled.
+2026-10-08T22:18:11.063981-04:00 bifrost systemd[1]: modprobe@efi_pstore.service: Deactivated successfully.
+2026-10-08T22:18:11.063989-04:00 bifrost systemd[1]: Finished modprobe@efi_pstore.service - Load Kernel Module efi_pstore.
+2026-10-08T22:18:11.063997-04:00 bifrost systemd[1]: modprobe@fuse.service: Deactivated successfully.
+2026-10-08T22:18:11.064004-04:00 bifrost systemd[1]: Finished modprobe@fuse.service - Load Kernel Module fuse.
+2026-10-08T22:18:11.064012-04:00 bifrost systemd[1]: modprobe@loop.service: Deactivated successfully.
+2026-10-08T22:18:11.064020-04:00 bifrost systemd[1]: Finished modprobe@loop.service - Load Kernel Module loop.
+2026-10-08T22:18:11.064029-04:00 bifrost systemd[1]: Mounting sys-fs-fuse-connections.mount - FUSE Control File System...
+2026-10-08T22:18:11.064037-04:00 bifrost systemd[1]: Mounting sys-kernel-config.mount - Kernel Configuration File System...
+2026-10-08T22:18:11.064051-04:00 bifrost systemd[1]: systemd-repart.service - Repartition Root Disk was skipped because no trigger condition checks were met.
+2026-10-08T22:18:11.064059-04:00 bifrost systemd[1]: Starting systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully...
+2026-10-08T22:18:11.064066-04:00 bifrost kernel: lp: driver loaded but no devices found
+2026-10-08T22:18:11.064074-04:00 bifrost systemd[1]: Mounted sys-fs-fuse-connections.mount - FUSE Control File System.
+2026-10-08T22:18:11.064081-04:00 bifrost systemd[1]: Mounted sys-kernel-config.mount - Kernel Configuration File System.
+2026-10-08T22:18:11.064089-04:00 bifrost kernel: ppdev: user-space parallel port driver
+2026-10-08T22:18:11.064097-04:00 bifrost systemd[1]: Finished systemd-tmpfiles-setup-dev-early.service - Create Static Device Nodes in /dev gracefully.
+2026-10-08T22:18:11.064104-04:00 bifrost kernel: EXT4-fs (nvme0n1p2): re-mounted 944d802d-afd2-4380-ac19-08a3521bacdf r/w.
+2026-10-08T22:18:11.064112-04:00 bifrost systemd[1]: Finished systemd-remount-fs.service - Remount Root and Kernel File Systems.
+2026-10-08T22:18:11.064122-04:00 bifrost systemd[1]: systemd-hwdb-update.service - Rebuild Hardware Database was skipped because of an unmet condition check (ConditionNeedsUpdate=/etc).
+2026-10-08T22:18:11.064131-04:00 bifrost systemd[1]: systemd-pstore.service - Platform Persistent Storage Archival was skipped because of an unmet condition check (ConditionDirectoryNotEmpty=/sys/fs/pstore).
+2026-10-08T22:18:11.064139-04:00 bifrost systemd[1]: Starting systemd-random-seed.service - Load/Save OS Random Seed...
+2026-10-08T22:18:11.064147-04:00 bifrost systemd[1]: systemd-sysusers.service - Create System Users was skipped because no trigger condition checks were met.
+2026-10-08T22:18:11.064154-04:00 bifrost systemd[1]: Starting systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev...
+2026-10-08T22:18:11.064163-04:00 bifrost systemd[1]: systemd-tpm2-setup.service - TPM2 SRK Setup was skipped because of an unmet condition check (ConditionSecurity=measured-uki).
+2026-10-08T22:18:11.064171-04:00 bifrost systemd[1]: Finished keyboard-setup.service - Set the console keyboard layout.
+2026-10-08T22:18:11.064179-04:00 bifrost systemd[1]: Finished systemd-tmpfiles-setup-dev.service - Create Static Device Nodes in /dev.
+2026-10-08T22:18:11.064187-04:00 bifrost systemd[1]: Reached target local-fs-pre.target - Preparation for Local File Systems.
+2026-10-08T22:18:11.064195-04:00 bifrost systemd[1]: Mounting snap-astral\x2duv-1773.mount - Mount unit for astral-uv, revision 1773...
+2026-10-08T22:18:11.064205-04:00 bifrost systemd[1]: Mounting snap-astral\x2duv-1781.mount - Mount unit for astral-uv, revision 1781...
+2026-10-08T22:18:11.064212-04:00 bifrost systemd[1]: Mounting snap-audacity-1235.mount - Mount unit for audacity, revision 1235...
+2026-10-08T22:18:11.064220-04:00 bifrost systemd[1]: Mounting snap-audacity-1239.mount - Mount unit for audacity, revision 1239...
+2026-10-08T22:18:11.064228-04:00 bifrost systemd[1]: Mounting snap-bare-5.mount - Mount unit for bare, revision 5...
+2026-10-08T22:18:11.064236-04:00 bifrost kernel: loop0: detected capacity change from 0 to 41440
+2026-10-08T22:18:11.064245-04:00 bifrost systemd[1]: Mounting snap-core20-2866.mount - Mount unit for core20, revision 2866...
+2026-10-08T22:18:11.064253-04:00 bifrost kernel: loop1: detected capacity change from 0 to 41440
+2026-10-08T22:18:11.064260-04:00 bifrost systemd[1]: Mounting snap-core20-2922.mount - Mount unit for core20, revision 2922...
+2026-10-08T22:18:11.064268-04:00 bifrost kernel: loop2: detected capacity change from 0 to 1096608
+2026-10-08T22:18:11.064276-04:00 bifrost kernel: loop3: detected capacity change from 0 to 1109832
+2026-10-08T22:18:11.064292-04:00 bifrost systemd[1]: Mounting snap-core22-2437.mount - Mount unit for core22, revision 2437...
+2026-10-08T22:18:11.064301-04:00 bifrost systemd[1]: Mounting snap-core22-2955.mount - Mount unit for core22, revision 2955...
+2026-10-08T22:18:11.064310-04:00 bifrost kernel: loop4: detected capacity change from 0 to 8
+2026-10-08T22:18:11.064318-04:00 bifrost systemd[1]: Mounting snap-core24-1643.mount - Mount unit for core24, revision 1643...
+2026-10-08T22:18:11.064325-04:00 bifrost kernel: loop5: detected capacity change from 0 to 130624
+2026-10-08T22:18:11.064333-04:00 bifrost systemd[1]: Mounting snap-core24-2124.mount - Mount unit for core24, revision 2124...
+2026-10-08T22:18:11.064340-04:00 bifrost kernel: loop6: detected capacity change from 0 to 130632
+2026-10-08T22:18:11.064348-04:00 bifrost systemd[1]: Mounting snap-ffmpeg\x2d2404-149.mount - Mount unit for ffmpeg-2404, revision 149...
+2026-10-08T22:18:11.064357-04:00 bifrost kernel: loop7: detected capacity change from 0 to 151536
+2026-10-08T22:18:11.064365-04:00 bifrost systemd[1]: Mounting snap-ffmpeg\x2d2404-156.mount - Mount unit for ffmpeg-2404, revision 156...
+2026-10-08T22:18:11.064373-04:00 bifrost kernel: loop8: detected capacity change from 0 to 151512
+2026-10-08T22:18:11.064380-04:00 bifrost systemd[1]: Mounting snap-firefox-8995.mount - Mount unit for firefox, revision 8995...
+2026-10-08T22:18:11.064388-04:00 bifrost kernel: loop9: detected capacity change from 0 to 136816
+2026-10-08T22:18:11.064395-04:00 bifrost systemd[1]: Mounting snap-firefox-9036.mount - Mount unit for firefox, revision 9036...
+2026-10-08T22:18:11.064404-04:00 bifrost systemd[1]: Mounting snap-firmware\x2dupdater-258.mount - Mount unit for firmware-updater, revision 258...
+2026-10-08T22:18:11.064412-04:00 bifrost systemd[1]: Mounting snap-firmware\x2dupdater-262.mount - Mount unit for firmware-updater, revision 262...
+2026-10-08T22:18:11.064419-04:00 bifrost systemd[1]: Mounting snap-gimp-560.mount - Mount unit for gimp, revision 560...
+2026-10-08T22:18:11.064427-04:00 bifrost systemd[1]: Mounting snap-gimp-561.mount - Mount unit for gimp, revision 561...
+2026-10-08T22:18:11.064435-04:00 bifrost systemd[1]: Mounting snap-gnome\x2d42\x2d2204-247.mount - Mount unit for gnome-42-2204, revision 247...
+2026-10-08T22:18:11.064445-04:00 bifrost systemd[1]: Mounting snap-gnome\x2d42\x2d2204-263.mount - Mount unit for gnome-42-2204, revision 263...
+2026-10-08T22:18:11.065072-04:00 bifrost systemd[1]: Mounting snap-gnome\x2d46\x2d2404-153.mount - Mount unit for gnome-46-2404, revision 153...
+2026-10-08T22:18:11.066056-04:00 bifrost systemd[1]: Mounting snap-gnome\x2d46\x2d2404-164.mount - Mount unit for gnome-46-2404, revision 164...
+2026-10-08T22:18:11.068053-04:00 bifrost systemd[1]: Mounting snap-google\x2dcloud\x2dcli-503.mount - Mount unit for google-cloud-cli, revision 503...
+2026-10-08T22:18:11.069065-04:00 bifrost systemd[1]: Mounting snap-google\x2dcloud\x2dcli-509.mount - Mount unit for google-cloud-cli, revision 509...
+2026-10-08T22:18:11.070053-04:00 bifrost systemd[1]: Mounting snap-gtk\x2dcommon\x2dthemes-1535.mount - Mount unit for gtk-common-themes, revision 1535...
+2026-10-08T22:18:11.071055-04:00 bifrost systemd[1]: Mounting snap-mesa\x2d2404-1165.mount - Mount unit for mesa-2404, revision 1165...
+2026-10-08T22:18:11.072052-04:00 bifrost systemd[1]: Mounting snap-mesa\x2d2404-1839.mount - Mount unit for mesa-2404, revision 1839...
+2026-10-08T22:18:11.073052-04:00 bifrost systemd[1]: Mounting snap-snap\x2dstore-1390.mount - Mount unit for snap-store, revision 1390...
+2026-10-08T22:18:11.074053-04:00 bifrost systemd[1]: Mounting snap-snap\x2dstore-1427.mount - Mount unit for snap-store, revision 1427...
+2026-10-08T22:18:11.075053-04:00 bifrost systemd[1]: Mounting snap-snapd-27738.mount - Mount unit for snapd, revision 27738...
+2026-10-08T22:18:11.076055-04:00 bifrost systemd[1]: Mounting snap-snapd-28254.mount - Mount unit for snapd, revision 28254...
+2026-10-08T22:18:11.077052-04:00 bifrost systemd[1]: Mounting snap-snapd\x2ddesktop\x2dintegration-387.mount - Mount unit for snapd-desktop-integration, revision 387...
+2026-10-08T22:18:11.078051-04:00 bifrost systemd[1]: Mounting snap-snapd\x2ddesktop\x2dintegration-391.mount - Mount unit for snapd-desktop-integration, revision 391...
+2026-10-08T22:18:11.080055-04:00 bifrost systemd[1]: Mounting snap-thunderbird-1279.mount - Mount unit for thunderbird, revision 1279...
+2026-10-08T22:18:11.081055-04:00 bifrost systemd[1]: Mounting snap-thunderbird-1282.mount - Mount unit for thunderbird, revision 1282...
+2026-10-08T22:18:11.083054-04:00 bifrost systemd[1]: Mounting var-snap-firefox-common-host\x2dhunspell.mount - Mount unit for firefox, revision 2987 via mount-control...
+2026-10-08T22:18:11.084051-04:00 bifrost systemd[1]: Starting systemd-udevd.service - Rule-based Manager for Device Events and Files...
+2026-10-08T22:18:11.099052-04:00 bifrost systemd[1]: Started systemd-journald.service - Journal Service.
+2026-10-08T22:18:11.115055-04:00 bifrost kernel: nvidia: loading out-of-tree module taints kernel.
+2026-10-08T22:18:11.115085-04:00 bifrost kernel: nvidia: module verification failed: signature and/or required key missing - tainting kernel
+2026-10-08T22:18:11.184005-04:00 bifrost systemd-journald[451]: Received client request to flush runtime journal.
+2026-10-08T22:18:11.184039-04:00 bifrost systemd-journald[451]: File /var/log/journal/6431c727fbd0400fa6b57b18dfb988a8/system.journal corrupted or uncleanly shut down, renaming and replacing.
+2026-10-08T22:18:11.192049-04:00 bifrost kernel: nvidia-nvlink: Nvlink Core is being initialized, major device number 236
+2026-10-08T22:18:11.197053-04:00 bifrost kernel: 
+2026-10-08T22:18:11.197078-04:00 bifrost kernel: nvidia 0000:08:00.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=none:owns=io+mem
+2026-10-08T22:18:11.241058-04:00 bifrost kernel: NVRM: loading NVIDIA UNIX Open Kernel Module for x86_64  580.159.04  Release Build  (dvs-builder@U22-I3-AF04-09-6)  Wed Apr 29 17:15:53 UTC 2026
+2026-10-08T22:18:11.344055-04:00 bifrost kernel: ACPI Warning: SystemIO range 0x0000000000000B00-0x0000000000000B08 conflicts with OpRegion 0x0000000000000B00-0x0000000000000B0F (\GSA1.SMBI) (20230628/utaddress-204)
+2026-10-08T22:18:11.344114-04:00 bifrost kernel: ACPI: OSL: Resource conflict; ACPI support missing from driver?
+2026-10-08T22:18:11.368063-04:00 bifrost kernel: ccp 0000:0a:00.1: enabling device (0000 -> 0002)
+2026-10-08T22:18:11.371826-04:00 bifrost kernel: RAPL PMU: API unit is 2^-32 Joules, 1 fixed counters, 163840 ms ovfl timer
+2026-10-08T22:18:11.371847-04:00 bifrost kernel: RAPL PMU: hw unit of domain package 2^-16 Joules
+2026-10-08T22:18:11.371862-04:00 bifrost kernel: ccp 0000:0a:00.1: ccp: unable to access the device: you might be running a broken BIOS.
+2026-10-08T22:18:11.373055-04:00 bifrost kernel: ccp 0000:0a:00.1: psp enabled
+2026-10-08T22:18:11.402059-04:00 bifrost kernel: Bluetooth: Core ver 2.22
+2026-10-08T22:18:11.402114-04:00 bifrost kernel: NET: Registered PF_BLUETOOTH protocol family
+2026-10-08T22:18:11.402126-04:00 bifrost kernel: Bluetooth: HCI device and connection manager initialized
+2026-10-08T22:18:11.402140-04:00 bifrost kernel: Bluetooth: HCI socket layer initialized
+2026-10-08T22:18:11.402152-04:00 bifrost kernel: Bluetooth: L2CAP socket layer initialized
+2026-10-08T22:18:11.402165-04:00 bifrost kernel: Bluetooth: SCO socket layer initialized
+2026-10-08T22:18:11.434064-04:00 bifrost kernel: cryptd: max_cpu_qlen set to 1000
+2026-10-08T22:18:11.436093-04:00 bifrost kernel: cfg80211: Loading compiled-in X.509 certificates for regulatory database
+2026-10-08T22:18:11.436128-04:00 bifrost kernel: Loaded X.509 cert 'sforshee: 00b28ddf47aef9cea7'
+2026-10-08T22:18:11.436147-04:00 bifrost kernel: Loaded X.509 cert 'wens: 61c038651aabdcf94bd0ac7ff06c7248db18c600'
+2026-10-08T22:18:11.440054-04:00 bifrost kernel: AVX2 version of gcm_enc/dec engaged.
+2026-10-08T22:18:11.440088-04:00 bifrost kernel: AES CTR mode by8 optimization enabled
+2026-10-08T22:18:11.441062-04:00 bifrost kernel: nvidia-modeset: Loading NVIDIA UNIX Open Kernel Mode Setting Driver for x86_64  580.159.04  Release Build  (dvs-builder@U22-I3-AF04-09-6)  Wed Apr 29 17:04:37 UTC 2026
+2026-10-08T22:18:11.442057-04:00 bifrost kernel: usbcore: registered new interface driver btusb
+2026-10-08T22:18:11.445204-04:00 bifrost kernel: [drm] [nvidia-drm] [GPU ID 0x00000800] Loading driver
+2026-10-08T22:18:11.454073-04:00 bifrost kernel: Intel(R) Wireless WiFi driver for Linux
+2026-10-08T22:18:11.454108-04:00 bifrost kernel: iwlwifi 0000:07:00.0: enabling device (0000 -> 0002)
+2026-10-08T22:18:11.459059-04:00 bifrost kernel: iwlwifi 0000:07:00.0: Detected crf-id 0x3617, cnv-id 0x100530 wfpm id 0x80000000
+2026-10-08T22:18:11.459250-04:00 bifrost kernel: iwlwifi 0000:07:00.0: PCI dev 2723/0084, rev=0x340, rfid=0x10a100
+2026-10-08T22:18:11.463067-04:00 bifrost kernel: Bluetooth: hci0: Found device firmware: intel/ibt-20-1-3.sfi
+2026-10-08T22:18:11.463145-04:00 bifrost kernel: Bluetooth: hci0: Boot Address: 0x24800
+2026-10-08T22:18:11.463161-04:00 bifrost kernel: Bluetooth: hci0: Firmware Version: 132-3.24
+2026-10-08T22:18:11.463172-04:00 bifrost kernel: Bluetooth: hci0: Firmware already loaded
+2026-10-08T22:18:11.466056-04:00 bifrost kernel: iwlwifi 0000:07:00.0: TLV_FW_FSEQ_VERSION: FSEQ Version: 89.3.35.37
+2026-10-08T22:18:11.467060-04:00 bifrost kernel: iwlwifi 0000:07:00.0: loaded firmware version 77.b405f9d4.0 cc-a0-77.ucode op_mode iwlmvm
+2026-10-08T22:18:11.472226-04:00 bifrost kernel: Bluetooth: hci0: HCI LE Coded PHY feature bit is set, but its usage is not supported.
+2026-10-08T22:18:11.587058-04:00 bifrost kernel: kvm_amd: TSC scaling supported
+2026-10-08T22:18:11.587129-04:00 bifrost kernel: kvm_amd: Nested Virtualization enabled
+2026-10-08T22:18:11.587147-04:00 bifrost kernel: kvm_amd: Nested Paging enabled
+2026-10-08T22:18:11.587161-04:00 bifrost kernel: kvm_amd: LBR virtualization supported
+2026-10-08T22:18:11.587178-04:00 bifrost kernel: kvm_amd: SEV enabled (ASIDs 1 - 509)
+2026-10-08T22:18:11.587194-04:00 bifrost kernel: kvm_amd: SEV-ES disabled (ASIDs 0 - 0)
+2026-10-08T22:18:11.587208-04:00 bifrost kernel: kvm_amd: Virtual VMLOAD VMSAVE supported
+2026-10-08T22:18:11.587221-04:00 bifrost kernel: kvm_amd: Virtual GIF supported
+2026-10-08T22:18:11.601057-04:00 bifrost kernel: iwlwifi 0000:07:00.0: Detected Intel(R) Wi-Fi 6 AX200 160MHz, REV=0x340
+2026-10-08T22:18:11.601384-04:00 bifrost kernel: thermal thermal_zone1: failed to read out thermal zone (-61)
+2026-10-08T22:18:11.605053-04:00 bifrost kernel: MCE: In-kernel MCE decoding enabled.
+2026-10-08T22:18:11.605077-04:00 bifrost kernel: snd_hda_intel 0000:08:00.1: Disabling MSI
+2026-10-08T22:18:11.605229-04:00 bifrost kernel: snd_hda_intel 0000:08:00.1: Handle vga_switcheroo audio client
+2026-10-08T22:18:11.605365-04:00 bifrost kernel: snd_hda_intel 0000:0a:00.4: enabling device (0000 -> 0002)
+2026-10-08T22:18:11.622052-04:00 bifrost kernel: snd_hda_codec_realtek hdaudioC1D0: autoconfig for ALC1220: line_outs=1 (0x14/0x0/0x0/0x0/0x0) type:line
+2026-10-08T22:18:11.622236-04:00 bifrost kernel: snd_hda_codec_realtek hdaudioC1D0:    speaker_outs=0 (0x0/0x0/0x0/0x0/0x0)
+2026-10-08T22:18:11.622363-04:00 bifrost kernel: snd_hda_codec_realtek hdaudioC1D0:    hp_outs=1 (0x1b/0x0/0x0/0x0/0x0)
+2026-10-08T22:18:11.622543-04:00 bifrost kernel: snd_hda_codec_realtek hdaudioC1D0:    mono: mono_out=0x0
+2026-10-08T22:18:11.622673-04:00 bifrost kernel: snd_hda_codec_realtek hdaudioC1D0:    inputs:
+2026-10-08T22:18:11.622809-04:00 bifrost kernel: snd_hda_codec_realtek hdaudioC1D0:      Rear Mic=0x18
+2026-10-08T22:18:11.622935-04:00 bifrost kernel: snd_hda_codec_realtek hdaudioC1D0:      Front Mic=0x19
+2026-10-08T22:18:11.623079-04:00 bifrost kernel: snd_hda_codec_realtek hdaudioC1D0:      Line=0x1a
+2026-10-08T22:18:11.626051-04:00 bifrost kernel: input: HDA NVidia HDMI/DP,pcm=3 as /devices/pci0000:00/0000:00:03.1/0000:08:00.1/sound/card0/input2
+2026-10-08T22:18:11.626075-04:00 bifrost kernel: input: HDA NVidia HDMI/DP,pcm=7 as /devices/pci0000:00/0000:00:03.1/0000:08:00.1/sound/card0/input3
+2026-10-08T22:18:11.626088-04:00 bifrost kernel: input: HDA NVidia HDMI/DP,pcm=8 as /devices/pci0000:00/0000:00:03.1/0000:08:00.1/sound/card0/input4
+2026-10-08T22:18:11.626101-04:00 bifrost kernel: input: HDA NVidia HDMI/DP,pcm=9 as /devices/pci0000:00/0000:00:03.1/0000:08:00.1/sound/card0/input5
+2026-10-08T22:18:11.635062-04:00 bifrost kernel: input: HD-Audio Generic Rear Mic as /devices/pci0000:00/0000:00:08.1/0000:0a:00.4/sound/card1/input6
+2026-10-08T22:18:11.636052-04:00 bifrost kernel: input: HD-Audio Generic Front Mic as /devices/pci0000:00/0000:00:08.1/0000:0a:00.4/sound/card1/input7
+2026-10-08T22:18:11.636066-04:00 bifrost kernel: input: HD-Audio Generic Line as /devices/pci0000:00/0000:00:08.1/0000:0a:00.4/sound/card1/input8
+2026-10-08T22:18:11.636082-04:00 bifrost kernel: input: HD-Audio Generic Line Out as /devices/pci0000:00/0000:00:08.1/0000:0a:00.4/sound/card1/input9
+2026-10-08T22:18:11.636103-04:00 bifrost kernel: input: HD-Audio Generic Front Headphone as /devices/pci0000:00/0000:00:08.1/0000:0a:00.4/sound/card1/input10
+2026-10-08T22:18:11.655052-04:00 bifrost kernel: intel_rapl_common: Found RAPL domain package
+2026-10-08T22:18:11.655081-04:00 bifrost kernel: intel_rapl_common: Found RAPL domain core
+2026-10-08T22:18:11.725058-04:00 bifrost kernel: iwlwifi 0000:07:00.0: Detected RF HR B3, rfid=0x10a100
+2026-10-08T22:18:11.791054-04:00 bifrost kernel: iwlwifi 0000:07:00.0: base HW address: e0:d4:e8:99:e4:8b
+2026-10-08T22:18:11.817049-04:00 bifrost kernel: iwlwifi 0000:07:00.0 wlp7s0: renamed from wlan0
+2026-10-08T22:18:13.012059-04:00 bifrost kernel: [drm] Initialized nvidia-drm 0.0.0 20160202 for 0000:08:00.0 on minor 1
+2026-10-08T22:18:13.016057-04:00 bifrost kernel: Console: switching to colour dummy device 80x25
+2026-10-08T22:18:13.026057-04:00 bifrost kernel: nvidia 0000:08:00.0: vgaarb: deactivate vga console
+2026-10-08T22:18:13.030055-04:00 bifrost kernel: nvidia 0000:08:00.0: [drm] Cannot find any crtc or sizes
+2026-10-08T22:18:13.213054-04:00 bifrost kernel: EXT4-fs (sda1): mounted filesystem 5ff7c1b7-1fac-4cc7-a4e4-3b05496646df r/w with ordered data mode. Quota mode: none.
+2026-10-08T22:18:13.242261-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:2): apparmor="STATUS" operation="profile_load" profile="unconfined" name="ch-checkns" pid=1192 comm="apparmor_parser"
+2026-10-08T22:18:13.242315-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:3): apparmor="STATUS" operation="profile_load" profile="unconfined" name="ch-run" pid=1193 comm="apparmor_parser"
+2026-10-08T22:18:13.242332-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:4): apparmor="STATUS" operation="profile_load" profile="unconfined" name="devhelp" pid=1198 comm="apparmor_parser"
+2026-10-08T22:18:13.242355-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:5): apparmor="STATUS" operation="profile_load" profile="unconfined" name="chrome" pid=1194 comm="apparmor_parser"
+2026-10-08T22:18:13.242374-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:6): apparmor="STATUS" operation="profile_load" profile="unconfined" name="QtWebEngineProcess" pid=1186 comm="apparmor_parser"
+2026-10-08T22:18:13.242389-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:7): apparmor="STATUS" operation="profile_load" profile="unconfined" name="brave" pid=1188 comm="apparmor_parser"
+2026-10-08T22:18:13.242401-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:8): apparmor="STATUS" operation="profile_load" profile="unconfined" name="buildah" pid=1189 comm="apparmor_parser"
+2026-10-08T22:18:13.242414-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:9): apparmor="STATUS" operation="profile_load" profile="unconfined" name="vscode" pid=1195 comm="apparmor_parser"
+2026-10-08T22:18:13.242427-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:10): apparmor="STATUS" operation="profile_load" profile="unconfined" name="crun" pid=1196 comm="apparmor_parser"
+2026-10-08T22:18:13.242441-04:00 bifrost kernel: audit: type=1400 audit(1791512293.241:11): apparmor="STATUS" operation="profile_load" profile="unconfined" name="Discord" pid=1184 comm="apparmor_parser"
+2026-10-08T22:18:13.622152-04:00 bifrost kernel: Bluetooth: BNEP (Ethernet Emulation) ver 1.3
+2026-10-08T22:18:13.622210-04:00 bifrost kernel: Bluetooth: BNEP filters: protocol multicast
+2026-10-08T22:18:13.622222-04:00 bifrost kernel: Bluetooth: BNEP socket layer initialized
+2026-10-08T22:18:13.623108-04:00 bifrost kernel: Bluetooth: MGMT ver 1.22
+2026-10-08T22:18:13.628221-04:00 bifrost kernel: NET: Registered PF_ALG protocol family
+2026-10-08T22:18:13.732068-04:00 bifrost kernel: NET: Registered PF_QIPCRTR protocol family
+2026-10-08T22:18:13.824060-04:00 bifrost kernel: Bluetooth: hci0: Bad flag given (0x1) vs supported (0x0)
+2026-10-08T22:18:14.285060-04:00 bifrost kernel: RTL8226B_RTL8221B 2.5Gbps PHY r8169-0-600:00: attached PHY driver (mii_bus:phy_addr=r8169-0-600:00, irq=MAC)
+2026-10-08T22:18:14.462063-04:00 bifrost kernel: r8169 0000:06:00.0 eno1: Link is Down
+2026-10-08T22:18:14.662056-04:00 bifrost kernel: iwlwifi 0000:07:00.0: Registered PHC clock: iwlwifi-PTP, with index: 0
+2026-10-08T22:18:14.758062-04:00 bifrost systemd-journald[451]: File /var/log/journal/6431c727fbd0400fa6b57b18dfb988a8/user-1000.journal corrupted or uncleanly shut down, renaming and replacing.
+2026-10-08T22:18:15.144061-04:00 bifrost kernel: Bluetooth: RFCOMM TTY layer initialized
+2026-10-08T22:18:15.144137-04:00 bifrost kernel: Bluetooth: RFCOMM socket layer initialized
+2026-10-08T22:18:15.144147-04:00 bifrost kernel: Bluetooth: RFCOMM ver 1.11
+2026-10-08T22:18:16.416063-04:00 bifrost kernel: rfkill: input handler disabled
+2026-10-08T22:18:18.102062-04:00 bifrost kernel: wlp7s0: authenticate with 98:de:d0:7d:86:01 (local address=e0:d4:e8:99:e4:8b)
+2026-10-08T22:18:18.103061-04:00 bifrost kernel: wlp7s0: send auth to 98:de:d0:7d:86:01 (try 1/3)
+2026-10-08T22:18:18.147098-04:00 bifrost kernel: wlp7s0: authenticated
+2026-10-08T22:18:18.147126-04:00 bifrost kernel: wlp7s0: associate with 98:de:d0:7d:86:01 (try 1/3)
+2026-10-08T22:18:18.150053-04:00 bifrost kernel: wlp7s0: RX AssocResp from 98:de:d0:7d:86:01 (capab=0x11 status=0 aid=1)
+2026-10-08T22:18:18.156050-04:00 bifrost kernel: wlp7s0: associated
+2026-10-08T22:18:18.163050-04:00 bifrost kernel: iwlwifi 0000:07:00.0: Unhandled alg: 0x707
+2026-10-08T22:18:18.865098-04:00 bifrost kernel: warning: `ThreadPoolForeg' uses wireless extensions which will stop working for Wi-Fi 7 hardware; use nl80211
+2026-10-08T22:18:20.710061-04:00 bifrost kernel: kauditd_printk_skb: 175 callbacks suppressed
+2026-10-08T22:18:20.710115-04:00 bifrost kernel: audit: type=1400 audit(1791512300.709:187): apparmor="STATUS" operation="profile_load" profile="unconfined" name="docker-default" pid=2964 comm="apparmor_parser"
+2026-10-08T22:18:20.953061-04:00 bifrost kernel: Initializing XFRM netlink socket
+2026-10-08T22:18:20.970064-04:00 bifrost kernel: bridge: filtering via arp/ip/ip6tables is no longer available by default. Update your scripts to load br_netfilter if you need this.
+2026-10-08T22:18:21.435059-04:00 bifrost kernel: docker0: port 1(veth80ebbad) entered blocking state
+2026-10-08T22:18:21.435092-04:00 bifrost kernel: docker0: port 1(veth80ebbad) entered disabled state
+2026-10-08T22:18:21.435108-04:00 bifrost kernel: veth80ebbad: entered allmulticast mode
+2026-10-08T22:18:21.435125-04:00 bifrost kernel: veth80ebbad: entered promiscuous mode
+2026-10-08T22:18:21.441064-04:00 bifrost kernel: eth0: renamed from vethb934d6a
+2026-10-08T22:18:21.455060-04:00 bifrost kernel: docker0: port 1(veth80ebbad) entered blocking state
+2026-10-08T22:18:21.455122-04:00 bifrost kernel: docker0: port 1(veth80ebbad) entered forwarding state
+2026-10-08T22:18:21.541059-04:00 bifrost kernel: evm: overlay not supported
+2026-10-08T22:18:38.524075-04:00 bifrost kernel: audit: type=1400 audit(1791512318.523:188): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=6466 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-08T22:18:38.524173-04:00 bifrost kernel: audit: type=1400 audit(1791512318.523:189): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=6467 comm="bwrap" capability=8  capname="setpcap"
+2026-10-08T22:18:38.524209-04:00 bifrost kernel: audit: type=1400 audit(1791512318.524:190): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=6467 comm="bwrap" capability=12  capname="net_admin"
+2026-10-08T22:18:39.089065-04:00 bifrost kernel: audit: type=1400 audit(1791512319.088:191): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=7042 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-08T22:18:39.090053-04:00 bifrost kernel: audit: type=1400 audit(1791512319.089:192): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=7043 comm="bwrap" capability=8  capname="setpcap"
+2026-10-08T22:18:39.090084-04:00 bifrost kernel: audit: type=1400 audit(1791512319.089:193): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=7043 comm="bwrap" capability=12  capname="net_admin"
+2026-10-08T22:18:39.100061-04:00 bifrost kernel: audit: type=1400 audit(1791512319.099:194): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=7046 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-08T22:18:39.100121-04:00 bifrost kernel: audit: type=1400 audit(1791512319.100:195): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=7048 comm="bwrap" capability=8  capname="setpcap"
+2026-10-08T22:18:39.101056-04:00 bifrost kernel: audit: type=1400 audit(1791512319.100:196): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=7048 comm="bwrap" capability=12  capname="net_admin"
+2026-10-08T22:18:39.108062-04:00 bifrost kernel: audit: type=1400 audit(1791512319.107:197): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=7049 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-08T23:03:36.489063-04:00 bifrost kernel: show_signal: 4 callbacks suppressed
+2026-10-08T23:03:36.489154-04:00 bifrost kernel: traps: chrome[34599] trap invalid opcode ip:5cf89421cbe8 sp:7ffc33726970 error:0 in chrome[5cf88c738000+cca3000]
+2026-10-09T00:00:00.403057-04:00 bifrost kernel: audit: type=1400 audit(1791518400.401:202): apparmor="DENIED" operation="capable" class="cap" profile="/usr/sbin/cupsd" pid=81565 comm="cupsd" capability=12  capname="net_admin"
+2026-10-09T00:00:08.537067-04:00 bifrost kernel: audit: type=1400 audit(1791518408.532:203): apparmor="DENIED" operation="open" class="file" profile="snap.firmware-updater.firmware-notifier" name="/proc/sys/vm/max_map_count" pid=81742 comm="firmware-notifi" requested_mask="r" denied_mask="r" fsuid=1000 ouid=0
+2026-10-09T03:00:50.392064-04:00 bifrost kernel: audit: type=1400 audit(1791529250.390:204): apparmor="DENIED" operation="open" class="file" profile="snap.firmware-updater.firmware-notifier" name="/proc/sys/vm/max_map_count" pid=186040 comm="firmware-notifi" requested_mask="r" denied_mask="r" fsuid=1000 ouid=0
+2026-10-09T06:00:15.335065-04:00 bifrost kernel: audit: type=1400 audit(1791540015.333:205): apparmor="DENIED" operation="open" class="file" profile="snap.firmware-updater.firmware-notifier" name="/proc/sys/vm/max_map_count" pid=289720 comm="firmware-notifi" requested_mask="r" denied_mask="r" fsuid=1000 ouid=0
+2026-10-09T06:45:53.517064-04:00 bifrost kernel: Bluetooth: hci0: Bad flag given (0x1) vs supported (0x0)
+2026-10-09T09:00:29.222072-04:00 bifrost kernel: audit: type=1400 audit(1791550829.220:206): apparmor="DENIED" operation="open" class="file" profile="snap.firmware-updater.firmware-notifier" name="/proc/sys/vm/max_map_count" pid=452659 comm="firmware-notifi" requested_mask="r" denied_mask="r" fsuid=1000 ouid=0
+2026-10-09T09:02:16.937068-04:00 bifrost kernel: audit: type=1400 audit(1791550936.934:207): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=454667 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T09:02:16.937187-04:00 bifrost kernel: audit: type=1400 audit(1791550936.934:208): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=454669 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T09:02:16.937212-04:00 bifrost kernel: audit: type=1400 audit(1791550936.935:209): apparmor="DENIED" operation="open" class="file" info="Failed name lookup - disconnected path" error=-13 profile="unprivileged_userns" name="proc/454669/uid_map" pid=454669 comm="bwrap" requested_mask="wr" denied_mask="wr" fsuid=1000 ouid=1000
+2026-10-09T12:00:05.483060-04:00 bifrost kernel: audit: type=1400 audit(1791561605.481:210): apparmor="DENIED" operation="open" class="file" profile="snap.firmware-updater.firmware-notifier" name="/proc/sys/vm/max_map_count" pid=558149 comm="firmware-notifi" requested_mask="r" denied_mask="r" fsuid=1000 ouid=0
+2026-10-09T14:11:41.199059-04:00 bifrost kernel: audit: type=1400 audit(1791569501.197:211): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=649018 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:11:41.200051-04:00 bifrost kernel: audit: type=1400 audit(1791569501.198:212): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=649019 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:11:41.200077-04:00 bifrost kernel: audit: type=1400 audit(1791569501.198:213): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=649019 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:11:42.798059-04:00 bifrost kernel: audit: type=1400 audit(1791569502.796:214): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=649439 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:11:42.799052-04:00 bifrost kernel: audit: type=1400 audit(1791569502.797:215): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=649440 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:11:42.799079-04:00 bifrost kernel: audit: type=1400 audit(1791569502.797:216): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=649440 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:23:18.016065-04:00 bifrost kernel: audit: type=1400 audit(1791570198.015:217): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=670686 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:23:18.017054-04:00 bifrost kernel: audit: type=1400 audit(1791570198.016:218): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=670687 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:23:18.017084-04:00 bifrost kernel: audit: type=1400 audit(1791570198.016:219): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=670687 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:23:18.342071-04:00 bifrost kernel: audit: type=1400 audit(1791570198.341:220): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=670981 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:23:18.485067-04:00 bifrost kernel: audit: type=1400 audit(1791570198.483:221): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=671095 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:23:18.486055-04:00 bifrost kernel: audit: type=1400 audit(1791570198.484:222): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=671097 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:23:18.486091-04:00 bifrost kernel: audit: type=1400 audit(1791570198.484:223): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=671097 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:23:19.945143-04:00 bifrost kernel: audit: type=1400 audit(1791570199.943:224): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=672046 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:23:19.948071-04:00 bifrost kernel: audit: type=1400 audit(1791570199.944:225): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=672048 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:23:19.948165-04:00 bifrost kernel: audit: type=1400 audit(1791570199.944:226): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=672048 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:34:05.525071-04:00 bifrost kernel: audit: type=1400 audit(1791570845.523:227): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=686495 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:34:05.527061-04:00 bifrost kernel: audit: type=1400 audit(1791570845.525:228): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=686497 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:34:05.527147-04:00 bifrost kernel: audit: type=1400 audit(1791570845.525:229): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=686497 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:34:06.030072-04:00 bifrost kernel: audit: type=1400 audit(1791570846.028:230): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=686723 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:34:06.467080-04:00 bifrost kernel: audit: type=1400 audit(1791570846.464:231): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=687160 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:34:08.200061-04:00 bifrost kernel: audit: type=1400 audit(1791570848.198:232): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=688073 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:34:08.201065-04:00 bifrost kernel: audit: type=1400 audit(1791570848.199:233): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=688075 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:34:08.201144-04:00 bifrost kernel: audit: type=1400 audit(1791570848.199:234): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=688075 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:38:13.930077-04:00 bifrost kernel: audit: type=1400 audit(1791571093.928:235): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=695594 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:38:13.934128-04:00 bifrost kernel: audit: type=1400 audit(1791571093.932:236): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=695595 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:38:13.934206-04:00 bifrost kernel: audit: type=1400 audit(1791571093.932:237): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=695595 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:38:16.006076-04:00 bifrost kernel: audit: type=1400 audit(1791571096.004:238): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=696246 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:38:16.015074-04:00 bifrost kernel: audit: type=1400 audit(1791571096.013:239): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=696248 comm="bwrap" capability=8  capname="setpcap"
+2026-10-09T14:38:16.015167-04:00 bifrost kernel: audit: type=1400 audit(1791571096.013:240): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=696248 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:38:17.141069-04:00 bifrost kernel: audit: type=1400 audit(1791571097.139:241): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=696591 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:38:18.831147-04:00 bifrost kernel: audit: type=1400 audit(1791571098.829:242): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=697162 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:38:18.833150-04:00 bifrost kernel: audit: type=1400 audit(1791571098.831:243): apparmor="DENIED" operation="capable" class="cap" profile="unprivileged_userns" pid=697163 comm="bwrap" capability=12  capname="net_admin"
+2026-10-09T14:38:47.695098-04:00 bifrost kernel: audit: type=1400 audit(1791571127.693:244): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=698334 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T14:38:53.241096-04:00 bifrost kernel: audit: type=1400 audit(1791571133.239:245): apparmor="AUDIT" operation="userns_create" class="namespace" info="Userns create - transitioning profile" profile="unconfined" pid=698676 comm="bwrap" requested="userns_create" target="unprivileged_userns"
+2026-10-09T15:00:15.435063-04:00 bifrost kernel: audit: type=1400 audit(1791572415.434:246): apparmor="DENIED" operation="open" class="file" profile="snap.firmware-updater.firmware-notifier" name="/proc/sys/vm/max_map_count" pid=716544 comm="firmware-notifi" requested_mask="r" denied_mask="r" fsuid=1000 ouid=0
+2026-10-09T18:00:35.485062-04:00 bifrost kernel: audit: type=1400 audit(1791583235.483:247): apparmor="DENIED" operation="open" class="file" profile="snap.firmware-updater.firmware-notifier" name="/proc/sys/vm/max_map_count" pid=794425 comm="firmware-notifi" requested_mask="r" denied_mask="r" fsuid=1000 ouid=0
+2026-10-09T19:03:22.487054-04:00 bifrost kernel: audit: type=1107 audit(1791587002.485:248): pid=1381 uid=102 auid=4294967295 ses=4294967295 subj=unconfined msg='apparmor="DENIED" operation="dbus_signal"  bus="system" path="/org/freedesktop/login1" interface="org.freedesktop.login1.Manager" member="PrepareForShutdownWithMetadata" name=":1.12" mask="receive" pid=8117 label="snap.snapd-desktop-integration.snapd-desktop-integration" peer_pid=1414 peer_label="unconfined"
+                                                  exe="/usr/bin/dbus-daemon" sauid=102 hostname=? addr=? terminal=?'
+2026-10-09T19:03:22.488055-04:00 bifrost kernel: audit: type=1107 audit(1791587002.486:249): pid=1381 uid=102 auid=4294967295 ses=4294967295 subj=unconfined msg='apparmor="DENIED" operation="dbus_signal"  bus="system" path="/org/freedesktop/login1" interface="org.freedesktop.login1.Manager" member="PrepareForShutdown" name=":1.12" mask="receive" pid=8117 label="snap.snapd-desktop-integration.snapd-desktop-integration" peer_pid=1414 peer_label="unconfined"
+                                                  exe="/usr/bin/dbus-daemon" sauid=102 hostname=? addr=? terminal=?'
+2026-10-09T19:03:22.492064-04:00 bifrost kernel: rfkill: input handler enabled
+2026-10-09T19:03:22.562091-04:00 bifrost kernel: traps: ThreadPoolSingl[9934] trap int3 ip:5a82dc42eb3e sp:7075dbff9440 error:0 in obsidian[5a82d7ded000+9243000]
+2026-10-09T19:03:32.806062-04:00 bifrost kernel: docker0: port 1(veth80ebbad) entered disabled state
+2026-10-09T19:03:32.806138-04:00 bifrost kernel: vethb934d6a: renamed from eth0
+2026-10-09T19:03:32.844054-04:00 bifrost kernel: docker0: port 1(veth80ebbad) entered disabled state
+2026-10-09T19:03:32.845054-04:00 bifrost kernel: veth80ebbad (unregistering): left allmulticast mode
+2026-10-09T19:03:32.845085-04:00 bifrost kernel: veth80ebbad (unregistering): left promiscuous mode
+2026-10-09T19:03:32.845103-04:00 bifrost kernel: docker0: port 1(veth80ebbad) entered disabled state
+2026-10-09T19:03:32.961057-04:00 bifrost kernel: wlp7s0: deauthenticating from 98:de:d0:7d:86:01 by local choice (Reason: 3=DEAUTH_LEAVING)
+2026-10-09T19:03:37.900084-04:00 bifrost kernel: EXT4-fs (sda1): unmounting filesystem 5ff7c1b7-1fac-4cc7-a4e4-3b05496646df.
+2026-10-09T19:03:38.396076-04:00 bifrost systemd-shutdown[1]: Syncing filesystems and block devices.
+2026-10-09T19:03:38.408129-04:00 bifrost systemd-shutdown[1]: Sending SIGTERM to remaining processes...
+2026-10-09T19:03:38.408233-04:00 bifrost systemd-journald[451]: Received SIGTERM from PID 1 (systemd-shutdow).
+
+[exit 0]
