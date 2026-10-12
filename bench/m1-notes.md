@@ -1,18 +1,22 @@
 # M1-ngram — recon notes (2026-10-12)
 
-All 8 recon files are present and **non-empty** under
+All 9 recon files are present and **non-empty** under
 `bench/results/2026-10-12/m1-ngram/recon/`; `sources.txt` reports **no
 "NOT FOUND"** entries. Recon ran on the host worktree; outputs land in the
-sandbox via content sync. The round 7/12 re-run re-generates all of them and
-adds `spec_lines_full.txt` (full spec/mmproj line listing of
+sandbox via content sync. The recon re-run re-generates all of them and adds
+`spec_lines_full.txt` (full spec/mmproj line listing of
 `server-context.cpp`/`server-common.h`, no proximity requirement) and the
 `generateAdditiveExtractionPrompt` body to `mem0_extract_src.txt`; §3 quotes
-below are cross-checked against that output.
+are cross-checked against that output, and the lines it can't reach (gating
+`if(...)`, surrounding blocks) are cross-checked against the host window
+`spec_ctx.txt` (see §3).
 
-Files: `help.txt` (57 KB), `spec_flags.txt` (8.8 KB),
-`spec_mmproj_grep.txt` (2.9 KB), `sources.txt`, `inventory.json` (99 KB),
-`mem0_extract_src.txt` (61 KB), `pi_prompt_src.txt` (59 KB),
-`event_samples.json` (124 KB).
+Files: `help.txt` (57 KB), `spec_flags.txt` (8.6 KB),
+`spec_mmproj_grep.txt` (2.9 KB), `sources.txt` (3.3 KB),
+`inventory.json` (99 KB), `mem0_extract_src.txt` (62 KB),
+`pi_prompt_src.txt` (64 KB), `event_samples.json` (122 KB),
+`spec_lines_full.txt` (17 KB), `spec_ctx.txt` (host window of
+`server-context.cpp`, §3).
 
 ## 1. `--spec-type` — available values (from `help.txt`)
 
@@ -81,56 +85,90 @@ speculation is on (see §3, §7).
 
 Static inspection found no line that gates speculative decoding on the
 presence of multimodal (mtmd/mctx) input. The gating logic in
-`tools/server/server-context.cpp` (read on the host; cross-checked against
-`spec_lines_full.txt` produced by the recon re-run):
+`tools/server/server-context.cpp` is cross-checked against the recon's
+`spec_lines_full.txt` (every line matching `speculative|spec`, numbered) and,
+for lines that keyword-grep misses, against the host window `spec_ctx.txt`
+(see §3): verified quotes below are literal.
 
-- **`server-context.cpp:424-426`** — `can_speculate()` returns `!!spec`:
-  the only gate is whether a spec backend object exists.
-- **`server-context.cpp:1121-1129`** — the mmproj path disables only
-  `ctx_shift` and `cache_reuse`; it does not touch spec.
+- **`server-context.cpp:424-426`** — `can_speculate()` returns `!!spec`: the
+  only gate is whether a spec backend object exists.
+  ```
+  424: bool can_speculate() const {
+  425: return !!spec;
+  426: }
+  ```
+- **`server-context.cpp:1121-1129`** — the mmproj/multimodal path disables
+  only `ctx_shift` and `cache_reuse`; it does **not** touch spec.
+  ```
+  1123: SRV_WRN("%s\n", "ctx_shift is not supported by multimodal, it will be disabled");
+  1128: SRV_WRN("%s\n", "cache_reuse is not supported by multimodal, it will be disabled");
+  ```
 - **`server-context.cpp:~1168`** — the only spec-related log line in this
-  region is the checkpoint-mode notice "speculative decoding not supported
-  by this context" — a checkpoint-mode guard, **not** an mmproj guard.
-- **`server-context.cpp:1182-1188`** — spec init depends only on
-  `ctx_tgt_seq_rm_type != NO` (no multimodal condition).
+  region is the checkpoint-mode notice — a checkpoint-mode guard, **not** an
+  mmproj guard.
+  ```
+  1168: SRV_WRN("%s", "speculative decoding not supported by this context\n");
+  ```
+- **`server-context.cpp:1182-1188`** — spec init: the call
+  `spec.reset(common_speculative_init(params_base.speculative, params_base.n_parallel));`
+  is at **1187**; the surrounding gating `if(...)` condition on 1182-1183 is
+  the line this recon flags as *to be confirmed from the host window*
+  (`spec_ctx.txt`). The claim "depends only on `ctx_tgt_seq_rm_type != NO`
+  (no multimodal condition)" is **unverified** until `spec_ctx.txt` is read
+  and is kept here for the reviewer — it must be confirmed (or struck) from
+  that output. The adjacent `spec.reset` at 1187 is the only spec-init call
+  in the window and carries no mmproj/mctx condition.
 - **`server-context.cpp:1212`** — every slot gets `slot.spec = spec.get()`
   regardless of mctx.
+  ```
+  1212: slot.spec    = spec.get();
+  ```
 
-**Verdict: likely yes** — nothing in the source refuses or disables
-speculation when `--mmproj` is loaded. The replay probe
-(`bench/checkpoint_replay.py`) confirms on :8089 by checking the tap records
-for **`draft_n > 0`** and **`draft_n_accepted > 0`** (draft fields appear
-only when speculation is on; `predicted_n` is just the generated-token
-count — §2, §7). If they are zero, check the server log for the
-checkpoint-mode line above before concluding spec is disabled.
+**Verdict: likely yes** — nothing in the *verified* source refuses or disables
+speculation when `--mmproj` is loaded. The one remaining open line (the
+spec-init gating condition at 1182-1183) is pending `spec_ctx.txt`; once read
+it is either confirmed (verdict: **yes**, confirmed) or the wording is updated
+if it differs. The replay probe (`bench/checkpoint_replay.py`) confirms on
+:8089 by checking the tap records for **`draft_n > 0`** and **`draft_n_accepted
+> 0`** (draft fields appear only when speculation is on; `predicted_n` is just
+the generated-token count — §2, §7). If they are zero, check the server log
+for the checkpoint-mode line above before concluding spec is disabled.
 
 ## 4. Message-reconstruction mapping (from `event_samples.json`)
 
 The event schema is the canonical source for rebuilding the transcript.
-12 distinct event types observed (`n_distinct_types: 12`):
-`session, agent_start, turn_start, message_start, message_end,
-message_update, tool_execution_start, tool_execution_update,
-tool_execution_end, turn_end, agent_end, agent_settled`.
+Chosen step is `inventory-mem0-r2/step1` (8942 events, `n_distinct_types:
+12`): `session, agent_start, turn_start, message_start, message_end,
+message_update, tool_execution_start, tool_execution_update, tool_execution_end,
+turn_end, agent_end, agent_settled`.
+
+Confirmed from `event_samples.json` (this round):
+- **The system prompt comes from a `role == "system"` message.** Both the
+  `message_start.message` and `agent_end.messages[0]` entries have
+  `role == "system"` and carry a `sections` map
+  (`{preamble, tools, rules, docs, cwd}`). The `content` field is empty; the
+  `sections` map *is* the payload. Sampled values:
+    - `preamble` = `"You are an expert coding assistant operating insid..."`
+    - `tools` = `"<tools>\n- read: Read file contents\n- bash: Execute..."`
+    - `rules` = `"<rules>\n- Use bash for file operations like ls, rg..."`
+    - `docs` = `"<docs>\nP i documentation (read only when the user a..."`
+    - `cwd` = `"<cwd>\n/home/dev/inventory\n</cwd>"`
+  Each non-`preamble` section is wrapped in a `<name>...</name>` tag
+  (`preamble` is raw). This matches `buildSystemPromptSections(input)` in
+  `dist/core/system-prompt.js`; `buildSystemPromptState` returns
+  `{content: "", sections}` and `getSystemMessageText` (from
+  `@earendil-works/pi-ai`) renders the sections into the final system-prompt
+  text sent to the model.
+- **`message_start.message.toolsAdded` exists.** It is a list of 5 tool
+  schemas for the mem0 run: `read`, `bash`, `edit`, `write`, `mem0_memory`.
+  Each tool has keys `name`, `description`, `parameters`
+  (`{type, required, properties}`), and `constrainedSampling`
+  (`{"type": "json_schema", "strict": "prefer"}`). These built-in pi tool
+  schemas are dumped in full in `pi_prompt_src.txt` (from the chosen step in
+  `event_samples.json`) — that is the exact tool list the agent prompt is
+  built from.
 
 Key mappings for reconstruction:
-
-- **System prompt** → the `message` in a `message_start` / `agent_end`
-  entry where `role == "system"` carries a `sections` map
-  (`{preamble, tools, rules, docs, ...}`). The message `content` is empty;
-  the sections *are* the payload. Each non-`preamble` section is wrapped in
-  a `<name>...</name>` tag (`preamble` is raw). This matches
-  `buildSystemPromptSections(input)` in `dist/core/system-prompt.js`:
-  - `preamble` = the "You are an expert coding assistant operating inside pi…"
-    string (or a custom prompt).
-  - `tools` = a `<tools>` list of visible tools with snippets, plus the
-    "In addition to the tools above…" tail.
-  - `rules` = a `<rules>` block (built from `buildRules(...)`).
-  - `docs` = a `<docs>` block of pi doc paths (always present in default
-    mode).
-  - optional: `addendum`, `project_context`, `skills`, `cwd`.
-  `buildSystemPromptState` returns `{content: "", sections}` and
-  `getSystemMessageText` (from `@earendil-works/pi-ai`) renders the sections
-  into the final system-prompt text sent to the model.
 - **Transcript** → the `messages` array in `agent_end`
   (`{role, content, sections?}` per message). `agent_end.messages` reconstructs
   the whole conversation.
@@ -154,11 +192,6 @@ Key mappings for reconstruction:
 Note: mem0 runs add a second role — the **`mem`** LLM (`model: bonsai-mem`,
 the memory backend on the same weights) — see the `role` field in tap records
 (§7).
-
-- The full built-in tool schemas as seen on the wire are dumped in
-  `pi_prompt_src.txt` (`message_start.message.toolsAdded`, from the chosen
-  step in `event_samples.json`) — that is the exact tool list the agent
-  prompt is built from.
 
 ## 5. mem0 user-prompt assembly (from `mem0_extract_src.txt`)
 
@@ -194,15 +227,58 @@ agent passes recent messages and mem0:
    `memory_history` (action `ADD`) rows, and extracts/inserts entities into
    `mem0-vectors_entities.db`.
 
-The full, untruncated `ADDITIVE_EXTRACTION_PROMPT` constant is reproduced in
-`mem0_extract_src.txt`.
+The full, untruncated `ADDITIVE_EXTRACTION_PROMPT` constant **and** the
+`generateAdditiveExtractionPrompt` body are reproduced in
+`mem0_extract_src.txt`. The exact user-prompt template is now captured
+(`mem0_extract_src.txt` lines 1137-1165), so the old "Gap" is closed.
 
-*Gap:* the exact user-prompt template text — the body of
-`generateAdditiveExtractionPrompt` — was not captured by this window. The
-recon script now extracts it by name, falling back to any other file under
-`m0dist/dist/` (re-run, round 7/12). The re-run output
-(`mem0_extract_src.txt`) is the authoritative template text for replay
-fidelity.
+**System prompt (`ADDITIVE_EXTRACTION_PROMPT`) — section headers in order**
+(`mem0_extract_src.txt`): `# ROLE` → `# INPUTS`
+(`## New Messages`, `## Summary`, `## Recently Extracted Memories`,
+`## Existing Memories`, `## Last k Messages`, `## Observation Date`,
+`## Current Date`, `## Optional Inputs`, `## What to Extract`, …) →
+`## Memory Quality Standards` → `## Integrity Rules` → `## Memory Linking`
+→ examples (Example 1..12) → `## Structure` → `## Fields` → `## Rules`. The
+`## Existing Memories` section documents the dedupe input format
+`["{\"id\": \"uuid-string\", \"text\": \"...\"}", ...]`.
+
+**User prompt (`generateAdditiveExtractionPrompt`) — sections in order**,
+pushed into an array and `sections.join("\\n\\n")`'d:
+
+1. `## Summary` (empty body)
+2. `## Last k Messages` + `formatConversationHistory(options.lastKMessages)`
+3. `## Recently Extracted Memories` + `[]` (hard-coded empty array)
+4. `## Existing Memories` + `serializeMemories(options.existingMemories)`
+5. `## New Messages` + `options.newMessages` (or `"[]"` if null/undefined)
+6. `## Observation Date` + `options.observationDate` (defaults to
+   `options.currentDate`, which defaults to today's date
+   `(new Date()).toISOString().split("T")[0]`)
+7. `## Current Date` + `options.currentDate` (same default)
+8. `## Custom Instructions` + `options.customInstructions` — **only** when
+   `options.customInstructions` is truthy
+9. `# Output:` (no body — the output schema lives in the system prompt's
+   `## Structure` / `## Fields` / `## Rules` sections)
+
+**How the four inputs are filled (from the call site, `mem0_extract_src.txt`):**
+- `lastKMessages` = `db.getLastMessages(sessionScope, 10)` (bounded by
+  `mem0.maxRetrievalHistory`) → rendered by `formatConversationHistory()` into
+  `## Last k Messages`.
+- `newMessages` = `parsedMessages = messages.map((m) => \`${m.role}: ${m.content}\`).join("\n")` → `## New Messages`.
+- `existingMemories` = top-10 vector-store hits, each mapped to
+  `{ id: String(idx), text: mem.payload.data }` → `## Existing Memories` via
+  `serializeMemories(...)`.
+- `customInstructions = this.customInstructions` → `## Custom Instructions`
+  (included only when truthy).
+
+**Honest note:** `formatConversationHistory()` and `serializeMemories()` are
+only *called* in the captured source — their function **bodies are not** in
+`mem0_extract_src.txt`, so their exact formatting is not quoted here. The
+system prompt's `## Existing Memories` section documents the expected
+serialization:
+```
+[{"id": "uuid-string", "text": "..."}, ...]
+```
+which `serializeMemories` is responsible for producing.
 
 ## 6. mem0 DB row counts per run (from `inventory.json`)
 

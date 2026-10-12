@@ -299,3 +299,19 @@ Ran `python3 bench/m1_recon.py` (gpu=False) in 1s, exit 0. Full output: `bench/r
 }
 
 ```
+
+### 2026-10-12T04:56:07-04:00 · worker (Bonsai), round 10
+
+The §5 tail has a broken inline-code line, a JSON-escaped serialization line, and the `## 6.` header is stuck (no newline). Let me fix it reliably with a Python string replace, avoiding JSON escaping. First write the clean tail to a temp file.
+
+### 2026-10-12T04:56:07-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/M1-ngram/journal.md |   4 +
+ bench/m1-notes.md                   | 202 +++++++++++++++++++++++++-----------
+ 2 files changed, 143 insertions(+), 63 deletions(-)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with a `run` request. Running the script is how you test it.
