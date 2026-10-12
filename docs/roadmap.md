@@ -93,6 +93,8 @@ through `autopilot/infra.py`:
 - it is health-checked and speed-checked, and rolled back on failure;
 - it becomes known-good only after a soak period.
 
+An item that runs out of rounds or reviews is triaged by the advisor: accepted
+with caveats, re-planned, or blocked for the user. It is never silently dropped.
 If the local model goes down, a cloud fixer takes over. Progress is published to
 the site's autopilot status page.
 

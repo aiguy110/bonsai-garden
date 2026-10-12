@@ -27,9 +27,12 @@ Each milestone is `milestones/<name>.md` and runs on branch `auto/<name>` in
 `~/Projects/bonsai-garden-auto/<name>`.
 
 1. **plan:** the advisor writes 3–6 items with acceptance criteria (`state/<m>/plan.json`).
-2. **work:** each round is one fresh worker session, given the milestone, plan, item
-   and journal. The journal is its memory between sessions. The session ends with a
-   request:
+2. **work:** each round is one fresh worker session, given the milestone, plan, item,
+   standing facts and journal tail. The session ends when the worker calls the
+   `submit_request` tool (`extensions/submit_request.ts`, copied into the worker's
+   agent dir). The tool checks the request on the spot, so a malformed one comes
+   back as an error the worker can fix in the same session. A fenced `json` block at
+   the end of the final message still works as a fallback. Requests:
    - `run`: a script under `bench/` or `evals/`. The advisor reviews it, then it runs
      on the host, under a GPU lease if `gpu`. The output is saved under
      `bench/results/<date>/autopilot/`.
@@ -37,10 +40,31 @@ Each milestone is `milestones/<name>.md` and runs on branch `auto/<name>` in
      `infra.py apply` runs.
    - `done`: the advisor checks the acceptance criteria. If it approves, the next
      item starts.
-   - `continue` or `stuck`: just another round.
+   - `continue`: just another round.
+   - `stuck`: triage (below).
 
-   Edits to protected paths (`config.json`) are reverted after every session. An
-   item is dropped after 12 rounds or 3 failed reviews.
+   Edits to protected paths (`config.json`) are reverted after every session.
+
+   **Triage.** When an item uses all 12 rounds, fails review 3 times, or the worker
+   is stuck, the advisor decides (`prompts/triage.md`). Work is cumulative, so what
+   the item built stays in the repo either way:
+   - `accept_with_caveats`: the item counts as done. Its unmet criteria go into the
+     standing facts, and the status page marks it ⚠️.
+   - `replan`: new items replace this one and the rest of the plan. Allowed twice
+     per plan position; after that, only accept or block.
+   - `block`: a human has to act. `unblock` then gives the item fresh rounds.
+
+   **Memory.** Two kinds outlive a session:
+   - The journal (`state/<m>/journal.md`). Prompts include only its last 15k
+     characters.
+   - The standing facts (`state/<m>/facts.md`). Corrections and caveats that the
+     advisor adds in reviews and triage. Every worker and advisor prompt includes
+     them in full.
+
+   With `worker_memory` set to an eval arm name (`"mem0"`), the worker also gets that
+   arm's pi-memory-mem0 in `active` mode: the `mem0_memory` tool, with no automatic
+   capture or recall. The store is per milestone, in `.runtime/memory/<m>`. Set
+   `worker_memory` to `null` to turn it off.
 3. **publish:** the last item is the write-up. It needs `check_site.py` to pass and
    the advisor's fact-check. Then the branch is merged into `main` from a separate
    publisher worktree and pushed, which deploys the site.
