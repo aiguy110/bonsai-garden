@@ -57,13 +57,13 @@ Off dual-vs-single batch-numerics control:
 
 Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.
 
-| rule | result | value |
-|---:|---|---|
-| 1 | PASS | --mmproj loaded; no refusal recorded |
-| 2 | FAIL | dual-agent 26.7 tok/s, 0.853x off |
-| 3 | FAIL | dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x |
-| 4 | PASS | max delta +1 MiB |
-| 5 | FAIL | candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0% |
-| 6 | PASS | A dual 26.2%; off dual-vs-single control 23.8% |
+| rule | criterion | result | value |
+|---:|---|---|---|
+| 1 | Pinned live --mmproj projector is successfully loaded in all four A-prod server logs. | PASS | loaded 4/4: single-agent, single-mem, dual-agent, dual-mem (/home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf) |
+| 2 | At production sampling, dual-agent decode tok/s is at least 1.10x off. | FAIL | dual-agent 26.7 tok/s, 0.853x off |
+| 3 | At production sampling, dual-mem, single-agent, and single-mem are each at least 0.97x off. | FAIL | dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x |
+| 4 | For every production phase, VRAM is no more than off + 64 MiB. | PASS | max delta +1 MiB |
+| 5 | For every production phase, tool_call_json_valid rate is at least off's rate. | FAIL | candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0% |
+| 6 | Greedy identical-output rate is not more than 10 percentage points below the off dual-vs-single control. | PASS | A dual 26.2%; off dual-vs-single control 23.8% |
 
 **Decision: do not deploy.** rule 2: dual-agent 26.7 tok/s, 0.853x off; rule 3: dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x; rule 5: candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%.

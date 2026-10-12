@@ -1083,31 +1083,37 @@
   "rules": [
     {
       "rule": 1,
+      "criterion": "Pinned live --mmproj projector is successfully loaded in all four A-prod server logs.",
       "pass": true,
-      "value": "--mmproj loaded; no refusal recorded"
+      "value": "loaded 4/4: single-agent, single-mem, dual-agent, dual-mem (/home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf)"
     },
     {
       "rule": 2,
+      "criterion": "At production sampling, dual-agent decode tok/s is at least 1.10x off.",
       "pass": false,
       "value": "dual-agent 26.7 tok/s, 0.853x off"
     },
     {
       "rule": 3,
+      "criterion": "At production sampling, dual-mem, single-agent, and single-mem are each at least 0.97x off.",
       "pass": false,
       "value": "dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x"
     },
     {
       "rule": 4,
+      "criterion": "For every production phase, VRAM is no more than off + 64 MiB.",
       "pass": true,
       "value": "max delta +1 MiB"
     },
     {
       "rule": 5,
+      "criterion": "For every production phase, tool_call_json_valid rate is at least off's rate.",
       "pass": false,
       "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%"
     },
     {
       "rule": 6,
+      "criterion": "Greedy identical-output rate is not more than 10 percentage points below the off dual-vs-single control.",
       "pass": true,
       "value": "A dual 26.2%; off dual-vs-single control 23.8%"
     }

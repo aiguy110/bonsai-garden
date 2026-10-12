@@ -16,6 +16,7 @@ from collections import defaultdict
 from pathlib import Path
 
 PHASES = ("single-agent", "single-mem", "dual-agent", "dual-mem")
+PINNED_MMPROJ = "/home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf"
 
 
 def read_jsonl(path):
@@ -55,6 +56,18 @@ def vram_mib(path):
         if match and phase:
             samples[phase] = int(match.group(1))
     return samples
+
+
+def mmproj_loaded_in_all_phases(replay, arm):
+    """Require the pinned projector's successful load line in every fresh server log."""
+    found = []
+    for phase in PHASES:
+        log = replay / arm / f"server_{phase}.log"
+        loaded = (log.exists() and
+                  f"load_model: loaded multimodal model, '{PINNED_MMPROJ}'" in log.read_text())
+        if loaded:
+            found.append(phase)
+    return found
 
 
 def first_divergence(a, b):
@@ -157,13 +170,14 @@ def main():
     candidate_id = [x for x in identity if x["arm"] == "A-greedy" and x["phase"].startswith("dual-")]
     control_rate = sum(x["identical"] for x in control) / sum(x["compared"] for x in control)
     identity_rate = sum(x["identical"] for x in candidate_id) / sum(x["compared"] for x in candidate_id)
+    mmproj_phases = mmproj_loaded_in_all_phases(replay, candidate)
     rules = [
-        {"rule": 1, "pass": "--mmproj" in (replay / candidate / "notes.txt").read_text() and "refused" not in (replay / candidate / "notes.txt").read_text(), "value": "--mmproj loaded; no refusal recorded"},
-        {"rule": 2, "pass": ca["speedup_vs_off"] >= 1.10, "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
-        {"rule": 3, "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)), "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
-        {"rule": 4, "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)), "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
-        {"rule": 5, "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem"))), "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): " + "/".join(f"{fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem")))},
-        {"rule": 6, "pass": identity_rate >= control_rate - .10, "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
+        {"rule": 1, "criterion": "Pinned live --mmproj projector is successfully loaded in all four A-prod server logs.", "pass": len(mmproj_phases) == len(PHASES), "value": f"loaded {len(mmproj_phases)}/4: {', '.join(mmproj_phases) or 'none'} ({PINNED_MMPROJ})"},
+        {"rule": 2, "criterion": "At production sampling, dual-agent decode tok/s is at least 1.10x off.", "pass": ca["speedup_vs_off"] >= 1.10, "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
+        {"rule": 3, "criterion": "At production sampling, dual-mem, single-agent, and single-mem are each at least 0.97x off.", "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)), "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
+        {"rule": 4, "criterion": "For every production phase, VRAM is no more than off + 64 MiB.", "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)), "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
+        {"rule": 5, "criterion": "For every production phase, tool_call_json_valid rate is at least off's rate.", "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem"))), "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): " + "/".join(f"{fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem")))},
+        {"rule": 6, "criterion": "Greedy identical-output rate is not more than 10 percentage points below the off dual-vs-single control.", "pass": identity_rate >= control_rate - .10, "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
     ]
     result = {"replay_dir": str(replay), "foreground_only": True, "metrics": [dict(arm=a, phase=p, role=r, **m) for (a,p,r),m in metrics.items()], "identity": identity, "off_dual_vs_single_control": control, "decision_candidate": candidate, "rules": rules}
     outdir.mkdir(parents=True, exist_ok=True)
@@ -180,8 +194,8 @@ def main():
     for x in control:
         ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
         lines.append(f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
-    lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.", "", "| rule | result | value |", "|---:|---|---|"]
-    lines += [f"| {x['rule']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
+    lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.", "", "| rule | criterion | result | value |", "|---:|---|---|---|"]
+    lines += [f"| {x['rule']} | {x['criterion']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
     failed = [f"rule {x['rule']}: {x['value']}" for x in rules if not x["pass"]]
     lines += ["", "**Decision: do not deploy.** " + "; ".join(failed) + "."]
     (outdir / "summary.md").write_text("\n".join(lines) + "\n")

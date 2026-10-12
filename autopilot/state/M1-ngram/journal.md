@@ -1233,3 +1233,18 @@ Corrected and regenerated the summary artifacts; local compile and JSON assertio
 ### 2026-10-12T11:35:36-04:00 · advisor (finished item)
 
 **revise**: Update `bench/spec_summarize.py` and regenerate the summaries. `summary.md` numbers the six rules but never states their actual predicates or thresholds; add a criterion column or equivalent text containing the exact requirements (1.10x, 0.97x, +64 MiB, validity comparison, 10-point identity allowance, and mmproj condition). Also make rule 1 verify the pinned projector was actually loaded from all four A-prod server logs (`load_model: loaded multimodal model, ...mmproj...`), rather than inferring this solely from `--mmproj` appearing in notes and the absence of the word `refused`. The current artifacts otherwise recompute correctly, no candidate exists, and the live YAML remains unchanged.
+
+### 2026-10-12T11:37:57-04:00 · worker (gpt-5.6-terra), round 3
+
+Regenerated decision artifacts after strengthening mmproj verification and documenting all deployment predicates.
+
+```json
+{
+  "request": "done",
+  "summary": "Updated `bench/spec_summarize.py` and regenerated `bench/results/2026-10-12/m1-ngram/summary.md`, `summary.json`, and `deploy.json`. Rule 1 now requires the exact successful pinned-mmproj load line in each of the four A-prod phase logs and reports loaded 4/4. The deployment table now states every rule's exact predicate and threshold (1.10x, 0.97x, +64 MiB, validity comparison, and 10-point identity allowance). `py_compile` plus JSON/Markdown assertions passed. Rules 2, 3, and 5 still fail, so deploy.json remains no-deploy; no serving candidate or live YAML was created or changed."
+}
+```
+
+### 2026-10-12T11:39:30-04:00 · advisor (finished item)
+
+**approve**: Acceptance criteria are met. The foreground-only performance, draft, validity, identity, divergence, and phase-specific VRAM figures recompute from the replay artifacts. All six decision predicates and values are documented. deploy.json correctly records no deployment, and the serving configuration remains unchanged.
