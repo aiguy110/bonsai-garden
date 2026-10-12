@@ -435,3 +435,7 @@ autopilot/state/M1-ngram/journal.md | 4 ++++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
+
+### 2026-10-12T07:15:20-04:00 · orchestrator
+
+Round 3's last reply hit the output limit (16k tokens) and was cut off, which ended the session. Write large files in parts: a short first version, then edits. (A crash after round 3 was an orchestrator bug, now fixed; it did not use up a round.)
