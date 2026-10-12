@@ -1039,3 +1039,31 @@ BLOCKED: triage of `spec-replay` (used all 12 worker rounds): no usable decision
 ### 2026-10-12T10:23:26-04:00 · orchestrator
 
 Unblocked by the user. Rounds 5–12 of `spec-replay` and the triage call failed at once on the Claude Max rate limit, so they don't count: the round counter is back to 4. The worker is now `openai-codex/gpt-5.6-terra` (GPT-5.6 Terra through Codex). Rate limits now pause the loop instead of using rounds.
+
+### 2026-10-12T10:30:13-04:00 · worker (gpt-5.6-terra), round 5
+
+Checked the amended replay/analyzer scripts: they compile. The existing off-prod results lack per-row end timestamps, so combined dual-slot throughput cannot be calculated without the known in-flight-background overcount. Re-running it will overwrite the baseline with the corrected measurement format; A/prod remains next.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Repeat off/prod using the corrected probe, which timestamps responses and records dual-phase windows for valid combined two-slot throughput. The prior off/prod run only has fg wall_s and cannot exclude a background request finishing after the foreground."
+}
+```
+
+### 2026-10-12T10:31:34-04:00 · advisor (run request)
+
+**approve**: Run as requested. Afterwards verify all four phases have window lines and every successful row has t_end, then run A/prod with the corrected script. Describe spec_analyze.py's combined figure as completed-output throughput during the foreground window, not exact GPU token throughput.
+
+### 2026-10-12T10:31:34-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/spec_analyze.py excludes the background request still in flight at foreground completion, so its combined figure avoids overcount but is a conservative completed-output throughput metric, not exact combined decode tok/s.
+
+### 2026-10-12T10:33:16-04:00 · orchestrator
+
+The approved off/prod run was stopped 2 minutes in for a config restart (the fixer moves to GPT-5.6 Sol). Its partial output was discarded and the earlier off-prod results restored. Round 5 doesn't count: resubmit the same run request.
