@@ -241,3 +241,34 @@ Added to the standing facts:
 
 - W2 fixed values (bench/worker_eval/W2-decisions.md): think-drop K=2; reasoning budget 1024 with the standard message; session budget warnings at 12/16 min and turns 30/40, blocking at 17.5 min or turn 45; compaction arm reserveTokens 16384 only; tool-cap arm gated out (11 results, 9.35%); output 32768 is allowed only in the combination and needs reserveTokens >= 32768; queue order: honest, think-drop, reasoning-budget, session-budget, hashline, compaction, combination.
 - The w2-hashline arm uses pi-hashline-context-edit 0.11.0 as an advisor-approved exception to the gate (file-type is replaced by a code patch); vendor/PATCH.diff, the vendored copy and LICENSE must be committed before the smoke run, and if the patched copy does not load under pi 0.86.1 there is no hashline arm (bench/worker_eval/vendor/REVIEW.md).
+
+### 2026-10-13T12:19:51-04:00 · worker (gpt-5.6-terra), round 1
+
+Round 1 of harness-and-arms. I deliberately left run.py untouched. The orchestrator commits only at the end of a session, so ending here is the only way fixtures/w1_agent_dir.json gets committed before the run.py change.
+
+Done:
+- bench/worker_eval/fixtures/w1_agent_dir.json: the settings.json, models.json (tap URL http://127.0.0.1:8091) and extension names that the current run.py builds for bonsai-2026-10-12. I generated it from run.agent_files().
+- arms/schema.json: added hypothesis, extension_config, settings_overrides and prompt_timeout_min. extensions entries may now be directories. I did not add request_body_extra, because the recon found the before_provider_request hook.
+- Arm files, all loading through run.load_arm: bonsai-2026-10-12-honest, w2-think-drop, w2-reasoning-budget, w2-session-budget, w2-hashline and w2-compaction. Each has a hypothesis and sources. bonsai-2026-10-12.json is not edited.
+- I did not create w2-tool-cap, because its gate failed.
+- I named the compaction arm w2-compaction, as in W2-decisions.md. The task text says w2-compact-reserve16k.
+- Every w2-* arm is the honest arm plus its one mechanism, so it includes prompt_timeout_min 20. The honest arm is the comparison baseline, so the tests will check each w2 arm against the honest arm, not against W1.
+- Extensions in bench/worker_eval/extensions/: drop_old_thinking.ts, reasoning_budget.ts, session_budget.ts and tool_audit.ts. tool_audit.ts only logs the session's tool list, as hashline evidence. Each reads w2-config.json and appends to w2-ext.jsonl. None of them has been run.
+- vendor/pi-hashline-context-edit@0.11.0/ has LICENSE and PATCH.diff, and a copy of PATCH.diff is at vendor/PATCH.diff.
+  - The patch replaces `file-type` with a magic-byte check.
+  - It replaces the `diff` package with a local src/diff-lite.ts, because `diff` does not resolve from an agent dir. I checked diff-lite under node on a few small inputs, but not against jsdiff.
+  - It changes the `@sinclair/typebox` imports to `typebox`, which is what submit_request.ts uses under pi 0.86.1. This is an assumption: the recon does not show whether the old name resolves. The smoke run will tell.
+  - It drops the package's dependencies and the banner image.
+
+Next session:
+- Edit run.py: the prompt_timeout_min rewrite (logging exactly what changed, failing if the sentence is absent), directory extensions, extension_config written to w2-config.json, settings_overrides, and copying w2-ext.jsonl to ext.jsonl.
+- Write w2_queue.json, run_queue.py, compare.py, test_w2.py and w2_smoke_queue.json.
+- Submit the smoke run as gpu:false, because it goes through the tap and turnstile route.
+- Not yet verified: the recon has no loader error string, so smoke.md will grep stderr.txt for generic load-error text.
+
+```json
+{
+  "request": "continue",
+  "note": "Edit run.py (prompt_timeout_min rewrite, dir extensions, w2-config.json, settings_overrides, ext.jsonl copy), then write w2_queue.json, run_queue.py, compare.py, test_w2.py, w2_smoke_queue.json and smoke.md generator, then submit the smoke run (gpu:false, tap route)."
+}
+```

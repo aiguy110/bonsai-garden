@@ -1,0 +1,36 @@
+{
+  "name": "w2-think-drop",
+  "description": "Honest baseline plus an extension that removes thinking blocks from all but the last 2 assistant messages in each outgoing request.",
+  "model": "garden/bonsai-agent",
+  "worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+  "thinking": "low",
+  "max_output_tokens": 16384,
+  "context_window": 81920,
+  "compaction_reserve_tokens": 28672,
+  "session_timeout_min": 20,
+  "worker_memory": null,
+  "extensions": [
+    "autopilot/extensions/submit_request.ts",
+    "bench/worker_eval/extensions/drop_old_thinking.ts"
+  ],
+  "sources": {
+    "model": "Historical operative snapshot c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json (SHA-256 27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334) sets roles.worker.model to bonsai-agent; replay registers that historical ID as garden/bonsai-agent, as autopilot.py worker_agent_dir() does.",
+    "worker_description": "autopilot.py worker_desc() for provider garden; the historical role model is c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json.",
+    "thinking": "Historical operative snapshot c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json (SHA-256 27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334) sets roles.worker.thinking to low.",
+    "max_output_tokens": "Historical registration c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json (SHA-256 949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4) sets maxTokens to 16384.",
+    "context_window": "Historical registration c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json (SHA-256 949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4) sets contextWindow to 81920.",
+    "compaction_reserve_tokens": "autopilot.py worker_agent_dir(): settings compaction.reserveTokens 28672 for provider garden; this is the historical garden worker harness setting.",
+    "session_timeout_min": "Historical c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json has worker_timeout_min 45; intentionally changed to 20 by the W1 milestone.",
+    "worker_memory": "Historical c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json has worker_memory null; retained disabled because memory is W3.",
+    "extensions": "bench/worker_eval/extensions/drop_old_thinking.ts; K=2 fixed in bench/worker_eval/W2-decisions.md",
+    "prompt_timeout_min": "bonsai-2026-10-12-honest: the arm enforces 20 minutes, so the replayed prompt says 20 (W2 candidate 0).",
+    "extension_config": "K=2: bench/worker_eval/W2-decisions.md section 1a."
+  },
+  "hypothesis": "Mechanism: pi resends every earlier turn's thinking (thinking is ~33% of the prompt at compaction/overflow points; 643 of 654 discriminating pairs fit 'resent'), so prompts grow with tokens generated. Dropping it frees context: expect fewer compactions and context overflows, a higher valid rate and kind-match rate, and a lower median wall time, partly offset by re-prefilling the last ~2 turns when the prompt cache misses (compare sum of prompt_ms). Failure counts expected to drop: compaction_start, context_overflow, and timeouts near a compaction (10 of 17 in W1).",
+  "prompt_timeout_min": 20,
+  "extension_config": {
+    "drop_old_thinking": {
+      "keep_last": 2
+    }
+  }
+}

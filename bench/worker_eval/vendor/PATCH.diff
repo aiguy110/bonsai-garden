@@ -1,0 +1,210 @@
+# Patch applied to pi-hashline-context-edit 0.11.0 (npm tarball, sha256 in
+# bench/results/2026-10-13/worker-eval-w2/recon/packages/manifest.json) to make it load from a pi agent dir
+# under pi 0.86.1 with no installed dependencies:
+#  - src/file-kind.ts: `file-type` replaced by a magic-byte check for png/jpeg/gif/webp (null-byte check kept)
+#  - src/diff-lite.ts (new): local diffLines/diffArrays in place of the `diff` package (^9 asked, 8.0.4 bundled in pi)
+#  - src/edit-diff.ts, src/merge.ts: import ./diff-lite
+#  - src/read.ts, src/edit.ts: `@sinclair/typebox` -> `typebox` (what pi 0.86.1's autopilot submit_request.ts imports)
+#  - package.json: dependencies and banner/image entries removed
+#  - assets/banner.png deleted (binary, not in this diff)
+# Left side "hl-orig/" is the unpacked tarball, right side the vendored copy.
+diff -ruN -x banner.png hl-orig/package.json pi-hashline-context-edit@0.11.0/package.json
+--- hl-orig/package.json	2026-10-13 16:17:47.891672385 +0000
++++ pi-hashline-context-edit@0.11.0/package.json	2026-10-13 16:18:04.388949822 +0000
+@@ -19,25 +19,19 @@
+     "index.ts",
+     "src",
+     "prompts",
+-    "assets/banner.png",
+     "README.md",
+     "LICENSE"
+   ],
+   "pi": {
+     "extensions": [
+       "./index.ts"
+-    ],
+-    "image": "./assets/banner.png"
+-  },
+-  "dependencies": {
+-    "diff": "^9.0.0",
+-    "file-type": "^22.0.1"
++    ]
+   },
+   "peerDependencies": {
+     "@earendil-works/pi-ai": ">=0.74.0",
+     "@earendil-works/pi-coding-agent": ">=0.74.0",
+     "@earendil-works/pi-tui": "*",
+-    "@sinclair/typebox": "*"
++    "typebox": "*"
+   },
+   "scripts": {
+     "test": "vitest run",
+diff -ruN -x banner.png hl-orig/src/diff-lite.ts pi-hashline-context-edit@0.11.0/src/diff-lite.ts
+--- hl-orig/src/diff-lite.ts	1970-01-01 00:00:00.000000000 +0000
++++ pi-hashline-context-edit@0.11.0/src/diff-lite.ts	2026-10-13 16:18:04.392949889 +0000
+@@ -0,0 +1,93 @@
++// W2 addition: a small replacement for the two functions of the `diff` package this
++// extension uses (diffLines, diffArrays). The extension is loaded from the agent dir,
++// where `diff` does not resolve. Output shape follows jsdiff: parts of
++// { value, count, added?, removed? }, a removed part before the added part of the same change.
++// Not minimal on huge inputs: past MAX_CELLS the middle is one removal plus one addition.
++
++export interface Part<T> {
++	value: T;
++	count: number;
++	added?: boolean;
++	removed?: boolean;
++}
++
++const MAX_CELLS = 4_000_000;
++
++function diffSeq(a: string[], b: string[]): Array<{ kind: "=" | "-" | "+"; items: string[] }> {
++	let lo = 0;
++	while (lo < a.length && lo < b.length && a[lo] === b[lo]) lo++;
++	let ea = a.length;
++	let eb = b.length;
++	while (ea > lo && eb > lo && a[ea - 1] === b[eb - 1]) {
++		ea--;
++		eb--;
++	}
++	const ops: Array<{ kind: "=" | "-" | "+"; items: string[] }> = [];
++	const push = (kind: "=" | "-" | "+", items: string[]) => {
++		if (items.length === 0) return;
++		const last = ops[ops.length - 1];
++		if (last && last.kind === kind) last.items.push(...items);
++		else ops.push({ kind, items: [...items] });
++	};
++	push("=", a.slice(0, lo));
++	const am = a.slice(lo, ea);
++	const bm = b.slice(lo, eb);
++	const n = am.length;
++	const m = bm.length;
++	if (n === 0 || m === 0 || (n + 1) * (m + 1) > MAX_CELLS) {
++		push("-", am);
++		push("+", bm);
++	} else {
++		const w = m + 1;
++		const t = new Uint32Array((n + 1) * w); // t[i*w+j] = LCS length of am[i..], bm[j..]
++		for (let i = n - 1; i >= 0; i--)
++			for (let j = m - 1; j >= 0; j--)
++				t[i * w + j] =
++					am[i] === bm[j] ? t[(i + 1) * w + j + 1]! + 1 : Math.max(t[(i + 1) * w + j]!, t[i * w + j + 1]!);
++		let i = 0;
++		let j = 0;
++		const rem: string[] = [];
++		const add: string[] = [];
++		const flush = () => {
++			push("-", rem.splice(0));
++			push("+", add.splice(0));
++		};
++		while (i < n || j < m) {
++			if (i < n && j < m && am[i] === bm[j]) {
++				flush();
++				push("=", [am[i]!]);
++				i++;
++				j++;
++			} else if (j >= m || (i < n && t[(i + 1) * w + j]! >= t[i * w + j + 1]!)) {
++				rem.push(am[i++]!);
++			} else {
++				add.push(bm[j++]!);
++			}
++		}
++		flush();
++	}
++	push("=", a.slice(ea));
++	return ops;
++}
++
++export function diffArrays(a: string[], b: string[]): Array<Part<string[]>> {
++	return diffSeq(a, b).map((o) => ({
++		value: o.items,
++		count: o.items.length,
++		...(o.kind === "+" ? { added: true } : {}),
++		...(o.kind === "-" ? { removed: true } : {}),
++	}));
++}
++
++function lineTokens(s: string): string[] {
++	return s.match(/[^\n]*\n|[^\n]+$/g) ?? [];
++}
++
++export function diffLines(a: string, b: string): Array<Part<string>> {
++	return diffSeq(lineTokens(a), lineTokens(b)).map((o) => ({
++		value: o.items.join(""),
++		count: o.items.length,
++		...(o.kind === "+" ? { added: true } : {}),
++		...(o.kind === "-" ? { removed: true } : {}),
++	}));
++}
+diff -ruN -x banner.png hl-orig/src/edit-diff.ts pi-hashline-context-edit@0.11.0/src/edit-diff.ts
+--- hl-orig/src/edit-diff.ts	2026-10-13 16:17:47.892672402 +0000
++++ pi-hashline-context-edit@0.11.0/src/edit-diff.ts	2026-10-13 16:18:04.388949822 +0000
+@@ -1,4 +1,4 @@
+-import * as Diff from "diff";
++import * as Diff from "./diff-lite";
+ import { computeLineHashAt, getVisibleLines } from "./hashline";
+ 
+ // ─── Line ending normalization ──────────────────────────────────────────
+diff -ruN -x banner.png hl-orig/src/edit.ts pi-hashline-context-edit@0.11.0/src/edit.ts
+--- hl-orig/src/edit.ts	2026-10-13 16:17:47.892672402 +0000
++++ pi-hashline-context-edit@0.11.0/src/edit.ts	2026-10-13 16:18:04.388949822 +0000
+@@ -4,7 +4,7 @@
+ 	ToolDefinition,
+ } from "@earendil-works/pi-coding-agent";
+ import { withFileMutationQueue } from "@earendil-works/pi-coding-agent";
+-import { Type } from "@sinclair/typebox";
++import { Type } from "typebox";
+ import { constants } from "fs";
+ import { readFileSync } from "fs";
+ import { access as fsAccess } from "fs/promises";
+diff -ruN -x banner.png hl-orig/src/file-kind.ts pi-hashline-context-edit@0.11.0/src/file-kind.ts
+--- hl-orig/src/file-kind.ts	2026-10-13 16:17:47.892672402 +0000
++++ pi-hashline-context-edit@0.11.0/src/file-kind.ts	2026-10-13 16:18:04.387949805 +0000
+@@ -1,5 +1,16 @@
+ import { open as fsOpen, stat as fsStat } from "fs/promises";
+-import { fileTypeFromBuffer } from "file-type";
++
++// W2 patch: the `file-type` dependency is replaced by a magic-byte check for the four
++// image types this file already knew about. Other binary formats are still caught by the
++// null-byte check below; they are described as "binary" without a MIME type.
++function sniffMimeType(b: Uint8Array): string | undefined {
++	const at = (i: number, ...v: number[]) => v.every((x, k) => b[i + k] === x);
++	if (at(0, 0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a)) return "image/png";
++	if (at(0, 0xff, 0xd8, 0xff)) return "image/jpeg";
++	if (at(0, 0x47, 0x49, 0x46, 0x38)) return "image/gif";
++	if (at(0, 0x52, 0x49, 0x46, 0x46) && at(8, 0x57, 0x45, 0x42, 0x50)) return "image/webp";
++	return undefined;
++}
+ 
+ const IMAGE_MIME_TYPES = new Set<string>([
+ 	"image/jpeg",
+@@ -58,7 +69,7 @@
+ 		}
+ 
+ 		const sample = buffer.subarray(0, bytesRead);
+-		const detectedMimeType = (await fileTypeFromBuffer(sample))?.mime;
++		const detectedMimeType = sniffMimeType(sample);
+ 		if (
+ 			detectedMimeType !== undefined &&
+ 			!isTextLikeMimeType(detectedMimeType)
+diff -ruN -x banner.png hl-orig/src/merge.ts pi-hashline-context-edit@0.11.0/src/merge.ts
+--- hl-orig/src/merge.ts	2026-10-13 16:17:47.892672402 +0000
++++ pi-hashline-context-edit@0.11.0/src/merge.ts	2026-10-13 16:18:04.388949822 +0000
+@@ -1,4 +1,4 @@
+-import * as Diff from "diff";
++import * as Diff from "./diff-lite";
+ import { computeChangedLineRange } from "./hashline";
+ 
+ export type MergeResult =
+diff -ruN -x banner.png hl-orig/src/read.ts pi-hashline-context-edit@0.11.0/src/read.ts
+--- hl-orig/src/read.ts	2026-10-13 16:17:47.893672419 +0000
++++ pi-hashline-context-edit@0.11.0/src/read.ts	2026-10-13 16:18:04.388949822 +0000
+@@ -7,7 +7,7 @@
+ 	truncateHead,
+ 	type TruncationResult,
+ } from "@earendil-works/pi-coding-agent";
+-import { Type } from "@sinclair/typebox";
++import { Type } from "typebox";
+ import { readFileSync } from "fs";
+ import { access as fsAccess } from "fs/promises";
+ import { constants } from "fs";

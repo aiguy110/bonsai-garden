@@ -1,0 +1,29 @@
+{
+  "name": "w2-compaction",
+  "description": "Honest baseline with compaction.reserveTokens 16384 instead of 28672 (nothing else).",
+  "model": "garden/bonsai-agent",
+  "worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+  "thinking": "low",
+  "max_output_tokens": 16384,
+  "context_window": 81920,
+  "compaction_reserve_tokens": 16384,
+  "session_timeout_min": 20,
+  "worker_memory": null,
+  "extensions": [
+    "autopilot/extensions/submit_request.ts"
+  ],
+  "sources": {
+    "model": "Historical operative snapshot c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json (SHA-256 27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334) sets roles.worker.model to bonsai-agent; replay registers that historical ID as garden/bonsai-agent, as autopilot.py worker_agent_dir() does.",
+    "worker_description": "autopilot.py worker_desc() for provider garden; the historical role model is c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json.",
+    "thinking": "Historical operative snapshot c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json (SHA-256 27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334) sets roles.worker.thinking to low.",
+    "max_output_tokens": "Historical registration c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json (SHA-256 949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4) sets maxTokens to 16384.",
+    "context_window": "Historical registration c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json (SHA-256 949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4) sets contextWindow to 81920.",
+    "compaction_reserve_tokens": "Changed from 28672 by bench/worker_eval/W2-decisions.md section 5 (gate passed: 10 timeouts near a compaction).",
+    "session_timeout_min": "Historical c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json has worker_timeout_min 45; intentionally changed to 20 by the W1 milestone.",
+    "worker_memory": "Historical c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json has worker_memory null; retained disabled because memory is W3.",
+    "extensions": "autopilot.py worker_agent_dir() copies extensions/submit_request.ts into the agent dir",
+    "prompt_timeout_min": "bonsai-2026-10-12-honest: the arm enforces 20 minutes, so the replayed prompt says 20 (W2 candidate 0)."
+  },
+  "hypothesis": "Mechanism: pi compacts when context > window - reserveTokens, so 16384 compacts at 65,536 tokens instead of 53,248 (+23% context) and the summary call's max_tokens drops from 16384 to 13107. Fewer compactions per session (29 in W1, 2408 s, 6.8% of wall; 10 timeouts near one): expect compaction_start down, median wall time down slightly, valid and kind-match rates flat or slightly up; risk: context_overflow up when a long reply meets a fuller window.",
+  "prompt_timeout_min": 20
+}

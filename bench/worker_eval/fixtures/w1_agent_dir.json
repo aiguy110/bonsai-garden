@@ -1,0 +1,48 @@
+{
+  "note": "What run.py builds for bonsai-2026-10-12 before W2 changes: agent/settings.json, agent/models.json (tap URL http://127.0.0.1:8091 = evals/run.py TAP), and the file names under agent/extensions/.",
+  "tap": "http://127.0.0.1:8091",
+  "settings.json": {
+    "defaultProvider": "garden",
+    "defaultModel": "bonsai-agent",
+    "defaultThinkingLevel": "low",
+    "compaction": {
+      "reserveTokens": 28672
+    }
+  },
+  "models.json": {
+    "providers": {
+      "garden": {
+        "baseUrl": "http://127.0.0.1:8091/agent/v1",
+        "api": "openai-completions",
+        "apiKey": "tap",
+        "compat": {
+          "supportsStore": false,
+          "supportsDeveloperRole": false,
+          "supportsReasoningEffort": false,
+          "maxTokensField": "max_tokens"
+        },
+        "models": [
+          {
+            "id": "bonsai-agent",
+            "name": "Bonsai 2 27B agent slot (turnstile virtual, 80k ctx)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "contextWindow": 81920,
+            "maxTokens": 16384,
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          }
+        ]
+      }
+    }
+  },
+  "extensions": [
+    "submit_request.ts"
+  ]
+}
