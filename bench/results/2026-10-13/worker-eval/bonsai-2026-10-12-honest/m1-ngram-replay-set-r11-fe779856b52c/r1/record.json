@@ -1,0 +1,61 @@
+{
+  "advisor_verdict": "revise",
+  "arm": "bonsai-2026-10-12-honest",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12-honest/m1-ngram-replay-set-r11-fe779856b52c/r1",
+  "case_id": "m1-ngram-replay-set-r11-fe779856b52c",
+  "cloud_kind": "done",
+  "compaction_end": 1,
+  "compaction_start": 1,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T15:18:39-04:00",
+  "flag_triggers": {},
+  "item": "replay-set",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "done",
+  "request": {
+    "report": "r11 replay-set done. bench/build_replay_set.py built and validated (exit 0, r10 run); replay bodies at bench/.replay/m1/ (gitignored via .gitignore); 30 agent requests across 6 distinct steps (both arms) + 12 mem requests across 5 steps; every entry has recorded_prompt_tokens; medians est/recorded agent=0.833, mem=1.027 (both in 0.75-1.33); 3 borderline agent outliers (0.740/0.743/0.742, baseline-r0/0, dense reasoning_content ~2.97 chars/token) explained in bench/m1-notes.md \u00a78; manifest committed at bench/results/2026-10-12/m1-ngram/replay_manifest.json (r10, unchanged); pi-ai source glob empty (documented; confirmed empirically via no-reasoning ratios 0.246-0.414 \u2192 0.74-0.887 + event_samples thinkingSignature=reasoning_content).",
+    "request": "done",
+    "summary": "20\u201330 agent requests / \u22654 steps: 30 agent, 6 distinct steps (baseline-r0/0, r1/0, r1/2; mem0-r0/0, r1/0, r2/0) \u2713. 6\u201312 mem: 12 requests, 5 steps \u2713. Every entry has recorded_prompt_tokens: all 42 manifest entries (bench/results/2026-10-12/m1-ngram/replay_manifest.json) \u2713. Median est/recorded in range: agent 0.833, mem 1.027 (both in 0.75\u20131.33) \u2713. Outliers explained: \u00a78 of bench/m1-notes.md documents the 3 agent outliers (0.740/0.743/0.742, baseline-r0/0 long-reasoning turns, ~2.97 chars/token vs 4-char estimator) \u2713. bench/.replay/ in .gitignore: yes (bench/.replay/ line, .gitignore) \u2713. Script runnable: python3 bench/build_replay_set.py \u2014 exit 0 (r9, r10), committed \u2713."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 10835,
+  "timeout": false,
+  "tool_calls": 20,
+  "tool_errors": {
+    "edit": 1
+  },
+  "tools": {
+    "bash": 7,
+    "edit": 2,
+    "read": 10,
+    "submit_request": 1
+  },
+  "turns": 14,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 999.0
+}

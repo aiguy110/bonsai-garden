@@ -1,0 +1,9 @@
+§8 now reflects the measured cause. All acceptance criteria verified from the repo:
+
+- `.gitignore` line 8: `bench/.replay/` ✓
+- `replay_manifest.json`: 30 agent requests / 6 distinct steps, 12 mem requests / 5 distinct steps, every entry has `recorded_prompt_tokens`, `system_prompt_exact: true` ✓
+- Medians: agent 0.833, mem 1.027 (both in 0.75–1.33) ✓
+- Outliers in `bench/m1-notes.md` §8 now cite the measured cause (reasoning/assistant text at ~2.96 chars/token; tool output is +219 chars, not the cause) and the reasoning-sent-in-full bullet now uses the recorded-growth ≈ generated-tokens arithmetic instead of the median-only inference ✓
+
+Per the advisor's instruction this was a notes-only edit — no builder re-run, no manifest touched.
+

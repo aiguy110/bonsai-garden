@@ -1,0 +1,2 @@
+`pi_package_dir()` works when called directly on the host path. The local "no pi_package_dir" is a test artifact from `__file__` resolution inside `exec_module`. Let me confirm with a direct debug to be safe.
+

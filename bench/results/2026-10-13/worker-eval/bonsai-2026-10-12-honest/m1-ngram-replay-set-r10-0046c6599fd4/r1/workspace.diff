@@ -1,0 +1,215 @@
+diff --git a/bench/build_replay_set.py b/bench/build_replay_set.py
+index c7d16de..a337f2c 100644
+--- a/bench/build_replay_set.py
++++ b/bench/build_replay_set.py
+@@ -92,9 +92,17 @@ def to_openai(m):
+         return {"role": "user", "content": blocks_text(m["content"])}
+     if r == "toolResult":
+         return {"role": "tool", "tool_call_id": m["toolCallId"], "content": blocks_text(m["content"])}
+-    if r == "assistant":  # reasoning dropped, as pi does
++    if r == "assistant":
+         out = {"role": "assistant", "content": "".join(
+             b.get("text", "") for b in m["content"] if b.get("type") == "text")}
++        thinking = [b.get("thinking", "") for b in m["content"]
++                    if b.get("type") == "thinking" and b.get("thinking")]
++        if thinking:
++            sig = next((b.get("thinkingSignature")
++                        for b in m["content"]
++                        if b.get("type") == "thinking" and b.get("thinkingSignature")),
++                       "thinking")
++            out[sig] = "\n".join(thinking)
+         calls = [b for b in m["content"] if b.get("type") == "toolCall"]
+         if calls:
+             out["tool_calls"] = [{"id": c["id"], "type": "function",
+@@ -113,10 +121,26 @@ def tool_list(sysmsg):
+             for t in sysmsg.get("toolsAdded", [])]
+ 
+ 
++def _reasoning_chars(m):
++    """Chars of string fields other than role/content (the reasoning_content field)."""
++    return sum(len(v) for k, v in m.items()
++               if isinstance(v, str) and k not in ("role", "content", "tool_call_id"))
++
++
++def _reasoning_after_last_user(messages):
++    """Reasoning chars of assistant messages after the last user message."""
++    last_user = -1
++    for i, m in enumerate(messages):
++        if m.get("role") == "user":
++            last_user = i
++    return sum(_reasoning_chars(m) for i, m in enumerate(messages)
++               if i > last_user and m.get("role") == "assistant")
++
++
+ def est_chars(messages, tools=None):
+     n = 0
+     for m in messages:
+-        n += len(m.get("content") or "")
++        n += len(m.get("content") or "") + _reasoning_chars(m)
+         for c in m.get("tool_calls", []):
+             n += len(c["function"]["name"]) + len(c["function"]["arguments"])
+     if tools:
+@@ -125,10 +149,12 @@ def est_chars(messages, tools=None):
+ 
+ 
+ def chars_by_role(messages, tools):
+-    d = {"tools": len(json.dumps(tools, separators=(",", ":")))}
++    d = {"tools": len(json.dumps(tools, separators=(",", ":"))) if tools else 0}
+     for m in messages:
+-        n = len(m.get("content") or "") + sum(len(c["function"]["arguments"]) for c in m.get("tool_calls", []))
++        n = (len(m.get("content") or "") + _reasoning_chars(m)
++             + sum(len(c["function"]["arguments"]) for c in m.get("tool_calls", [])))
+         d[m["role"]] = d.get(m["role"], 0) + n
++    d["reasoning"] = sum(_reasoning_chars(m) for m in messages)
+     return d
+ 
+ 
+@@ -148,6 +174,50 @@ def spread(n, k):
+     return sorted({round(i * (n - 1) / (k - 1)) for i in range(k)})
+ 
+ 
++def _pi_package_dir():
++    """pi_package_dir from recon/sources.txt, if present."""
++    try:
++        for ln in (RECON / "sources.txt").read_text().splitlines():
++            if ln.startswith("pi_package_dir:"):
++                return ln.split(":", 1)[1].strip()
++    except FileNotFoundError:
++        pass
++    return None
++
++
++def confirm_thinking_source():
++    """Locate pi-ai's openai-completions.js and print lines around the
++    thinkingSignature / reasoning_content mapping (pi-ai sends the recorded
++    thinkingSignature back as the message key)."""
++    out = []
++    pi_dir = _pi_package_dir()
++    tried = []
++    if pi_dir:
++        base = pathlib.Path(pi_dir).parent  # .../node_modules
++        patterns = ("@earendil-works/pi-ai/dist/providers/openai-completions.js",
++                    "pi-ai/dist/providers/openai-completions.js")
++        for pat in patterns:
++            tried.extend(str(f) for f in base.glob(pat) if f.is_file())
++    seen, shown = set(), set()
++    for f in tried:
++        if f in seen:
++            continue
++        seen.add(f)
++        out.append(f"SOURCE {f}")
++        raw = pathlib.Path(f).read_text(encoding="utf-8", errors="replace").splitlines()
++        hits = [i for i, ln in enumerate(raw)
++                if "thinkingSignature" in ln or "reasoning_content" in ln]
++        for i in hits[:6]:
++            for j in range(max(0, i - 4), min(len(raw), i + 5)):
++                shown.add(j)
++        for j in sorted(shown):
++            out.append(f"  {j + 1}: {raw[j].strip()}")
++        break
++    if not out:
++        out.append("SOURCE not found: tried " + ("; ".join(tried) or "no pi_package_dir"))
++    return out
++
++
+ # ---------- mem0 ----------
+ 
+ def load_additive(path):
+@@ -260,6 +330,7 @@ def main():
+             steps.append(dict(run=run["run_id"], arm=arm, step=int(sk), st=st, sysmsg=sysmsg,
+                               sess_ts=sess_ts, msgs=msgs, run_rec=run))
+     log("steps loaded:", len(steps))
++    thinking_src = confirm_thinking_source()
+ 
+     # ---- agent set: 3 best steps per arm, --per-step turns each, spread over the step
+     chosen = []
+@@ -284,12 +355,15 @@ def main():
+                 mismatches.append(dict(id=f"{s['run']}/{s['step']}/{t}", built=len(hist),
+                                        recorded=rec["n_messages"]))
+             body = {"messages": hist, "tools": tools}
++            est_all = est_chars(hist, tools)
++            est_recent = est_all - sum(_reasoning_chars(m) for m in hist) + _reasoning_after_last_user(hist)
+             agent.append(dict(id=f"{s['run']}/{s['step']}/{t}", role="agent", body=body,
+                               recorded_prompt_tokens=rec["prompt_n"] + rec["cache_n"],
+                               meta=dict(arm=s["arm"], step=s["step"], turn=t,
+                                         predicted_n=rec["predicted_n"],
+                                         recorded_n_messages=rec["n_messages"],
+-                                        chars=est_chars(hist, tools),
++                                        est_recent=est_recent,
++                                        chars=est_all,
+                                         chars_by_role=chars_by_role(hist, tools))))
+     agent = agent[: args.agent_max]
+ 
+@@ -361,38 +435,59 @@ def main():
+     def entry(r):
+         c = r["meta"]["chars"]
+         rp = r["recorded_prompt_tokens"]
+-        return dict(id=r["id"], role=r["role"], n_messages=len(r["body"]["messages"]),
+-                    prompt_chars=c, est_tokens_chars4=round(c / 4),
+-                    recorded_prompt_tokens=rp, est_over_recorded=round(c / 4 / rp, 3),
+-                    predicted_n=r["meta"]["predicted_n"], kind=r["meta"].get("kind"),
+-                    chars_by_role=r["meta"].get("chars_by_role"))
++        e = dict(id=r["id"], role=r["role"], n_messages=len(r["body"]["messages"]),
++                 prompt_chars=c, est_tokens_chars4=round(c / 4),
++                 recorded_prompt_tokens=rp, est_over_recorded=round(c / 4 / rp, 3),
++                 predicted_n=r["meta"]["predicted_n"], kind=r["meta"].get("kind"),
++                 chars_by_role=r["meta"].get("chars_by_role"))
++        if r["role"] == "agent":
++            e["est_over_recorded_recent"] = round(r["meta"]["est_recent"] / 4 / rp, 3)
++        return e
+     ents = [entry(r) for r in agent + mem]
+     by = lambda role: [e for e in ents if e["role"] == role]
++
++    def tot(role):
++        rs = by(role)
++        d = dict(requests=len(rs),
++                 distinct_steps=len({e["id"].rsplit("/", 1)[0] for e in rs}),
++                 prompt_chars=sum(e["prompt_chars"] for e in rs),
++                 recorded_prompt_tokens=sum(e["recorded_prompt_tokens"] for e in rs),
++                 median_est_over_recorded=median([e["est_over_recorded"] for e in rs]))
++        if role == "agent":
++            d["median_est_over_recorded_recent"] = median([e["est_over_recorded_recent"] for e in rs])
++        return d
++
+     manifest = dict(
+         system_prompt_exact=exact_all,
+         system_prompt_note="agent system prompt = recorded sections joined by blank lines; the join is INFERRED "
+                            "(getSystemMessageText is not in pi_prompt_src.txt); exactness is supported only by "
+                            "the est/recorded ratios of requests with n_messages<=3",
++        reasoning_note="assistant thinking blocks (type=thinking, thinkingSignature='reasoning_content') are "
++                       "rendered into the reasoning_content field of the converted assistant message, mirroring "
++                       "pi-ai openai-completions (confirmed in thinking_source). est_over_recorded counts all prior "
++                       "assistant reasoning; est_over_recorded_recent counts only reasoning after the last user message. "
++                       "Bodies therefore need a server with --jinja (already set in server_probe.sh and the live entry) "
++                       "so the chat template sees reasoning_content.",
++        thinking_source=thinking_src,
++        probe_server_note="probe must run with --jinja (already set in server_probe.sh and the live entry)",
+         mem_prompt_assumptions="serializeMemories=JSON list; formatConversationHistory='role: content' lines; "
+                                "existing = latest 10 live memories (ADD/UPDATE, DELETE removed) created before the per-call cutoff "
+                                "(not the 10 nearest by embedding); newMessages 'role: content' per mem0_extract_src.txt:838; "
+                                "tool-add content key guessed from toolCall arguments",
+-        totals={role: dict(requests=len(by(role)),
+-                           distinct_steps=len({e["id"].rsplit("/", 1)[0] for e in by(role)}),
+-                           prompt_chars=sum(e["prompt_chars"] for e in by(role)),
+-                           recorded_prompt_tokens=sum(e["recorded_prompt_tokens"] for e in by(role)),
+-                           median_est_over_recorded=median([e["est_over_recorded"] for e in by(role)]))
+-                for role in ("agent", "mem")},
++        totals={role: tot(role) for role in ("agent", "mem")},
+         n_messages_mismatches=mismatches,
+         mem0_db_columns=dbinfo,
+         requests=ents,
+     )
+     print(json.dumps({k: manifest[k] for k in ("system_prompt_exact", "totals")}, indent=1))
++    for ln in thinking_src:
++        print(ln)
+     short = [e["est_over_recorded"] for e in by("agent") if e["n_messages"] <= 3]
+     print("agent ratio n_messages<=3:", short)
+-    print("agent chars_by_role (id, ratio, breakdown):")
++    print("agent ratios (id, all, recent, reasoning_chars):")
+     for e in by("agent"):
+-        print("  ", e["id"], e["est_over_recorded"], e["chars_by_role"])
++        print("  ", e["id"], e["est_over_recorded"], e.get("est_over_recorded_recent"),
++              e["chars_by_role"].get("reasoning", 0))
+     print("mem kinds:", [(e["id"], e["kind"], e["est_over_recorded"]) for e in by("mem")])
+     manifest["agent_ratio_n_messages_le3"] = short
+     print("n_messages mismatches:", len(mismatches), mismatches[:10])

@@ -1,0 +1,52 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12-honest",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12-honest/m1-ngram-replay-set-r12-e62a974c8e88/r1",
+  "case_id": "m1-ngram-replay-set-r12-e62a974c8e88",
+  "cloud_kind": "done",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T15:25:00-04:00",
+  "flag_triggers": {},
+  "item": "replay-set",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "done",
+  "request": {
+    "report": "Applied the advisor's round-12 revision to bench/m1-notes.md \u00a78 (notes-only, as directed). Verified against repo files before editing: recon/inventory.json shows baseline-r0 step 0 agent turns 2-4 generated 8,565+576+1,024 = 10,165 tokens; replay_manifest.json shows recorded prompt 2,761\u219213,032 tokens and rebuilt body 8,502\u219238,559 chars over the same span, with tool output only +219 chars (2,154 at /0/5 vs 1,935 at /0/2) and reasoning 25,717\u219226,225\u219226,591 chars. \u00a78 now replaces the unmeasured \"code/JSON tool output\" outlier explanation with the measured cause (reasoning/assistant text tokenizes at ~2.96 chars/token, so chars/4 under-counts and late reasoning-dominated turns land just under 0.75) and cites the same arithmetic as evidence that pi sends reasoning_content back in full (recorded prompt growth +10,271 tokens \u2248 generated 10,165 tokens), replacing the median-only inference since the pi-ai openai-completions.js source search found nothing. Manifest and replay bodies untouched.",
+    "request": "done",
+    "summary": "Acceptance criteria, all from committed files: (1) .gitignore line 8 contains bench/.replay/; (2) bench/results/2026-10-12/m1-ngram/replay_manifest.json lists 30 agent requests over 6 distinct steps and 12 mem requests over 5 distinct steps; every entry carries recorded_prompt_tokens (verified none missing); (3) median est/recorded ratios: agent 0.833, mem 1.027 \u2014 both inside 0.75\u20131.33; (4) the 3 agent outliers (0.740/0.743/0.742) are explained in bench/m1-notes.md \u00a78 with the measured cause (reasoning/assistant text ~2.96 chars/token per recorded-growth arithmetic), per advisor revision; (5) bench/build_replay_set.py is committed and ran clean (exit 0, log at bench/results/2026-10-12/autopilot/replay-set-r10.log); (6) system_prompt_exact is true. Notes-only change this round; no builder re-run, no manifest changes."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 5055,
+  "timeout": false,
+  "tool_calls": 10,
+  "tool_errors": {},
+  "tools": {
+    "bash": 4,
+    "edit": 1,
+    "read": 4,
+    "submit_request": 1
+  },
+  "turns": 7,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 381.3
+}

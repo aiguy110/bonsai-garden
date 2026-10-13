@@ -1,0 +1,2 @@
+The `n_messages` equals the index of each assistant message, and the body is the prefix before it. Now let me test my /4 formula on the sample, carefully handling whether thinking blocks affect the estimate.
+

@@ -1,0 +1,8 @@
+{
+  "report": "R9: diagnosed the agent ratio problem from r8 output \u2014 first agent request (n_messages=2) has est/recorded 0.846 but it falls to ~0.25-0.4 as history grows; recorded prompt_n grows to ~14k tokens while my char/4 estimate grows to only ~4k, so I'm missing ~40k chars of history content per later request. Need to see actual event content before rewriting the builder.",
+  "request": "run",
+  "command": "python3 bench/inspect_replay_events.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Read-only diagnostic on host-recorded events: prints agent_end message roles, raw content lengths, content block types, timestamps, and full sample toolResult/assistant messages for two steps. Reveals the event schema (timestamps, content block shapes) needed to rewrite build_replay_set.py correctly. No writes, no GPU."
+}

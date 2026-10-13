@@ -1,0 +1,2 @@
+The event format is clear. Let me check the mem0 tool schema details and the full docs for the custom-role handling.
+

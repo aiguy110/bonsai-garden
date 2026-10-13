@@ -1,0 +1,73 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 5b7ff37..36d325e 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -323,3 +323,68 @@ are omitted; index row counts are `-1` and omitted.)
+ - Both `agent` and `mem` roles show non-zero `predicted_n` (generated tokens
+   only — no speculation, §1); `cache_n` grows across turns (prefix-cache
+   hits), consistent with the running context being reused.
++
++## 8. Replay-set build (r10, 2026-10-12) — `bench/build_replay_set.py`
++
++Built from the host recordings (r8/r9/r10 rounds; final output r10). Outputs
++live in `bench/.replay/m1/` (`agent.jsonl`, `mem.jsonl`) — gitignored
++(`bench/.replay/` in `.gitignore`), recorded content stays out of git. The
++committed cross-check is `bench/results/2026-10-12/m1-ngram/replay_manifest.json`.
++
++**agent.jsonl — 30 requests, 6 distinct steps, both arms.** 3 best steps per
++arm (scored for file reads/edits/test output) × 5 turns each:
++baseline-r0/0, baseline-r1/0, baseline-r1/2, mem0-r0/0, mem0-r1/0, mem0-r2/0.
++Bodies: system = recorded `sections` joined by blank lines (join is the
++inferred `getSystemMessageText`; `system_prompt_exact: true` is supported by the
++n_messages≤3 ratios 0.84–0.877), full pre-turn history as recorded, assistant
++**thinking kept as `reasoning_content`** (recorded prompts include earlier
++reasoning — see below), `tool_calls` + tool results, `tools` = pi schemas +
++`mem0_memory` (mem0 arm). No sampling params (the probe sets them).
++
++**mem.jsonl — 12 requests (≤ `--mem-max` 12), 5 distinct steps** (mem0-r0
++steps 0/1/2, mem0-r1 steps 0/1). One per mem tap record, matched in order:
++per-call events = each `mem0_memory` add toolCall (new message = the added text,
++per-call cutoff = its toolResult timestamp; 9 of 12) + the once-per-prompt
++auto-capture (user + first assistant text, cutoff = that message's ts; 3 of
++12). System = ADDITIVE_EXTRACTION_PROMPT verbatim (33655 chars after single-pass
++unescape of template-literal escapes (backslash pairs, backticks, uXXXX). Existing memories = latest 10 live
++(ADD/UPDATE, DELETE removed) created before the per-call cutoff; user prompt
++sections assembled as in `generateAdditiveExtractionPrompt` (`mem0_extract_src.txt`),
++`newMessages` = `role: content` lines per `mem0_extract_src.txt:838`. Bodies carry
++`response_format: {"type": "json_object"}` and `chat_template_kwargs:
++{"enable_thinking": false}`.
++
++**Checked against tap prompt sizes** (per entry: `est_tokens_chars4 =
++prompt_chars/4` vs `recorded_prompt_tokens = prompt_n + cache_n`;
++`n_messages_mismatches: []`):
++
++- agent median est/recorded = **0.833**; mem median = **1.027**. Both inside
++  0.75–1.33.
++- Recorded prompts include earlier assistant reasoning: per-request no-reasoning
++  est/recorded is 0.246–0.414 on long-reasoning turns; keeping
++  `reasoning_content` in the bodies restores it to 0.74–0.887. So the replay
++  reproduces real prompt size. (pi-ai dist source confirmation was attempted —
++  `show_pi_ai_source()` glob found no `openai-completions.js` under the assumed
++  node_modules root, printed `[]` — the empirical ratios above +
++  `recon/event_samples.json:457` thinkingSignature='reasoning_content' stand
++  as the confirmation instead.)
++- Server requirement (in manifest): probe llama-server needs `--jinja` (production
++  has it) so the chat template sees `reasoning_content` on assistant messages.
++
++**Outliers (est/recorded outside 0.75–1.33; agent only, all in baseline-r0/0):**
++
++| id | est/recorded | recorded tok / est tok | chars/token eff |
++|---|---|---|---|
++| inventory-baseline-r0/0/5 | 0.740 | 13032 / 9640 | 2.96 |
++| inventory-baseline-r0/0/8 | 0.743 | 13939 / 10350 | 2.97 |
++| inventory-baseline-r0/0/10 | 0.742 | 14317 / 10624 | 2.97 |
++
++Cause: these three turns follow the step's long-reasoning jump (recorded
++prompt grows 2761 → 13032 tokens by turn 5, standing fact; turn-2
++`predicted_n=8565`). Their histories accumulate ~25–26k chars of dense
++`reasoning_content` plus tool/JSON output, which tokenizes at ~2.97 chars/token
++vs the 4 chars/token estimator, so the estimate lands 1–2 points below the
++0.75 floor. They are the only outliers (mem: none); the agent median (0.833) is
++unaffected and these three requests are replayed unchanged — the probe measures
++actual tok/s and token counts directly, the recorded token count is a sanity
++cross-check, not a gate.

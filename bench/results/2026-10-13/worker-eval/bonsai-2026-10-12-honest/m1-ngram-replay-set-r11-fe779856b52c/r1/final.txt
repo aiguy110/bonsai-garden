@@ -1,0 +1,13 @@
+All non-ASCII chars are legitimate (em dashes, §, arrows, math symbols) — the stray control character is gone and the note is clean. All acceptance criteria are now satisfied:
+
+- **30 agent requests** from **6 distinct steps** (both arms: baseline-r0/0, r1/0, r1/2, mem0-r0/0, r1/0, r2/0) — ≥20 and ≥4 steps ✓
+- **12 mem requests** from 5 distinct steps — in 6–12 range ✓
+- **Every entry carries `recorded_prompt_tokens`** (all 42 entries in manifest) ✓
+- **Median est/recorded: agent 0.833, mem 1.027** — both within 0.75–1.33 ✓
+- **Outliers explained**: 3 agent entries (0.740/0.743/0.742, all baseline-r0/0) documented in `bench/m1-notes.md` §8 with cause (dense `reasoning_content` ~2.97 chars/token vs 4-char estimator, 1–2 pts below floor) ✓
+- **`bench/.replay/` in `.gitignore`**; replay bodies there on the host ✓
+- **Manifest committed**: `bench/results/2026-10-12/m1-ngram/replay_manifest.json` ✓
+- **Script runnable** (`python3 bench/build_replay_set.py`, exit 0, r9/r10) ✓
+
+Submitting as done; next is the round-12 probe run against the live server.
+

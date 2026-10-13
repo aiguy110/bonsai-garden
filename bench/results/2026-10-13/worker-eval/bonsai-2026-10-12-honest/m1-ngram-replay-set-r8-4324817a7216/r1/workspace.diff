@@ -1,0 +1,825 @@
+diff --git a/bench/build_replay_set.py b/bench/build_replay_set.py
+index c7606cb..6cb6ce1 100644
+--- a/bench/build_replay_set.py
++++ b/bench/build_replay_set.py
+@@ -1,17 +1,15 @@
+ #!/usr/bin/env python3
+ """Build the M1 n-gram replay set from host-recorded bonsai-garden traffic.
+ 
+-Inputs (host paths named in recon/inventory.json):
+-  - per-step pi event streams (agent_end carries the full message history)
+-  - per-run mem0 SQLite stores (memory_history, messages)
+-  - recon/mem0_extract_src.txt (ADDITIVE_EXTRACTION_PROMPT + user-prompt template)
+-
+-Outputs:
+-  - bench/.replay/m1/agent.jsonl, mem.jsonl   (gitignored; recorded content)
+-  - bench/results/2026-10-12/m1-ngram/replay_manifest.json   (committed, no content)
+-
+-Each line: {"id", "role", "body", "meta"}. Bodies carry no sampling params; the probe
+-sets them. Mem bodies carry no tools and chat_template_kwargs {enable_thinking:false}.
++Reads host event JSONL (one per step), the per-run SQLite mem0 stores and the
++recorded request logs, then writes:
++  bench/.replay/m1/agent.jsonl
++  bench/.replay/m1/mem.jsonl
++  bench/results/.../m1-ngram/replay_manifest.json
++
++Mem bodies are rebuilt per call (not per step): a tool add uses the add's
++new_msgs and the toolResult timestamp cutoff; the auto-capture uses the user
++prompt + first assistant text and the capture's assistant message timestamp.
+ """
+ from __future__ import annotations
+ 
+@@ -25,185 +23,318 @@ import sys
+ from datetime import datetime, timezone
+ 
+ ROOT = pathlib.Path(__file__).resolve().parent.parent
+-RECON = ROOT / "bench/results/2026-10-12/m1-ngram/recon"
+-OUT_DIR = ROOT / "bench/.replay/m1"
+-MANIFEST = ROOT / "bench/results/2026-10-12/m1-ngram/replay_manifest.json"
++RECON = ROOT / "bench" / "results" / "2026-10-12" / "m1-ngram" / "recon"
++DB_BASE = RECON / "dbs"
++OUT_DIR = ROOT / "bench" / ".replay" / "m1"
++MANIFEST = RECON / "replay_manifest.json"
++MEM_DEFAULT_DATE = "2026-10-11"
++
++
++def log(*a):
++    print(*a, file=sys.stderr)
+ 
+ 
+ def parse_args():
+-    ap = argparse.ArgumentParser()
+-    ap.add_argument("--per-step", type=int, default=5, help="agent turns per chosen step")
+-    ap.add_argument("--agent-max", type=int, default=30)
+-    ap.add_argument("--mem-max", type=int, default=12)
+-    ap.add_argument("--dry-run", action="store_true", help="print summary, write nothing")
++    ap = argparse.ArgumentParser(description=__doc__.strip())
++    ap.add_argument("--per-step", type=int, default=5,
++                    help="agent turns per chosen step (default 5)")
++    ap.add_argument("--agent-max", type=int, default=30,
++                    help="max agent requests (default 30)")
++    ap.add_argument("--mem-max", type=int, default=12,
++                    help="max mem requests (default 12)")
++    ap.add_argument("--dry-run", action="store_true",
++                    help="report the plan, do not write files")
+     return ap.parse_args()
+ 
+ 
+-def log(*a):
+-    print(*a, file=sys.stderr)
++def parse_ts(v):
++    if isinstance(v, (int, float)):
++        return float(v)
++    if isinstance(v, str) and v:
++        try:
++            return datetime.fromisoformat(v.replace("Z", "+00:00")).timestamp()
++        except ValueError:
++            return None
++    return None
+ 
+ 
+-# ---------- event streams ----------
++def date_from_session(sess_ts):
++    ts = parse_ts(sess_ts)
++    if ts is not None:
++        return datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d")
++    return MEM_DEFAULT_DATE
+ 
+-def read_events(path):
+-    """Return (first system message_start event message, session ts, agent_end messages)."""
+-    sysmsg = None
+-    session_ts = None
+-    msgs = None
+-    with open(path, encoding="utf-8") as f:
+-        for line in f:
+-            if "message_update" in line[:60]:
+-                continue
+-            try:
+-                e = json.loads(line)
+-            except ValueError:
+-                continue
+-            t = e.get("type")
+-            if t == "session":
+-                session_ts = e.get("timestamp")
+-            elif t == "message_start" and sysmsg is None and e["message"].get("role") == "system":
+-                sysmsg = e["message"]
+-            elif t == "agent_end":
+-                msgs = e["messages"]
+-    return sysmsg, session_ts, msgs
++
++# ---------- message -> openai ----------
++
++def block_text(b):
++    if isinstance(b, str):
++        return b
++    if isinstance(b, dict):
++        return b.get("text") or b.get("content") or ""
++    return ""
+ 
+ 
+ def blocks_text(content):
++    if not content:
++        return ""
+     if isinstance(content, str):
+         return content
+-    return "\n".join(b.get("text", "") for b in content if b.get("type") == "text")
++    return "".join(block_text(b) for b in content)
+ 
+ 
+-def system_text(m):
+-    secs = m.get("sections")
+-    if secs:
+-        # pi: sections rendered in order, joined with a blank line (pi_prompt_src.txt)
+-        return "\n\n".join(secs.values()), True
+-    return m.get("content", ""), False
++def arg_str(v):
++    """Tool arguments as a string: use as-is if already a string, else dump."""
++    if isinstance(v, str):
++        return v
++    return json.dumps(v)
+ 
+ 
+-def to_openai(m):
+-    r = m["role"]
+-    if r == "system":
+-        return {"role": "system", "content": system_text(m)[0]}
+-    if r == "user":
+-        return {"role": "user", "content": blocks_text(m["content"])}
+-    if r == "custom":  # pi's mem0-recall message reaches the model as a user message
+-        return {"role": "user", "content": blocks_text(m["content"])}
+-    if r == "toolResult":
+-        return {"role": "tool", "tool_call_id": m["toolCallId"], "content": blocks_text(m["content"])}
+-    if r == "assistant":  # reasoning dropped, as pi does
+-        out = {"role": "assistant", "content": "".join(
+-            b.get("text", "") for b in m["content"] if b.get("type") == "text")}
+-        calls = [b for b in m["content"] if b.get("type") == "toolCall"]
+-        if calls:
+-            out["tool_calls"] = [{"id": c["id"], "type": "function",
+-                                  "function": {"name": c["name"],
+-                                               "arguments": json.dumps(c["arguments"])}}
+-                                 for c in calls]
+-        return out
+-    raise ValueError("unknown role " + r)
++def system_text(m):
++    """System content = recorded sections joined by blank line (join inferred)."""
++    s = m.get("sections")
++    if not s:
++        return m.get("content") or "", False
++    return "\n\n".join([t for t in s.values() if t]), True
+ 
+ 
+ def tool_list(sysmsg):
+-    return [{"type": "function",
+-             "function": {"name": t["name"], "description": t["description"],
+-                          "parameters": t["parameters"]}}
+-            for t in sysmsg.get("toolsAdded", [])]
+-
+-
+-def est_chars(messages, tools=None):
+-    n = 0
+-    for m in messages:
+-        n += len(m.get("content") or "")
+-        for c in m.get("tool_calls", []):
+-            n += len(c["function"]["name"]) + len(c["function"]["arguments"])
+-    if tools:
+-        n += len(json.dumps(tools, separators=(",", ":")))
+-    return n
++    out = []
++    for t in (sysmsg or {}).get("toolsAdded") or []:
++        name = t.get("name")
++        if not name:
++            continue
++        fn = {k: t[k] for k in ("name", "description", "parameters") if k in t}
++        out.append({"type": "function", "function": fn})
++    return out
+ 
+ 
+-def step_score(msgs):
+-    names, tested = set(), False
+-    for m in msgs:
+-        if m["role"] == "assistant":
+-            names |= {b["name"] for b in m["content"] if b.get("type") == "toolCall"}
+-        if m["role"] == "toolResult" and re.search(r"\d+ (passed|failed)", blocks_text(m["content"])):
+-            tested = True
+-    return len({"read", "edit", "write"} & names) * 2 + (3 if tested else 0) + len(names)
++def to_openai(m):
++    role = m.get("role")
++    if role == "system":
++        return {"role": "system", "content": system_text(m)}
++    if role == "user":
++        return {"role": "user", "content": blocks_text(m.get("content"))}
++    if role == "custom":
++        # mem0 recall: surface as a user-visible message
++        return {"role": "user", "content": blocks_text(m.get("content"))}
++    if role == "toolResult":
++        return {"role": "tool",
++                "content": blocks_text(m.get("content")),
++                "tool_call_id": m.get("toolCallId")}
++    if role == "assistant":
++        content = m.get("content") or []
++        txt = block_text({"text": blocks_text(content)})
++        calls = [
++            {"id": c["id"], "type": "function",
++             "function": {"name": c["name"],
++                          "arguments": arg_str(c.get("arguments"))}}
++            for b in content
++            if isinstance(b, dict) and b.get("type") == "toolCall" and b.get("name")
++        ]
++        out = {"role": "assistant", "content": txt}
++        if calls:
++            out["tool_calls"] = calls
++        return out
++    return {"role": role or "user", "content": blocks_text(m.get("content"))}
+ 
+ 
+-def spread(n, k):
+-    if n <= k:
+-        return list(range(n))
+-    return sorted({round(i * (n - 1) / (k - 1)) for i in range(k)})
++# ---------- events / steps ----------
+ 
++def read_events(path):
++    session_ts = None
++    msgs = None
++    with open(path, encoding="utf-8") as f:
++        for line in f:
++            line = line.strip()
++            if not line:
++                continue
++            try:
++                e = json.loads(line)
++            except ValueError:
++                continue
++            t = e.get("type")
++            if t == "session":
++                session_ts = e.get("timestamp")
++            elif t == "agent_end":
++                msgs = e.get("messages")
++    return session_ts, msgs
+ 
+-# ---------- mem0 ----------
+-
+-def load_additive(path):
+-    txt = path.read_text(encoding="utf-8")
+-    a = txt.index("var ADDITIVE_EXTRACTION_PROMPT = `") + len("var ADDITIVE_EXTRACTION_PROMPT = `")
+-    b = txt.index("`;", a)
+-    raw = txt[a:b]
+-    # the recon dump shows non-ASCII as \uXXXX escapes (JS source); decode them
+-    return re.sub(r"\\u([0-9a-fA-F]{4})", lambda m: chr(int(m.group(1), 16)), raw)
+ 
++def load_steps():
++    inv = json.loads((RECON / "inventory.json").read_text(encoding="utf-8"))
++    steps = []
++    for run in inv["runs"]:
++        arm = run["arm"]
++        base = RECON / "dbs" / run["id"]
++        for si, step in enumerate(run.get("steps", [])):
++            ev = step.get("events")
++            if not ev:
++                continue
++            session_ts, msgs = read_events(base / ev)
++            n_turns = len([m for m in msgs or [] if m.get("role") == "assistant"])
++            steps.append({
++                "id": f"{run['id']}/{si}",
++                "arm": arm,
++                "run_dir": str(base),
++                "n_turns": n_turns,
++                "sess_ts": session_ts,
++                "msgs": msgs or [],
++            })
++    return steps
+ 
+-def parse_ts(s):
+-    try:
+-        d = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+-    except ValueError:
+-        return None
+-    return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+ 
++def step_score(msgs):
++    """Prefer steps with file reads, edits and test output."""
++    read = edit = tested = 0
++    for m in msgs or []:
++        if m.get("role") != "toolResult":
++            continue
++        name = m.get("toolName")
++        if name == "read":
++            read += 1
++        elif name in ("edit", "write"):
++            edit += 1
++        elif name == "bash":
++            content = str(m.get("content") or "")
++            if "test_" in content or "pytest" in content:
++                tested += 1
++    return read + edit + tested
++
++
++def pick_agent_steps(steps, per_step, agent_max):
++    chosen = []
++    for arm in ("baseline", "mem0"):
++        cand = [s for s in steps if s["arm"] == arm and s.get("n_turns", 0) >= per_step]
++        cand.sort(key=lambda s: (-step_score(s["msgs"]), s["id"]))
++        n = max(1, agent_max // per_step // 2)
++        chosen += cand[:n]
++    return chosen
+ 
+-def db_tables(db):
+-    con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+-    con.row_factory = sqlite3.Row
+-    info = {}
+-    for t in ("memory_history", "messages"):
+-        info[t] = [r["name"] for r in con.execute(f"PRAGMA table_info({t})")]
+-    return con, info
+ 
++# ---------- mem0 DB helpers ----------
+ 
+ def existing_memories(con, cols, cutoff, limit=10):
++    """Existing memories (mem0 order: last k, ids 0..). Excludes ids whose latest
++    action is DELETE. Cutoff (if set) keeps only entries created before the call."""
+     tcol = next((c for c in ("new_memory", "new_value", "text", "memory") if c in cols), None)
+-    ecol = "event" if "event" in cols else None
++    ecol = next((c for c in ("action", "event") if c in cols), None)
+     if not tcol:
+         return [], False
+     rows = [dict(r) for r in con.execute("SELECT * FROM memory_history ORDER BY rowid")]
+-    latest, filtered = {}, False
++    latest_action = {}
++    ordered_ids = []
++    latest_text = {}
++    filtered = False
+     for r in rows:
+-        if ecol and r[ecol] not in ("ADD", "UPDATE"):
++        mid = str(r.get("memory_id") or r.get("id"))
++        rowid = r.get("rowid", 0)
++        action = str(r.get(ecol, "")).upper() if ecol else None
++        if ecol:
++            cur = latest_action.get(mid)
++            if cur is None or rowid > cur[0]:
++                latest_action[mid] = (rowid, action)
++        if ecol and action not in ("ADD", "UPDATE"):
+             continue
+-        ts = parse_ts(r.get("created_at"))
+-        if cutoff and ts:
++        ts = parse_ts(r.get("created_at")) if cutoff is not None else None
++        if ts is not None:
+             filtered = True
+             if ts >= cutoff:
+                 continue
+-        if r.get(tcol):
+-            latest[r.get("memory_id") or r.get("id")] = r[tcol]
+-    texts = list(latest.values())[-limit:]
++        val = r.get(tcol)
++        if val:
++            if mid not in latest_text:
++                ordered_ids.append(mid)
++            latest_text[mid] = val
++    kept = [mid for mid in ordered_ids
++            if not (mid in latest_action and latest_action[mid][1] in ("DELETE",)) ]
++    texts = [latest_text[mid] for mid in kept][-limit:]
+     return [{"id": str(i), "text": t} for i, t in enumerate(texts)], filtered
+ 
+ 
+ def last_k(con, cols, cutoff, k=10):
++    """Last k messages as 'role: content', before the per-call cutoff (if set)."""
+     if not {"role", "content"} <= set(cols):
+         return []
+     rows = [dict(r) for r in con.execute("SELECT * FROM messages ORDER BY rowid")]
+     out = []
+     for r in rows:
+-        ts = parse_ts(r.get("created_at")) if "created_at" in cols else None
+-        if cutoff and ts and ts >= cutoff:
+-            continue
++        if cutoff is not None and "created_at" in cols:
++            ts = parse_ts(r.get("created_at"))
++            if ts is not None and ts >= cutoff:
++                continue
+         out.append(f"{r['role']}: {r['content']}")
+     return out[-k:]
+ 
+ 
++# ---------- mem events (per call, not per step) ----------
++
++def tool_results_index(msgs):
++    idx = {}
++    for m in msgs:
++        if m.get("role") == "toolResult":
++            idx[m.get("toolCallId")] = m.get("timestamp")
++    return idx
++
++
++def mem0_adds(msgs):
++    """(content, toolCallId) for each mem0_memory add toolCall, in message order."""
++    out = []
++    for m in msgs:
++        if m.get("role") != "assistant":
++            continue
++        for b in m.get("content") or []:
++            if not (isinstance(b, dict) and b.get("type") == "toolCall"
++                    and b.get("name") == "mem0_memory"):
++                continue
++            args = b.get("arguments")
++            if isinstance(args, str):
++                try:
++                    args = json.loads(args)
++                except ValueError:
++                    args = {}
++            if isinstance(args, dict) and args.get("action") == "add":
++                out.append((args.get("content") or "", b.get("id")))
++    return out
++
++
++def first_assistant_text(msgs):
++    for m in msgs:
++        if m.get("role") == "assistant":
++            txt = blocks_text(m.get("content") or [])
++            if txt.strip():
++                return m.get("timestamp"), txt
++    return None, ""
++
++
++def first_user_text(msgs):
++    for m in msgs:
++        if m.get("role") == "user":
++            return blocks_text(m.get("content") or [])
++    return ""
++
++
++def build_mem_events(msgs):
++    """Extraction events in order: tool adds (message order) then the auto-capture."""
++    trs = tool_results_index(msgs)
++    events = []
++    for content, tcid in mem0_adds(msgs):
++        events.append({
++            "kind": "tool_add",
++            "new_msgs": "user: " + (content or ""),
++            "cutoff": parse_ts(trs.get(tcid)),
++        })
++    asst_ts, asst_text = first_assistant_text(msgs)
++    events.append({
++        "kind": "capture",
++        "new_msgs": f"user: {first_user_text(msgs)}\nassistant: {asst_text}",
++        "cutoff": parse_ts(asst_ts),
++    })
++    return events
++
++
+ def mem_user_prompt(existing, lastk, new_msgs, date):
+-    # generateAdditiveExtractionPrompt (mem0_extract_src.txt:1137). serializeMemories and
+-    # formatConversationHistory are not in the dump: assumed JSON list / "role: content" lines.
++    """Rebuild the mem0 user prompt (generateAdditiveExtractionPrompt windows)."""
+     sections = [
+         "## Summary\n",
+         "## Last k Messages\n" + "\n".join(lastk),
+@@ -217,141 +348,228 @@ def mem_user_prompt(existing, lastk, new_msgs, date):
+     return "\n\n".join(sections)
+ 
+ 
+-# ---------- main ----------
++def load_additive(path):
++    """ADDITIVE_EXTRACTION_PROMPT, with the \uXXXX escapes decoded.
+ 
+-def median(xs):
+-    return round(statistics.median(xs), 3) if xs else None
++    The template literal is opened by 'var ADDITIVE_EXTRACTION_PROMPT = `' and
++    closed by the next backtick on its own line (line 486)."""
++    txt = path.read_text(encoding="utf-8")
++    open_pat = "var ADDITIVE_EXTRACTION_PROMPT = `"
++    a = txt.index(open_pat) + len(open_pat)
++    b = txt.index("`", a)  # the next backtick closes the template
++    raw = txt[a:b]
++    return re.sub(r"\\u([0-9a-fA-F]{4})",
++                  lambda m: chr(int(m.group(1), 16)), raw)
++
++
++def add_meta(r, step):
++    r = dict(r)
++    r["meta"] = {
++        "role": r["role"],
++        "run": step["run_id"],
++        "step": step["step_id"],
++        "ordinal": r.get("ordinal"),
++        "k": r.get("k"),
++    }
++    if "kind" in r:
++        r["meta"]["kind"] = r["kind"]
++    return r
++
++
++def build_agent_bodies(steps):
++    by_id = {}
++    for step in steps:
++        for r in step["recs"]["agent"]:
++            by_id[r["id"]] = step
++    bodies = []
++    for s in steps:
++        msgs = s["msgs"]
++        asst_idx = [i for i, m in enumerate(msgs) if m.get("role") == "assistant"]
++        sysm = msgs[0] if msgs and msgs[0].get("role") == "system" else None
++        sp, exact = system_text(sysm)
++        tl = tool_list(sysm)
++        for t, rec in enumerate(s["recs"]["agent"]):
++            if t >= len(asst_idx):
++                continue
++            hist = [to_openai(m) for m in msgs[: asst_idx[t]]]
++            bodies.append({
++                "id": rec["id"],
++                "role": "agent",
++                "n_messages": rec["n_messages"],
++                "system_prompt_exact": exact,
++                "prompt_tokens": rec["prompt_tokens"],
++                "model": rec["model"],
++                "history": hist,
++                "tools": tl,
++                "metadata": add_meta(rec, s),
++            })
++    return bodies
++
++
++def build_mem_bodies(steps, additive):
++    bodies = []
++    for s in steps:
++        if s["arm"] != "mem0":
++            continue
++        run_dir = s["run_dir"]
++        date = date_from_session(s["sess_ts"])
++        try:
++            con = sqlite3.connect(str(run_dir / "mem0_dbs" / "mem0-history.db"))
++            with con:
++                cols_h = {c[0] for c in con.execute("PRAGMA table_info(memory_history)").fetchall()}
++                cols_m = {c[0] for c in con.execute("PRAGMA table_info(messages)").fetchall()}
++                con.close()
++        except sqlite3.Error as e:
++            log(f"  db error {run_dir}: {e}")
++            continue
++        with sqlite3.connect(str(run_dir / "mem0_dbs" / "mem0-history.db")) as con:
++            events = build_mem_events(s["msgs"])
++            if len(events) != len(s["recs"]["mem"]):
++                log(f"  {s['id']}: {len(events)} mem events vs "
++                    f"{len(s['recs']['mem'])} tap records (mismatch)")
++            for i, rec in enumerate(s["recs"]["mem"]):
++                if i >= len(events):
++                    break
++                ev = events[i]
++                ex, filtered = existing_memories(con, cols_h, ev["cutoff"])
++                lk = last_k(con, cols_m, ev["cutoff"])
++                up = mem_user_prompt(ex, lk, ev["new_msgs"], date)
++                body = {
++                    "messages": [
++                        {"role": "system", "content": additive},
++                        {"role": "user", "content": up},
++                    ],
++                    "chat_template_kwargs": {"enable_thinking": False},
++                    "response_format": {"type": "json_object"},
++                }
++                body_meta = add_meta(rec, s)
++                body_meta["kind"] = ev["kind"]
++                body_meta["cutoff_ms"] = ev["cutoff"]
++                body_meta["existing_n"] = len(ex)
++                body_meta["lastk_n"] = len(lk)
++                body = {
++                    "id": rec["id"],
++                    "role": "mem",
++                    "n_messages": rec["n_messages"],
++                    "system_prompt_exact": False,
++                    "prompt_tokens": rec["prompt_tokens"],
++                    "model": rec["model"],
++                    "history": body,
++                    "metadata": body_meta,
++                }
++                bodies.append(body)
++    return bodies
+ 
+ 
+ def main():
+     args = parse_args()
+-    inv = json.loads((RECON / "inventory.json").read_text())
+-    additive = load_additive(RECON / "mem0_extract_src.txt")
+-    log("ADDITIVE prompt chars:", len(additive))
++    log(f"per_step={args.per_step} agent_max={args.agent_max} mem_max={args.mem_max}")
++    log(f"recon={RECON}")
++    log(f"output={OUT_DIR}")
+ 
+-    steps = []  # one record per (run, step)
+-    for run in inv["runs"]:
+-        arm = "mem0" if "mem0" in run["run_id"] else "baseline"
+-        for sk in sorted(run["steps"], key=int):
+-            st = run["steps"][sk]
+-            sysmsg, sess_ts, msgs = read_events(st["events_file"])
+-            if not msgs or not sysmsg:
+-                log("SKIP (no agent_end/system)", run["run_id"], sk)
+-                continue
+-            steps.append(dict(run=run["run_id"], arm=arm, step=int(sk), st=st, sysmsg=sysmsg,
+-                              sess_ts=sess_ts, msgs=msgs, run_rec=run))
+-    log("steps loaded:", len(steps))
++    # load steps
++    steps = load_steps()
++    log(f"steps: {len(steps)} total ({sum(1 for s in steps if s['arm']=='mem0')} mem0)")
++
++    additive = load_additive(RECON / "mem0_additive_extraction_prompt.txt")
++    log(f"additive prompt chars: {len(additive)}")
++
++    # agent selection
++    agent_steps = pick_agent_steps(steps, args.per_step, args.agent_max)
++    log(f"agent steps: {[s['id'] for s in agent_steps]}")
++
++    # agent bodies
++    agent_bodies = build_agent_bodies(agent_steps)
++    log(f"agent requests: {len(agent_bodies)} "
++        f"(steps {len({s['id'] for s in agent_steps})})")
++
++    # mem bodies
++    mem_bodies = build_mem_bodies(steps, additive)
++    log(f"mem requests: {len(mem_bodies)}")
+ 
+-    # ---- agent set: 3 best steps per arm, --per-step turns each, spread over the step
+-    chosen = []
+-    for arm in ("baseline", "mem0"):
+-        cand = [s for s in steps if s["arm"] == arm
+-                and sum(m["role"] == "assistant" for m in s["msgs"]) >= args.per_step]
+-        cand.sort(key=lambda s: -step_score(s["msgs"]))
+-        chosen += cand[: max(1, args.agent_max // args.per_step // 2)]
+-    agent, mismatches, exact_all = [], [], True
+-    for s in chosen:
+-        recs = [r for r in s["st"]["tap_records"] if r["role"] == "agent"]
+-        asst_idx = [i for i, m in enumerate(s["msgs"]) if m["role"] == "assistant"]
+-        _, exact = system_text(s["msgs"][0])
+-        exact_all &= exact
+-        tools = tool_list(s["sysmsg"])
+-        for t in spread(len(asst_idx), args.per_step):
+-            if t >= len(recs):
+-                continue
+-            hist = [to_openai(m) for m in s["msgs"][: asst_idx[t]]]
+-            rec = recs[t]
+-            if len(hist) != rec["n_messages"]:
+-                mismatches.append(dict(id=f"{s['run']}/{s['step']}/{t}", built=len(hist),
+-                                       recorded=rec["n_messages"]))
+-            body = {"messages": hist, "tools": tools}
+-            agent.append(dict(id=f"{s['run']}/{s['step']}/{t}", role="agent", body=body,
+-                              recorded_prompt_tokens=rec["prompt_n"] + rec["cache_n"],
+-                              meta=dict(arm=s["arm"], step=s["step"], turn=t,
+-                                        predicted_n=rec["predicted_n"],
+-                                        recorded_n_messages=rec["n_messages"],
+-                                        chars=est_chars(hist, tools))))
+-    agent = agent[: args.agent_max]
+-
+-    # ---- mem set: every mem tap record in the mem0 arm, up to --mem-max
+-    mem, dbinfo = [], {}
+-    for s in steps:
+-        if s["arm"] != "mem0":
+-            continue
+-        recs = [r for r in s["st"]["tap_records"] if r["role"] == "mem"]
+-        dbs = s["run_rec"]["mem0_dbs"]
+-        hist_db = next((v["path"] for k, v in dbs.items() if k.endswith("mem0-history.db")), None)
+-        if not recs or not hist_db:
+-            log("no mem records/db for", s["run"], s["step"])
+-            continue
+-        con, cols = db_tables(hist_db)
+-        dbinfo[s["run"]] = cols
+-        ts_ms = [m["timestamp"] for m in s["msgs"] if isinstance(m.get("timestamp"), (int, float))]
+-        cutoff = datetime.fromtimestamp(max(ts_ms) / 1000, timezone.utc) if ts_ms else None
+-        date = (s["sess_ts"] or "")[:10] or "2026-10-12"
+-        user = next(m for m in s["msgs"] if m["role"] == "user")
+-        first_asst = next((blocks_text([b for b in m["content"] if b.get("type") == "text"])
+-                           for m in s["msgs"] if m["role"] == "assistant"
+-                           and any(b.get("type") == "text" and b.get("text", "").strip()
+-                                   for b in m["content"])), "")
+-        new_msgs = f"user: {blocks_text(user['content'])}\nassistant: {first_asst}"
+-        ex, filtered = existing_memories(con, cols["memory_history"], cutoff)
+-        lk = last_k(con, cols["messages"], cutoff)
+-        for j, rec in enumerate(recs):
+-            up = mem_user_prompt(ex, lk, new_msgs, date)
+-            msgs_ = [{"role": "system", "content": additive}, {"role": "user", "content": up}]
+-            mem.append(dict(id=f"{s['run']}/{s['step']}/{j}", role="mem",
+-                            body={"messages": msgs_, "chat_template_kwargs": {"enable_thinking": False}},
+-                            recorded_prompt_tokens=rec["prompt_n"] + rec["cache_n"],
+-                            meta=dict(arm="mem0", step=s["step"], ordinal=j,
+-                                      predicted_n=rec["predicted_n"],
+-                                      cap_hit_2048=rec["predicted_n"] == 2048,
+-                                      recorded_n_messages=rec["n_messages"],
+-                                      n_existing=len(ex), n_last_k=len(lk),
+-                                      existing_time_filtered=filtered,
+-                                      chars=est_chars(msgs_))))
+-    mem = mem[: args.mem_max]
+-
+-    # ---- manifest
+-    def entry(r):
+-        c = r["meta"]["chars"]
+-        rp = r["recorded_prompt_tokens"]
+-        return dict(id=r["id"], role=r["role"], n_messages=len(r["body"]["messages"]),
+-                    prompt_chars=c, est_tokens_chars4=round(c / 4),
+-                    recorded_prompt_tokens=rp, est_over_recorded=round(c / 4 / rp, 3),
+-                    predicted_n=r["meta"]["predicted_n"])
+-    ents = [entry(r) for r in agent + mem]
+-    by = lambda role: [e for e in ents if e["role"] == role]
+-    manifest = dict(
+-        system_prompt_exact=exact_all,
+-        system_prompt_note="agent system prompt = sections from the recorded system message joined by blank lines",
+-        mem_prompt_assumptions="serializeMemories=JSON list; formatConversationHistory='role: content' lines; "
+-                               "existing = latest 10 ADD/UPDATE memories created before the step's last event",
+-        totals={role: dict(requests=len(by(role)),
+-                           distinct_steps=len({e["id"].rsplit("/", 1)[0] for e in by(role)}),
+-                           prompt_chars=sum(e["prompt_chars"] for e in by(role)),
+-                           recorded_prompt_tokens=sum(e["recorded_prompt_tokens"] for e in by(role)),
+-                           median_est_over_recorded=median([e["est_over_recorded"] for e in by(role)]))
+-                for role in ("agent", "mem")},
+-        n_messages_mismatches=mismatches,
+-        mem0_db_columns=dbinfo,
+-        requests=ents,
+-    )
+-    print(json.dumps({k: manifest[k] for k in ("system_prompt_exact", "totals")}, indent=1))
+-    print("n_messages mismatches:", len(mismatches), mismatches[:10])
+-    print("mem0 db columns:", json.dumps(dbinfo))
+-    print("outliers (ratio outside 0.75-1.33):",
+-          [(e["id"], e["est_over_recorded"]) for e in ents if not 0.75 <= e["est_over_recorded"] <= 1.33])
+     if args.dry_run:
++        log("dry run: not writing files")
+         return
++
++    # write
+     OUT_DIR.mkdir(parents=True, exist_ok=True)
+-    for name, rows in (("agent", agent), ("mem", mem)):
+-        with open(OUT_DIR / f"{name}.jsonl", "w", encoding="utf-8") as f:
+-            for r in rows:
+-                f.write(json.dumps(r) + "\n")
++    with open(OUT_DIR / "agent.jsonl", "w", encoding="utf-8") as f:
++        for b in agent_bodies:
++            f.write(json.dumps(b, ensure_ascii=False) + "\n")
++    with open(OUT_DIR / "mem.jsonl", "w", encoding="utf-8") as f:
++        for b in mem_bodies:
++            f.write(json.dumps(b, ensure_ascii=False) + "\n")
++
++    # manifest
++    manifest = build_manifest(agent_bodies, mem_bodies, additive)
+     MANIFEST.parent.mkdir(parents=True, exist_ok=True)
+-    MANIFEST.write_text(json.dumps(manifest, indent=1))
+-    print("wrote", OUT_DIR, MANIFEST)
++    MANIFEST.write_text(json.dumps(manifest, indent=2, ensure_ascii=False))
++    log(f"manifest: {MANIFEST}")
++    log(f"done: {len(agent_bodies)} agent, {len(mem_bodies)} mem")
++
++
++def build_manifest(agent_bodies, mem_bodies, additive):
++    manifest = {}
++
++    # per-request stats
++    per_request = []
++    for b in agent_bodies + mem_bodies:
++        hist = b["history"]
++        # prompt text = system + user parts
++        prompt_text = ""
++        for m in hist:
++            if m.get("role") in ("system", "user", "tool"):
++                prompt_text += str(m.get("content", "")) + "\n"
++        est_tokens_chars4 = len(prompt_text) / 4.0
++        rec_tokens = b.get("prompt_tokens")
++        per_request.append({
++            "id": b["id"],
++            "role": b["role"],
++            "n_messages": b["n_messages"],
++            "prompt_chars": len(prompt_text),
++            "est_tokens_chars4": est_tokens_chars4,
++            "recorded_prompt_tokens": rec_tokens,
++            "est_over_recorded": (est_tokens_chars4 / rec_tokens
++                                  if rec_tokens else None),
++        })
++
++    # totals per role
++    totals = {}
++    for role in ("agent", "mem"):
++        rs = [p for p in per_request if p["role"] == role]
++        ratios = [p["est_over_recorded"] for p in rs if p["est_over_recorded"] is not None]
++        distinct = len({p["id"].rsplit("/", 1)[0] for p in rs})
++        totals[role] = {
++            "requests": len(rs),
++            "distinct_steps": distinct,
++            "prompt_chars": sum(p["prompt_chars"] for p in rs),
++            "recorded_prompt_tokens": sum(p["recorded_prompt_tokens"] for p in rs),
++            "median_ratio": statistics.median(ratios) if ratios else None,
++        }
++
++    manifest["per_request"] = per_request
++    manifest["totals"] = totals
++
++    # system prompt exact: only 2-message first requests can support the join
++    agent_first = [p["est_over_recorded"]
++                   for p in per_request if p["role"] == "agent" and p["n_messages"] <= 3]
++    first_ratios_ok = (not agent_first) or all(0.75 <= r <= 1.33 for r in agent_first)
++    manifest["system_prompt_exact"] = first_ratios_ok
++    manifest["system_prompt_note"] = (
++        "agent system prompt = recorded sections joined by '\\n\\n' "
++        "(join inferred; getSystemMessageText not in source dump)"
++    )
++    manifest["agent_first_ratios"] = agent_first
++    manifest["n_messages_mismatches"] = (
++        len([p for p in per_request
++             if p["role"] == "agent" and p["n_messages"] is not None])
++    )
++    manifest["outliers"] = (
++        [p["id"] for p in per_request
++         if p["est_over_recorded"] is not None
++         and (p["est_over_recorded"] < 0.75 or p["est_over_recorded"] > 1.33)]
++    )
++    return manifest
+ 
+ 
+ if __name__ == "__main__":

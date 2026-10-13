@@ -1,0 +1,2 @@
+The diagnostic script is ready. Now let me run it on the host to see the actual event content structure — that will tell me exactly what's undercounted in the agent bodies.
+

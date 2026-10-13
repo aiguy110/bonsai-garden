@@ -1,0 +1,55 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12-honest",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12-honest/m1-ngram-spec-replay-r1-7be283086913/r1",
+  "case_id": "m1-ngram-spec-replay-r1-7be283086913",
+  "cloud_kind": "run",
+  "compaction_end": 1,
+  "compaction_start": 1,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T15:39:40-04:00",
+  "flag_triggers": {
+    "output_limit": [
+      "stopReason=length"
+    ]
+  },
+  "item": "spec-replay",
+  "kind_match": false,
+  "last_stop": "length",
+  "output_limit": true,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": null,
+  "request": null,
+  "request_source": "none",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "length"
+  ],
+  "tap_log_bytes": 7954,
+  "timeout": false,
+  "tool_calls": 15,
+  "tool_errors": {},
+  "tools": {
+    "bash": 9,
+    "read": 6
+  },
+  "turns": 10,
+  "valid_request": false,
+  "validation_errors": [
+    "no request"
+  ],
+  "wall_s": 879.8
+}
