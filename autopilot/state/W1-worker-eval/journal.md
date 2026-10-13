@@ -1119,3 +1119,27 @@ Ran `python3 bench/worker_eval/inspect_historical_arm.py` (gpu=False) in 2s, exi
 }
 
 ```
+
+### 2026-10-12T22:10:58-04:00 · worker (gpt-5.6-terra), round 11
+
+Replaced provisional arm provenance with the exact pre-cloud config/model-registration commit and SHA-256 values from the approved host report; corrected historical worker memory to null. README now states the first-parent selection scope and its out-of-tree caveat. Added harness file hashes to the read-only inspector so the remaining historical source citations can be made exact. Local validation passed: 27 fixture tests, py_compile, and arm JSON parse.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/inspect_historical_arm.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Read-only host Git inspection of the already identified operative pre-cloud snapshot. The report now also records exact historical harness-source hashes needed to complete citations for the compaction reserve, garden registration, and submit-request extension."
+}
+```
+
+### 2026-10-12T22:11:51-04:00 · advisor (run request)
+
+**revise**: The command is operationally safe, but the reported SHA-256 values are not exact file hashes: git() strips stdout before show() hashes it, removing trailing newlines and whitespace. Preserve raw blob bytes for hashing (decode a separate copy for JSON parsing), rerun the inspector, and update all affected config, model-registration, and harness hashes in the arm/README. Prefer also extracting the relevant compaction-reserve and extension values into the report rather than recording only source hashes.
+
+### 2026-10-12T22:11:51-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/worker_eval/inspect_historical_arm.py:25-36 hashes `git show` output after `.strip()`, so its reported SHA-256 values—including those already cited in README—are hashes of stripped text, not exact historical file bytes.

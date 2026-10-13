@@ -11,14 +11,14 @@
   "worker_memory": null,
   "extensions": ["autopilot/extensions/submit_request.ts"],
   "sources": {
-    "model": "autopilot/README.md 'History': to go back to Bonsai set the worker to garden/bonsai-agent; autopilot.py worker_agent_dir() registers it from agent/models.bonsai-agent.json",
-    "worker_description": "autopilot.py worker_desc() for provider garden",
-    "thinking": "autopilot/README.md 'History': garden/bonsai-agent with thinking low; same as evals/arms/baseline.json",
-    "max_output_tokens": "agent/models.bonsai-agent.json maxTokens 16384; autopilot.py do_work() cut-off message cites the 16k limit",
-    "context_window": "agent/models.bonsai-agent.json contextWindow 81920",
-    "compaction_reserve_tokens": "autopilot.py worker_agent_dir(): settings compaction.reserveTokens 28672 for provider garden",
-    "session_timeout_min": "Changed on purpose: config.json worker_timeout_min was 45; W1 milestone sets 20",
-    "worker_memory": "Changed on purpose: config.json worker_memory was mem0; W1 milestone sets it off",
+    "model": "Historical operative snapshot c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json (SHA-256 27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334) sets roles.worker.model to bonsai-agent; replay registers that historical ID as garden/bonsai-agent, as autopilot.py worker_agent_dir() does.",
+    "worker_description": "autopilot.py worker_desc() for provider garden; the historical role model is c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json.",
+    "thinking": "Historical operative snapshot c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json (SHA-256 27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334) sets roles.worker.thinking to low.",
+    "max_output_tokens": "Historical registration c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json (SHA-256 949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4) sets maxTokens to 16384.",
+    "context_window": "Historical registration c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json (SHA-256 949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4) sets contextWindow to 81920.",
+    "compaction_reserve_tokens": "autopilot.py worker_agent_dir(): settings compaction.reserveTokens 28672 for provider garden; this is the historical garden worker harness setting.",
+    "session_timeout_min": "Historical c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json has worker_timeout_min 45; intentionally changed to 20 by the W1 milestone.",
+    "worker_memory": "Historical c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json has worker_memory null; retained disabled because memory is W3.",
     "extensions": "autopilot.py worker_agent_dir() copies extensions/submit_request.ts into the agent dir"
   }
 }

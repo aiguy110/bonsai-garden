@@ -94,6 +94,13 @@ def model_registrations(commit):
     return found
 
 
+def harness_files(commit):
+    """Hashes for the historical harness sources that supply non-JSON arm knobs."""
+    paths = ("autopilot/autopilot.py", "autopilot/extensions/submit_request.ts")
+    return [{"path": path, "sha256": sha(text)} for path in paths
+            if (text := show(commit, path)) is not None]
+
+
 def main():
     branch, tip = branch_tip()
     cloud_commit, cloud_time, cloud_case = first_cloud_start()
@@ -159,6 +166,7 @@ def main():
                 "worker_memory": config.get("worker_memory"),
                 "model_registrations": [{"path": path, "sha256": sha(text), "value": value}
                                         for path, text, value in registrations],
+                "harness_files": harness_files(commit),
             })
         # The nearest Bonsai state is the provenance source; preserve the
         # transition trail separately instead of timestamp-ranking ancestors.

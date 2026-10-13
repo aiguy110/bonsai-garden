@@ -138,19 +138,22 @@ ranges. Fields: `name` (= file name), `description`, `model`, `worker_descriptio
 
 | setting | value | source |
 |---|---|---|
-| model | `garden/bonsai-agent` | `autopilot/README.md` "History" (to go back to Bonsai: `garden/bonsai-agent`); `autopilot.py` `worker_agent_dir()` |
-| thinking | `low` | same README paragraph; `evals/arms/baseline.json` |
-| max output tokens | 16384 | `agent/models.bonsai-agent.json` `maxTokens`; `autopilot.py` `do_work()` names the 16k limit |
-| context window | 81920 | `agent/models.bonsai-agent.json` `contextWindow` |
+| model | `garden/bonsai-agent` | Historical role ID `bonsai-agent` in `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json`; `autopilot.py` `worker_agent_dir()` registers that ID under `garden` |
+| thinking | `low` | `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json`, `roles.worker.thinking` |
+| max output tokens | 16384 | `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json`, `maxTokens` |
+| context window | 81920 | `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json`, `contextWindow` |
 | compaction reserve | 28672 | `autopilot.py` `worker_agent_dir()` (provider `garden`) |
-| session timeout | 20 min | W1 milestone (the historical `worker_timeout_min` was 45) |
-| worker memory | off | W1 milestone (the historical `worker_memory` was `mem0`; memory is W3) |
+| session timeout | 20 min | Intentional W1 change from historical `worker_timeout_min: 45` in `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json` |
+| worker memory | off | Historical `worker_memory: null` in `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json`; memory remains disabled for W3 isolation |
 | extensions | `autopilot/extensions/submit_request.ts` | `autopilot.py` `worker_agent_dir()` |
 
-Not proven from here: `autopilot/config.json` now names Terra, and git history is not
-readable in the sandbox, so `thinking: low` and the 16384 cap rest on the README's
-instruction for restoring the Bonsai worker and the model registration file, not on a
-recorded 2026-10-12 config. A reviewer with host access can check them against the first
-`autopilot(M1-ngram)` commits' `config.json`.
+The host-only report `bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T221002.json`
+selected `c9c86b7338aa23ddcf0edd58493e1954d7eb7179` as the nearest Bonsai worker state on
+the operative `auto/M1-ngram` first-parent line before the first cloud case. It records
+that commit at 2026-10-12 08:32:41 -04:00, config SHA-256
+`27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334`, and registration
+SHA-256 `949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4`. This
+establishes the committed pre-switch worker configuration; it does not claim to prove
+uncommitted or out-of-tree live state.
 
 Note: the replay checkout is a real git repo with working history (ancestors of the start commit only). The original worker's sandbox mounted a worktree whose `.git` pointed outside the container, so git was unusable there.
