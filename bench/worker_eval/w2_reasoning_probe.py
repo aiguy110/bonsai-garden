@@ -67,7 +67,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--budget-field", default="reasoning_budget_tokens")
     ap.add_argument("--message-field", default="reasoning_budget_message")
-    ap.add_argument("--timeout", type=int, default=900)
+    # Sequential variants must fit the 30-minute turnstile allocation.  Eight minutes
+    # still permits the 1024-token budgeted response while recording a no-budget stall.
+    ap.add_argument("--timeout", type=int, default=480)
     ap.add_argument("--out")
     a = ap.parse_args()
     out = pathlib.Path(a.out) if a.out else ROOT / "bench/results" / datetime.date.today().isoformat() / "worker-eval-w2/reasoning-probe"
@@ -81,20 +83,28 @@ def main():
     results = []
     try:
         for name, budget in variants:
+            t0 = time.time()
             body = {"model": "bonsai-agent", "max_tokens": 4096, "stream": False,
                     "messages": [{"role": "user", "content": PROMPT}]}
             if budget:
                 body[a.budget_field] = budget
                 body[a.message_field] = MESSAGE
-            status, raw, wall = post(sock, "/agent/v1/chat/completions", body, a.timeout)
-            (out / f"{name}.response.json").write_bytes(raw)
             try:
-                resp = json.loads(raw)
-            except ValueError:
-                resp = {}
+                status, raw, wall = post(sock, "/agent/v1/chat/completions", body, a.timeout)
+                (out / f"{name}.response.json").write_bytes(raw)
+                try:
+                    resp = json.loads(raw)
+                except ValueError:
+                    resp = {}
+                error = None
+            except (OSError, http.client.HTTPException, TimeoutError) as exc:
+                # A failed variant must not prevent the other two from measuring.
+                status, raw, wall, resp = None, b"", time.time() - t0, {}
+                error = f"{type(exc).__name__}: {exc}"
+                (out / f"{name}.error.txt").write_text(error + "\n")
             reasoning, content, finish = split(resp)
             r = {"name": name, "budget": budget, "request_fields": {k: v for k, v in body.items() if k != "messages"},
-                 "status": status, "wall_s": round(wall, 1), "finish_reason": finish,
+                 "status": status, "wall_s": round(wall, 1), "finish_reason": finish, "error": error,
                  "reasoning_chars": len(reasoning), "answer_chars": len(content.strip()),
                  "completion_tokens": (resp.get("usage") or {}).get("completion_tokens"),
                  "message_in_reasoning": MESSAGE.strip() in reasoning, "answer_head": content.strip()[:200],
@@ -108,9 +118,13 @@ def main():
     finally:
         ev.stop(tap)
     tapr = [json.loads(l) for l in taplog.read_text().splitlines() if l.strip()]
-    for r, t in zip(results, tapr):
-        r["tap_timings"] = t.get("timings")
-        r["tap_wall_s"] = t.get("wall_s")
+    # The tap does not carry a request id. Preserve its observed order explicitly,
+    # rather than silently claiming that zip alignment is proof of a match.
+    for i, r in enumerate(results):
+        t = tapr[i] if i < len(tapr) else None
+        r["tap_record_index"] = i if t is not None else None
+        r["tap_timings"] = t.get("timings") if t else None
+        r["tap_wall_s"] = t.get("wall_s") if t else None
     budgeted = [r for r in results if r["budget"]]
     res = {"prompt": PROMPT, "message": MESSAGE, "requests": results, "tap_records": len(tapr),
            "rule": "per budgeted request: reasoning chars <= (budget+64)*4, message in reasoning, answer non-empty",

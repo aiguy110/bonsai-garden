@@ -125,3 +125,21 @@ TimeoutError: timed out
 2026-10-13 12:04:27,528 released lease e4eb0a74f81b8cacc46c67c6c47a0a28
 
 ```
+
+### 2026-10-13T12:06:27-04:00 · worker (gpt-5.6-terra), round 6
+
+Revised bench/worker_eval/w2_reasoning_probe.py after the first 900-second no-budget timeout: it now records per-variant transport failures instead of aborting, writes result.json regardless, and records tap association explicitly. Default per-request timeout is 480 seconds so the three sequential variants fit the 30-minute allocation. Script compiles.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/w2_reasoning_probe.py",
+  "gpu": true,
+  "timeout_min": 30,
+  "why": "Re-run the required three-request reasoning-budget probe through the bench-key tap/turnstile route. The prior attempt aborted on its first timeout and produced no result.json; this version will measure or explicitly record all variants and determine the reasoning-budget gate."
+}
+```
+
+### 2026-10-13T12:06:37-04:00 · orchestrator
+
+`openai-codex/gpt-5.6-sol` hit its subscription's usage limit; the advisor uses `meridian/claude-opus-5-5` until 12:36. This session doesn't count as a round.
