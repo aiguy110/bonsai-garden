@@ -1,0 +1,92 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 4217e95..a22bced 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -334,4 +334,46 @@ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+ - Not confirmed from source: the pi-ai `openai-completions.js` search found no file (empty list), so that pi sends `reasoning_content` back is inferred from the token counts only.
+ - Outliers below 0.75: baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742), 1% under the bound, all late turns of baseline-r0 step 0, which is dominated by one long reasoning output. Cause: over turns 2-5 the rebuilt body grows 8502->38559 chars (+30057), of which tool output is only +219 (baseline-r0/0/5 chars_by_role: tool=2154, reasoning=25717), while the recorded prompt grows +10271 tokens. So the model's own reasoning/assistant text tokenizes at ~2.96 chars/token and chars/4 under-counts it. Estimator not changed.
+ - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+-- Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
++- Replays still lack sampling params and per-request max_tokens (not recorded);
++  the probe must set them. Per request: `max_tokens = max(recorded predicted_n,
++  floor)` (floor 768 agent / 1024 mem), identical across arms; `id_slot` pins
++  agent to slot 0, mem to slot 1; the probe server carries `--jinja` (from the
++  production cmd block) plus `LLAMA_ATTN_ROT_DISABLE=1`.
++
++## 9. Replay run plan: config A and B choice (round 2, 2026-10-12)
++
++**Config A** = `--spec-type ngram-mod` at the documented defaults
++(`--spec-ngram-mod-n-min 48 --spec-ngram-mod-n-max 64 --spec-ngram-mod-n-match 24`
++per §2). This is the ngram variant already probed in `docs/engine-review.md`
++(162 tok/s on repeated text, +4 MiB VRAM, zero on a fresh prompt) and the only
++ngram backend with a prior data point, so it is the primary deploy candidate.
++
++**Config B** = `--spec-type ngram-mod --spec-ngram-mod-n-min 64
++--spec-ngram-mod-n-max 128` (wider ngram window 64-128 vs A's 48-64). Choice:
++
++- *Proven mechanism, not an untested algorithm.* ngram-mod already drafts tokens
++  in prior testing, so B is a clean one-variable sensitivity test. The only other
++  untested ngram backend is `ngram-cache`; running it risks a full ~100-min slot
++  on a config that may draft 0 tokens with no prior signal, so it is held for a
++  follow-up rather than burned as B.
++- *The window-width axis is the actionable one.* Real agent traffic re-emits long
++  file contents, diffs and test output (see §7 cache_n growth), so the benefit of
++  ngram self-speculation lives in matching *long* spans. A wider lookup window
++  (64-128) is the single change most likely to lift the dual-slot tok/s, and it
++  gives a direct deploy candidate either way: if B (wide) beats A (default) on
++  dual-agent greedy, the wide window is the deploy config; if A wins, the default
++  ngram-mod is.
++- *Same backend, same defaults everywhere else*, so A vs B isolates exactly the
++  window-width variable.
++
++**mmproj outcome:** *to be confirmed empirically* once A and B run on :8089 —
++§3's static verdict (speculation usable with `--mmproj` loaded, text-only
++traffic) is confirmed if A/B report `draft_n > 0` / `draft_n_accepted > 0` on
++foreground rows (with the fork's timings omitting these fields only when nothing
++was drafted, §3/§7; a whole-arm zero means spec is off or the ngram never
++matched, and the server log then distinguishes refusal from no-match).
++`bench/spec_replay.py` aborts on a stale :8089 before Popen and falls back to
++`-nommproj` only on a genuine spec refusal (log match on §3's gate lines).
++This section will be updated with the actual `draft_n` evidence after the
++A-greedy and B-greedy runs land in `bench/results/*/m1-ngram/replay/`.
++
+diff --git a/bench/spec_replay.py b/bench/spec_replay.py
+index 5c1c893..dcdb5f9 100644
+--- a/bench/spec_replay.py
++++ b/bench/spec_replay.py
+@@ -45,6 +45,15 @@ NOTABLE = REFUSAL + ["will use checkpoints", "restore checkpoint",
+                      "speculative", "spec type", "ngram"]
+ 
+ 
++def port_in_use():
++    """True if something already answers on :8089 (a stale server)."""
++    try:
++        urllib.request.urlopen(f"http://127.0.0.1:{PORT}/health", timeout=1).read()
++        return True
++    except Exception:
++        return False
++
++
+ def load(role):
+     with open(f"{REPLAY}/{role}.jsonl") as f:
+         return [json.loads(l) for l in f if l.strip()]
+@@ -128,6 +137,10 @@ class Run:
+         cmd = server_cmd(self.extra, self.nommproj)
+         if phase == "single-agent":
+             self.note("cmd: " + " ".join(cmd))
++        if port_in_use():
++            self.note(f"[{phase}] :{PORT}/health already answering before start; "
++                      f"aborting (stale server)")
++            return logp, False
+         self.srv = subprocess.Popen(cmd, stdout=log, stderr=subprocess.STDOUT, env=env)
+         for _ in range(600):
+             if self.srv.poll() is not None:
+@@ -182,7 +195,7 @@ class Run:
+             row.update(prompt_n=t.get("prompt_n"), cache_n=t.get("cache_n"),
+                        predicted_n=t.get("predicted_n"), predicted_ms=t.get("predicted_ms"),
+                        predicted_per_second=t.get("predicted_per_second"),
+-                       draft_n=t.get("draft_n"), draft_n_accepted=t.get("draft_n_accepted"),
++                       draft_n=t.get("draft_n", 0), draft_n_accepted=t.get("draft_n_accepted", 0),
+                        finish_reason=r["choices"][0].get("finish_reason"),
+                        tool_call_json_valid=valid,
+                        out_sha256=hashlib.sha256(blob.encode()).hexdigest())

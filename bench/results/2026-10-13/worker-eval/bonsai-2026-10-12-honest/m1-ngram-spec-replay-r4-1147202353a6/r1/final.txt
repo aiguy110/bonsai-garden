@@ -1,0 +1,2 @@
+Now I understand the architecture: fg requests are sequential, a concurrent bg loop runs until the last fg finishes, so the fg stream's `predicted_ms` sum is the phase wall-clock proxy (the only wall-time data recorded). Let me compute the combined (fg+bg) throughput per dual phase and add it to §9.
+

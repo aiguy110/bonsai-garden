@@ -1,0 +1,10 @@
+== bonsai-2026-10-12-honest (145.0 min of budget left)
+[2026-10-13T15:41:25-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r2-aa8e7eef2474 r1
+  valid=True kind=run match=True 668.8s turns=27 tools=34
+[2026-10-13T15:52:34-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r3-b72fe4dade49 r1
+  valid=False kind=None match=False 1200.4s turns=23 tools=23
+[2026-10-13T16:12:35-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r4-1147202353a6 r1
+  valid=False kind=None match=False 1200.4s turns=32 tools=34
+[2026-10-13T16:32:35-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r5-144acae8e198 r1
+  valid=True kind=run match=True 474.2s turns=20 tools=25
+[2026-10-13T16:40:30-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r5-5c5d98bf3537 r1

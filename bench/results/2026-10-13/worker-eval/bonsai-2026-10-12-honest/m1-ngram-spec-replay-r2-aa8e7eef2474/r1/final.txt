@@ -1,0 +1,2 @@
+Everything is in order. The off/greedy baseline is complete (all 4 phases: 30/12/90/19 rows), §9 documents the A and B choice, and the script is patched per the round-2 review (default `draft_n`/`draft_n_accepted` to 0, abort on stale :8089). Now submitting the **A/greedy** run, which is next in the required order (off → A → B → prod).
+

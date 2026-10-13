@@ -1,0 +1,8 @@
+{
+  "report": "Fresh session after rate-limit reset. Checked round-5 changes: m1-notes \u00a79b (single copy, \"two length rows\", loop-regression note, output-identity note, checkpoint-line note), spec_replay.py window notes, spec_analyze.py combined table \u2014 all present and py_compile ok. All 5 dirs (off/A/B-greedy, off-prod) have all 4 phases. Found off-prod r4 was run with the pre-window spec_replay.py (no t_end, no window lines), so its combined two-slot throughput is unrecoverable \u2014 noted in m1-notes.md \u00a79b and will re-run it with the current script (same flags/label) so the off arm has the combined metric. Added a spec_analyze fallback that derives windows from last-fg t_end minus recorded wall when window notes are missing; unit-tested on a synthetic dir. A flags confirmed from A-greedy notes.txt: --spec-type ngram-mod with defaults. Next: A-prod run (this request); then off-prod rerun; then combined analysis and decision.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "A-prod replay (ngram-mod defaults, prod sampling), 4 phases on fresh servers, current spec_replay.py with per-row t_end + window notes so combined two-slot throughput is available for the decision."
+}

@@ -1,0 +1,46 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 83d6b51..400dccd 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -381,3 +381,7 @@ The earlier §9 reading of A's single-agent 86.0 tok/s as a gain is wrong.
+   length rows excluded (26.1 vs 23.0). Prod runs: off, then A.
+ - Combined two-slot throughput over wall time was not recorded for off/A/B greedy;
+   spec_replay.py now notes `fg wall_s` per phase, so prod runs have it.
++- The off-prod r4 run (09:35-09:53) used the pre-window-note spec_replay.py: no per-row
++  `t_end`, no `window t0=... t_fg_end=...` lines, so combined two-slot throughput for
++  off-prod is unavailable from that data. It is being rerun with the current script (same
++  flags, same label) to obtain window data for the off arm.
+diff --git a/bench/spec_analyze.py b/bench/spec_analyze.py
+index 4b4ec5f..0ebb1b9 100644
+--- a/bench/spec_analyze.py
++++ b/bench/spec_analyze.py
+@@ -22,13 +22,29 @@ def rate(rs):
+ def windows(d, arm):
+     import re
+     w = {}
++    wall = {}
+     try:
+         for l in open(f"{d}/{arm}/notes.txt"):
+             m = re.search(r"\[(\S+)\] window t0=([\d.]+) t_fg_end=([\d.]+)", l)
+             if m:
+                 w[m.group(1)] = (float(m.group(2)), float(m.group(3)))
++            m = re.search(r"\[(\S+)\] fg wall_s=([\d.]+)", l)
++            if m:
++                wall[m.group(1)] = float(m.group(2))
+     except OSError:
+         pass
++    # Runs predating the window note (e.g. off-prod, r4) have no t0; derive
++    # the window from the last foreground t_end minus the recorded wall so
++    # older and newer runs stay comparable. t_fg - t0 == wall_s by definition.
++    if any(wall) and len(w) < len(PHASES):
++        rows_ = rows(d, arm)
++        for ph in PHASES:
++            if ph in w or ph not in wall:
++                continue
++            fg = [r for r in rows_ if r["phase"] == ph and r["fg_bg"] == "fg" and "t_end" in r]
++            if fg:
++                t_fg = max(r["t_end"] for r in fg)
++                w[ph] = (t_fg - wall[ph], t_fg)
+     return w
+ 
+ 

@@ -447,3 +447,21 @@ w2-hashline: records 0/44
 w2-compaction: records 0/44
 
 ```
+
+### 2026-10-13T15:40:04-04:00 · worker (gpt-5.6-terra), round 2
+
+The first full-queue chunk produced 8/44 current-SHA records for the corrected honest baseline; no other full arm has records yet. Resuming the ordered queue without modifying arms, extensions, or result directories.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "The worker-eval harness routes LLM calls through tap/turnstile, so gpu:false is required to avoid holding the turnstile lease and deadlocking inference. This resumes honest first, then proceeds in queue order as budget permits."
+}
+```
+
+### 2026-10-13T15:41:25-04:00 · advisor (run request)
+
+**approve**: Run as submitted. It resumes the honest arm from 8/44 using current-arm-SHA filtering and the existing output directory, then continues in queue order only if time remains. The 145-minute internal budget leaves shutdown margin within the 150-minute request. Preserve all records and report any stop after three consecutive infrastructure failures.

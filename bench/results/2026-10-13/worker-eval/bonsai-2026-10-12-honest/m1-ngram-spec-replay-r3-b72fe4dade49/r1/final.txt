@@ -1,0 +1,2 @@
+65.7% of rows have different output hashes — including rows with identical `predicted_n` (text differs at the same length). Let me check whether the spec-induced truncations produce malformed tool calls (a correctness issue).
+

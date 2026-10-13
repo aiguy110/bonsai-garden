@@ -1,0 +1,2 @@
+Fallback verified (derived window, correct in-window bg count). Now submitting the A-prod run — A is the prod arm per the dual-agent greedy rule (A 25.5 vs B 23.0 fg tok/s, same without length rows).
+
