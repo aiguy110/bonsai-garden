@@ -712,3 +712,7 @@ BLOCKED: triage of `replay-harness` (the worker is stuck: The acceptance smoke t
 ### 2026-10-12T20:04:59-04:00 · orchestrator
 
 Unblocked by the user.
+
+### 2026-10-12T20:08:00-04:00 · orchestrator
+
+Host fix by the user: the RTX 3080 is now capped at 250 W with SM clocks locked at ≤1700 MHz (`serving/gpu-power-cap.service`, persistent across boots). The resets matched power transients tripping the PSU. Under the cap the host held 15 minutes of 68k-token prefills on both slots (`bench/results/2026-10-12/power-cap-250w/`). One smoke retry is approved; still fix the model_sha256 hash cache before claiming acceptance.
