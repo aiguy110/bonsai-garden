@@ -1007,3 +1007,19 @@ fatal: path 'autopilot/config.json' exists on disk, but not in '09b28c5692fdc79d
 no Bonsai worker config found on operative M1 lineage
 
 ```
+
+### 2026-10-12T22:05:05-04:00 · worker (gpt-5.6-terra), round 8
+
+Updated `bench/worker_eval/inspect_historical_arm.py` to select the operative first-parent pre-cloud state and discover config paths. Local compile and 27 tests pass.
+
+### 2026-10-12T22:05:05-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/W1-worker-eval/journal.md   |   4 +
+ bench/worker_eval/inspect_historical_arm.py | 178 +++++++++++++++++-----------
+ 2 files changed, 111 insertions(+), 71 deletions(-)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
