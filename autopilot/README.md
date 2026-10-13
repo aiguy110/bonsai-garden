@@ -132,5 +132,5 @@ To edit `state/<m>/status.json` by hand, stop the service first and commit the e
 in the milestone worktree. Changes under `autopilot/` made during a worker session
 are reverted as protected-path edits.
 
-Cloud calls are capped at `cloud_calls_per_day` (50). When the cap is reached,
+Cloud calls are capped at `cloud_calls_per_day` (100). When the cap is reached,
 work pauses until the next day.
