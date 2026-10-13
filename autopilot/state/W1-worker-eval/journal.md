@@ -1602,3 +1602,107 @@ Ran `python3 bench/worker_eval/grade.py prepare` (gpu=False) in 1s, exit 0. Full
 /home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/sample_manifest.json
 
 ```
+
+### 2026-10-13T08:49:14-04:00 · worker (gpt-5.6-terra), round 4
+
+Reviewed the revised grader and locally syntax-checked `bench/worker_eval/grade.py`. The host has regenerated the version-3 deterministic packet set; the next required stage is the first normal finished-item advisor gate, which preserves its complete response and journal trace for later transcription verification.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/grade.py grade",
+  "gpu": false,
+  "timeout_min": 30,
+  "why": "Obtain the first independent batch advisor grades for the prepared deterministic valid-request sample. This invokes `autopilot.review()` as a normal finished-item review and writes the verbatim advisor response, event metadata, call-time model identity, and journal companion only under the fixed W1 result directory; it does not call the live local model or modify services."
+}
+```
+
+### 2026-10-13T08:50:49-04:00 · advisor (run request)
+
+**approve**: Safe and appropriate to run. `grade` invokes the configured cloud advisor through `autopilot.review()` using the normal finished-item `review.md` gate; it does not use the local model, GPU, or live services. The regenerated manifest contains 10 unique deterministically valid attempts, stratified as five `run` and five `done` requests with no valid `infra` requests. Packet paths are repo-relative, records omit `advisor_verdict`, and preserved replay states/requested files are present. The command records the verbatim response, parsed event metadata, call-time advisor model, and normal journal trace. Afterward, inspect that all 10 grades are present before running the separate `verify` step.
+
+### 2026-10-13T08:53:24-04:00 · advisor (finished item)
+
+**revise**: Seven requests are approvable; three require revision. The failures are substantive: one run omitted all B speculation flags, one done request made unsupported and inaccurate completion claims while editing a protected journal, and one done request erased required first-divergence indices because gitignored outputs were unavailable.
+
+### 2026-10-13T08:53:24-04:00 · advisor (finished item grading response)
+
+```json
+{
+  "verdict": "revise",
+  "notes": "Seven requests are approvable; three require revision. The failures are substantive: one run omitted all B speculation flags, one done request made unsupported and inaccurate completion claims while editing a protected journal, and one done request erased required first-divergence indices because gitignored outputs were unavailable.",
+  "facts": [],
+  "grades": [
+    {
+      "run_id": "m1-ngram-spec-replay-r3-b72fe4dade49/r2",
+      "kind": "run",
+      "verdict": "revise",
+      "rationale": "The command labels the run B but supplies no speculation arguments. The preserved spec_replay.py does not hard-code flags by label, so this would run the off configuration as B. Resubmit with --spec-type ngram-mod and the documented B draft-size flags."
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r10-dc0c818a5351/r1",
+      "kind": "done",
+      "verdict": "approve",
+      "rationale": "The replay state contains all five required arms with requests.jsonl, VRAM samples, and four phase logs. B's notes show the intended short-draft ngram-mod command, the reported production regressions are traceable to the rows, and the no-deploy decision is appropriate. The undisclosed B poor-quality warning should be documented, but B lost and was not deployed, so it is not blocking for this item."
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r4-1147202353a6/r1",
+      "kind": "run",
+      "verdict": "approve",
+      "rationale": "The requested off/prod baseline is required, uses the private :8089 server, writes only repository artifacts, checks for a stale server, and stops the child server in finally. Its sampling and four fresh-server phases plausibly measure the item."
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r11-f096b0e52769/r1",
+      "kind": "done",
+      "verdict": "approve",
+      "rationale": "The requested corrections are present and accurate: the agent count is 10, flag descriptions are explicitly identified as inferences rather than help-text descriptions, and the n_match=12 poor-quality warning is disclosed in both the notes and experiment page. The measured no-deploy conclusion remains supported."
+    },
+    {
+      "run_id": "m1-ngram-write-up-r3-aee7d1507663/r1",
+      "kind": "run",
+      "verdict": "approve",
+      "rationale": "bench/check_site.py is a minimal, safe runpy wrapper around the protected tools/check_site.py. It performs the exact required validation without GPU, service, or live-stack changes."
+    },
+    {
+      "run_id": "m1-ngram-replay-set-r12-e62a974c8e88/r2",
+      "kind": "done",
+      "verdict": "approve",
+      "rationale": "The preserved manifest has 30 agent requests across six steps and 12 memory requests across five steps, all with recorded prompt tokens; medians are 0.833 and 1.027. The revised outlier explanation is supported by the cited prompt growth, generated-token totals, and role-character counts, and appropriately retains the source-confirmation caveat."
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r6-ee9150033cd8/r1",
+      "kind": "run",
+      "verdict": "approve",
+      "rationale": "The corrected script records t0 before starting background traffic, uses private :8089, preserves the required production-equivalent configuration, and safely reruns the needed off/prod baseline. The command is appropriate for replacing the pre-fix measurements."
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r10-dc0c818a5351/r2",
+      "kind": "done",
+      "verdict": "revise",
+      "rationale": "The request improperly edits the protected autopilot journal and contains inaccurate claims: 171 foreground A/B rows conflicts with the documented 84 rows per greedy arm, and the B warning is not evidence of a fallback to ngram-mod—B was explicitly configured as ngram-mod. Remove the journal edit, correct the counts and compatibility wording, and use the actual checker rather than claiming equivalent acceptance from an undocumented mirror."
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r5-144acae8e198/r1",
+      "kind": "run",
+      "verdict": "approve",
+      "rationale": "The A/prod command supplies --spec-type ngram-mod, uses private :8089, and completes the required production candidate comparison safely. In this script revision t0 is recorded after the background thread starts, so its combined-window metric is not rigorous, but that does not invalidate the required server-reported foreground decode, drafting, validity, and output measurements."
+    },
+    {
+      "run_id": "m1-ngram-decide-r3-85bb90579f2f/r1",
+      "kind": "done",
+      "verdict": "revise",
+      "rationale": "The decision itself is supported, but acceptance is not met. The replay reran spec_summarize.py without the gitignored output files and replaced every required first-divergence character index with None/null while claiming those indices were present and traceable. Restore the real indices from preserved outputs and make the summarizer fail loudly when required output text is absent rather than silently emitting nulls."
+    }
+  ]
+}
+```
+
+### 2026-10-13T08:53:24-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/grade.py grade` (gpu=False) in 155s, exit 0. Full output: `bench/results/2026-10-13/autopilot/advisor-grades-r4.log`. Last lines:
+
+```
+2026-10-13T08:53:24-04:00 advisor/finished item-advisor-grades: exit 0, 10 turns, 34 tools
+/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/advisor_first_response.txt
+
+```
