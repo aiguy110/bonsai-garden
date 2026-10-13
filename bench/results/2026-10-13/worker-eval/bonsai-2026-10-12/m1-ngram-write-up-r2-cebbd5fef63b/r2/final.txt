@@ -1,0 +1,2 @@
+My inline checker is mis-emulating the tool's series path. Let me re-read the actual tool to get the exact logic.
+

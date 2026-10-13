@@ -1412,3 +1412,36 @@ budget: 0.6 min left, a session may take 20; stopping
 {"skipped": 28, "ran": 13, "remaining": 3}
 
 ```
+
+### 2026-10-13T07:32:34-04:00 · worker (gpt-5.6-terra), round 7
+
+The resumable baseline has 41 unique completed attempts; the last host chunk reported 3 remaining. No edits were made, preserving the fixed result directory and arm. Next, run the final replay chunk, then verify and summarize the complete N=2 results.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Complete the remaining three attempts of the required N=2 replay in the same fixed dated directory. The resumable harness skips completed keys and routes inference through the configured live turnstile bench key without starting a server or modifying live services."
+}
+```
+
+### 2026-10-13T07:33:10-04:00 · advisor (run request)
+
+**approve**: Run as requested. After completion, verify 44 unique completed (case_id, repeat) records—exactly two for each of 22 cases—then run summarize.py --check and generate summary.json/summary.md. Retain the existing caveat that the first manifest records repo_dirty=true.
+
+### 2026-10-13T08:16:13-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145` (gpu=False) in 2582s, exit 0. Full output: `bench/results/2026-10-13/autopilot/baseline-results-r7.log`. Last lines:
+
+```
+[2026-10-13T07:33:11-04:00] bonsai-2026-10-12 m1-ngram-decide-r3-85bb90579f2f r2
+  valid=True kind=run match=False 809.8s turns=16 tools=20
+[2026-10-13T07:46:41-04:00] bonsai-2026-10-12 m1-ngram-write-up-r2-cebbd5fef63b r2
+  valid=False kind=None match=False 1200.5s turns=34 tools=39
+[2026-10-13T08:06:41-04:00] bonsai-2026-10-12 m1-ngram-write-up-r3-aee7d1507663 r2
+  valid=True kind=run match=False 571.1s turns=15 tools=20
+{"skipped": 41, "ran": 3, "remaining": 0}
+
+```
