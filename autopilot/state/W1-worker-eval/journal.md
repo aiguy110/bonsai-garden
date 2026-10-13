@@ -1906,3 +1906,18 @@ Ran `python3 bench/check_site.py` (gpu=False) in 0s, exit 0. Full output: `bench
 12 pages checked, 0 errors
 
 ```
+
+### 2026-10-13T09:11:56-04:00 · worker (gpt-5.6-terra), round 4
+
+Validated the revised W1 publication with the site checker; it now addresses the prior review's stale evidence and per-case failure-reporting findings.
+
+```json
+{
+  "request": "done",
+  "summary": "`python3 bench/check_site.py` passed (12 pages, 0 errors). `site/series/local-worker/worker-eval.md` includes valid front matter, pooled and per-case deterministic metrics linked to `bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/summary.json`, a per-case overlapping timeout/context-overflow/output-limit table, denominated failure flags, exact arm/corpus details, caveats, evidence-linked W2 priorities, and the separate 7/10 advisor sample linked to `advisor_grades.jsonl`. `site/index.md` accurately identifies the current autopilot worker as cloud. `docs/roadmap.md` now reports the artifact-backed 18/59 edit and 74/712 bash errors. `site/series/local-worker/index.md`, `README.md`, and `docs/roadmap.md` consistently mark W1 complete and W2 as next."
+}
+```
+
+### 2026-10-13T09:14:14-04:00 · advisor (write-up)
+
+**revise**: The site structure, summaries, pooled/per-case metrics, failure counts, tool counts, compaction counts, and 7/10 advisor sample all match the committed artifacts; the checker also passes. One provenance claim remains inaccurate: `site/series/local-worker/worker-eval.md` says the linked arm contains the exact arm “and provenance,” but `bench/worker_eval/arms/bonsai-2026-10-12.json` embeds SHA-256 values produced by the old stripped-text hashing code, and its `worker_memory` source says the historical config explicitly contained null when the key was actually absent and disabled memory through `CFG.get()`. Do not modify the executed arm, since that would break its recorded hash. Instead, call it the exact executed arm and add this provenance limitation to the experiment caveats (and preferably correct the same claims in `bench/worker_eval/README.md`). Re-run the site checker afterward.
