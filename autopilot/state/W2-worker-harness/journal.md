@@ -522,3 +522,21 @@ w2-hashline: records 0/44
 w2-compaction: records 0/44
 
 ```
+
+### 2026-10-13T18:59:33-04:00 · worker (gpt-5.6-terra), round 4
+
+No files changed. Sandbox cannot see host result directories; the prior host chunk completed 23/44 current-SHA honest records, with think-drop and reasoning-budget still at 0/44. Requesting the next bounded queue chunk.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Resume the ordered queue from the host-side 23/44 honest records reported by the preceding chunk, preserving current-SHA records. Although the item text says gpu:true, this harness sends LLM calls through tap/turnstile; the standing deadlock finding requires gpu:false, since gpu:true holds the turnstile lease and prevents inference."
+}
+```
+
+### 2026-10-13T19:00:09-04:00 · advisor (run request)
+
+**approve**: Run as submitted. It resumes current-arm-SHA records from 23/44, preserves completed attempts, and proceeds in queue order. The 145-minute budget leaves shutdown margin. gpu:false is required because inference uses the benchmark-key tap through turnstile on :8080; it does not access :11435 or alter live configuration. Persistent writes stay in the configured repository result directories, with transient checkouts under /tmp and isolated Docker containers.

@@ -1,0 +1,4 @@
+== bonsai-2026-10-12-honest (145.0 min of budget left)
+[2026-10-13T19:00:09-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r7-52b0d2b42358 r2
+  valid=False kind=None match=False 1200.3s turns=36 tools=42
+[2026-10-13T19:20:10-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r8-4324817a7216 r2
