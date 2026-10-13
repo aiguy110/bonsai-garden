@@ -219,3 +219,25 @@ Added to the standing facts:
 
 - pi 0.86.1 lets an extension override a built-in tool (read, edit, bash, ...) by calling registerTool with the same name; promptSnippet/promptGuidelines are not inherited (pi-coding-agent docs/extensions.md:2121, :2138, quoted in bench/results/2026-10-13/worker-eval-w2/recon/pi.txt).
 - pi compacts only when context > window - reserveTokens (compaction.js:165), so an arm whose max output exceeds reserveTokens can overflow the window on a long reply; keep reserveTokens >= max_output_tokens in any arm or combination.
+
+### 2026-10-13T12:15:23-04:00 · worker (gpt-5.6-terra), round 10
+
+Applied the advisor's five fixes to W2-decisions.md and vendor/REVIEW.md. I did not re-run anything.
+
+```json
+{
+  "request": "done",
+  "summary": "All acceptance items are met by existing files, with the advisor's fixes applied this round.\n- Recon: bench/results/2026-10-13/worker-eval-w2/recon/ has pi.txt, llama.txt, packages/manifest.json, provenance/ and drift.json (drift=false).\n- Probe: reasoning-probe/result.json shows PASS.\n- Traces: trace_analysis.json in bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/ has all ten keys.\n- Decisions: bench/worker_eval/W2-decisions.md. This round it was updated as follows:\n  - registerTool override cited at docs/extensions.md:2121 and :2138, and the open point dropped. Only whether the patched package loads remains.\n  - Hashline recorded as an advisor-approved exception to the gate. vendor/PATCH.diff does not exist yet and must be committed with the vendored copy and LICENSE before the smoke run.\n  - Think-drop prompt-cache caveat added.\n  - Reserve vs output 32768 conflict stated: the reserve must be >= max output.\n  - The budget-256 probe answer 8119 marked wrong (correct is 571); the probe tests the mechanism only.\n- vendor/REVIEW.md: updated to match (exception wording, :2121 and :2138 citations, verdict).\n- autopilot/ and evals/ are untouched."
+}
+```
+
+### 2026-10-13T12:15:53-04:00 · advisor (finished item)
+
+**approve**: Acceptance met. All five fixes from last round are in W2-decisions.md and vendor/REVIEW.md, and the gate numbers match trace_analysis.json: compaction 29 runs / 2408.2 s / 6.8% of wall / 10 timeouts near a compaction; tool cap 11 results / 9.35%; est_reasoning_tokens p75 967.08 -> budget 1024. The probe passes and drift is false. For the next items: (a) before the w2-hashline smoke run, commit vendor/PATCH.diff with the vendored copy and LICENSE, and check that diffLines and diffArrays resolve from the vendored directory. (b) w2-compaction lowers the summary max_tokens to 13107 with thinking on. Record the summary predicted_n and any length stops in the arm results.
+
+### 2026-10-13T12:15:53-04:00 · orchestrator
+
+Added to the standing facts:
+
+- W2 fixed values (bench/worker_eval/W2-decisions.md): think-drop K=2; reasoning budget 1024 with the standard message; session budget warnings at 12/16 min and turns 30/40, blocking at 17.5 min or turn 45; compaction arm reserveTokens 16384 only; tool-cap arm gated out (11 results, 9.35%); output 32768 is allowed only in the combination and needs reserveTokens >= 32768; queue order: honest, think-drop, reasoning-budget, session-budget, hashline, compaction, combination.
+- The w2-hashline arm uses pi-hashline-context-edit 0.11.0 as an advisor-approved exception to the gate (file-type is replaced by a code patch); vendor/PATCH.diff, the vendored copy and LICENSE must be committed before the smoke run, and if the patched copy does not load under pi 0.86.1 there is no hashline arm (bench/worker_eval/vendor/REVIEW.md).

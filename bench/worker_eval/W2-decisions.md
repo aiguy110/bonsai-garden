@@ -30,6 +30,10 @@ this one. Always runs.
   resid/predicted_n 1.16. Confirmed. TA prompt_composition_at_pressure: at 35 compaction/overflow points,
   median estimated thinking share of the prompt 0.331 (tool output 0.279). Passes.
 
+Caveat (think-drop): removing thinking from the 3rd-last assistant message on every request changes the prompt
+prefix, so llama-server's prompt cache misses from that point and the last ~2 turns are re-prefilled each request.
+Compare the sum of prompt_ms against the honest baseline.
+
 ## 1b. Reasoning budget (`w2-reasoning-budget`)
 - Mechanism: llama-server reads per-request `reasoning_budget_tokens` (alias `thinking_budget_tokens`,
   default -1 = server value) and `reasoning_budget_message`, applied only if the chat template has thinking
@@ -37,10 +41,9 @@ this one. Always runs.
   is empty, so this is cited directly). Sent via `before_provider_request` (or the tap), so no live-config change.
 - Probe (3 identical requests, max_tokens 4096, via tap/turnstile): **PASS**.
   no budget: 11699 reasoning chars, finish_reason length, answer empty (4096 tokens, 70.2 s);
-  budget 256: 1127 chars (limit 1280), message present, answer "ANSWER: 8119" (283 tokens, 5.3 s);
+  budget 256: 1127 chars (limit 1280), message present, answer "ANSWER: 8119" (283 tokens, 5.3 s), which is wrong (the 1024 run got the correct 571);
   budget 1024: 3892 chars (limit 4352), message present, answer non-empty (1050 tokens, 18.2 s).
-  Caveat: one prompt, one sample per setting; the answer 8119 is not checked for correctness (the probe
-  checks the mechanism only).
+  Caveat: one prompt, one sample per setting; the probe tests the mechanism only, not answer quality (a 256 budget cost correctness here).
 - Fixed values: TA reply_tokens est_reasoning_tokens p75 = 967.1, so the smallest power of 2 ≥ 967.1 is 1024,
   within [1024, 8192]: **budget = 1024**. Message:
   `\n[Thinking budget reached. Stop thinking and act now with what you have.]\n`.
@@ -54,11 +57,14 @@ outcome under the stated rule.
 
 ## 3. Hashline editing (`w2-hashline`)
 Review in `bench/worker_eval/vendor/REVIEW.md`: `pi-hashline-edit` 0.8.3 rejected (child_process/rg and
-non-pi runtime deps); `pi-hashline-context-edit` 0.11.0 chosen (MIT), needing a small patch for its
-`file-type` import. Whether it loads under pi 0.86.1 and whether `registerTool` may replace the built-in
-`edit`/`read` are **not established by the recon** (pi.txt shows registerTool at
-`dist/core/extensions/loader.js:220` but no override rule; the docs were not readable in the sandbox).
-The smoke run decides; if it does not load or cannot replace the built-ins, there is no hashline arm.
+non-pi runtime deps); `pi-hashline-context-edit` 0.11.0 chosen (MIT) as an **advisor-approved exception to the gate**: it
+fails "no runtime deps outside pi" (`file-type`; it also asks for `diff` ^9 against pi's bundled 8.0.4), and the
+fix is a code patch, not a documented rename. `vendor/PATCH.diff` does not exist yet; it must be committed with the
+vendored copy (LICENSE included) before the smoke run.
+`registerTool` with a built-in's name overrides it (pi-coding-agent `docs/extensions.md:2121`, quoted in recon/pi.txt;
+the bundled `tool-override.ts` example does this). `promptSnippet`/`promptGuidelines` are not inherited from the
+built-in (`docs/extensions.md:2138`), so the extension must supply its own, which is part of the hashline prompt-token cost.
+The only open point is whether the patched package loads under pi 0.86.1; the smoke run decides, and if not there is no hashline arm.
 Edit failures in TA edit_errors: 18 of 59 edit calls, 17 "text not found", 1 overlapping edits.
 Bash errors: 74 of 712; top causes are Python tracebacks (AttributeError 12, TypeError 11), exit 1 with
 output 11.
@@ -91,6 +97,9 @@ Rule: allowed in the combination only if ≥1 W1 length stop is not a loop. TA l
 0 loops, 2 non-loops (43,069 and 55,328 output chars, both ordinary long thinking). **Allowed in the
 combination**, not as a single-factor arm. It needs window room: with a context of 81920, 32768 of output
 leaves 49,152 for the prompt, so use it only together with think-drop.
+Reserve conflict: pi compacts at context > window - reserve (`compaction.js:165`). With reserve 16384 a 32768-token
+reply can overflow 81920 (65,536 + 32,768 > 81,920), so the combination cannot use output 32768 with reserve 16384 as
+is: the reserve must be >= max output (set it to 32768, or choose one of the two).
 
 ## Deferred, no arm
 - Smaller items: a planner change cannot be tested with fixed replays; goes to W4.

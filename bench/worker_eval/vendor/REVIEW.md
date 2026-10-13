@@ -14,7 +14,7 @@ child-process or outside-cwd file access beyond editing; no runtime deps outside
 - Registers a grep tool as well as read/edit (more surface than the candidate needs).
 - MIT.
 
-## pi-hashline-context-edit 0.11.0 — CHOSEN, with a patch
+## pi-hashline-context-edit 0.11.0 — CHOSEN, as an advisor-approved exception to the gate (patch required)
 - MIT (`LICENSE` in the tarball) — vendoring allowed; LICENSE is copied next to the vendored source.
 - Imports: `@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui`, `@sinclair/typebox` (all pi's), node `fs`,
   `fs/promises`, `path`, `os`, `crypto`, `diff`, `file-type`. No `child_process`, no network call, no `fetch`.
@@ -29,8 +29,8 @@ child-process or outside-cwd file access beyond editing; no runtime deps outside
   The planned PATCH (vendor/PATCH.diff) replaces that call with a small magic-byte check for png/jpeg/gif/webp
   plus the existing null-byte check, so no dependency remains. This is a code change, not a documented rename;
   it is the only change and is stated here. If the patched package fails to load in smoke, there is no hashline arm.
-- Tools: registers `read` and `edit` (index.ts), replacing the built-ins by name (to be confirmed against
-  pi.txt's registerTool section in the smoke run; the spec asks whether registerTool can replace a built-in).
+- Tools: registers `read` and `edit` (index.ts), replacing the built-ins by name. pi allows this (`docs/extensions.md:2121`, in recon/pi.txt); the prompt
+  snippet/guidelines are not inherited (`:2138`), so the package's own prompt text is the added token cost.
 
 ## Does it change read output, and what does that cost?
 Yes. By default every line is returned as `NNN#HH:content` (`hashline.ts:304-308`: right-aligned line number,
@@ -42,5 +42,5 @@ from (`read.ts:119`). The edit prompt text (`prompts/edit.md`, 2.5 KB) plus read
 system prompt: about 4.2 KB of prompt files in total, ~1k tokens. Measured cost belongs to the smoke run.
 
 ## Verdict
-One package passes the gate conditional on the file-type patch: **pi-hashline-context-edit 0.11.0**. The arm exists
-only if the patched copy loads under pi 0.86.1 in the smoke run.
+No package passes the gate as written (`file-type` is a runtime dep outside pi; the fix is a code patch). The advisor approved an exception for **pi-hashline-context-edit 0.11.0**. The arm exists
+only if `vendor/PATCH.diff` (not yet written; commit it with the vendored copy and LICENSE before the smoke run) is applied and the patched copy loads under pi 0.86.1 in the smoke run.
