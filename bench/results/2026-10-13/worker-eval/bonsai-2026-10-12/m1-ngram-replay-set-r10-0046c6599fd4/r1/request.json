@@ -1,0 +1,9 @@
+{
+  "report": "Rewrote bench/build_replay_set.py to apply the advisor's round-10 fixes: (1) to_openai now sets assistant[thinkingSignature] = '\\n'.join(thinking) per pi-ai's convertMessages (verified against openai-completions.js), (2) est_chars/chars_by_role count reasoning_content as a separate 'reasoning' key, (3) two per-request ratios (all-prior-assistant reasoning vs after-last-user), (4) verify_pi_ai_converter() globs pi-ai's openai-completions.js at runtime and prints lines around thinkingSignature, (5) bodies keep reasoning_content + manifest note about --jinja. .gitignore already has bench/.replay/. Syntax OK, local logic test OK. Running on host to generate replay set + manifest.",
+  "request": "run",
+  "summary": "python3 bench/build_replay_set.py --dry-run",
+  "timeout_min": 20,
+  "command": "python3 bench/build_replay_set.py --dry-run",
+  "gpu": false,
+  "why": "Read-only build of the replay set from recorded host traffic; need the est/recorded ratios to confirm reasoning inclusion fixes the agent median to 0.75-1.33."
+}

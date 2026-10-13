@@ -1212,3 +1212,49 @@ Added per-case/all-attempt failure-flag counts and validated the summary code wi
   "note": "Let the orchestrator commit this edit. Next session should make no edits and submit the approved first baseline chunk into bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/ using run.py with --repeat 2 --budget-min 145, gpu=false, timeout 150."
 }
 ```
+
+### 2026-10-12T22:21:45-04:00 · worker (gpt-5.6-terra), round 3
+
+No edits: the previous round’s summarizer change needs to be committed before the first authoritative baseline manifest. Starting the approved first resumable N=2 chunk from that clean revision.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Begin the required N=2 baseline replay in the fixed dated output directory. The resumable harness uses the live turnstile bench key (no private server); this <=150-minute chunk has a 145-minute execution budget."
+}
+```
+
+### 2026-10-12T22:22:30-04:00 · advisor (run request)
+
+**approve**: Run as requested. Confirm afterward that the new manifest records repo_dirty=false, arm name bonsai-2026-10-12, priority_key local-llm-bench, and the bench-key turnstile route before treating this directory as authoritative.
+
+### 2026-10-13T00:38:30-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145` (gpu=False) in 8160s, exit 0. Full output: `bench/results/2026-10-12/autopilot/baseline-results-r3.log`. Last lines:
+
+```
+[2026-10-12T22:22:31-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r6-9cf273aef422 r1
+  valid=False kind=None match=False 1200.4s turns=68 tools=73
+[2026-10-12T22:42:31-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r7-52b0d2b42358 r1
+  valid=False kind=None match=False 1200.5s turns=48 tools=48
+[2026-10-12T23:02:32-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r8-4324817a7216 r1
+  valid=False kind=None match=False 1200.4s turns=29 tools=29
+[2026-10-12T23:22:32-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r9-870367a83103 r1
+  valid=False kind=None match=False 137.8s turns=2 tools=2
+[2026-10-12T23:24:50-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r10-0046c6599fd4 r1
+  valid=True kind=run match=True 844.0s turns=29 tools=30
+[2026-10-12T23:38:54-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r11-fe779856b52c r1
+  valid=True kind=run match=False 1021.6s turns=13 tools=20
+[2026-10-12T23:55:56-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r12-e62a974c8e88 r1
+  valid=True kind=done match=True 446.5s turns=11 tools=14
+[2026-10-13T00:03:23-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r1-7be283086913 r1
+  valid=False kind=None match=False 1200.3s turns=25 tools=33
+[2026-10-13T00:23:23-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r2-aa8e7eef2474 r1
+  valid=True kind=run match=True 906.2s turns=15 tools=20
+budget: 9.0 min left, a session may take 20; stopping
+{"skipped": 0, "ran": 9, "remaining": 35}
+
+```

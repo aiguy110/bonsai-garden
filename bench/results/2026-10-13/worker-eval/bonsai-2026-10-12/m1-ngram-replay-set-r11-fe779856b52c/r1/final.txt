@@ -1,0 +1,2 @@
+The `run` request needs the `gpu` flag. This builder is pure CPU (reads recorded data, no GPU). Submitting again.
+

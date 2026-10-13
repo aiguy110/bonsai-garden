@@ -1,0 +1,2 @@
+I'm in round 9: apply the advisor's fixes to `bench/build_replay_set.py` and re-run. Let me first read the current script, the round 8 log, and the mem0 source around the prompt-building lines.
+

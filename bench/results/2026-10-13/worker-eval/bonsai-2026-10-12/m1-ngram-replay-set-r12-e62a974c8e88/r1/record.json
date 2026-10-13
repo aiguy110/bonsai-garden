@@ -1,0 +1,58 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-replay-set-r12-e62a974c8e88/r1",
+  "case_id": "m1-ngram-replay-set-r12-e62a974c8e88",
+  "cloud_kind": "done",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T00:03:23-04:00",
+  "flag_triggers": {},
+  "item": "replay-set",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "done",
+  "request": {
+    "report": "Round 12 of 12: applied the advisor's notes-only correction to bench/m1-notes.md \u00a78. Replaced the outlier bullet's unmeasured \"code/JSON tool output\" hypothesis with the measured cause, and replaced the median-only reasoning inference with the per-request arithmetic (recorded prompt growth \u2248 generated tokens).\n\nVerified all numbers against repo results before writing:\n- bench/results/2026-10-12/m1-ngram/recon/inventory.json: baseline-r0 step0 agent turns 2\u20134 predicted_n = 8565+576+1024 = 10165 tokens; recorded prompt (prompt_n+cache_n) grows 2761 \u2192 13032 (+10271) from turn 2 to 5.\n- bench/results/2026-10-12/m1-ngram/replay_manifest.json: rebuilt body grows 8502 \u2192 38559 chars (+30057), tool only +219 (1935\u21922154); 30057/10165 \u2248 2.96 chars/token; outlier ratios 0.740/0.743/0.742.\n\nChanged text in bench/m1-notes.md \u00a78:\n- reasoning bullet: now cites the per-request arithmetic (2761\u219213032 tokens vs 10165 generated in turns 2\u20134) as evidence that the full reasoning is sent back, not a median effect.\n- \"Not confirmed from source\" bullet: restated so the evidence is measured traffic, still noting it is not source-confirmed (pi-ai file not found).\n- outlier bullet: now states the measured cause (reasoning/assistant text ~2.96 chars/token \u2192 chars/4 under-counts \u2192 late turns of a long-reasoning step land just under 0.75).\n\nNo builder re-run, no manifest change, no server touched.",
+    "request": "done",
+    "summary": "All acceptance criteria met; this round only fixed the outlier explanation.\n\n- .gitignore contains bench/.replay/ (line 8): unchanged from prior rounds.\n- replay_manifest.json is committed at bench/results/2026-10-12/m1-ngram/replay_manifest.json and lists 30 agent requests (\u226520, 6 distinct steps \u22654) and 12 mem requests (\u22656, \u226412, 5 distinct steps). Every entry has recorded_prompt_tokens.\n- Median est/recorded: agent 0.833, mem 1.027 \u2014 both within 0.75\u20131.33. The 3 sub-0.75 outliers (baseline-r0/0/5, /0/8, /0/10) are now explained in bench/m1-notes.md \u00a78 with the measured cause (reasoning tokenizes at ~2.96 chars/token, not tool output).\n- bench/build_replay_set.py is committed and runs as `python3 bench/build_replay_set.py`.\n\nThe advisor's notes-only revision is complete: bench/m1-notes.md \u00a78 now cites recorded-prompt-growth \u2248 generated-tokens arithmetic instead of a median-only inference, and states the measured outlier cause."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 7859,
+  "timeout": false,
+  "tool_calls": 14,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 8,
+    "edit": 1,
+    "read": 4,
+    "submit_request": 1
+  },
+  "turns": 11,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 446.5
+}

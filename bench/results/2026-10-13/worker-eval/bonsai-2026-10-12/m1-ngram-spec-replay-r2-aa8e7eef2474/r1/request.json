@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Round 2 spec-replay: off/greedy is done (4 phases, 151 rows, VRAM 9507/10240 MiB, 1 length-finish at baseline-r1/2/8). Applied the advisor's 4 script fixes to bench/spec_replay.py (draft fields default 0; nommproj fallback only on the two mmproj-region refusal strings; stale-:8089 abort before Popen; per-phase finish_reason counts) \u2014 compiles clean. Chose setting B = ngram-mod with --spec-ngram-mod-n-max 128 (same mechanism as A, doubled max draft), justified in bench/m1-notes.md \u00a79; recorded status table and temp-0 cross-server nondeterminism observation in \u00a710. Next: A/greedy probe.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A --spec-type ngram-mod",
+  "why": "First A-run per plan: ngram-mod defaults (A) on private :8089 across all four phases",
+  "timeout_min": 120,
+  "gpu": true
+}
