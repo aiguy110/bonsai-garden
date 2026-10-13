@@ -1,0 +1,25 @@
+2026-10-13 11:49:27,202 turnstile lease e4eb0a74f81b8cacc46c67c6c47a0a28 granted after 0s
+2026-10-13 11:49:27,203 running: python3 bench/worker_eval/w2_reasoning_probe.py
+Traceback (most recent call last):
+  File "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/worker_eval/w2_reasoning_probe.py", line 124, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/worker_eval/w2_reasoning_probe.py", line 89, in main
+    status, raw, wall = post(sock, "/agent/v1/chat/completions", body, a.timeout)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/worker_eval/w2_reasoning_probe.py", line 49, in post
+    r = c.getresponse()
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 1457, in getresponse
+    response.begin()
+  File "/usr/lib/python3.12/http/client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 297, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 707, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: timed out
+2026-10-13 12:04:27,528 released lease e4eb0a74f81b8cacc46c67c6c47a0a28

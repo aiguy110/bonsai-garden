@@ -68,3 +68,60 @@ ok drift
 /home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval-w2/recon
 
 ```
+
+### 2026-10-13T11:48:40-04:00 · worker (gpt-5.6-terra), round 5
+
+Recon ran OK: drift.json says drift=false (model sha, llama-swap entry, pi 0.86.1, image and turnstile commit all match the W1 manifests), so no baseline rerun. Packages unpacked with sha256 and MIT licenses. I wrote vendor/REVIEW.md. It rejects pi-hashline-edit (child_process/rg, xxhashjs, file-type) and picks pi-hashline-context-edit 0.11.0. That package depends on pi's bundled diff 8.0.4 and on file-type, which pi doesn't have, so it needs a small patch that replaces the file-type call. Its loading under pi is untested until the smoke run. Next: read the probe result, then write W2-decisions.md (gates from trace_analysis.json, queue order). I haven't yet re-checked pi.txt and llama.txt for the cited file:line excerpts. I'll do that when writing the decisions.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/w2_reasoning_probe.py",
+  "gpu": true,
+  "timeout_min": 30,
+  "why": "Part B: three identical requests to bonsai-agent via the tap/turnstile route (no budget; budget 256 and 1024 with message). Its result.json decides whether the reasoning-budget arm exists, and W2-decisions.md depends on it."
+}
+```
+
+### 2026-10-13T11:49:26-04:00 · advisor (run request)
+
+**approve**: Safe: uses evals/run.py start_tap (bench key -> turnstile, Unix socket), never :11435/:8080, starts no server, and writes only under bench/results/<date>/worker-eval-w2/reasoning-probe and /tmp. The tap forwards the body as-is (evals/tap.py:104). The field names match the source: reasoning_budget_tokens (alias thinking_budget_tokens) and reasoning_budget_message at llama.cpp-bonsai2 tools/server/server-common.cpp:1354-1364. llama.txt's source grep found nothing, so cite that file:line directly in W2-decisions.md. The budget is passed on only when the chat template exposes thinking end tags (server-common.cpp:1360), so a pass depends on message_in_reasoning, which the rule already checks. Non-blocking: wrap each post() in try/except so result.json is still written on a timeout or connection error; record len(tapr) vs len(results) instead of relying on zip alignment; if the probe fails, give the no-budget reasoning_chars and finish_reason as the reason there is no arm.
+
+### 2026-10-13T11:49:26-04:00 · orchestrator
+
+Added to the standing facts:
+
+- llama-server (llama.cpp-bonsai2 9a9394a) reads per-request reasoning_budget_tokens (alias thinking_budget_tokens, default -1 = server value) and reasoning_budget_message, and applies them only if the chat template has thinking end tags (tools/server/server-common.cpp:1354-1364); recon/llama.txt's source section is empty, so cite this file directly.
+
+### 2026-10-13T12:04:27-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/w2_reasoning_probe.py` (gpu=True) in 901s, exit 1. Full output: `bench/results/2026-10-13/autopilot/recon-and-w1-traces-r5.log`. Last lines:
+
+```
+2026-10-13 11:49:27,202 turnstile lease e4eb0a74f81b8cacc46c67c6c47a0a28 granted after 0s
+2026-10-13 11:49:27,203 running: python3 bench/worker_eval/w2_reasoning_probe.py
+Traceback (most recent call last):
+  File "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/worker_eval/w2_reasoning_probe.py", line 124, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/worker_eval/w2_reasoning_probe.py", line 89, in main
+    status, raw, wall = post(sock, "/agent/v1/chat/completions", body, a.timeout)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/worker_eval/w2_reasoning_probe.py", line 49, in post
+    r = c.getresponse()
+        ^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 1457, in getresponse
+    response.begin()
+  File "/usr/lib/python3.12/http/client.py", line 336, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/http/client.py", line 297, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/socket.py", line 707, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: timed out
+2026-10-13 12:04:27,528 released lease e4eb0a74f81b8cacc46c67c6c47a0a28
+
+```
