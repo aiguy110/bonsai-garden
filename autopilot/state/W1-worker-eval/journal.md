@@ -1478,3 +1478,36 @@ Ran `python3 bench/worker_eval/summarize.py bench/results/2026-10-13/worker-eval
 bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/summary.json
 
 ```
+
+### 2026-10-13T08:18:41-04:00 · worker (gpt-5.6-terra), round 9
+
+Generated summary inspection found 44 unique completed attempts (22 cases × 2), no completion errors, and pooled metrics in summary.json: 25 valid (56.8%), 21 kind matches (47.7% all / 84.0% valid). Requested the required host-side reproducibility/completeness check next.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/summarize.py --check bench/results/2026-10-13/worker-eval/bonsai-2026-10-12",
+  "gpu": false,
+  "timeout_min": 5,
+  "why": "Verify the generated deterministic summary is byte-for-byte reproducible and that the fixed baseline directory has exactly two completed records per case, no duplicate keys, and valid bench-route/arm manifests. This is local file validation only."
+}
+```
+
+### 2026-10-13T08:19:51-04:00 · advisor (run request)
+
+**approve**: Run as requested. If it passes, report the 44-attempt result and the existing repo_dirty=true provenance caveat. Note that --check trusts failure flags and trigger fields in results.jsonl rather than reparsing raw events; preserve the per-attempt raw artifacts as the supporting evidence.
+
+### 2026-10-13T08:19:51-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/worker_eval/summarize.py --check recomputes summaries from results.jsonl and checks completeness/manifests, but does not reparse per-attempt events.jsonl to independently derive failure flags.
+
+### 2026-10-13T08:19:52-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/summarize.py --check bench/results/2026-10-13/worker-eval/bonsai-2026-10-12` (gpu=False) in 0s, exit 0. Full output: `bench/results/2026-10-13/autopilot/baseline-results-r9.log`. Last lines:
+
+```
+check passed: 44 attempts
+
+```
