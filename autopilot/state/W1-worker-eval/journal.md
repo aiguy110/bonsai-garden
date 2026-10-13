@@ -1990,3 +1990,7 @@ Added to the standing facts:
 Added to the standing facts:
 
 - `worker-eval-writeup` was accepted with caveats: Two wording defects remain. In site/series/local-worker/worker-eval.md:156-157, “32 compactions at attempt start and 29 at attempt end” is wrong: summary.json counts 32 compaction_start events and 29 compaction_end events occurring within attempts, not boundary events. Readers must not trust the stated timing interpretation, though the totals are correct. In site/series/local-worker/index.md:14-15 and :34, “historical Bonsai worker configuration” obscures that the historical timeout was 45 minutes while W1 deliberately enforced 20 minutes; treat this as an arm based on the historical configuration with a W1 timeout override. Consequently, the final numerical/semantic verification acceptance criterion is not fully met. All other reviewed metrics match the artifacts, and the site checker passed.
+
+### 2026-10-13T09:19:16-04:00 · orchestrator
+
+Milestone merged into main and published.
