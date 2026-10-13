@@ -345,3 +345,18 @@ w2-compaction: records 0/1
 ### 2026-10-13T13:02:07-04:00 · orchestrator
 
 `openai-codex/gpt-5.6-terra` hit its subscription's usage limit; the worker uses `meridian/claude-sonnet-5-5` until 13:17. This session doesn't count as a round.
+
+### 2026-10-13T13:03:05-04:00 · worker (gpt-5.6-terra), round 3
+
+Smoke run finished, and smoke.md is written. 52 tests pass.
+
+```json
+{
+  "request": "done",
+  "summary": "Harness, arms, queue and compare tools are in place. The smoke run covers all four mechanisms. Not re-verified this round: the `git diff` check on bonsai-2026-10-12.json, autopilot/ and evals/. I did not edit those, and git doesn't work in the sandbox.\n\nSmoke results are in bench/results/2026-10-13/worker-eval-w2-smoke/smoke.md. Each smoke arm has a record.json, an empty stderr.txt (so no `Failed to load extension` string, the exact pi string from loader.js:331), and its mechanism firing in ext.jsonl:\n- **w2-smoke-think-drop:** 11 strips, 192855 chars removed.\n- **w2-smoke-reasoning-budget:** both fields (`reasoning_budget_tokens`, `reasoning_budget_message`) were sent on 6 requests. The budget message appears inside thinking blocks in events.jsonl. tap.jsonl keeps no request bodies, so the server's receipt of the fields is not directly confirmed.\n- **w2-smoke-session-budget:** 2 warn events and 1 block event.\n- **w2-smoke-hashline:** `read` and `edit` both come from `pi-hashline-context-edit@0.11.0/index.ts`, so the patched package loads under pi 0.86.1. The session made 2 `read` calls and no `edit` call.\n\nsmoke_report.py now uses the exact loader string, greps stderr.txt only, and confirms the hashline load from the tool's source path. smoke.md notes that the smoke arms' descriptions are inaccurate and that correcting them would change the arm hashes. It also says the real-arm records in the smoke dir (honest, w2-think-drop) are N=1 and must not be used in any comparison.\n\nNot run in the smoke: the real w2-reasoning-budget, w2-session-budget, w2-hashline and w2-compaction arms, because the 55-minute budget ran out. w2-compaction has no smoke variant. w2-tool-cap does not exist, because its gate failed. Per-turn compaction summaries are recorded in ext.jsonl and the tap, but I did not check them.\n\nFiles:\n- bench/worker_eval/arms/ (schema.json and the arm files)\n- bench/worker_eval/w2_queue.json\n- bench/worker_eval/run_queue.py\n- bench/worker_eval/compare.py\n- bench/worker_eval/test_w2.py\n- bench/worker_eval/fixtures/w1_agent_dir.json (committed in round 1, before the run.py change)\n- bench/worker_eval/vendor/ (hashline copy with LICENSE and PATCH.diff)"
+}
+```
+
+### 2026-10-13T13:06:57-04:00 · orchestrator
+
+`meridian/claude-opus-5-5` hit its subscription's usage limit, and the advisor's other model is capped too; pausing 10.0 min. This session doesn't count as a round.

@@ -12,8 +12,8 @@ import pathlib
 import re
 import sys
 
-LOAD_ERR = re.compile(r"(failed|error|cannot|unable|could not)[^\n]{0,80}(extension|loading)|(extension|loading)[^\n]{0,80}(failed|error|cannot|unable)"
-                      r"|Cannot find (module|package)|ERR_MODULE_NOT_FOUND", re.I)
+# exact pi loader strings: pi-coding-agent dist/core/extensions/loader.js:331 and dist/main.js:436
+LOAD_ERR = re.compile(r"Failed to load extension")
 CASE_GLOB = "*/r*/"
 
 
@@ -48,12 +48,28 @@ def evidence(arm, ext, attempt):
         w, b = by("session_budget", "warn"), by("session_budget", "block")
         return f"{len(w)} warn, {len(b)} block events", bool(w) and bool(b)
     if "hashline" in arm:
-        tools = [x for x in by("tool_audit", "tools")]
-        added = sorted({t.get("name", str(t)) if isinstance(t, dict) else str(t) for x in tools for t in x.get("tools", [])})
+        tools = [t for x in by("tool_audit", "tools") for t in x.get("tools", [])]
+        from_pkg = sorted(t["name"] for t in tools if "hashline" in json.dumps(t.get("source", {})))
         rec = json.loads((attempt / "record.json").read_text()) if (attempt / "record.json").exists() else {}
-        used = {k: v for k, v in (rec.get("tools") or {}).items() if "hash" in k.lower() or k == "edit"}
-        return f"tool list {added}; edit-like calls {used}", any("hash" in a.lower() for a in added)
+        used = {k: v for k, v in (rec.get("tools") or {}).items() if k in ("read", "edit")}
+        return f"tools sourced from the hashline package: {from_pkg}; read/edit calls {used}", {"read", "edit"} <= set(from_pkg)
     return f"{len(ext)} ext lines", True
+
+
+NOTES = """## Notes
+
+- Load errors: stderr.txt is grepped for the exact pi string `Failed to load extension` (loader.js:331). events.jsonl is not grepped
+  (the model's own text could match). All stderr.txt files were empty.
+- Hashline: the package overrides `read` and `edit` under the built-in names, so load is confirmed from tool_audit's source path
+  (`.../pi-hashline-context-edit@0.11.0/index.ts`) for both, not from a tool name.
+- Reasoning budget: tap.jsonl keeps no request bodies, so receipt by the server is shown only indirectly: the budget message
+  appears inside thinking blocks in events.jsonl (the 256 variant). The ext.jsonl lines show what was sent.
+- Smoke arm descriptions/sources are inaccurate in places (think-drop says 'last 2' but keep_last is 1; session-budget text says 12/16 min
+  though the smoke thresholds are 0.5/1/1.5 min; hashline says 'same as w2-hashline'; sources say 20 min; the prompt says 20 min while the
+  limit is 8). Correcting those files changes the arm hashes.
+- The real-arm records in this dir (honest, w2-think-drop) are N=1 on one case and must not be used in any comparison. w2-reasoning-budget,
+  w2-session-budget, w2-hashline and w2-compaction did not run (budget ran out).
+"""
 
 
 def main(argv):
@@ -67,11 +83,12 @@ def main(argv):
             continue
         a = attempts[0]
         has_rec = (a / "record.json").exists()
-        err_lines = [l.strip()[:200] for f in ("stderr.txt", "events.jsonl") for l in
-                     ((a / f).read_text().splitlines() if (a / f).exists() else []) if LOAD_ERR.search(l) and "tool_execution" not in l][:3]
+        err_lines = [l.strip()[:200] for f in ("stderr.txt",) for l in
+                     ((a / f).read_text().splitlines() if (a / f).exists() else []) if LOAD_ERR.search(l) ][:3]
         text, ok = evidence(armdir.name, jl(a / "ext.jsonl"), a)
         rows.append(f"| {armdir.name} | {'yes' if has_rec else 'NO'} | {'; '.join(err_lines).replace('|', '/') or 'none'} | {text} | "
                     f"{'yes' if ok and has_rec and not err_lines else 'NO'} |")
+    rows += ["", NOTES]
     (root / "smoke.md").write_text("\n".join(rows) + "\n")
     print("\n".join(rows))
 
