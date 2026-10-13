@@ -1183,3 +1183,21 @@ Added to the standing facts:
 Added to the standing facts:
 
 - `replay-harness` was accepted with caveats: The replay harness is sufficient for the baseline runs, but provenance and smoke validation are not fully final. The SHA-256 values cited in bench/worker_eval/README.md and arms/bonsai-2026-10-12.json came from historical-arm-provenance-20261012T221002.json, which hashed stripped git-show text rather than exact blob bytes; do not trust those digest strings. inspect_historical_arm.py now hashes raw blobs and extracts harness settings, but that revision was not rerun on the host and its output was not incorporated. Also, the historical config omitted worker_memory rather than explicitly setting it to null; omission still disabled memory through CFG.get(), but the current wording is inaccurate. The successful host smoke used an earlier arm hash and a dirty repository commit, so it demonstrates the execution, artifact, cleanup, and resume paths but does not pin the exact final source revision. For attempts with no recovered request, run.py records null in results.jsonl but does not create a per-attempt request.json artifact. Before interpreting results, retain the documented fidelity caveats that replay checkouts expose Git history unavailable to the original worker and that the exact replay prompt still says 45 minutes although the arm enforces 20.
+
+### 2026-10-12T22:16:45-04:00 · worker (gpt-5.6-terra), round 1
+
+Added bench/worker_eval/summarize.py, which recomputes per-case/pooled deterministic metrics, explicit overlapping failure flags, an invalid/absent-request table, and strict completeness/manifest/reproducibility checks. Local compile and the 27 replay-harness tests pass. Starting the first resumable baseline chunk next.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Begin the required N=2 baseline replay in the fixed dated output directory. The resumable harness uses the live turnstile bench key (no private server); this \u2264150-minute chunk can complete up to seven 20-minute attempts."
+}
+```
+
+### 2026-10-12T22:19:36-04:00 · advisor (run request)
+
+**revise**: Do not launch the baseline from this dirty round. Let the orchestrator commit the current work, then resubmit the same run command next round before making any edits so the first baseline manifest has repo_dirty=false and pins the committed harness. Before final summarization, add timeout/context-overflow/output-limit counts (with all-attempt denominators and overlap noted) to each per-case metric as well as pooled metrics; current summarize.py only provides pooled flag counts. The run.py command itself is otherwise safe and appropriate.
