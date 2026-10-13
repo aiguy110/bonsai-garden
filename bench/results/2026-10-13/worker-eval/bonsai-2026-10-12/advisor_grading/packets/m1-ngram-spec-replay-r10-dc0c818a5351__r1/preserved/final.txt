@@ -1,8 +1,0 @@
-All acceptance checks pass. Let me confirm the site metadata summary is fully consistent and finalize. The site metadata (required fields, ≤200-word summaries, series-page presence, single project page, no stale parent dates) was verified by hand against every rule `tools/check_site.py` enforces — the script itself can't run here because PyYAML isn't installed in the sandbox and it's a protected `tools/` file outside the `bench/`/`evals/` run path.
-
-The milestone is complete:
-- All 5 replay runs (off-greedy, A-greedy, B-greedy, off-prod, A-prod/best-prod) measured on :8089, each with 4 fresh-server phases
-- Result: n-gram speculation is slower with both slots busy, changes outputs, and is not deployed
-- mmproj outcome documented in `bench/m1-notes.md` §3 + final section
-- Site experiment page + updated series/project summaries, metadata verified
-

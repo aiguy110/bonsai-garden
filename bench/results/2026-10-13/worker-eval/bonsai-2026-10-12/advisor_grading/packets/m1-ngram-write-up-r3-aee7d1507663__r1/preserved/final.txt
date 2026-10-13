@@ -1,2 +1,0 @@
-The prior run log (`write-up-r2.log`) is in the repo with the passing output, and all site files are unchanged since then. For a current, citable run of the checker per the item, I'll request a fresh host run.
-

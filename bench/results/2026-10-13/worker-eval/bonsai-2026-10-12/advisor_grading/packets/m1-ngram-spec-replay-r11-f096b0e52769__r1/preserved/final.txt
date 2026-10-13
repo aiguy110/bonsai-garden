@@ -1,2 +1,0 @@
-All three advisor fixes are applied and verified. The milestone's remaining work was only these documentation corrections, and the no-deploy conclusion stands unchanged. Submitting completion.
-

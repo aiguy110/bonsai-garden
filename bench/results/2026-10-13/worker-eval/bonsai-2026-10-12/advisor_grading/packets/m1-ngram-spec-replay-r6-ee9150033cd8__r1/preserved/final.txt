@@ -1,4 +1,0 @@
-The OUTDIR structure is intact (A-greedy, B-greedy, off-greedy, off-prod all present). The existing off-prod results lack the `t_end`/window fields from the corrected probe and will be overwritten by the rerun. My fix is applied and both scripts compile. The reviewer's §9b duplication is already resolved (single header at line 362).
-
-Now I'll resubmit the off/prod command with the corrected probe, exactly as the reviewer directed.
-

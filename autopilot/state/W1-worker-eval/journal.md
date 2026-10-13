@@ -1551,3 +1551,27 @@ Implemented and locally validated `bench/worker_eval/grade.py`. It deterministic
 ### 2026-10-13T08:33:04-04:00 · advisor (run request)
 
 **revise**: The command is operationally safe, but it would not produce acceptable grades. Fix these before invoking an advisor: (1) `grade.py grade` calls `autopilot.call_cloud()` directly, bypassing `autopilot/prompts/review.md` and `review()`, so no advisor journal response is created. Use the normal finished-item review gate for the first grading response, persist that response verbatim, then use a second finished-item review for transcription verification. (2) Packet paths supplied to the advisor are relative to the result directory (`advisor_grading/...`) and do not exist from the repo-root cwd; provide full repo-relative paths. Likewise, each packet's `preserved/` reference does not name its actual sibling evidence directory. (3) No requested files were preserved: the raw regex uses `\\s` instead of `\s`. Parse run commands with `shlex`, preserve the exact replay-state script, reject `..` traversal, and record its hash/path in the manifest. Make patch application fatal rather than `check=False`, or evidence may silently represent the start commit instead of the replay state. Preserve sufficient replay-state evidence for `done` claims too. (4) `finalize()` repeats the escaping bug: `r"```json\\s*..."` will not parse ordinary fenced JSON, and `"\\n"` writes literal backslash-n sequences rather than JSONL/Markdown newlines. (5) Record the advisor model used by the first grading call at call time; reading current `autopilot/config.json` during finalization does not prove which model produced the grades. Regenerate the packet set and manifest after these corrections.
+
+### 2026-10-13T08:37:49-04:00 · worker (gpt-5.6-terra), round 2
+
+Reworked `bench/worker_eval/grade.py` to regenerate packets with root-relative paths, shlex-parsed and hashed requested scripts, replay-state evidence, fatal patch application, review-template provenance, and normal `autopilot.review()` integration for the later two-stage advisor calls. Local syntax compilation passes; local packet generation cannot run because this sandbox’s worktree Git pointer targets an unavailable host path.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/grade.py prepare",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Regenerate the deterministic W1 advisor-grading packets and manifest on the host's valid Git checkout after correcting evidence preservation, paths, patch failure handling, and review-template provenance. This only reads replay artifacts/Git history and writes under the fixed result directory; it makes no model or live-stack calls."
+}
+```
+
+### 2026-10-13T08:39:56-04:00 · advisor (run request)
+
+**revise**: Do not run prepare yet. Redact the original cloud advisor_verdict from grader-visible record evidence; preserve exact replay-state files sufficient to assess every sampled done claim, including unchanged files from the start commit; make grade/verify responses conform to review.md by including verdict, notes, facts, and grades in one fenced object; enforce sample_size <= 10; and verify first versus transcription grades during finalize. Then regenerate the packets.
+
+### 2026-10-13T08:39:56-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/worker_eval/grade.py currently copies each replay record.json, whose advisor_verdict field exposes the original cloud-worker request verdict despite cloud_prompt() saying that verdict is absent.

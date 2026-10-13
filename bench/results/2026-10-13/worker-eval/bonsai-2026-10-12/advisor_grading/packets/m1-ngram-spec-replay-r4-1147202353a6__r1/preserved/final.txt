@@ -1,2 +1,0 @@
-The notes are updated correctly (§3 fixed, §9 rewritten with the full analysis, mmproj outcome stated, prod arm = **A**, provisional decision). The round is nearly complete — the remaining work per the plan is the two **prod** sampling runs (`off` and the best-of-A/B = **A**). Let me submit the `off`/prod run now (turnstile GPU, port 8089).
-

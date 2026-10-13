@@ -1,8 +1,0 @@
-{
-  "request": "run",
-  "report": "Round 5 (gpt-5.6 Terra, fresh after rate-limit pause): (1) Checked round-4/5 files per advisor. bench/spec_replay.py now records per-phase window t0/t_fg_end/t_join_end in notes and per-row t_end in requests.jsonl; bench/spec_analyze.py prints the per-phase table (fg tok/s with/without length rows, length rows, draft counts, same-sha share) plus combined two-slot throughput counting only bg rows ending before fg ended (per-row t_end). bench/m1-notes.md \u00a79b is now single-copy and corrected (A's 86.0 from two length rows; no real gain without them). (2) Smoke-tested spec_analyze.py in sandbox on all completed arms: all 4 phase dirs present in off-greedy/A-greedy/B-greedy/off-prod with full fields. Greedy: off wins every phase (single-agent 55.1/55.6, dual-agent 26.3, dual-mem 25.0); A no-length 54.3/26.1/23.8 vs off 56.2/26.3/25.0; B 55.0/23.0/22.4. off-prod: dual-agent 31.2/32.6 no-length, dual-mem 25.5. (3) Per the item's dual-agent-greedy rule A is the best spec arm (25.5 vs B 23.0, also no-length 26.1 vs 23.0), so prod run for A next with the same flags as A/greedy.",
-  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
-  "gpu": true,
-  "timeout_min": 120,
-  "why": "A/prod replay (ngram-mod defaults, prod sampling per item spec), 4 phases on fresh servers; completes the required off vs A/B set (off/prod already ran in r4)."
-}
