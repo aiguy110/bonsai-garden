@@ -858,3 +858,18 @@ ls: cannot access 'evals/.cache/venv-sandbox': No such file or directory
 none
 
 ```
+
+### 2026-10-12T20:25:58-04:00 · worker (gpt-5.6-terra), round 2
+
+Validated the completed replay harness locally and reviewed the successful host smoke artifacts.
+
+```json
+{
+  "request": "done",
+  "summary": "`bench/worker_eval/arms/schema.json` documents/validates the arm format and `arms/bonsai-2026-10-12.json` pins Bonsai (`thinking: low`, 16,384 output tokens, 28,672 reserve, 20-minute timeout, memory `null`, submit-request extension), with provenance in `bench/worker_eval/README.md`. `bench/worker_eval/run.py` implements isolated detached-checkout, tap-routed resumable replay with manifests, artifacts, request validation, event/error metrics, budget enforcement, and model-hash pinning/repair. `bench/worker_eval/test_run.py` fixture coverage passed locally: 24 passed. Post-power-cap host smoke at `bench/results/2026-10-12/worker_eval/smoke/` completed exactly one live attempt: valid tool request and kind match, 1028.9 s, 36 turns, 40 tools, 1/1 compactions; `tap.jsonl` contains HTTP 200 responses. The first manifest records repaired valid 64-hex model SHA; the second invocation skipped the completed attempt (host output: skipped=1, ran=0), leaving one result record. Attempt artifacts include event stream, final text, request, workspace diff, manifest, stderr, and tap log; host smoke verified no temporary checkout leftovers and no worktree changes outside results."
+}
+```
+
+### 2026-10-12T20:28:18-04:00 · advisor (finished item)
+
+**revise**: Core replay behavior and smoke metrics are traceable and credible. Complete the historical provenance in bench/worker_eval/README.md using exact historical commit/file references; the current text admits thinking/output settings are unproven. Make pinned_model_sha256() enforce a real 64-hex digest and test a syntactically valid but invalid cache value. Finally, either pass the loaded arm hash/path into run_session() or stop advertising arbitrary arm paths, since it currently re-hashes arms/<name>.json.
