@@ -1,0 +1,4 @@
+no-budget {"status": 200, "reasoning_chars": 11699, "answer_chars": 0, "message_in_reasoning": false}
+budget-256 {"status": 200, "reasoning_chars": 1127, "answer_chars": 12, "message_in_reasoning": true}
+budget-1024 {"status": 200, "reasoning_chars": 3892, "answer_chars": 11, "message_in_reasoning": true}
+PASS

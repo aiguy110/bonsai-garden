@@ -167,3 +167,33 @@ The revised probe has not run yet. There is no r6 log and no result.json, only a
 Added to the standing facts:
 
 - Anything that sends LLM requests through turnstile (the tap/run.py route, model bonsai-agent/bonsai-mem) must run as gpu:false. gpu:true holds a turnstile lease (local-llm-bench/turnstile_run.py:60-88), turnstile serves no LLM request while a lease holds the GPU (gpu-turnstile/README.md:37-38), and the request deadlocks (recon-and-w1-traces-r5.log). Use gpu:true only for a private llama-server on :8089.
+
+### 2026-10-13T12:08:49-04:00 · worker (gpt-5.6-terra), round 8
+
+No code changes this session. The advisor found that the r5 probe failed because gpu:true held a turnstile lease that blocked the probe's own request, so I'm resubmitting the same revised script with gpu:false. After it runs, I'll read result.json and write W2-decisions.md using trace_analysis.json and the probe outcome.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/w2_reasoning_probe.py",
+  "gpu": false,
+  "timeout_min": 30,
+  "why": "Re-run the three-request reasoning-budget probe through the bench-key tap/turnstile route as gpu:false, per the advisor and the standing fact. The earlier gpu:true run deadlocked on its own turnstile lease. The result decides whether the w2-reasoning-budget arm exists."
+}
+```
+
+### 2026-10-13T12:09:19-04:00 · advisor (run request)
+
+**approve**: Safe: tap->turnstile with the bench key over a Unix socket, no :11435/:8080, no server started, writes only under bench/results/<today>/worker-eval-w2/reasoning-probe and /tmp; gpu:false fixes the r5 self-deadlock. Field names match server-common.cpp:1354-1364 and the pass rule matches the item. When writing W2-decisions.md: (1) if any budgeted request has a non-null `error`, the top-level pass is false, but count it as inconclusive and rerun it; don't drop the arm. (2) Tap records are matched by order; if tap_records != 3, read queue_wait_ms/timings from tap.jsonl directly. (3) A client-side 480 s timeout probably leaves the upstream request generating, so the next request may queue behind it; check queue_wait_ms before calling it slow. (4) If the probe fails, cite the no-budget reasoning_chars/finish_reason and say whether the server ignored the fields (message absent) or the model went over the limit.
+
+### 2026-10-13T12:10:53-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/w2_reasoning_probe.py` (gpu=False) in 94s, exit 0. Full output: `bench/results/2026-10-13/autopilot/recon-and-w1-traces-r8.log`. Last lines:
+
+```
+no-budget {"status": 200, "reasoning_chars": 11699, "answer_chars": 0, "message_in_reasoning": false}
+budget-256 {"status": 200, "reasoning_chars": 1127, "answer_chars": 12, "message_in_reasoning": true}
+budget-1024 {"status": 200, "reasoning_chars": 3892, "answer_chars": 11, "message_in_reasoning": true}
+PASS
+
+```

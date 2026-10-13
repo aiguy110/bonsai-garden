@@ -1,0 +1,113 @@
+{
+  "prompt": "Think very carefully and at length before answering. Count the ways to tile a 3x10 board with 1x2 dominoes. Work it out by a transfer-matrix recurrence, then check it by brute-force reasoning about the first column, then double-check the arithmetic a third way. Finally reply with one line starting 'ANSWER:'.",
+  "message": "\n[Thinking budget reached. Stop thinking and act now with what you have.]\n",
+  "requests": [
+    {
+      "name": "no-budget",
+      "budget": null,
+      "request_fields": {
+        "model": "bonsai-agent",
+        "max_tokens": 4096,
+        "stream": false
+      },
+      "status": 200,
+      "wall_s": 70.2,
+      "finish_reason": "length",
+      "error": null,
+      "reasoning_chars": 11699,
+      "answer_chars": 0,
+      "completion_tokens": 4096,
+      "message_in_reasoning": false,
+      "answer_head": "",
+      "reasoning_tail": "inoes: 1,0,3,0,11,0,33,0,111,0,377,0,1287... It satisfies a(2n) = 2a(2n-2)+a(2n-4)? Let's test: a2=3, a4=11 =2*3+1=7? no. Maybe a(2n)=2a(2n-2)+a(2n-4)? 11=2*3+1=7 false. Another recurrence: a_{2n} = 4 a_{2n-2} - a_{2n-4}: 11=4*3-1=11; 33=4*11-3=41? 44-3=41 not 33. Hmm conflict.\n\nLet's verify 3x6. My",
+      "tap_record_index": 0,
+      "tap_timings": {
+        "cache_n": 0,
+        "prompt_n": 123,
+        "prompt_ms": 362.549,
+        "prompt_per_token_ms": 2.947552845528455,
+        "prompt_per_second": 339.2644856281496,
+        "predicted_n": 4096,
+        "predicted_ms": 69821.07,
+        "predicted_per_token_ms": 17.050322344322346,
+        "predicted_per_second": 58.6499175678631
+      },
+      "tap_wall_s": 70.191
+    },
+    {
+      "name": "budget-256",
+      "budget": 256,
+      "request_fields": {
+        "model": "bonsai-agent",
+        "max_tokens": 4096,
+        "stream": false,
+        "reasoning_budget_tokens": 256,
+        "reasoning_budget_message": "\n[Thinking budget reached. Stop thinking and act now with what you have.]\n"
+      },
+      "status": 200,
+      "wall_s": 5.3,
+      "finish_reason": "stop",
+      "error": null,
+      "reasoning_chars": 1127,
+      "answer_chars": 12,
+      "completion_tokens": 283,
+      "message_in_reasoning": true,
+      "answer_head": "ANSWER: 8119",
+      "reasoning_tail": "ons internally? We can do in analysis. Need ensure answer correct count ways tile 3x10 with 1x2 dominoes.\n\nLet's solve carefully. Tiling 3 x n board with dominoes. Known sequence for n even: a(0)=1, a(2)=3, a(4)=11, a(6)=41, a\n[Thinking budget reached. Stop thinking and act now with what you have.]\n",
+      "limit_chars": 1280,
+      "pass": true,
+      "tap_record_index": 1,
+      "tap_timings": {
+        "cache_n": 119,
+        "prompt_n": 4,
+        "prompt_ms": 175.631,
+        "prompt_per_token_ms": 43.90775,
+        "prompt_per_second": 22.77502263267874,
+        "predicted_n": 283,
+        "predicted_ms": 4788.693,
+        "predicted_per_token_ms": 16.98118085106383,
+        "predicted_per_second": 58.88871974043857
+      },
+      "tap_wall_s": 5.348
+    },
+    {
+      "name": "budget-1024",
+      "budget": 1024,
+      "request_fields": {
+        "model": "bonsai-agent",
+        "max_tokens": 4096,
+        "stream": false,
+        "reasoning_budget_tokens": 1024,
+        "reasoning_budget_message": "\n[Thinking budget reached. Stop thinking and act now with what you have.]\n"
+      },
+      "status": 200,
+      "wall_s": 18.2,
+      "finish_reason": "stop",
+      "error": null,
+      "reasoning_chars": 3892,
+      "answer_chars": 11,
+      "completion_tokens": 1050,
+      "message_in_reasoning": true,
+      "answer_head": "ANSWER: 571",
+      "reasoning_tail": "eed partition available rows with vertical adjacent pairs and singles that become new horizontal to next. For n rows=3:\n- m=000: available 111. Options:\n  * vertical in rows1-2 plus horizontal in row3 -> next 100? (top? choose\n[Thinking budget reached. Stop thinking and act now with what you have.]\n",
+      "limit_chars": 4352,
+      "pass": true,
+      "tap_record_index": 2,
+      "tap_timings": {
+        "cache_n": 119,
+        "prompt_n": 4,
+        "prompt_ms": 174.143,
+        "prompt_per_token_ms": 43.53575,
+        "prompt_per_second": 22.969628408836417,
+        "predicted_n": 1050,
+        "predicted_ms": 17756.113,
+        "predicted_per_token_ms": 16.92670448045758,
+        "predicted_per_second": 59.078245334437774
+      },
+      "tap_wall_s": 18.198
+    }
+  ],
+  "tap_records": 3,
+  "rule": "per budgeted request: reasoning chars <= (budget+64)*4, message in reasoning, answer non-empty",
+  "pass": true
+}
