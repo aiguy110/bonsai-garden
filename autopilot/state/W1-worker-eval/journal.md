@@ -1201,3 +1201,14 @@ Added bench/worker_eval/summarize.py, which recomputes per-case/pooled determini
 ### 2026-10-12T22:19:36-04:00 · advisor (run request)
 
 **revise**: Do not launch the baseline from this dirty round. Let the orchestrator commit the current work, then resubmit the same run command next round before making any edits so the first baseline manifest has repo_dirty=false and pins the committed harness. Before final summarization, add timeout/context-overflow/output-limit counts (with all-attempt denominators and overlap noted) to each per-case metric as well as pooled metrics; current summarize.py only provides pooled flag counts. The run.py command itself is otherwise safe and appropriate.
+
+### 2026-10-12T22:21:10-04:00 · worker (gpt-5.6-terra), round 2
+
+Added per-case/all-attempt failure-flag counts and validated the summary code with 27 passing tests.
+
+```json
+{
+  "request": "continue",
+  "note": "Let the orchestrator commit this edit. Next session should make no edits and submit the approved first baseline chunk into bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/ using run.py with --repeat 2 --budget-min 145, gpu=false, timeout 150."
+}
+```

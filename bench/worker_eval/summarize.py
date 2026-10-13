@@ -74,6 +74,13 @@ def metric(records):
             "end_total": sum(int(r.get("compaction_end", 0) or 0) for r in records),
         },
         "last_stop_reasons": dict(sorted(stops.items())),
+        # These are attempt-level evidence flags (not mutually exclusive), so
+        # every count deliberately uses the same all-attempt denominator.
+        "failure_flags": {
+            "denominator": "all attempts; flags may overlap",
+            "counts": {name: sum(bool(r.get(name)) for r in records)
+                       for name in ALL_FLAGS},
+        },
     }
 
 
@@ -169,7 +176,7 @@ def render_md(summary):
                 f"{m['median_wall_s']} | {m['median_turns']} |")
     lines = ["# Worker-eval deterministic summary", "",
              "Rates: valid requests and first kind-match rate use all attempts; the second kind-match rate uses valid requests. "
-             "Failure flags use all attempts as their denominator and may overlap.", "",
+             "Timeout, context-overflow, and output-limit flags (and the other failure flags in detailed metrics) use all attempts as their denominator and may overlap.", "",
              "| Case | Attempts | Valid requests | Kind matches / all | Kind matches / valid | Median wall s | Median turns |",
              "|---|---:|---:|---:|---:|---:|---:|", row("Pooled", summary["pooled"])]
     lines += [row(case["case_id"], case["metrics"]) for case in summary["cases"]]
