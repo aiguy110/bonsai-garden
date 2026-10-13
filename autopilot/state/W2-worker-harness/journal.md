@@ -11,3 +11,28 @@
 4. **Full runs: remaining single-factor arms and the all-singles comparison**: Every single-factor arm in w2_queue.json has 44 unique records, summary.json/md, and a passing `summarize.py --check`. compare-singles.json/md contains all single arms with the compare.py metrics, CIs, spread and beyond_spread, the per-arm mechanism stats listed above, and the ranked table. Any arm superseded by a -v2 is listed with the reason. No change under autopilot/.
 5. **Combination arm, advisor grading of the best arm, recommended configuration**: Either arms/w2-combo.json exists with 44 records, summary and a passing check, or W2-recommendation.md shows the selection rule failing with the numbers. compare-final.json/md covers every arm. The best arm's advisor_grading/ has the sample manifest (<= 10 runs), packets, verbatim grade and verify responses, and advisor_grades.jsonl, and the best arm follows the stated rule from compare-final.json. W2-recommendation.md and serving/w2-worker-config-proposal.md exist and their numbers match compare-final.json. `git diff main -- autopilot/` is empty.
 6. **W2 experiment page and parent page updates**: site/series/local-worker/worker-harness.md exists with valid front matter and a summary of at most 200 words. Its results and failure-mode tables match compare-final.json exactly (each arm row is checked). The beyond-spread column matches the beyond_spread flags. Advisor counts match advisor_grades.jsonl. The not-tested and caveats sections cover every item listed in the instructions. The local-worker series index, site/index.md and docs/roadmap.md are updated, and their updated dates are >= the page's. `python3 bench/check_site.py` and `python3 tools/check_site.py` both exit 0. No change under autopilot/.
+
+### 2026-10-13T11:42:29-04:00 · worker (gpt-5.6-terra), round 3
+
+Part C is done: trace_analysis.json has all keys. Gates from it: the tool cap fails (11 big results, 9.35% of chars); the compaction gate passes (10 timeouts during or within 5 min of a compaction, though compaction is only 6.8% of wall); thinking resent is confirmed (98.3% of discriminating pairs); there are 2 non-loop length stops, so output 32768 is allowed in the combo; reasoning p75 is 967 tokens, so the budget is 1024. Parts A and B scripts exist and compile. Next: run the recon, then the GPU probe, then write vendor/REVIEW.md and W2-decisions.md.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/w2_recon.py",
+  "gpu": false,
+  "timeout_min": 30,
+  "why": "Part A recon (pi/llama excerpts, npm pack of hashline packages, provenance, drift). Its output is needed to write vendor/REVIEW.md and W2-decisions.md."
+}
+```
+
+### 2026-10-13T11:45:01-04:00 · advisor (run request)
+
+**revise**: Two small fixes, then this is approvable as-is. (1) llama_report: run `<binary> --version` and `--help` with env CUDA_VISIBLE_DEVICES='' (add an env= parameter to sh(), e.g. env={**os.environ, 'CUDA_VISIBLE_DEVICES': ''}), so no CUDA context is created on the GPU the live bonsai-2-27b server is using; version/build output is unaffected. (2) packages(): parse `npm pack --json` from stdout only (call subprocess.run directly, json.loads(p.stdout)); keep stderr separately in the manifest entry. As written, any `npm warn` on stderr breaks json.loads, and since d.mkdir() refuses an existing dir, a rerun would need a new --out or manual cleanup. Optional but cheap: in llama.txt also record `git -C <srcdir> status --porcelain | head` and `git describe --always --dirty`, so W2-decisions can say whether the source excerpts match the build in `--version`. In drift.json, record the llama-server binary's sha256 and --version as informational fields (not part of the drift rule), because a rebuild doesn't change the llama-swap entry. Remember when writing W2-decisions: the recon greps cap at 120 matches per section (checked after each file), so the noisy 'context' section can skip docs/extensions.md; cite pi's dist .d.ts/.js by file:line directly where pi.txt is thin (e.g. common/reasoning-budget.cpp accept/apply around lines 74-190 for budget behaviour).
+
+### 2026-10-13T11:45:01-04:00 · orchestrator
+
+Added to the standing facts:
+
+- Host-side probes must not create a CUDA context next to the live llama-swap server (llama.cpp's CUDA pool grows on demand); run llama-server --version/--help with CUDA_VISIBLE_DEVICES=''.
+- pi's compaction summary call passes the session thinkingLevel (pi-coding-agent dist/core/agent-session.js:1568), so the summary requests run with thinking on.

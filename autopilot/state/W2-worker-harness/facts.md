@@ -1,0 +1,2 @@
+- Host-side probes must not create a CUDA context next to the live llama-swap server (llama.cpp's CUDA pool grows on demand); run llama-server --version/--help with CUDA_VISIBLE_DEVICES=''. (advisor, recon-and-w1-traces, 2026-10-13)
+- pi's compaction summary call passes the session thinkingLevel (pi-coding-agent dist/core/agent-session.js:1568), so the summary requests run with thinking on. (advisor, recon-and-w1-traces, 2026-10-13)
