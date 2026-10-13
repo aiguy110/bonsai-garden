@@ -4,9 +4,9 @@ kind: Live status
 updated: 2026-10-13
 ---
 
-*Updated 2026-10-13T09:19:04-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
+*Updated 2026-10-13T11:34:23-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
 
-Cloud advisor calls left today: **80** of 100.
+Cloud advisor calls left today: **78** of 100.
 
 ## M1-ngram
 
@@ -38,7 +38,7 @@ Full journal: [branch auto/M1-ngram](https://github.com/aiguy110/bonsai-garden/b
 
 ## W1-worker-eval
 
-**Phase:** publish
+**Phase:** done
 
 - ✅ **Extract a provenance-checked cloud-worker case set**
 - ⚠️ **Define worker arms and implement the resumable replay harness**
@@ -48,7 +48,6 @@ Full journal: [branch auto/M1-ngram](https://github.com/aiguy110/bonsai-garden/b
 
 <details><summary>Recent journal entries</summary>
 
-- 2026-10-13T09:11:56-04:00 · worker (gpt-5.6-terra), round 4
 - 2026-10-13T09:14:14-04:00 · advisor (write-up)
 - 2026-10-13T09:15:28-04:00 · worker (gpt-5.6-terra), round 5
 - 2026-10-13T09:15:45-04:00 · advisor (run request)
@@ -60,8 +59,28 @@ Full journal: [branch auto/M1-ngram](https://github.com/aiguy110/bonsai-garden/b
 - 2026-10-13T09:18:43-04:00 · advisor (triage)
 - 2026-10-13T09:18:43-04:00 · orchestrator
 - 2026-10-13T09:18:43-04:00 · orchestrator
+- 2026-10-13T09:19:16-04:00 · orchestrator
 
 Full journal: [branch auto/W1-worker-eval](https://github.com/aiguy110/bonsai-garden/blob/auto/W1-worker-eval/autopilot/state/W1-worker-eval/journal.md)
+</details>
+
+## W2-worker-harness
+
+**Phase:** work
+
+- ▶️ **Recon of pi/llama.cpp mechanisms, W1 trace analysis, and fixed W2 decisions** (round 0)
+- ⬜ **Harness support, W2 extensions, arm files, queue/compare tools, smoke run**
+- ⬜ **Full runs: baseline rerun (if drift), w2-think-drop, w2-reasoning-budget**
+- ⬜ **Full runs: remaining single-factor arms and the all-singles comparison**
+- ⬜ **Combination arm, advisor grading of the best arm, recommended configuration**
+- ⬜ **W2 experiment page and parent page updates**
+
+<details><summary>Recent journal entries</summary>
+
+- 2026-10-13T11:25:41-04:00 · orchestrator
+- 2026-10-13T11:34:23-04:00 · advisor (plan)
+
+Full journal: [branch auto/W2-worker-harness](https://github.com/aiguy110/bonsai-garden/blob/auto/W2-worker-harness/autopilot/state/W2-worker-harness/journal.md)
 </details>
 
 ## Live-stack changes
