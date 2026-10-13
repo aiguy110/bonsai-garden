@@ -5,6 +5,7 @@
   autopilot.py tick        one step, then exit
   autopilot.py status      print the current state
   autopilot.py unblock     clear a blocked milestone so the loop resumes
+  autopilot.py reload      make the service re-read config.json (SIGHUP) without interrupting a run
 
 Roles (config.json) are pi model strings, so any of them can be swapped:
   worker   in the eval Docker sandbox: garden/<id> is Bonsai via turnstile (bench key,
@@ -37,6 +38,7 @@ import shutil
 import signal
 import subprocess
 import sys
+import threading
 import time
 
 HERE = pathlib.Path(__file__).resolve().parent
@@ -49,6 +51,7 @@ import run as ev  # noqa: E402  (sandbox, tap and event helpers from the eval ha
 CFG = json.loads((HERE / "config.json").read_text())
 RT = HERE / ".runtime"
 WT_ROOT = pathlib.Path(CFG["worktree_root"])
+RELOAD = threading.Event()  # set by SIGHUP; the loop reloads config.json between ticks
 WT = None  # the current milestone's worktree; set by tick()
 PUB = pathlib.Path(CFG["publisher"])
 CLOUD_AGENT = HERE / ".cache" / "agent-cloud"
@@ -923,6 +926,31 @@ def current():
     return None
 
 
+def reload_config():
+    """Re-read config.json into CFG in place (milestone list, models, budgets, ...).
+    Called between ticks, so a run in flight is never interrupted. A bad file keeps the old
+    config. Settings fixed at import (the service's environment, file locks) need a restart."""
+    global WT_ROOT, PUB
+    try:
+        new = json.loads((HERE / "config.json").read_text())
+        pathlib.Path(new["worktree_root"]), pathlib.Path(new["publisher"])
+    except Exception as e:
+        say(f"config reload failed, keeping the old config: {type(e).__name__}: {e}")
+        return
+    old = dict(CFG)
+    CFG.clear()
+    CFG.update(new)
+    WT_ROOT, PUB = pathlib.Path(CFG["worktree_root"]), pathlib.Path(CFG["publisher"])
+    changed = sorted(k for k in set(old) | set(new) if old.get(k) != new.get(k))
+    say("config reloaded" + (f" (changed: {', '.join(changed)})" if changed else " (no changes)")
+        + f"; milestones: {', '.join(CFG['milestones'])}")
+
+
+def nap(seconds):
+    """Sleep, but wake early on SIGHUP so a reload takes effect right away."""
+    RELOAD.wait(seconds)
+
+
 def tick():
     global WT
     m = current()
@@ -1001,9 +1029,15 @@ def main():
     if cmd == "tick":
         print(tick())
         return
+    if cmd == "reload":  # ask the running service to re-read config.json
+        sys.exit(subprocess.call(["systemctl", "--user", "reload", "bonsai-autopilot"]))
     if cmd == "loop":
         crashes = 0
+        signal.signal(signal.SIGHUP, lambda *_: RELOAD.set())
         while True:
+            if RELOAD.is_set():
+                RELOAD.clear()
+                reload_config()
             try:
                 state = tick()
                 crashes = 0
@@ -1017,9 +1051,9 @@ def main():
                     except Exception as e2:
                         say(f"could not record the block: {e2}")
             if state == "ratelimit":
-                time.sleep(RATE_WAIT)
+                nap(RATE_WAIT)
             elif state in ("idle", "blocked", "budget", "error"):  # "done": go straight to the next milestone
-                time.sleep(1800 if state != "error" else 300)
+                nap(1800 if state != "error" else 300)
         return
     sys.exit(__doc__)
 

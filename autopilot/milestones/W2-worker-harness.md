@@ -48,9 +48,10 @@ Work in this order unless W1's failure modes say otherwise. Each is an arm in
    single-factor batch, before session discipline and the combinations).** It
    brings hashline edits natively, so it also stands in for candidate 3. Steps: pack
    the npm package into a new empty directory with `--ignore-scripts` (no install
-   scripts; record version, license, tarball sha256 and what runtime it needs), and
-   put any runtime it needs (for example Bun) in a pinned, hash-checked user-space
-   directory under the milestone worktree, never system-wide. Add a harness field
+   scripts; record version, license, tarball sha256 and what runtime it needs). Bun 1.4.3 is
+   already installed on the host at `~/.local/bin/bun` (zip sha256 `3e730528…e18`);
+   don't install a runtime. The worker runs in the eval sandbox container, so mount
+   that binary into it read-only for omp arms. Add a harness field
    to the arm format (`pi` by default) and run `omp` in the same sandbox, tap and
    model entry, with the honest prompt and the 20-minute limit. Try `submit_request`
    under it; if it doesn't load, rely on the JSON fallback and say so. Record the

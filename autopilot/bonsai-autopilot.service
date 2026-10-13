@@ -9,6 +9,7 @@ After=meridian.service bonsai-garden-embed.service
 WorkingDirectory=/home/josiah/Projects/bonsai-garden
 Environment=PATH=/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/bin:/usr/local/bin:/usr/bin:/bin
 ExecStart=/usr/bin/python3 -u /home/josiah/Projects/bonsai-garden/autopilot/autopilot.py loop
+ExecReload=/bin/kill -HUP $MAINPID
 Restart=on-failure
 RestartSec=60
 

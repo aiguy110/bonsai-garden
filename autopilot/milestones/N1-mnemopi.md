@@ -31,8 +31,9 @@ installed source before relying on it:
   invalidate). That 5000-token default is large for our 80k window.
 - No automatic contradiction handling was found; the agent must `memory_edit` or
   invalidate. M2's knowledge-update tasks test exactly this.
-- The package is a Bun/TypeScript port. Whether it runs under Node, which pi uses,
-  is unverified and is the first thing to check.
+- The package is a Bun/TypeScript port. Bun 1.4.3 is installed at `~/.local/bin/bun`.
+  Whether it also runs under Node, which pi uses, is unverified; if it doesn't, run
+  the library under Bun and have the extension talk to it over stdio or a local socket.
 - No controlled no-memory baseline exists upstream (can1357/oh-my-pi issue #10276
   asks for one).
 

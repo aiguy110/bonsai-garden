@@ -126,6 +126,8 @@ python3 autopilot/autopilot.py unblock    # after fixing whatever blocked it
 python3 autopilot/infra.py check          # is the local model answering?
 python3 autopilot/infra.py baseline       # re-measure and save known-good
 systemctl --user stop bonsai-autopilot    # kill switch
+systemctl --user reload bonsai-autopilot  # or `autopilot.py reload`: re-read config.json (milestone list,
+                                          # models, budgets) after the current step, without interrupting a run
 ```
 
 To edit `state/<m>/status.json` by hand, stop the service first and commit the edit
