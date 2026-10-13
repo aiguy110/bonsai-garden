@@ -4,9 +4,9 @@ kind: Live status
 updated: 2026-10-13
 ---
 
-*Updated 2026-10-13T08:33:04-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
+*Updated 2026-10-13T09:19:04-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
 
-Cloud advisor calls left today: **92** of 100.
+Cloud advisor calls left today: **80** of 100.
 
 ## M1-ngram
 
@@ -38,28 +38,28 @@ Full journal: [branch auto/M1-ngram](https://github.com/aiguy110/bonsai-garden/b
 
 ## W1-worker-eval
 
-**Phase:** work
+**Phase:** publish
 
 - ✅ **Extract a provenance-checked cloud-worker case set**
 - ⚠️ **Define worker arms and implement the resumable replay harness**
 - ✅ **Run Bonsai at N=2 and summarize deterministic outcomes**
-- ▶️ **Grade a deterministic sample of valid Bonsai requests** (round 1)
-- ⬜ **Publish the W1 experiment and update parent summaries**
+- ✅ **Grade a deterministic sample of valid Bonsai requests**
+- ⚠️ **Publish the W1 experiment and update parent summaries**
 
 <details><summary>Recent journal entries</summary>
 
-- 2026-10-13T08:17:27-04:00 · advisor (run request)
-- 2026-10-13T08:17:27-04:00 · orchestrator
-- 2026-10-13T08:17:27-04:00 · orchestrator
-- 2026-10-13T08:18:41-04:00 · worker (gpt-5.6-terra), round 9
-- 2026-10-13T08:19:51-04:00 · advisor (run request)
-- 2026-10-13T08:19:51-04:00 · orchestrator
-- 2026-10-13T08:19:52-04:00 · orchestrator
-- 2026-10-13T08:21:29-04:00 · worker (gpt-5.6-terra), round 10
-- 2026-10-13T08:22:54-04:00 · advisor (finished item)
-- 2026-10-13T08:22:54-04:00 · orchestrator
-- 2026-10-13T08:28:10-04:00 · worker (gpt-5.6-terra), round 1
-- 2026-10-13T08:33:04-04:00 · advisor (run request)
+- 2026-10-13T09:11:56-04:00 · worker (gpt-5.6-terra), round 4
+- 2026-10-13T09:14:14-04:00 · advisor (write-up)
+- 2026-10-13T09:15:28-04:00 · worker (gpt-5.6-terra), round 5
+- 2026-10-13T09:15:45-04:00 · advisor (run request)
+- 2026-10-13T09:15:45-04:00 · orchestrator
+- 2026-10-13T09:16:31-04:00 · worker (gpt-5.6-terra), round 6
+- 2026-10-13T09:18:07-04:00 · advisor (write-up)
+- 2026-10-13T09:18:07-04:00 · orchestrator
+- 2026-10-13T09:18:07-04:00 · orchestrator
+- 2026-10-13T09:18:43-04:00 · advisor (triage)
+- 2026-10-13T09:18:43-04:00 · orchestrator
+- 2026-10-13T09:18:43-04:00 · orchestrator
 
 Full journal: [branch auto/W1-worker-eval](https://github.com/aiguy110/bonsai-garden/blob/auto/W1-worker-eval/autopilot/state/W1-worker-eval/journal.md)
 </details>
