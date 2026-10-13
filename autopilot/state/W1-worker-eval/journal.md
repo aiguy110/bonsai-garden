@@ -1948,3 +1948,28 @@ Ran `python3 bench/check_site.py` (gpu=False) in 0s, exit 0. Full output: `bench
 12 pages checked, 0 errors
 
 ```
+
+### 2026-10-13T09:16:31-04:00 · worker (gpt-5.6-terra), round 6
+
+Final W1 publication verification is complete; site checker passed after the provenance correction.
+
+```json
+{
+  "request": "done",
+  "summary": "Published and corrected the W1 write-up. `site/series/local-worker/worker-eval.md` has valid experiment front matter, a sub-200-word summary, exact 44-attempt pooled and per-case results (including per-case overlapping failure flags), denominators, corpus/exclusion and arm details, separate 7/10 advisor sample, caveats, and evidence-linked W2 priorities. It explicitly preserves the executed arm while noting its stripped-hash and absent-memory-key provenance limitations. `site/series/local-worker/index.md` and `site/index.md` have current 2026-10-13 summaries; `README.md` and `docs/roadmap.md` consistently mark W1 complete and W2 next, with artifact-backed tool-error counts. `bench/worker_eval/README.md` has matching arm-provenance caveats. `python3 bench/check_site.py` passed after the final corrections (12 pages checked, 0 errors; `bench/results/2026-10-13/autopilot/worker-eval-writeup-r5.log`)."
+}
+```
+
+### 2026-10-13T09:18:07-04:00 · advisor (write-up)
+
+**revise**: 1. In `site/series/local-worker/worker-eval.md:156-157`, replace “32 compactions at attempt start and 29 at attempt end” with “32 compaction-start events and 29 compaction-end events.” These are event types counted throughout attempts, not attempt-boundary compactions. 2. In `site/series/local-worker/index.md:14-15` and line 34, do not call the executed arm simply the “historical Bonsai worker configuration”: the historical timeout was 45 minutes, while W1 enforced 20 minutes. Say it was based on the historical configuration but used W1’s 20-minute timeout. Re-run the site checker afterward. Everything else matches the committed artifacts, and the summaries are readable and under 200 words.
+
+### 2026-10-13T09:18:07-04:00 · orchestrator
+
+Added to the standing facts:
+
+- `bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/summary.json` records 32 `compaction_start` events and 29 `compaction_end` events; these are event counts within attempts, not counts at attempt boundaries.
+
+### 2026-10-13T09:18:07-04:00 · orchestrator
+
+Item `worker-eval-writeup` failed review 3 times; asking the advisor to triage it.
