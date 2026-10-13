@@ -11,6 +11,13 @@ the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`)
 M1 n-gram self-speculation replay is complete: it slowed busy two-slot traffic
 and was not deployed.
 
+The 3080 is capped at 250 W with SM clocks locked at ≤1700 MHz
+(`serving/gpu-power-cap.service`). At the stock 320 W the host hard-reset four times on
+2026-10-12, each within a second of a large Bonsai request starting, with no kernel,
+NVIDIA or thermal error logged. Capped, it held 15 minutes of 68k-token prefills on
+both slots. Decode cost: 59 vs 61.9 tok/s on one slot, 43.2 vs 44.3 on two
+(`bench/results/2026-10-12/power-cap-250w/`).
+
 ## Layout
 
 | Path | What |
@@ -22,7 +29,7 @@ and was not deployed.
 | `bench/` | Engine probe scripts plus dated raw results |
 | `docs/phase-a-runbook.md` | Step-by-step runbook for Phase A (2-slot config, pi registration) |
 | `docs/phase-b-runbook.md` | Turnstile work: co-admission, context budget, virtual models (in [gpu-turnstile](https://github.com/aiguy110/gpu-turnstile)) |
-| `serving/` | The applied llama-swap entry and the CPU embedder unit |
+| `serving/` | The applied llama-swap entry, the CPU embedder unit, and the GPU power-cap unit |
 | `agent/` | pi wiring: models.json entry and memory extension choice |
 | `evals/` | Benchmark harness: arms, tasks, runner, metering tap, results |
 | `autopilot/` | Unattended roadmap runner: Bonsai worker, cloud advisor, guarded live-config changes |

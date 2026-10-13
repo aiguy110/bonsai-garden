@@ -1,0 +1,83 @@
+{
+  "decode": [
+    {
+      "ok": true,
+      "single_tok_s": 60.8,
+      "conc_tok_s": [
+        43.5,
+        44.4
+      ],
+      "conc_mean_tok_s": 43.9
+    },
+    {
+      "ok": true,
+      "single_tok_s": 58.5,
+      "conc_tok_s": [
+        42.0,
+        43.2
+      ],
+      "conc_mean_tok_s": 42.6
+    },
+    {
+      "ok": true,
+      "single_tok_s": 58.3,
+      "conc_tok_s": [
+        43.2,
+        43.2
+      ],
+      "conc_mean_tok_s": 43.2
+    }
+  ],
+  "prefill_single": [
+    {
+      "prompt_n": 68607,
+      "prompt_tok_s": 834.7
+    },
+    {
+      "prompt_n": 68607,
+      "prompt_tok_s": 806.5
+    },
+    {
+      "prompt_n": 68607,
+      "prompt_tok_s": 803.4
+    }
+  ],
+  "prefill_dual": [
+    [
+      {
+        "prompt_n": 68607,
+        "prompt_tok_s": 747.5
+      },
+      {
+        "prompt_n": 68607,
+        "prompt_tok_s": 541.1
+      }
+    ],
+    [
+      {
+        "prompt_n": 68607,
+        "prompt_tok_s": 729.3
+      },
+      {
+        "prompt_n": 68607,
+        "prompt_tok_s": 533.9
+      }
+    ],
+    [
+      {
+        "prompt_n": 68607,
+        "prompt_tok_s": 727.8
+      },
+      {
+        "prompt_n": 68607,
+        "prompt_tok_s": 533.4
+      }
+    ]
+  ],
+  "gpu": {
+    "samples": 9304,
+    "max_power_w": 250.97,
+    "max_sm_mhz": 1695,
+    "max_temp_c": 83
+  }
+}

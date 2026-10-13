@@ -1,0 +1,16 @@
+[Unit]
+Description=Cap the RTX 3080's power and clocks (bifrost reset under load, 2026-10-12)
+After=nvidia-persistenced.service
+Before=llama-swap.service turnstile.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/bin/nvidia-smi -pm 1
+ExecStart=/usr/bin/nvidia-smi -pl 250
+ExecStart=/usr/bin/nvidia-smi -lgc 210,1700
+ExecStop=/usr/bin/nvidia-smi -rgc
+ExecStop=/usr/bin/nvidia-smi -pl 320
+
+[Install]
+WantedBy=multi-user.target
