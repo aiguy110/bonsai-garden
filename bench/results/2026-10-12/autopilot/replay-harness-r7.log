@@ -1,5 +1,14 @@
-pytest python: /home/josiah/Projects/bonsai-garden/evals/.cache/venv-sandbox/bin/python
-.......................                                                  [100%]
-23 passed in 0.09s
-== first invocation
-[2026-10-12T16:13:40-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r6-9cf273aef422 r1
+fatal: path 'autopilot/config.json' exists on disk, but not in '851ca879b6084c89df6f761cb42e2e63f8c1ccbe'
+fatal: path 'autopilot/config.json' exists on disk, but not in '9d7861b910aed2081d12f9f9d50ca04967e91240'
+fatal: path 'autopilot/config.json' exists on disk, but not in '7fa3d4dd522ac115db599ba595629233054e5ea7'
+fatal: path 'autopilot/config.json' exists on disk, but not in '0361ce503f42a22bb9c4d98078ca7584bc6d784d'
+fatal: path 'autopilot/config.json' exists on disk, but not in 'b21c05a11ce4e5065e7197af0bc6fac6b584cff4'
+fatal: path 'autopilot/config.json' exists on disk, but not in 'd97ea63415c8f466a2ac3b9e8983de0fcd788ba8'
+fatal: path 'autopilot/config.json' exists on disk, but not in 'bc433033c0f7538e8dfc80e8d74bde11de06de2b'
+fatal: path 'autopilot/config.json' exists on disk, but not in 'a60c66ea730e31fd0b35571217b54495b3b5ff73'
+fatal: path 'autopilot/config.json' exists on disk, but not in '422f573dbc82baec3768d00a5c77109981d102ac'
+fatal: path 'autopilot/config.json' exists on disk, but not in '8dc45f485e35045d615104b4dea4639f0ef6979c'
+fatal: path 'autopilot/config.json' exists on disk, but not in 'f632ed4eaf4ce971f3e0c31f2893cd322e49ac8d'
+fatal: path 'autopilot/config.json' exists on disk, but not in '09b28c5692fdc79db74a77fe00c0e7c05fec4919'
+/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T220237.json
+no Bonsai worker config found on operative M1 lineage
