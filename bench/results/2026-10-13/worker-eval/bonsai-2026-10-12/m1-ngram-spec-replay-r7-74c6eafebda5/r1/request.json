@@ -1,0 +1,8 @@
+{
+  "report": "Verified off/prod corrected output (window lines in all 4 phases, t_end on all rows, exit 0). Confirmed A (ngram-mod defaults) beats B (ngram-mod n-min 8 / n-max 16 / n-match 12) on dual-agent greedy (A 25.5 fg tok/s no-length 26.1, B 23.0). A/B fg rows all carry draft fields. Next: A/prod.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "A is the higher dual-agent greedy decode tok/s of A/B, so A-prod is the best-prod run needed by the plan. Uses the corrected probe (t0 before bg thread start, t_end per row, window lines) on the private production-equivalent server :8089, four fresh-server phases, sampling prod (agent temp 1.0, top_p 0.95, top_k 20, seed 0; mem temp 0.2, seed 0)."
+}

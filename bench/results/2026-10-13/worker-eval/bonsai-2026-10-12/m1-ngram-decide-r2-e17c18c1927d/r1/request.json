@@ -1,0 +1,8 @@
+{
+  "report": "Re-running the summarize on the host to regenerate summary.md, summary.json and deploy.json with the two fixes (per-phase VRAM, control first-divergence indices). .replay outputs live on the host; the script finds them relative to itself. No GPU needed.",
+  "request": "run",
+  "gpu": false,
+  "command": "python3 /home/dev/garden/bench/spec_summarize.py /home/dev/garden/bench/results/2026-10-12/m1-ngram/replay",
+  "timeout_min": 1,
+  "why": "Regenerate summary.md/summary.json/deploy.json with the applied fixes on the host, where the gitignored .replay message outputs exist for first-divergence indices."
+}

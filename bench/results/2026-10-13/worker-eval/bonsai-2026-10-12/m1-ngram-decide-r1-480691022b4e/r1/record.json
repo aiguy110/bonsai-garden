@@ -1,0 +1,55 @@
+{
+  "advisor_verdict": "revise",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-decide-r1-480691022b4e/r1",
+  "case_id": "m1-ngram-decide-r1-480691022b4e",
+  "cloud_kind": "done",
+  "compaction_end": 1,
+  "compaction_start": 1,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T02:10:19-04:00",
+  "flag_triggers": {
+    "output_limit": [
+      "stopReason=length"
+    ]
+  },
+  "item": "decide",
+  "kind_match": false,
+  "last_stop": "length",
+  "output_limit": true,
+  "pi_exit_code": null,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": null,
+  "request": null,
+  "request_source": "none",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "length"
+  ],
+  "tap_log_bytes": 6418,
+  "timeout": true,
+  "tool_calls": 16,
+  "tool_errors": {
+    "write": 1
+  },
+  "tools": {
+    "bash": 15,
+    "write": 1
+  },
+  "turns": 8,
+  "valid_request": false,
+  "validation_errors": [
+    "no request"
+  ],
+  "wall_s": 1200.5
+}

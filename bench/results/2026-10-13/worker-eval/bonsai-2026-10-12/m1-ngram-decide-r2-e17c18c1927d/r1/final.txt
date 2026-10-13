@@ -1,0 +1,2 @@
+The run request needs `gpu` and only a plain `python3 <script> ARGS` command (no shell operators). The script writes the artifacts to disk (no stdout), so I'll read them next turn. Let me resubmit cleanly:
+

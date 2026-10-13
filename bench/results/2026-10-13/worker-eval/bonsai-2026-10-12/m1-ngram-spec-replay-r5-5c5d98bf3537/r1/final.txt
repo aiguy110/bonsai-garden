@@ -1,0 +1,9 @@
+Files checked. Findings:
+
+- **`bench/spec_replay.py` is corrected.** It now writes `t_end` on every row (`one()`) and a per-phase `window t0=... t_fg_end=... t_join_end=...` line to notes.txt (`phase()`).
+- **`bench/spec_analyze.py`** reads both: uses `t_end <= t1` to count only bg rows that finished before the fg window ends, avoiding the in-flight overcount.
+- **`bench/m1-notes.md`** — the advisor's two fixes are already applied: only one `### 9b.` heading (line 362; no dup at 387, file is 383 lines), and §9b correctly says "two length rows." No further doc edit needed.
+- **Results state:** `off-greedy`, `A-greedy`, `B-greedy` all complete (4 phases each). `off-prod` exists but in the **old format** (no `t_end`, no window lines), so it must be re-run with the corrected probe and will be overwritten in place.
+
+The corrected scripts compile and the off-prod run is the next required step (resubmit after the interrupted attempt).
+
