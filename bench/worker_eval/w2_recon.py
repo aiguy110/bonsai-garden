@@ -28,8 +28,8 @@ PACKAGES = ["pi-hashline-edit", "pi-hashline-context-edit"]
 MAX_HITS = 120
 
 
-def sh(*cmd, cwd=None, timeout=300):
-    p = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, timeout=timeout)
+def sh(*cmd, cwd=None, timeout=300, env=None):
+    p = subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, timeout=timeout, env=env)
     return (p.stdout + (("\n" + p.stderr) if p.stderr.strip() else "")).strip(), p.returncode
 
 
@@ -156,9 +156,10 @@ def llama_report(out):
     L.append(f"binary: {binary}")
     srcdir = None
     if binary:
-        v, rc = sh(binary, "--version", timeout=120)
+        nogpu = {**os.environ, "CUDA_VISIBLE_DEVICES": ""}  # no CUDA context next to the live server
+        v, rc = sh(binary, "--version", timeout=120, env=nogpu)
         L += [f"--version (rc={rc}):", v]
-        h, _ = sh(binary, "--help", timeout=120)
+        h, _ = sh(binary, "--help", timeout=120, env=nogpu)
         L += section("--help lines on reasoning", [l for l in h.splitlines() if re.search(r"reasoning|think", l, re.I)])
         b = pathlib.Path(os.path.realpath(binary))
         home = pathlib.Path.home()
@@ -174,10 +175,17 @@ def llama_report(out):
                  find_files(srcdir / "common", suffixes=(".cpp", ".h"))]
         L += section("source: reasoning budget fields, defaults, behaviour at the budget",
                      grep(files, [r'reasoning_budget', r'thinking_budget', r'budget_message', r'budget_tokens'], ctx=2, cap=200))
-        L += section("git revision", [sh("git", "-C", str(srcdir), "rev-parse", "HEAD")[0]])
+        L += section("git revision", [sh("git", "-C", str(srcdir), "rev-parse", "HEAD")[0],
+                                      "describe: " + sh("git", "-C", str(srcdir), "describe", "--always", "--dirty")[0],
+                                      "status --porcelain (head):"] + sh("git", "-C", str(srcdir), "status", "--porcelain")[0].splitlines()[:20])
     else:
         L.append("(llama.cpp source tree not found next to the binary or under ~; the help lines above are all there is)")
     (out / "llama.txt").write_text("\n".join(L) + "\n")
+    info = {"binary": binary}
+    if binary and pathlib.Path(binary).exists():
+        info["sha256"] = sha256_file(pathlib.Path(os.path.realpath(binary)))
+        info["version"] = v
+    return info
 
 
 def sha256_file(p):
@@ -203,14 +211,15 @@ def packages(out):
     manifest = []
     for name in PACKAGES:
         d = base / name
-        d.mkdir()  # fresh and empty, or fail
+        d.mkdir()  # fresh and empty, or fail (rerun needs a new --out)
         stage = pathlib.Path(tempfile.mkdtemp(prefix="w2-npm-"))
-        o, rc = sh("npm", "pack", name, "--ignore-scripts", "--json", "--pack-destination", str(d), cwd=str(stage))
+        p = subprocess.run(["npm", "pack", name, "--ignore-scripts", "--json", "--pack-destination", str(d)],
+                           capture_output=True, text=True, cwd=str(stage), timeout=300)
         shutil.rmtree(stage, ignore_errors=True)
-        if rc:
-            manifest.append({"name": name, "error": o[-500:]})
+        if p.returncode:
+            manifest.append({"name": name, "error": (p.stdout + p.stderr)[-500:]})
             continue
-        info = json.loads(o[o.index("["):])[0]
+        info = json.loads(p.stdout)[0]
         tgz = d / info["filename"]
         un = d / "unpacked"
         un.mkdir()
@@ -260,7 +269,7 @@ def load(name, path, alias=None):
     return mod
 
 
-def drift(out):
+def drift(out, binary_info=None):
     ev = load("garden_evals_run", ROOT / "evals/run.py", alias="run")
     w1run = load("w1_run", HERE / "run.py")
     sha, repaired = w1run.pinned_model_sha256(ev)
@@ -275,7 +284,8 @@ def drift(out):
         "drift": bool(diff["model_sha256"] or diff["llama_swap_entry"] or diff["pi_version"]),
         "rule": "drift is true if model_sha256, llama_swap_entry or pi_version differs from any of the W1 manifests",
         "w1_manifests": len(mans), "differs": diff, "current": cur, "w1_values": w1,
-        "model_sha_cache_repaired": repaired}, indent=2) + "\n")
+        "model_sha_cache_repaired": repaired,
+        "informational_not_in_rule": {"llama_server": binary_info}}, indent=2) + "\n")
 
 
 def main():
@@ -284,9 +294,15 @@ def main():
     a = ap.parse_args()
     out = pathlib.Path(a.out) if a.out else ROOT / "bench/results" / datetime.date.today().isoformat() / "worker-eval-w2/recon"
     out.mkdir(parents=True, exist_ok=True)
+    binary_info = None
     for step in (pi_report, llama_report, packages, provenance, drift):
         try:
-            step(out)
+            if step is drift:
+                step(out, binary_info)
+            else:
+                r = step(out)
+                if step is llama_report:
+                    binary_info = r
             print("ok", step.__name__)
         except BaseException as e:  # noqa: BLE001  keep going; each section is independent
             print("FAILED", step.__name__, type(e).__name__, e)

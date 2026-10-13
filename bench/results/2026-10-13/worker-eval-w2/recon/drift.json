@@ -1,0 +1,44 @@
+{
+  "drift": false,
+  "rule": "drift is true if model_sha256, llama_swap_entry or pi_version differs from any of the W1 manifests",
+  "w1_manifests": 5,
+  "differs": {
+    "model_sha256": false,
+    "llama_swap_entry": false,
+    "pi_version": false,
+    "sandbox_image": false,
+    "turnstile_commit": false
+  },
+  "current": {
+    "model_sha256": "3907dc1658db1f78a9826bf8d5bcb8dc65db0d466388937af57f2294fae62ec1",
+    "llama_swap_entry": "    env:\n      - \"LLAMA_ATTN_ROT_DISABLE=1\"\n    cmd: |\n      /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server\n      --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf\n      --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf\n      --no-mmproj-offload\n      --port ${PORT}\n      --n-gpu-layers 99\n      --ctx-size 98304\n      --parallel 2\n      --kv-unified\n      --threads 8\n      --flash-attn on\n      --cache-type-k q4_0\n      --cache-type-v q4_0\n      --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf\n      --temp 1.0\n      --top-p 0.95\n      --top-k 20\n      --jinja\n    ttl: 0\n\n",
+    "pi_version": "0.86.1",
+    "sandbox_image": "sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
+    "turnstile_commit": "336dcd6ef468c2558f5b8fab4e08c590248479fe"
+  },
+  "w1_values": {
+    "model_sha256": [
+      "3907dc1658db1f78a9826bf8d5bcb8dc65db0d466388937af57f2294fae62ec1"
+    ],
+    "llama_swap_entry": [
+      "    env:\n      - \"LLAMA_ATTN_ROT_DISABLE=1\"\n    cmd: |\n      /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server\n      --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf\n      --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf\n      --no-mmproj-offload\n      --port ${PORT}\n      --n-gpu-layers 99\n      --ctx-size 98304\n      --parallel 2\n      --kv-unified\n      --threads 8\n      --flash-attn on\n      --cache-type-k q4_0\n      --cache-type-v q4_0\n      --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf\n      --temp 1.0\n      --top-p 0.95\n      --top-k 20\n      --jinja\n    ttl: 0\n\n"
+    ],
+    "pi_version": [
+      "0.86.1"
+    ],
+    "sandbox_image": [
+      "sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55"
+    ],
+    "turnstile_commit": [
+      "336dcd6ef468c2558f5b8fab4e08c590248479fe"
+    ]
+  },
+  "model_sha_cache_repaired": false,
+  "informational_not_in_rule": {
+    "llama_server": {
+      "binary": "/home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server",
+      "sha256": "9a8c98db969818cfe341478ab46dce5d93f09b774f7893cb74897c14990aded3",
+      "version": "0.00.038.835 E ggml_cuda_init: failed to initialize CUDA: no CUDA-capable device is detected\nversion: 0.2.0-dev (build 1, commit 9a9394a)\nbuilt with GNU 13.3.0 for Linux x86_64"
+    }
+  }
+}

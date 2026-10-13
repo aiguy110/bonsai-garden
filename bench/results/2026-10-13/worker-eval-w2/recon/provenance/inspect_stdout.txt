@@ -1,0 +1,46 @@
+/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker_eval/historical-arm-provenance-20261013T114648.json
+{
+  "commit": "c9c86b7338aa23ddcf0edd58493e1954d7eb7179",
+  "commit_time": "2026-10-12T08:32:41-04:00",
+  "config_path": "autopilot/config.json",
+  "config_sha256": "5cdfac6b5fad60024df762255a0bfbf0ad8c9e05c512ae7d532b15d098e98cfc",
+  "worker": {
+    "model": "bonsai-agent",
+    "thinking": "low",
+    "where": "sandbox"
+  },
+  "worker_timeout_min": 45,
+  "worker_memory": null,
+  "model_registrations": [
+    {
+      "path": "agent/models.bonsai-agent.json",
+      "sha256": "ee6b8706f96b5216ed3dc20325fe7cb1d15a150e208c40654d26b63eef34b620",
+      "value": {
+        "id": "bonsai-agent",
+        "name": "Bonsai 2 27B agent slot (turnstile virtual, 80k ctx)",
+        "reasoning": true,
+        "input": [
+          "text"
+        ],
+        "contextWindow": 81920,
+        "maxTokens": 16384,
+        "cost": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0
+        }
+      }
+    }
+  ],
+  "harness": {
+    "files": [
+      {
+        "path": "autopilot/autopilot.py",
+        "sha256": "0a716a0ae0f54aaa6faf4947a5a1d436feea0aad31a29ac8b41cfb662328aff6"
+      }
+    ],
+    "compaction_reserve_tokens": null,
+    "submit_request_extension": null
+  }
+}

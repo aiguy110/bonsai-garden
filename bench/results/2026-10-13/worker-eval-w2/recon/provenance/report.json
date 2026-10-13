@@ -1,0 +1,26 @@
+{
+  "rc": 0,
+  "report": "historical-arm-provenance-20261013T114648.json",
+  "raw_blob_hashes": [
+    {
+      "commit": "c9c86b7338aa23ddcf0edd58493e1954d7eb7179",
+      "config_path": "autopilot/config.json",
+      "config_sha256_raw_blob": "5cdfac6b5fad60024df762255a0bfbf0ad8c9e05c512ae7d532b15d098e98cfc",
+      "model_registrations": [
+        {
+          "path": "agent/models.bonsai-agent.json",
+          "sha256_raw_blob": "ee6b8706f96b5216ed3dc20325fe7cb1d15a150e208c40654d26b63eef34b620"
+        }
+      ]
+    }
+  ],
+  "old_arm_file_hashes": [
+    "27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334",
+    "949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4"
+  ],
+  "old_hashes_equal_raw_blob_hashes": {
+    "27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334": false,
+    "949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4": false
+  },
+  "note": "The old arm file (not edited) hashed stripped text; any False above means the arm file's hash is of text, not of blob bytes."
+}

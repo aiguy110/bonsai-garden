@@ -36,3 +36,35 @@ Added to the standing facts:
 
 - Host-side probes must not create a CUDA context next to the live llama-swap server (llama.cpp's CUDA pool grows on demand); run llama-server --version/--help with CUDA_VISIBLE_DEVICES=''.
 - pi's compaction summary call passes the session thinkingLevel (pi-coding-agent dist/core/agent-session.js:1568), so the summary requests run with thinking on.
+
+### 2026-10-13T11:45:43-04:00 · worker (gpt-5.6-terra), round 4
+
+I applied the advisor's fixes to w2_recon.py and it compiles. I haven't run it. (1) llama-server `--version` and `--help` now run with CUDA_VISIBLE_DEVICES=''. (2) `npm pack --json` is parsed from stdout only, and stderr is kept separately in the error entry. (3) llama.txt now also records `git describe --always --dirty` and `git status --porcelain` (first 20 lines). (4) drift.json gets the llama-server binary's sha256 and `--version` under informational_not_in_rule, outside the drift rule. Next session: read the recon output, run the GPU reasoning probe, then write vendor/REVIEW.md and W2-decisions.md.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/w2_recon.py",
+  "gpu": false,
+  "timeout_min": 30,
+  "why": "Part A recon (pi/llama excerpts, npm pack of hashline packages, provenance, drift), with the advisor's fixes applied. Output is needed to write vendor/REVIEW.md and W2-decisions.md."
+}
+```
+
+### 2026-10-13T11:46:41-04:00 · advisor (run request)
+
+**approve**: Safe: read-only on /etc/llama-swap and turnstile, no GPU use (CUDA_VISIBLE_DEVICES='' for --version/--help), no server started, npm pack with --ignore-scripts from a temp cwd into fresh dirs, safe tar extraction, writes only under bench/results/, /tmp, ~/.npm and the gitignored evals/.cache. Drift keys match the W1 manifest keys (manifest-20261012-222231.json:36-67), so drift won't be set by a missing key. The binary lives in ~/Projects/llama.cpp-bonsai2/build/bin, so the source tree and git describe will be found. Minor: a rerun needs a new --out (packages() mkdir), and inspect_historical_arm.py also writes a copy under bench/results/<today>/worker_eval/. Optional: add turnstile_routing to drift.json's informational fields, since W2 arms change request fields through the tap. After the run, check pi.txt for the context/before_provider_request event and the openai-completions reasoning_content lines before writing W2-decisions.md. Where pi.txt is thin, cite the dist file:line directly.
+
+### 2026-10-13T11:47:18-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/w2_recon.py` (gpu=False) in 37s, exit 0. Full output: `bench/results/2026-10-13/autopilot/recon-and-w1-traces-r4.log`. Last lines:
+
+```
+ok pi_report
+ok llama_report
+ok packages
+ok provenance
+ok drift
+/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval-w2/recon
+
+```

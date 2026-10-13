@@ -1,0 +1,63 @@
+bonsai-2-27b llama-swap entry (read-only):
+    env:
+      - "LLAMA_ATTN_ROT_DISABLE=1"
+    cmd: |
+      /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server
+      --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf
+      --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf
+      --no-mmproj-offload
+      --port ${PORT}
+      --n-gpu-layers 99
+      --ctx-size 98304
+      --parallel 2
+      --kv-unified
+      --threads 8
+      --flash-attn on
+      --cache-type-k q4_0
+      --cache-type-v q4_0
+      --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf
+      --temp 1.0
+      --top-p 0.95
+      --top-k 20
+      --jinja
+    ttl: 0
+
+
+binary: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server
+--version (rc=0):
+0.00.038.835 E ggml_cuda_init: failed to initialize CUDA: no CUDA-capable device is detected
+version: 0.2.0-dev (build 1, commit 9a9394a)
+built with GNU 13.3.0 for Linux x86_64
+
+===== --help lines on reasoning =====
+--reasoning-format FORMAT               controls whether thought tags are allowed and/or extracted from the
+                                        - deepseek: puts thoughts in `message.reasoning_content`
+                                        - deepseek-legacy: keeps `<think>` tags in `message.content` while
+                                        also populating `message.reasoning_content`
+                                        (env: LLAMA_ARG_THINK)
+-rea,  --reasoning [on|off|auto]        Use reasoning/thinking in the chat ('on', 'off', or 'auto', default:
+                                        (env: LLAMA_ARG_REASONING)
+--reasoning-effort LEVEL                reasoning effort level given to the chat template: 'default' to keep
+                                        (env: LLAMA_ARG_REASONING_EFFORT)
+--reasoning-budget N                    token budget for thinking: -1 for unrestricted, 0 for immediate end,
+                                        (env: LLAMA_ARG_THINK_BUDGET)
+--reasoning-budget-message MESSAGE      message injected before the end-of-thinking tag when reasoning budget
+                                        (env: LLAMA_ARG_THINK_BUDGET_MESSAGE)
+--reasoning-preserve, --no-reasoning-preserve
+                                        preserve reasoning trace in the full history, not just the last
+                                        compatible with certain templates having 'supports_preserve_reasoning'
+                                        https://docs.z.ai/guides/capabilities/thinking-mode#preserved-thinking
+                                        (env: LLAMA_ARG_REASONING_PRESERVE)
+                                        bailing, bailing-think, bailing2, chatglm3, chatglm4, chatml,
+                                        bailing, bailing-think, bailing2, chatglm3, chatglm4, chatml,
+                                        reasoning and/or tool calls (default: disabled)
+
+source dir: /home/josiah/Projects/llama.cpp-bonsai2/build
+
+===== source: reasoning budget fields, defaults, behaviour at the budget =====
+(no matches)
+
+===== git revision =====
+9a9394a895b96003ca842a6041cb28ac49a108f7
+describe: 9a9394a
+status --porcelain (head):

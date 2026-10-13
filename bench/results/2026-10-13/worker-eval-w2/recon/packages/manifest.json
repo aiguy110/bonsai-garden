@@ -1,0 +1,120 @@
+[
+  {
+    "name": "pi-hashline-edit",
+    "version": "0.8.3",
+    "tarball": "packages/pi-hashline-edit/pi-hashline-edit-0.8.3.tgz",
+    "tarball_sha256": "8205e8d9854f69124405f5f03f33384db9880738f4ef1ef5c9051c756331a076",
+    "registry_integrity": "sha512-eQWvwvR8aS7e/8CLTt8sdGhFXJguPTyFK+m9IB2muQQHsPnyMlF/cXKzEo5mQ898LxAM1jl7UVhPsmNXR8y/Mw==",
+    "registry_shasum": "8985f24c3493be375cc225a5522ed54de8daabc9",
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "dependencies": {
+      "diff": "^8.0.2",
+      "file-type": "^21.3.0",
+      "xxhashjs": "^0.2.2"
+    },
+    "peerDependencies": {
+      "@earendil-works/pi-ai": ">=0.74.0",
+      "@earendil-works/pi-coding-agent": ">=0.74.0",
+      "@earendil-works/pi-tui": "*",
+      "@sinclair/typebox": "*"
+    },
+    "files": [
+      "LICENSE",
+      "README.md",
+      "docs/adr/0001-keep-two-character-hashlines.md",
+      "docs/adr/0002-delete-edit-return-payload-modes.md",
+      "docs/adr/0003-context-based-line-hashing.md",
+      "docs/adr/0004-snapshot-merge-recovery.md",
+      "docs/adr/0005-multi-version-snapshot-history.md",
+      "docs/adr/0006-user-config-hash-length-and-grep.md",
+      "docs/adr/0007-disable-replace-text-op.md",
+      "docs/FAQ.md",
+      "index.ts",
+      "package.json",
+      "prompts/edit-guidelines.md",
+      "prompts/edit-snippet.md",
+      "prompts/edit.md",
+      "prompts/grep-snippet.md",
+      "prompts/grep.md",
+      "prompts/read-guidelines.md",
+      "prompts/read-snippet.md",
+      "prompts/read.md",
+      "src/config.ts",
+      "src/edit-diff.ts",
+      "src/edit-normalize.ts",
+      "src/edit-render.ts",
+      "src/edit-response.ts",
+      "src/edit.ts",
+      "src/file-kind.ts",
+      "src/fs-write.ts",
+      "src/grep.ts",
+      "src/hashline.ts",
+      "src/hashline/apply.ts",
+      "src/hashline/format.ts",
+      "src/hashline/hash.ts",
+      "src/hashline/parse.ts",
+      "src/merge.ts",
+      "src/noop-loop-guard.ts",
+      "src/path-utils.ts",
+      "src/prompt-loader.ts",
+      "src/read-snapshot.ts",
+      "src/read.ts",
+      "src/runtime.ts",
+      "src/snapshot.ts"
+    ],
+    "unpacked_dir": "packages/pi-hashline-edit/unpacked"
+  },
+  {
+    "name": "pi-hashline-context-edit",
+    "version": "0.11.0",
+    "tarball": "packages/pi-hashline-context-edit/pi-hashline-context-edit-0.11.0.tgz",
+    "tarball_sha256": "51a6a25d86c775e84d78d33c129b0ab1a87e51e77cc5752cbc0e19f089c4b5ab",
+    "registry_integrity": "sha512-tNXZdAaWhWLaKQ2G3l9G+GDNiX/EhWXc5BnwWRYRAgP72xMz1uu9oxJV1EdT9s1HqB1nUcHZvQ3byAvlW06nIA==",
+    "registry_shasum": "a57374347e93c5a869fe4be9543ac2dff5971e59",
+    "license": "MIT",
+    "license_files": [
+      "LICENSE"
+    ],
+    "dependencies": {
+      "diff": "^9.0.0",
+      "file-type": "^22.0.1"
+    },
+    "peerDependencies": {
+      "@earendil-works/pi-ai": ">=0.74.0",
+      "@earendil-works/pi-coding-agent": ">=0.74.0",
+      "@earendil-works/pi-tui": "*",
+      "@sinclair/typebox": "*"
+    },
+    "files": [
+      "LICENSE",
+      "README.md",
+      "assets/banner.png",
+      "index.ts",
+      "package.json",
+      "prompts/edit-guidelines.md",
+      "prompts/edit-snippet.md",
+      "prompts/edit.md",
+      "prompts/read-guidelines.md",
+      "prompts/read-snippet.md",
+      "prompts/read.md",
+      "src/edit-diff.ts",
+      "src/edit-normalize.ts",
+      "src/edit-render.ts",
+      "src/edit-response.ts",
+      "src/edit.ts",
+      "src/file-kind.ts",
+      "src/fs-write.ts",
+      "src/hashline.ts",
+      "src/merge.ts",
+      "src/path-utils.ts",
+      "src/read-snapshot.ts",
+      "src/read.ts",
+      "src/runtime.ts",
+      "src/snapshot.ts"
+    ],
+    "unpacked_dir": "packages/pi-hashline-context-edit/unpacked"
+  }
+]
