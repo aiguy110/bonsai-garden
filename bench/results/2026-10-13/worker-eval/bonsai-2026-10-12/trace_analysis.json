@@ -1,0 +1,1804 @@
+{
+  "source": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12",
+  "attempts": 44,
+  "timeouts": 17,
+  "alignment": {
+    "m1-ngram-decide-r1-480691022b4e/r1": {
+      "events_replies": 8,
+      "tap_agent": 8,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-decide-r1-480691022b4e/r2": {
+      "events_replies": 14,
+      "tap_agent": 14,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-decide-r2-e17c18c1927d/r1": {
+      "events_replies": 26,
+      "tap_agent": 26,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-decide-r2-e17c18c1927d/r2": {
+      "events_replies": 34,
+      "tap_agent": 34,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-decide-r3-85bb90579f2f/r1": {
+      "events_replies": 12,
+      "tap_agent": 12,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-decide-r3-85bb90579f2f/r2": {
+      "events_replies": 16,
+      "tap_agent": 16,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r10-0046c6599fd4/r1": {
+      "events_replies": 29,
+      "tap_agent": 29,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r10-0046c6599fd4/r2": {
+      "events_replies": 19,
+      "tap_agent": 19,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r11-fe779856b52c/r1": {
+      "events_replies": 13,
+      "tap_agent": 13,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r11-fe779856b52c/r2": {
+      "events_replies": 14,
+      "tap_agent": 14,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r12-e62a974c8e88/r1": {
+      "events_replies": 11,
+      "tap_agent": 11,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-replay-set-r12-e62a974c8e88/r2": {
+      "events_replies": 17,
+      "tap_agent": 17,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-replay-set-r6-9cf273aef422/r1": {
+      "events_replies": 68,
+      "tap_agent": 68,
+      "tap_summary_requests": 2,
+      "summary_runs": 2,
+      "compaction_start": 2,
+      "compaction_end": 2
+    },
+    "m1-ngram-replay-set-r6-9cf273aef422/r2": {
+      "events_replies": 26,
+      "tap_agent": 26,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 2,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r7-52b0d2b42358/r1": {
+      "events_replies": 48,
+      "tap_agent": 48,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 2,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r7-52b0d2b42358/r2": {
+      "events_replies": 22,
+      "tap_agent": 22,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r8-4324817a7216/r1": {
+      "events_replies": 29,
+      "tap_agent": 29,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r8-4324817a7216/r2": {
+      "events_replies": 39,
+      "tap_agent": 39,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-replay-set-r9-870367a83103/r1": {
+      "events_replies": 2,
+      "tap_agent": 2,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-replay-set-r9-870367a83103/r2": {
+      "events_replies": 35,
+      "tap_agent": 35,
+      "tap_summary_requests": 2,
+      "summary_runs": 2,
+      "compaction_start": 2,
+      "compaction_end": 2
+    },
+    "m1-ngram-spec-replay-r1-7be283086913/r1": {
+      "events_replies": 25,
+      "tap_agent": 25,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 2,
+      "compaction_end": 1
+    },
+    "m1-ngram-spec-replay-r1-7be283086913/r2": {
+      "events_replies": 12,
+      "tap_agent": 12,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-spec-replay-r10-dc0c818a5351/r1": {
+      "events_replies": 30,
+      "tap_agent": 30,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r10-dc0c818a5351/r2": {
+      "events_replies": 23,
+      "tap_agent": 23,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-spec-replay-r11-f096b0e52769/r1": {
+      "events_replies": 14,
+      "tap_agent": 14,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r11-f096b0e52769/r2": {
+      "events_replies": 28,
+      "tap_agent": 28,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r2-aa8e7eef2474/r1": {
+      "events_replies": 15,
+      "tap_agent": 15,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-spec-replay-r2-aa8e7eef2474/r2": {
+      "events_replies": 25,
+      "tap_agent": 25,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r3-b72fe4dade49/r1": {
+      "events_replies": 36,
+      "tap_agent": 36,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-spec-replay-r3-b72fe4dade49/r2": {
+      "events_replies": 27,
+      "tap_agent": 27,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-spec-replay-r4-1147202353a6/r1": {
+      "events_replies": 23,
+      "tap_agent": 23,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-spec-replay-r4-1147202353a6/r2": {
+      "events_replies": 42,
+      "tap_agent": 42,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-spec-replay-r5-144acae8e198/r1": {
+      "events_replies": 6,
+      "tap_agent": 6,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r5-144acae8e198/r2": {
+      "events_replies": 6,
+      "tap_agent": 6,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r5-5c5d98bf3537/r1": {
+      "events_replies": 11,
+      "tap_agent": 11,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r5-5c5d98bf3537/r2": {
+      "events_replies": 9,
+      "tap_agent": 9,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r6-ee9150033cd8/r1": {
+      "events_replies": 13,
+      "tap_agent": 13,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r6-ee9150033cd8/r2": {
+      "events_replies": 9,
+      "tap_agent": 9,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r7-74c6eafebda5/r1": {
+      "events_replies": 9,
+      "tap_agent": 9,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-spec-replay-r7-74c6eafebda5/r2": {
+      "events_replies": 14,
+      "tap_agent": 14,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-write-up-r2-cebbd5fef63b/r1": {
+      "events_replies": 14,
+      "tap_agent": 14,
+      "tap_summary_requests": 1,
+      "summary_runs": 1,
+      "compaction_start": 1,
+      "compaction_end": 1
+    },
+    "m1-ngram-write-up-r2-cebbd5fef63b/r2": {
+      "events_replies": 34,
+      "tap_agent": 34,
+      "tap_summary_requests": 2,
+      "summary_runs": 2,
+      "compaction_start": 2,
+      "compaction_end": 2
+    },
+    "m1-ngram-write-up-r3-aee7d1507663/r1": {
+      "events_replies": 11,
+      "tap_agent": 11,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    },
+    "m1-ngram-write-up-r3-aee7d1507663/r2": {
+      "events_replies": 15,
+      "tap_agent": 15,
+      "tap_summary_requests": 0,
+      "summary_runs": 0,
+      "compaction_start": 0,
+      "compaction_end": 0
+    }
+  },
+  "time_split": {
+    "method": "decode = sum tap timings.predicted_ms, prefill = sum timings.prompt_ms over every tap record (replies and summarisation calls); other = record wall_s minus both (tool time, pi overhead, the in-flight request killed at timeout, which the tap never logs).",
+    "pooled": {
+      "attempts": 44,
+      "decode_s": 30572.6,
+      "prefill_s": 3318.5,
+      "other_s": 1400.1,
+      "wall_s": 35291.2,
+      "decode_share": 0.866,
+      "prefill_share": 0.094,
+      "other_share": 0.04
+    },
+    "timeouts_pooled": {
+      "attempts": 17,
+      "decode_s": 17266.2,
+      "prefill_s": 1885.7,
+      "other_s": 1255.0,
+      "wall_s": 20406.9,
+      "decode_share": 0.846,
+      "prefill_share": 0.092,
+      "other_share": 0.061
+    },
+    "per_attempt": {
+      "m1-ngram-decide-r1-480691022b4e/r1": {
+        "decode_s": 992.6,
+        "prefill_s": 58.2,
+        "other_s": 149.8,
+        "wall_s": 1200.5
+      },
+      "m1-ngram-decide-r1-480691022b4e/r2": {
+        "decode_s": 1076.2,
+        "prefill_s": 109.5,
+        "other_s": 14.7,
+        "wall_s": 1200.5
+      },
+      "m1-ngram-decide-r2-e17c18c1927d/r1": {
+        "decode_s": 950.0,
+        "prefill_s": 104.4,
+        "other_s": 8.9,
+        "wall_s": 1063.3
+      },
+      "m1-ngram-decide-r2-e17c18c1927d/r2": {
+        "decode_s": 1082.5,
+        "prefill_s": 95.8,
+        "other_s": 22.2,
+        "wall_s": 1200.5
+      },
+      "m1-ngram-decide-r3-85bb90579f2f/r1": {
+        "decode_s": 468.8,
+        "prefill_s": 40.6,
+        "other_s": 4.3,
+        "wall_s": 513.7
+      },
+      "m1-ngram-decide-r3-85bb90579f2f/r2": {
+        "decode_s": 698.0,
+        "prefill_s": 105.5,
+        "other_s": 6.3,
+        "wall_s": 809.8
+      },
+      "m1-ngram-replay-set-r10-0046c6599fd4/r1": {
+        "decode_s": 758.8,
+        "prefill_s": 75.7,
+        "other_s": 9.5,
+        "wall_s": 844.0
+      },
+      "m1-ngram-replay-set-r10-0046c6599fd4/r2": {
+        "decode_s": 1073.5,
+        "prefill_s": 108.9,
+        "other_s": 18.0,
+        "wall_s": 1200.4
+      },
+      "m1-ngram-replay-set-r11-fe779856b52c/r1": {
+        "decode_s": 922.8,
+        "prefill_s": 92.6,
+        "other_s": 6.2,
+        "wall_s": 1021.6
+      },
+      "m1-ngram-replay-set-r11-fe779856b52c/r2": {
+        "decode_s": 1092.8,
+        "prefill_s": 97.8,
+        "other_s": 9.7,
+        "wall_s": 1200.3
+      },
+      "m1-ngram-replay-set-r12-e62a974c8e88/r1": {
+        "decode_s": 419.3,
+        "prefill_s": 23.4,
+        "other_s": 3.8,
+        "wall_s": 446.5
+      },
+      "m1-ngram-replay-set-r12-e62a974c8e88/r2": {
+        "decode_s": 372.2,
+        "prefill_s": 28.0,
+        "other_s": 3.8,
+        "wall_s": 404.0
+      },
+      "m1-ngram-replay-set-r6-9cf273aef422/r1": {
+        "decode_s": 964.0,
+        "prefill_s": 188.8,
+        "other_s": 47.6,
+        "wall_s": 1200.4
+      },
+      "m1-ngram-replay-set-r6-9cf273aef422/r2": {
+        "decode_s": 957.3,
+        "prefill_s": 102.4,
+        "other_s": 140.5,
+        "wall_s": 1200.3
+      },
+      "m1-ngram-replay-set-r7-52b0d2b42358/r1": {
+        "decode_s": 1070.6,
+        "prefill_s": 103.5,
+        "other_s": 26.4,
+        "wall_s": 1200.5
+      },
+      "m1-ngram-replay-set-r7-52b0d2b42358/r2": {
+        "decode_s": 1083.6,
+        "prefill_s": 108.7,
+        "other_s": 8.1,
+        "wall_s": 1200.4
+      },
+      "m1-ngram-replay-set-r8-4324817a7216/r1": {
+        "decode_s": 834.8,
+        "prefill_s": 90.8,
+        "other_s": 274.8,
+        "wall_s": 1200.4
+      },
+      "m1-ngram-replay-set-r8-4324817a7216/r2": {
+        "decode_s": 1006.6,
+        "prefill_s": 104.9,
+        "other_s": 89.0,
+        "wall_s": 1200.4
+      },
+      "m1-ngram-replay-set-r9-870367a83103/r1": {
+        "decode_s": 122.0,
+        "prefill_s": 13.1,
+        "other_s": 2.7,
+        "wall_s": 137.8
+      },
+      "m1-ngram-replay-set-r9-870367a83103/r2": {
+        "decode_s": 1021.9,
+        "prefill_s": 164.2,
+        "other_s": 14.2,
+        "wall_s": 1200.3
+      },
+      "m1-ngram-spec-replay-r1-7be283086913/r1": {
+        "decode_s": 916.5,
+        "prefill_s": 108.9,
+        "other_s": 174.9,
+        "wall_s": 1200.3
+      },
+      "m1-ngram-spec-replay-r1-7be283086913/r2": {
+        "decode_s": 979.7,
+        "prefill_s": 74.2,
+        "other_s": 146.4,
+        "wall_s": 1200.3
+      },
+      "m1-ngram-spec-replay-r10-dc0c818a5351/r1": {
+        "decode_s": 572.6,
+        "prefill_s": 32.3,
+        "other_s": 6.6,
+        "wall_s": 611.6
+      },
+      "m1-ngram-spec-replay-r10-dc0c818a5351/r2": {
+        "decode_s": 370.6,
+        "prefill_s": 120.7,
+        "other_s": 8.3,
+        "wall_s": 499.6
+      },
+      "m1-ngram-spec-replay-r11-f096b0e52769/r1": {
+        "decode_s": 266.4,
+        "prefill_s": 24.4,
+        "other_s": 4.4,
+        "wall_s": 295.2
+      },
+      "m1-ngram-spec-replay-r11-f096b0e52769/r2": {
+        "decode_s": 396.1,
+        "prefill_s": 38.0,
+        "other_s": 6.2,
+        "wall_s": 440.3
+      },
+      "m1-ngram-spec-replay-r2-aa8e7eef2474/r1": {
+        "decode_s": 785.5,
+        "prefill_s": 114.5,
+        "other_s": 6.2,
+        "wall_s": 906.2
+      },
+      "m1-ngram-spec-replay-r2-aa8e7eef2474/r2": {
+        "decode_s": 596.5,
+        "prefill_s": 35.2,
+        "other_s": 5.9,
+        "wall_s": 637.6
+      },
+      "m1-ngram-spec-replay-r3-b72fe4dade49/r1": {
+        "decode_s": 1067.6,
+        "prefill_s": 109.9,
+        "other_s": 8.7,
+        "wall_s": 1186.2
+      },
+      "m1-ngram-spec-replay-r3-b72fe4dade49/r2": {
+        "decode_s": 776.1,
+        "prefill_s": 116.0,
+        "other_s": 8.7,
+        "wall_s": 900.8
+      },
+      "m1-ngram-spec-replay-r4-1147202353a6/r1": {
+        "decode_s": 1001.4,
+        "prefill_s": 100.8,
+        "other_s": 7.9,
+        "wall_s": 1110.1
+      },
+      "m1-ngram-spec-replay-r4-1147202353a6/r2": {
+        "decode_s": 1006.2,
+        "prefill_s": 123.1,
+        "other_s": 71.1,
+        "wall_s": 1200.4
+      },
+      "m1-ngram-spec-replay-r5-144acae8e198/r1": {
+        "decode_s": 239.7,
+        "prefill_s": 19.6,
+        "other_s": 3.1,
+        "wall_s": 262.4
+      },
+      "m1-ngram-spec-replay-r5-144acae8e198/r2": {
+        "decode_s": 74.0,
+        "prefill_s": 19.4,
+        "other_s": 3.2,
+        "wall_s": 96.6
+      },
+      "m1-ngram-spec-replay-r5-5c5d98bf3537/r1": {
+        "decode_s": 219.1,
+        "prefill_s": 20.7,
+        "other_s": 3.9,
+        "wall_s": 243.7
+      },
+      "m1-ngram-spec-replay-r5-5c5d98bf3537/r2": {
+        "decode_s": 127.8,
+        "prefill_s": 20.5,
+        "other_s": 3.2,
+        "wall_s": 151.5
+      },
+      "m1-ngram-spec-replay-r6-ee9150033cd8/r1": {
+        "decode_s": 282.4,
+        "prefill_s": 23.1,
+        "other_s": 3.9,
+        "wall_s": 309.4
+      },
+      "m1-ngram-spec-replay-r6-ee9150033cd8/r2": {
+        "decode_s": 126.7,
+        "prefill_s": 18.4,
+        "other_s": 3.3,
+        "wall_s": 148.4
+      },
+      "m1-ngram-spec-replay-r7-74c6eafebda5/r1": {
+        "decode_s": 184.7,
+        "prefill_s": 24.2,
+        "other_s": 3.8,
+        "wall_s": 212.7
+      },
+      "m1-ngram-spec-replay-r7-74c6eafebda5/r2": {
+        "decode_s": 535.7,
+        "prefill_s": 42.5,
+        "other_s": 4.4,
+        "wall_s": 582.5
+      },
+      "m1-ngram-write-up-r2-cebbd5fef63b/r1": {
+        "decode_s": 1095.7,
+        "prefill_s": 83.9,
+        "other_s": 20.9,
+        "wall_s": 1200.5
+      },
+      "m1-ngram-write-up-r2-cebbd5fef63b/r2": {
+        "decode_s": 1011.7,
+        "prefill_s": 162.1,
+        "other_s": 26.7,
+        "wall_s": 1200.5
+      },
+      "m1-ngram-write-up-r3-aee7d1507663/r1": {
+        "decode_s": 443.5,
+        "prefill_s": 30.8,
+        "other_s": 3.4,
+        "wall_s": 477.7
+      },
+      "m1-ngram-write-up-r3-aee7d1507663/r2": {
+        "decode_s": 528.1,
+        "prefill_s": 38.5,
+        "other_s": 4.5,
+        "wall_s": 571.1
+      }
+    }
+  },
+  "reply_tokens": {
+    "method": "Replies paired with agent-kind tap records by position. predicted_n from the tap; thinking share = thinking chars / (thinking + text + tool-call JSON chars); estimated reasoning tokens = predicted_n * share.",
+    "replies": 930,
+    "predicted_n": {
+      "n": 930,
+      "p50": 424,
+      "p75": 1269,
+      "p90": 2993,
+      "max": 16384
+    },
+    "thinking_share": {
+      "n": 930,
+      "p50": 0.6591760299625468,
+      "p75": 0.8649237472766884,
+      "p90": 0.9517912794064922,
+      "max": 1.0,
+      "mean": 0.621
+    },
+    "est_reasoning_tokens": {
+      "n": 930,
+      "p50": 232.78378378378378,
+      "p75": 967.0802603036876,
+      "p90": 2544.6690894804046,
+      "max": 15614.270479481642
+    }
+  },
+  "thinking_resent": {
+    "method": "Consecutive agent requests with no compaction between. resid = prompt_tokens[i+1] - prompt_tokens[i] - (tool-result chars between them)/4. If thinking is resent, resid ~ predicted_n[i]; if not, resid ~ predicted_n[i] * (1 - thinking share). Discriminating pairs: share >= 0.3 and predicted_n >= 100.",
+    "pairs": 859,
+    "discriminating_pairs": 654,
+    "median_resid_over_predicted_n": 1.163,
+    "median_resid_over_nonthinking_tokens": 5.989,
+    "pairs_closer_to_resent": 643,
+    "share_closer_to_resent": 0.983,
+    "verdict": "confirmed"
+  },
+  "prompt_composition_at_pressure": {
+    "method": "At each compaction_start and each context-overflow reply: thinking and tool-result chars/4 accumulated since the previous compaction_end (or session start), divided by the last known prompt_tokens. The rest (system prompt, summary, retained pre-compaction messages, user text, text and tool calls) is not split.",
+    "events": 35,
+    "median_thinking_share": 0.331,
+    "median_tool_output_share": 0.279,
+    "by_kind": {
+      "compaction_start": {
+        "n": 32,
+        "median_thinking_share": 0.324,
+        "median_tool_output_share": 0.287
+      },
+      "overflow": {
+        "n": 3,
+        "median_thinking_share": 0.373,
+        "median_tool_output_share": 0.159
+      }
+    },
+    "rows": [
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r1",
+        "last_prompt_tokens": 48742,
+        "thinking_tokens_est": 25015,
+        "tool_output_tokens_est": 11546,
+        "thinking_share": 0.513,
+        "tool_output_share": 0.237
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r2",
+        "last_prompt_tokens": 51485,
+        "thinking_tokens_est": 19075,
+        "tool_output_tokens_est": 7968,
+        "thinking_share": 0.37,
+        "tool_output_share": 0.155
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-decide-r2-e17c18c1927d/r1",
+        "last_prompt_tokens": 53736,
+        "thinking_tokens_est": 14424,
+        "tool_output_tokens_est": 11607,
+        "thinking_share": 0.268,
+        "tool_output_share": 0.216
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-decide-r2-e17c18c1927d/r2",
+        "last_prompt_tokens": 53233,
+        "thinking_tokens_est": 18286,
+        "tool_output_tokens_est": 8642,
+        "thinking_share": 0.343,
+        "tool_output_share": 0.162
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-decide-r3-85bb90579f2f/r2",
+        "last_prompt_tokens": 52980,
+        "thinking_tokens_est": 18703,
+        "tool_output_tokens_est": 11168,
+        "thinking_share": 0.353,
+        "tool_output_share": 0.211
+      },
+      {
+        "at": "overflow",
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r1",
+        "last_prompt_tokens": 46157,
+        "thinking_tokens_est": 15284,
+        "tool_output_tokens_est": 12896,
+        "thinking_share": 0.331,
+        "tool_output_share": 0.279
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r1",
+        "last_prompt_tokens": 46157,
+        "thinking_tokens_est": 15284,
+        "tool_output_tokens_est": 12896,
+        "thinking_share": 0.331,
+        "tool_output_share": 0.279
+      },
+      {
+        "at": "overflow",
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r2",
+        "last_prompt_tokens": 51885,
+        "thinking_tokens_est": 19351,
+        "tool_output_tokens_est": 7814,
+        "thinking_share": 0.373,
+        "tool_output_share": 0.151
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r2",
+        "last_prompt_tokens": 51885,
+        "thinking_tokens_est": 19351,
+        "tool_output_tokens_est": 7814,
+        "thinking_share": 0.373,
+        "tool_output_share": 0.151
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r11-fe779856b52c/r1",
+        "last_prompt_tokens": 51220,
+        "thinking_tokens_est": 24980,
+        "tool_output_tokens_est": 9464,
+        "thinking_share": 0.488,
+        "tool_output_share": 0.185
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r11-fe779856b52c/r2",
+        "last_prompt_tokens": 41004,
+        "thinking_tokens_est": 20797,
+        "tool_output_tokens_est": 13411,
+        "thinking_share": 0.507,
+        "tool_output_share": 0.327
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r1",
+        "last_prompt_tokens": 51623,
+        "thinking_tokens_est": 7810,
+        "tool_output_tokens_est": 29207,
+        "thinking_share": 0.151,
+        "tool_output_share": 0.566
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r1",
+        "last_prompt_tokens": 50664,
+        "thinking_tokens_est": 8486,
+        "tool_output_tokens_est": 16480,
+        "thinking_share": 0.168,
+        "tool_output_share": 0.325
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r2",
+        "last_prompt_tokens": 51802,
+        "thinking_tokens_est": 12500,
+        "tool_output_tokens_est": 24033,
+        "thinking_share": 0.241,
+        "tool_output_share": 0.464
+      },
+      {
+        "at": "overflow",
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r2",
+        "last_prompt_tokens": 43676,
+        "thinking_tokens_est": 18324,
+        "tool_output_tokens_est": 6949,
+        "thinking_share": 0.42,
+        "tool_output_share": 0.159
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r2",
+        "last_prompt_tokens": 43676,
+        "thinking_tokens_est": 18324,
+        "tool_output_tokens_est": 6949,
+        "thinking_share": 0.42,
+        "tool_output_share": 0.159
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r1",
+        "last_prompt_tokens": 52664,
+        "thinking_tokens_est": 10891,
+        "tool_output_tokens_est": 23399,
+        "thinking_share": 0.207,
+        "tool_output_share": 0.444
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r1",
+        "last_prompt_tokens": 53196,
+        "thinking_tokens_est": 18898,
+        "tool_output_tokens_est": 3830,
+        "thinking_share": 0.355,
+        "tool_output_share": 0.072
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r2",
+        "last_prompt_tokens": 51705,
+        "thinking_tokens_est": 27774,
+        "tool_output_tokens_est": 19884,
+        "thinking_share": 0.537,
+        "tool_output_share": 0.385
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r8-4324817a7216/r1",
+        "last_prompt_tokens": 53227,
+        "thinking_tokens_est": 17864,
+        "tool_output_tokens_est": 16982,
+        "thinking_share": 0.336,
+        "tool_output_share": 0.319
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r8-4324817a7216/r2",
+        "last_prompt_tokens": 51147,
+        "thinking_tokens_est": 16138,
+        "tool_output_tokens_est": 17326,
+        "thinking_share": 0.316,
+        "tool_output_share": 0.339
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r9-870367a83103/r2",
+        "last_prompt_tokens": 52902,
+        "thinking_tokens_est": 15506,
+        "tool_output_tokens_est": 17432,
+        "thinking_share": 0.293,
+        "tool_output_share": 0.33
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-replay-set-r9-870367a83103/r2",
+        "last_prompt_tokens": 51642,
+        "thinking_tokens_est": 4651,
+        "tool_output_tokens_est": 7530,
+        "thinking_share": 0.09,
+        "tool_output_share": 0.146
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r1",
+        "last_prompt_tokens": 50401,
+        "thinking_tokens_est": 9588,
+        "tool_output_tokens_est": 25860,
+        "thinking_share": 0.19,
+        "tool_output_share": 0.513
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r1",
+        "last_prompt_tokens": 52151,
+        "thinking_tokens_est": 17422,
+        "tool_output_tokens_est": 7511,
+        "thinking_share": 0.334,
+        "tool_output_share": 0.144
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r2",
+        "last_prompt_tokens": 52085,
+        "thinking_tokens_est": 28260,
+        "tool_output_tokens_est": 19128,
+        "thinking_share": 0.543,
+        "tool_output_share": 0.367
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r10-dc0c818a5351/r2",
+        "last_prompt_tokens": 52633,
+        "thinking_tokens_est": 2986,
+        "tool_output_tokens_est": 20979,
+        "thinking_share": 0.057,
+        "tool_output_share": 0.399
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r2-aa8e7eef2474/r1",
+        "last_prompt_tokens": 49195,
+        "thinking_tokens_est": 10798,
+        "tool_output_tokens_est": 19686,
+        "thinking_share": 0.219,
+        "tool_output_share": 0.4
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r3-b72fe4dade49/r1",
+        "last_prompt_tokens": 41911,
+        "thinking_tokens_est": 18236,
+        "tool_output_tokens_est": 10834,
+        "thinking_share": 0.435,
+        "tool_output_share": 0.258
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r3-b72fe4dade49/r2",
+        "last_prompt_tokens": 54781,
+        "thinking_tokens_est": 9438,
+        "tool_output_tokens_est": 20059,
+        "thinking_share": 0.172,
+        "tool_output_share": 0.366
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r4-1147202353a6/r1",
+        "last_prompt_tokens": 49555,
+        "thinking_tokens_est": 14282,
+        "tool_output_tokens_est": 14000,
+        "thinking_share": 0.288,
+        "tool_output_share": 0.283
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-spec-replay-r4-1147202353a6/r2",
+        "last_prompt_tokens": 51993,
+        "thinking_tokens_est": 13716,
+        "tool_output_tokens_est": 9940,
+        "thinking_share": 0.264,
+        "tool_output_share": 0.191
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r1",
+        "last_prompt_tokens": 42080,
+        "thinking_tokens_est": 22015,
+        "tool_output_tokens_est": 12274,
+        "thinking_share": 0.523,
+        "tool_output_share": 0.292
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r2",
+        "last_prompt_tokens": 52544,
+        "thinking_tokens_est": 9456,
+        "tool_output_tokens_est": 21869,
+        "thinking_share": 0.18,
+        "tool_output_share": 0.416
+      },
+      {
+        "at": "compaction_start",
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r2",
+        "last_prompt_tokens": 53073,
+        "thinking_tokens_est": 13889,
+        "tool_output_tokens_est": 5910,
+        "thinking_share": 0.262,
+        "tool_output_share": 0.111
+      }
+    ]
+  },
+  "tool_results": {
+    "method": "tool_execution_end results from events.jsonl (already truncated by pi): chars of text content, lines = newlines + 1. Big = more than 16384 chars (16 KB) or more than 400 lines.",
+    "count": 1121,
+    "total_chars": 2686436,
+    "by_tool": {
+      "bash": {
+        "count": 712,
+        "chars": {
+          "n": 712,
+          "p50": 854,
+          "p75": 1969,
+          "p90": 3553,
+          "max": 50861
+        },
+        "lines": {
+          "n": 712,
+          "p50": 16,
+          "p75": 34,
+          "p90": 58,
+          "max": 393
+        },
+        "total_chars": 1145771
+      },
+      "edit": {
+        "count": 59,
+        "chars": {
+          "n": 59,
+          "p50": 77,
+          "p75": 123,
+          "p90": 139,
+          "max": 145
+        },
+        "lines": {
+          "n": 59,
+          "p50": 1,
+          "p75": 1,
+          "p90": 1,
+          "max": 1
+        },
+        "total_chars": 5442
+      },
+      "read": {
+        "count": 309,
+        "chars": {
+          "n": 309,
+          "p50": 4133,
+          "p75": 7068,
+          "p90": 10339,
+          "max": 25302
+        },
+        "lines": {
+          "n": 309,
+          "p50": 80,
+          "p75": 132,
+          "p90": 202,
+          "max": 444
+        },
+        "total_chars": 1532766
+      },
+      "submit_request": {
+        "count": 30,
+        "chars": {
+          "n": 30,
+          "p50": 47,
+          "p75": 48,
+          "p90": 59,
+          "max": 209
+        },
+        "lines": {
+          "n": 30,
+          "p50": 1,
+          "p75": 1,
+          "p90": 2,
+          "max": 4
+        },
+        "total_chars": 1647
+      },
+      "write": {
+        "count": 11,
+        "chars": {
+          "n": 11,
+          "p50": 61,
+          "p75": 65,
+          "p90": 159,
+          "max": 159
+        },
+        "lines": {
+          "n": 11,
+          "p50": 1,
+          "p75": 1,
+          "p90": 1,
+          "max": 1
+        },
+        "total_chars": 810
+      }
+    },
+    "over_16kb_or_400_lines": 11,
+    "over_16kb_or_400_lines_by_tool": {
+      "bash": 5,
+      "read": 6
+    },
+    "big_chars": 251290,
+    "big_share_of_chars": 0.0935
+  },
+  "compactions": {
+    "method": "Summarisation calls are tap records after the first with n_messages <= 2; consecutive ones form a run paired with a compaction by position. Duration = last request end (ts + wall_s) minus first request ts; output tokens = sum predicted_n. A timeout counts if the kill falls inside a logged run or within 300 s after it, or if the last compaction event is a compaction_start (summary in flight; no tap record exists for it).",
+    "count_runs": 29,
+    "compaction_start_events": 32,
+    "compaction_end_events": 29,
+    "total_wall_s": 2408.2,
+    "share_of_total_wall": 0.0682,
+    "total_output_tokens": 79734,
+    "duration_s": {
+      "n": 29,
+      "p50": 72.0,
+      "p75": 95.1,
+      "p90": 131.8,
+      "max": 180.0
+    },
+    "timeouts_during_or_within_5min_after": 10,
+    "timeouts_detail": [
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r1",
+        "compaction_in_flight_at_kill": false,
+        "within_5min_of_logged_compaction": true
+      },
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r2",
+        "compaction_in_flight_at_kill": false,
+        "within_5min_of_logged_compaction": true
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r2",
+        "compaction_in_flight_at_kill": false,
+        "within_5min_of_logged_compaction": true
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r2",
+        "compaction_in_flight_at_kill": true,
+        "within_5min_of_logged_compaction": false
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r1",
+        "compaction_in_flight_at_kill": true,
+        "within_5min_of_logged_compaction": false
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r2",
+        "compaction_in_flight_at_kill": false,
+        "within_5min_of_logged_compaction": true
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r9-870367a83103/r2",
+        "compaction_in_flight_at_kill": false,
+        "within_5min_of_logged_compaction": true
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r1",
+        "compaction_in_flight_at_kill": true,
+        "within_5min_of_logged_compaction": false
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r2",
+        "compaction_in_flight_at_kill": false,
+        "within_5min_of_logged_compaction": true
+      },
+      {
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r2",
+        "compaction_in_flight_at_kill": false,
+        "within_5min_of_logged_compaction": true
+      }
+    ],
+    "runs": [
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 64.6,
+        "request_wall_s": 64.6,
+        "output_tokens": 1864
+      },
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 93.6,
+        "request_wall_s": 93.6,
+        "output_tokens": 2819
+      },
+      {
+        "attempt": "m1-ngram-decide-r2-e17c18c1927d/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 57.0,
+        "request_wall_s": 57.0,
+        "output_tokens": 1611
+      },
+      {
+        "attempt": "m1-ngram-decide-r2-e17c18c1927d/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 54.1,
+        "request_wall_s": 54.1,
+        "output_tokens": 1437
+      },
+      {
+        "attempt": "m1-ngram-decide-r3-85bb90579f2f/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 46.8,
+        "request_wall_s": 46.8,
+        "output_tokens": 1141
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 50.4,
+        "request_wall_s": 50.4,
+        "output_tokens": 1430
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 72.0,
+        "request_wall_s": 72.0,
+        "output_tokens": 2063
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r11-fe779856b52c/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 62.9,
+        "request_wall_s": 62.9,
+        "output_tokens": 1756
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r11-fe779856b52c/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 49.6,
+        "request_wall_s": 49.6,
+        "output_tokens": 1378
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 87.5,
+        "request_wall_s": 87.5,
+        "output_tokens": 2905
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r1",
+        "index": 1,
+        "requests": 1,
+        "wall_s": 100.1,
+        "request_wall_s": 100.1,
+        "output_tokens": 3623
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 51.0,
+        "request_wall_s": 51.0,
+        "output_tokens": 1336
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 84.9,
+        "request_wall_s": 84.9,
+        "output_tokens": 2882
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 116.5,
+        "request_wall_s": 116.5,
+        "output_tokens": 3383
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r8-4324817a7216/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 91.4,
+        "request_wall_s": 91.4,
+        "output_tokens": 2847
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r8-4324817a7216/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 115.9,
+        "request_wall_s": 115.9,
+        "output_tokens": 3841
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r9-870367a83103/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 131.8,
+        "request_wall_s": 131.8,
+        "output_tokens": 5645
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r9-870367a83103/r2",
+        "index": 1,
+        "requests": 1,
+        "wall_s": 180.0,
+        "request_wall_s": 180.0,
+        "output_tokens": 6928
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 65.2,
+        "request_wall_s": 65.2,
+        "output_tokens": 2066
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 50.6,
+        "request_wall_s": 50.6,
+        "output_tokens": 1510
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r10-dc0c818a5351/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 54.5,
+        "request_wall_s": 54.5,
+        "output_tokens": 1902
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r2-aa8e7eef2474/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 84.0,
+        "request_wall_s": 84.0,
+        "output_tokens": 2962
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r3-b72fe4dade49/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 57.3,
+        "request_wall_s": 57.3,
+        "output_tokens": 1513
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r3-b72fe4dade49/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 163.8,
+        "request_wall_s": 163.8,
+        "output_tokens": 6532
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r4-1147202353a6/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 133.8,
+        "request_wall_s": 133.8,
+        "output_tokens": 4882
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r4-1147202353a6/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 59.9,
+        "request_wall_s": 59.9,
+        "output_tokens": 1766
+      },
+      {
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r1",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 60.8,
+        "request_wall_s": 60.8,
+        "output_tokens": 1628
+      },
+      {
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r2",
+        "index": 0,
+        "requests": 1,
+        "wall_s": 73.1,
+        "request_wall_s": 73.1,
+        "output_tokens": 2542
+      },
+      {
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r2",
+        "index": 1,
+        "requests": 1,
+        "wall_s": 95.1,
+        "request_wall_s": 95.1,
+        "output_tokens": 3542
+      }
+    ]
+  },
+  "length_stops": {
+    "method": "Replies with stopReason=length. Loop = some 200-char window (stride 10) of the last 4000 chars of thinking+text occurs at least 3 times in those 4000 chars.",
+    "count": 2,
+    "loops": 0,
+    "non_loops": 2,
+    "items": [
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r1",
+        "output_chars": 43069,
+        "loop": false,
+        "excerpt": null,
+        "tail_300": "< off 1.000). Rules 1, 4 pass. Now let me write `bench/spec_summarize.py`. First let me confirm the first-divergence blob reconstruction matches what was hashed and check the outputs format assumption by looking at the existing summary for how \"same sha\" was computed.\n\nLet me write the script now.\n\n"
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r2",
+        "output_chars": 55328,
+        "loop": false,
+        "excerpt": null,
+        "tail_300": "ax_tokens\"),\n        \"phase_ms\": round(dur_ms),\n    }\n    return rec\n\nseq via an itertools counter.\n\nNow let me write the file.\n`id_slot` is the slot-pinning field (confirmed in docs/engine-review.md Phase A + phase_b_validate.py). Now I have the full picture. Let me write the replay probe script.\n\n"
+      }
+    ]
+  },
+  "edit_errors": {
+    "method": "isError tool results of the edit tool; bucket by message regex.",
+    "count": 18,
+    "buckets": {
+      "text not found": 17,
+      "other": 1
+    },
+    "other_messages": {
+      "edits[0] and edits[1] overlap in /home/dev/garden/bench/spec_summarize.py. Merge them into one edit or target disjoint r": 1
+    },
+    "messages": [
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r2",
+        "message": "Could not find edits[1] in bench/spec_summarize.py. The oldText must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r2",
+        "message": "Could not find edits[1] in bench/spec_summarize.py. The oldText must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-decide-r2-e17c18c1927d/r1",
+        "message": "Could not find the exact text in /home/dev/garden/bench/spec_summarize.py. The old text must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-decide-r2-e17c18c1927d/r2",
+        "message": "Could not find the exact text in /home/dev/garden/bench/spec_summarize.py. The old text must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-decide-r2-e17c18c1927d/r2",
+        "message": "Could not find the exact text in /home/dev/garden/bench/spec_summarize.py. The old text must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-decide-r3-85bb90579f2f/r1",
+        "message": "edits[0] and edits[1] overlap in /home/dev/garden/bench/spec_summarize.py. Merge them into one edit or target disjoint regions."
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r2",
+        "message": "Could not find edits[0] in bench/build_replay_set.py. The oldText must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r11-fe779856b52c/r1",
+        "message": "Could not find edits[0] in bench/build_replay_set.py. The oldText must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r11-fe779856b52c/r2",
+        "message": "Could not find edits[0] in /home/dev/garden/bench/build_replay_set.py. The oldText must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r12-e62a974c8e88/r2",
+        "message": "Could not find the exact text in /home/dev/garden/bench/m1-notes.md. The old text must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r11-f096b0e52769/r2",
+        "message": "Could not find edits[0] in /home/dev/garden/bench/m1-notes.md. The oldText must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r11-f096b0e52769/r2",
+        "message": "Could not find edits[2] in /home/dev/garden/bench/m1-notes.md. The oldText must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r2-aa8e7eef2474/r1",
+        "message": "Could not find the exact text in /home/dev/garden/bench/m1-notes.md. The old text must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r2-aa8e7eef2474/r2",
+        "message": "Could not find the exact text in /home/dev/garden/bench/m1-notes.md. The old text must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r2-aa8e7eef2474/r2",
+        "message": "Could not find the exact text in /home/dev/garden/bench/m1-notes.md. The old text must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r4-1147202353a6/r1",
+        "message": "Could not find the exact text in /home/dev/garden/bench/m1-notes.md. The old text must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r1",
+        "message": "Could not find edits[1] in site/series/serving/ngram-speculation.md. The oldText must match exactly including all whitespace and newlines."
+      },
+      {
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r1",
+        "message": "Could not find edits[1] in site/index.md. The oldText must match exactly including all whitespace and newlines."
+      }
+    ]
+  },
+  "bash_errors": {
+    "method": "isError bash results; cause assigned by first matching regex (python exception name, missing file/module, git fatal, timeout, silent exit 1, ...). Top 10 causes listed; remainder under rest.",
+    "count": 74,
+    "top_causes": [
+      {
+        "cause": "python traceback: AttributeError",
+        "count": 12
+      },
+      {
+        "cause": "python traceback: TypeError",
+        "count": 11
+      },
+      {
+        "cause": "exit 1 with output (checker / diff / grep)",
+        "count": 11
+      },
+      {
+        "cause": "exit code 2 other",
+        "count": 8
+      },
+      {
+        "cause": "python traceback: KeyError",
+        "count": 7
+      },
+      {
+        "cause": "python traceback: FileNotFoundError",
+        "count": 5
+      },
+      {
+        "cause": "no such file or directory",
+        "count": 5
+      },
+      {
+        "cause": "python traceback: SyntaxError",
+        "count": 3
+      },
+      {
+        "cause": "python traceback: NameError",
+        "count": 2
+      },
+      {
+        "cause": "silent exit 1 (grep/test with no match)",
+        "count": 2
+      }
+    ],
+    "rest": 8,
+    "all_causes": {
+      "exit code 2 other": 8,
+      "python traceback: AttributeError": 12,
+      "python traceback: FileNotFoundError": 5,
+      "python traceback: KeyError": 7,
+      "no such file or directory": 5,
+      "python traceback: NameError": 2,
+      "python traceback: TypeError": 11,
+      "silent exit 1 (grep/test with no match)": 2,
+      "exit 1 with output (checker / diff / grep)": 11,
+      "python traceback: SyntaxError": 3,
+      "python traceback: ModuleNotFoundError": 2,
+      "python traceback: AssertionError": 2,
+      "python traceback: ZeroDivisionError": 1,
+      "python traceback: ValueError": 2,
+      "git/tool fatal error": 1
+    },
+    "examples": {
+      "python traceback: AttributeError": "home/dev/garden/bench/spec_summarize.py\", line 46, in vram_by_phase\n    if not path.exists():\n           ^^^^^^^^^^^\nAttributeError: 'str' object has no attribute 'exists'\n\n\nCommand exited with code 1",
+      "python traceback: TypeError": "agent_end keys: ['line', 'event']\nTraceback (most recent call last):\n  File \"<stdin>\", line 6, in <module>\nTypeError: object of type 'NoneType' has no len()\n\n\nCommand exited with code 1",
+      "exit 1 with output (checker / diff / grep)": "lines_full.txt\nbench/results/2026-10-12/m1-ngram/recon/spec_mmproj_grep.txt\n=== is build_replay_set tracked? ===\nbench/build_replay_set.py\n=== .gitignore bench entries ===\n\n\nCommand exited with code 1",
+      "exit code 2 other": "(no output)\n\nCommand exited with code 2",
+      "python traceback: KeyError": "Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nKeyError: 'decision'\n\n\nCommand exited with code 1",
+      "python traceback: FileNotFoundError": "ine)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nFileNotFoundError: [Errno 2] No such file or directory: 'bench/.replay/m1/outputs/off-prod.jsonl'\n\n\nCommand exited with code 1",
+      "no such file or directory": "cp: cannot create directory '/tmp/m1test/replay': No such file or directory\n\n\nCommand exited with code 1",
+      "python traceback: SyntaxError": "nd substitution: line 8: unexpected EOF while looking for matching ``'\n  File \"<string>\", line 7\n    end = src.find(''))\n                      ^\nSyntaxError: unmatched ')'\n\n\nCommand exited with code 1",
+      "python traceback: NameError": "Traceback (most recent call last):\n  File \"<stdin>\", line 12, in <module>\nNameError: name 'f' is not defined\n\n\nCommand exited with code 1",
+      "silent exit 1 (grep/test with no match)": "(no output)\n\nCommand exited with code 1"
+    }
+  },
+  "timeout_tail": {
+    "method": "For each timed-out attempt (session start from the session event, end = start + wall_s), tap requests overlapping the last 300 s: generation vs summarisation seconds. The request running at the kill has no tap record (unlogged tail): it is generation if the last event was a tool result, a tool run if it was a reply.",
+    "count": 17,
+    "labels": {
+      "generation in flight at kill (unlogged request)": 14,
+      "compaction in flight at kill": 3
+    },
+    "items": [
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r1",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 89.7,
+        "logged_compaction_s": 64.6,
+        "unlogged_tail_s": 145.7,
+        "last_event": "T",
+        "last_stop": "length"
+      },
+      {
+        "attempt": "m1-ngram-decide-r1-480691022b4e/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 197.2,
+        "logged_compaction_s": 93.6,
+        "unlogged_tail_s": 9.1,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-decide-r2-e17c18c1927d/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 286.1,
+        "logged_compaction_s": 0.0,
+        "unlogged_tail_s": 13.8,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r10-0046c6599fd4/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 230.8,
+        "logged_compaction_s": 57.1,
+        "unlogged_tail_s": 11.9,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r11-fe779856b52c/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 295.3,
+        "logged_compaction_s": 0.0,
+        "unlogged_tail_s": 4.6,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r1",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 289.1,
+        "logged_compaction_s": 0.0,
+        "unlogged_tail_s": 10.2,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r6-9cf273aef422/r2",
+        "label": "compaction in flight at kill",
+        "logged_generation_s": 166.7,
+        "logged_compaction_s": 133.3,
+        "unlogged_tail_s": 133.3,
+        "last_event": "A",
+        "last_stop": "error"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r1",
+        "label": "compaction in flight at kill",
+        "logged_generation_s": 292.4,
+        "logged_compaction_s": 7.4,
+        "unlogged_tail_s": 7.4,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r7-52b0d2b42358/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 181.7,
+        "logged_compaction_s": 116.5,
+        "unlogged_tail_s": 1.7,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r8-4324817a7216/r1",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 31.9,
+        "logged_compaction_s": 0.0,
+        "unlogged_tail_s": 268.1,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r8-4324817a7216/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 219.8,
+        "logged_compaction_s": 0.0,
+        "unlogged_tail_s": 80.2,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-replay-set-r9-870367a83103/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 116.5,
+        "logged_compaction_s": 180.0,
+        "unlogged_tail_s": 2.9,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r1",
+        "label": "compaction in flight at kill",
+        "logged_generation_s": 132.0,
+        "logged_compaction_s": 168.0,
+        "unlogged_tail_s": 168.0,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r1-7be283086913/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 107.6,
+        "logged_compaction_s": 50.6,
+        "unlogged_tail_s": 141.8,
+        "last_event": "T",
+        "last_stop": "length"
+      },
+      {
+        "attempt": "m1-ngram-spec-replay-r4-1147202353a6/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 297.8,
+        "logged_compaction_s": 0.0,
+        "unlogged_tail_s": 1.9,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r1",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 284.2,
+        "logged_compaction_s": 0.0,
+        "unlogged_tail_s": 15.7,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      },
+      {
+        "attempt": "m1-ngram-write-up-r2-cebbd5fef63b/r2",
+        "label": "generation in flight at kill (unlogged request)",
+        "logged_generation_s": 188.3,
+        "logged_compaction_s": 95.1,
+        "unlogged_tail_s": 16.6,
+        "last_event": "T",
+        "last_stop": "toolUse"
+      }
+    ]
+  },
+  "turns": {
+    "method": "record.json turns (count of turn_end events) per attempt.",
+    "per_attempt": {
+      "n": 44,
+      "p50": 17,
+      "p75": 28,
+      "p90": 36,
+      "max": 68
+    },
+    "timeouts": {
+      "n": 17,
+      "p50": 26,
+      "p75": 35,
+      "p90": 42,
+      "max": 68
+    },
+    "non_timeouts": {
+      "n": 27,
+      "p50": 14,
+      "p75": 25,
+      "p90": 28,
+      "max": 36
+    },
+    "histogram": {
+      "0": 7,
+      "10": 17,
+      "20": 11,
+      "30": 6,
+      "40": 2,
+      "60": 1
+    }
+  }
+}
