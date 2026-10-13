@@ -150,11 +150,22 @@ ranges. Fields: `name` (= file name), `description`, `model`, `worker_descriptio
 The host-only report `bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T221002.json`
 selected `c9c86b7338aa23ddcf0edd58493e1954d7eb7179` as the nearest Bonsai worker state on
 the operative `auto/M1-ngram` first-parent line before the first cloud case, at
-2026-10-12 08:32:41 -04:00. Its displayed config and registration SHA-256 values are
-not byte hashes: the then-current inspector hashed stripped `git show` text. Likewise,
-the report represents the absent historical `worker_memory` key as null. Do not use
-those digests or that null representation as exact provenance. The executed arm is
-preserved for reproducibility; the corrected raw-blob inspector has not been rerun.
+2026-10-12 08:32:41 -04:00. The SHA-256 values printed in that report and copied
+into `arms/bonsai-2026-10-12.json` are not byte hashes: the then-current inspector
+hashed stripped `git show` text. The exact blob digests, recomputed with
+`git show <commit>:<path> | sha256sum`, are:
+
+| Path at `c9c86b7` | Raw-blob SHA-256 | Value in the arm file (wrong) |
+|---|---|---|
+| `autopilot/config.json` | `5cdfac6b5fad60024df762255a0bfbf0ad8c9e05c512ae7d532b15d098e98cfc` | `27c9e40f…` |
+| `agent/models.bonsai-agent.json` | `ee6b8706f96b5216ed3dc20325fe7cb1d15a150e208c40654d26b63eef34b620` | `949819bb…` |
+
+The arm file is left as executed, because `run.py` records its hash (`arm_sha256`) in
+every manifest; use the table above, not the arm file's digests. The report also
+represents the absent historical `worker_memory` key as null, and the arm file says the
+snapshot "has worker_memory null". Neither is exact: the key is absent, and
+`CFG.get()` treats absence as memory off. The corrected inspector has not been rerun
+on the host, so its output is not in the results.
 The snapshot still does not claim to prove uncommitted or out-of-tree live state.
 
 Note: the replay checkout is a real git repo with working history (ancestors of the start commit only). The original worker's sandbox mounted a worktree whose `.git` pointed outside the container, so git was unusable there.

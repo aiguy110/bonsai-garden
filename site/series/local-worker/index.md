@@ -12,7 +12,8 @@ summary: |
   memory experiments.
 
   **Baseline:** W1 replayed 22 real cloud-worker rounds twice with the historical
-  Bonsai worker configuration (memory off, 20-minute limit). Bonsai submitted a
+  Bonsai worker configuration with memory off and the session timeout
+  cut from the historical 45 minutes to 20. Bonsai submitted a
   request accepted by deterministic checks in **25/44 attempts (56.8%)** and
   matched the cloud request kind in **21/44 (47.7%)**. The median attempt took
   **903.5 seconds**. A separately sampled advisor review approved 7/10 valid
@@ -31,7 +32,8 @@ same request checks. Worker memory is deliberately out of scope until W3.
 ## Experiments
 
 - [W1: worker-eval](worker-eval.md) — fixed 22-case, N=2 baseline and failure
-  analysis for the historical Bonsai worker configuration.
+  analysis for an arm based on the historical Bonsai worker configuration (20-minute
+  timeout instead of 45).
 
 ## Rules for comparisons
 

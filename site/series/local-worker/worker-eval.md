@@ -153,8 +153,8 @@ summary.
 
 The 44 attempts made 1,121 tool calls: 712 `bash`, 309 `read`, 59 `edit`, 30
 `submit_request`, and 11 `write`; 99 tool errors were recorded (74 bash, 18 edit,
-one read, four submit-request, two write). There were 32 compactions at attempt
-start and 29 at attempt end. These counts describe this arm and corpus, not a
+one read, four submit-request, two write). Compaction events within attempts: 32 started and 29 ended
+(`compaction_start` / `compaction_end` counts in `summary.json`). These counts describe this arm and corpus, not a
 causal attribution.
 
 ## Advisor sample
