@@ -1,0 +1,4 @@
+2026-10-12 09:19:55,998 turnstile lease e99c2d554185f101d95d53053967be09 granted after 0s
+2026-10-12 09:19:55,998 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay B greedy --spec-type ngram-mod --spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12
+result ok None
+2026-10-12 09:32:59,218 released lease e99c2d554185f101d95d53053967be09

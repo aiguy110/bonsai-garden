@@ -1,0 +1,8 @@
+{
+  "report": "Checked state of spec_replay.py/spec_analyze.py: the t0-before-th.start() ordering fix was still needed (th.start() preceded t0), so I applied it and both scripts compile. Existing off-prod results confirmed to lack per-row t_end, so they can't yield valid conservative two-slot throughput. The corrected probe now records t_end per row plus window lines (t0/t_fg_end/t_join_end) per phase. Resubmitting the same off/prod run to re-baseline with the corrected measurement format; A/prod follows next.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Rerun off/prod on the corrected probe with the t0-before-th.start() fix, re-baselines with per-row t_end and window lines for valid conservative two-slot throughput. Previous off-prod results lack t_end."
+}

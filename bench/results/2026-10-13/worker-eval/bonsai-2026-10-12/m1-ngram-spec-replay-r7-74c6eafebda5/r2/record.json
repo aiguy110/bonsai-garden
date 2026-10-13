@@ -1,0 +1,63 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r7-74c6eafebda5/r2",
+  "case_id": "m1-ngram-spec-replay-r7-74c6eafebda5",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T06:36:06-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+    "gpu": true,
+    "report": "State: greedy runs off/A/B complete (4 phases each, A/B have draft fields, non-zero drafts A 63/84, B 77/84 fg rows); off-prod rerun complete on corrected probe (per-row t_end + window notes). Updated bench/m1-notes.md: \u00a73 now states the mmproj outcome (spec works with --mmproj for text-only, empirically confirmed; embd/image batches throw at server-context.cpp:3550-3553, so image+spec is untested/risky), and added \u00a79c prod status. Missing data: best-prod. A is the higher dual-agent greedy fg tok/s arm (25.5 vs B 23.0), so best = A. Running A-prod next to complete the off-prod vs A-prod comparison for the deployment decision.",
+    "request": "run",
+    "timeout_min": 120,
+    "why": "A is the higher dual-agent greedy fg tok/s arm (25.5 vs B 23.0), so it is the \"best\" arm for the prod comparison. off-prod is already rerun on the corrected probe; running A-prod completes the off vs A prod pair needed to compare combined two-slot throughput and decide on deployment."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 10022,
+  "timeout": false,
+  "tool_calls": 17,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 15,
+    "edit": 1,
+    "submit_request": 1
+  },
+  "turns": 14,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 582.5
+}

@@ -1,0 +1,8 @@
+{
+  "report": "State: greedy runs off/A/B complete (4 phases each, A/B have draft fields, non-zero drafts A 63/84, B 77/84 fg rows); off-prod rerun complete on corrected probe (per-row t_end + window notes). Updated bench/m1-notes.md: \u00a73 now states the mmproj outcome (spec works with --mmproj for text-only, empirically confirmed; embd/image batches throw at server-context.cpp:3550-3553, so image+spec is untested/risky), and added \u00a79c prod status. Missing data: best-prod. A is the higher dual-agent greedy fg tok/s arm (25.5 vs B 23.0), so best = A. Running A-prod next to complete the off-prod vs A-prod comparison for the deployment decision.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "A is the higher dual-agent greedy fg tok/s arm (25.5 vs B 23.0), so it is the \"best\" arm for the prod comparison. off-prod is already rerun on the corrected probe; running A-prod completes the off vs A prod pair needed to compare combined two-slot throughput and decide on deployment."
+}

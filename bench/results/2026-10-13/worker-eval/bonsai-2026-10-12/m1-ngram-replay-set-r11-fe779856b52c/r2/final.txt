@@ -1,0 +1,2 @@
+The sandbox copy is at the r10 state (separate imports, reasoning preserved). I'll apply the remaining edits: improved `show_pi_ai_source` (multi-root + `require.resolve`), a manifest `max_tokens_note`, and the §8 notes.
+

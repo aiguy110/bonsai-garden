@@ -1,0 +1,26 @@
+{
+  "arm": "bonsai-2026-10-12",
+  "arm_sha256": "50ffe0ecce1f8fd0a93e34d90771793ecf2cb5201423fd8cdfa1199e64772000",
+  "case_id": "m1-ngram-replay-set-r10-0046c6599fd4",
+  "repeat": 2,
+  "start_commit": "72583940675f251bc3c0771f9e6ba3717cda8eee",
+  "prompt_sha256": "c13689157519e14458fa7564f5edc1d9b54ddd0ea3eba55d6155535fb4211e05",
+  "case_prompt_sha256": "c13689157519e14458fa7564f5edc1d9b54ddd0ea3eba55d6155535fb4211e05",
+  "checkout": "/tmp/w1-replay-x5czoooi/garden",
+  "started": "2026-10-13T04:26:10-04:00",
+  "pi": [
+    "pi",
+    "-p",
+    "--mode",
+    "json",
+    "--no-session",
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-themes",
+    "--model",
+    "garden/bonsai-agent",
+    "--thinking",
+    "low",
+    "<prompt>"
+  ]
+}

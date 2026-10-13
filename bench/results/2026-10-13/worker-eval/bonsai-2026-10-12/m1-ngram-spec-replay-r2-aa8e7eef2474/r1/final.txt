@@ -1,0 +1,2 @@
+Notes updated (§9 B-choice, §10 execution status). Requesting the A/greedy probe now:
+

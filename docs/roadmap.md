@@ -1,17 +1,20 @@
 # Roadmap
 
-Status as of 2026-10-12: serving is done (two slots, turnstile co-admission;
+Status as of 2026-10-13: serving is done (two slots, turnstile co-admission;
 n-gram speculation replayed and rejected). One memory eval has run: 1 task, N=3,
 mem0 2/3 vs baseline 0/3. That is suggestive, not a result. A second
 mem0 arm, `mem0-server`, runs Python mem0 (the reference implementation)
-instead of the JS port.
+instead of the JS port. W1 local-worker replay is also done: on 22 real
+cloud-worker rounds at N=2, Bonsai submitted valid requests in 25/44 attempts
+(56.8%) and matched request kind in 21/44 (47.7%); W2 is the next local-worker
+step.
 
 Bonsai couldn't keep up as the autopilot's worker (11 of 21 rounds sent no request),
 so since 2026-10-12 the worker is a cloud model (Claude Sonnet 5.5, then GPT-5.6
 Terra through Codex). The priority now is the
 [local worker track](#local-worker-track): making the stack good enough that Bonsai
-can do this research itself. M1 is done; next: W1, W2 (with M6 alongside), W3, W4,
-then M2 onward.
+can do this research itself. M1 and W1 are done; next: W2 (with M6 alongside),
+W3, W4, then M2 onward.
 
 ## Terms
 
@@ -44,7 +47,7 @@ grow. Each step is measured on W1.
 
 | # | Milestone | Question | Done when |
 |---|---|---|---|
-| W1 | **Worker eval** | Could Bonsai do the autopilot's own rounds? | Real cloud worker rounds (start commit, prompt, request, verdict) replayed on Bonsai; valid-request rate, kind match, time and failure modes. Spec: [`autopilot/milestones/W1-worker-eval.md`](../autopilot/milestones/W1-worker-eval.md) |
+| W1 | **Worker eval — done** | Could Bonsai do the autopilot's own rounds? | 22 real cloud-worker rounds replayed at N=2: 25/44 valid requests (56.8%), 21/44 kind matches (47.7%), median 903.5 s. [Experiment](../site/series/local-worker/worker-eval.md); spec: [`autopilot/milestones/W1-worker-eval.md`](../autopilot/milestones/W1-worker-eval.md) |
 | W2 | **Worker harness** | Which pi and server settings close the gap? | [Candidates](#w2-candidates) each run as a worker arm on W1 against the 2026-10-12 Bonsai arm; keep what helps |
 | W3 | **Passive worker memory** | Does memory let the worker survive compaction and fresh sessions? | Auto-recall and capture keyed on the item and the round report, not the whole prompt; measured on W1 cases that span several rounds of one item |
 | W4 | **Routing** | How much real work can go local? | The planner marks local-capable items; Bonsai tries them first and hands an item to the cloud worker after N failed rounds. The status page tracks the local share |
@@ -64,9 +67,9 @@ grow. Each step is measured on W1.
 - **Tool output.** pi caps a tool result at 50 KB / 2000 lines, about 12k tokens, which
   is large for an 80k window. Try a smaller cap that tells the model where the rest
   is.
-- **Editing.** pi's `edit` is exact-text replacement; 9 of Bonsai's 42 edits failed,
-  and it did most work through bash (17% of 728 calls failed). Try hash-anchored
-  line edits ("hashline", from oh-my-pi) first as a plain pi extension: several
+- **Editing.** pi's `edit` is exact-text replacement; 18 of Bonsai's 59 edits
+  failed, and it did most work through bash (74 of 712 calls failed, 10.4%). Try
+  hash-anchored line edits ("hashline", from oh-my-pi) first as a plain pi extension: several
   ports exist (e.g. `pi-hashline-edit`, `pi-hashline-context-edit`).
 - **Session discipline.** Turn and time budgets in the `submit_request` extension:
   warnings first, then only that tool allowed. Smaller items when the worker is local.
@@ -146,10 +149,11 @@ with caveats, re-planned, or blocked for the user. It is never silently dropped.
 If the local model goes down, a cloud fixer takes over. Progress is published to
 the site's autopilot status page.
 
-M1 (n-gram speculation) is the first milestone and the test case: it measures,
-then possibly changes, the live server. W1 (worker eval) is queued next.
-Milestones run in the order of `milestones` in `autopilot/config.json`, and each
-needs a spec in `autopilot/milestones/<name>.md`.
+M1 (n-gram speculation) was the first milestone and test case: it measured the
+live-server candidate and rejected deployment. W1 (worker eval) is complete; W2
+(worker harness) is next for the local-worker track. Milestones run in the order
+of `milestones` in `autopilot/config.json`, and each needs a spec in
+`autopilot/milestones/<name>.md`.
 
 ### Throughput estimate
 

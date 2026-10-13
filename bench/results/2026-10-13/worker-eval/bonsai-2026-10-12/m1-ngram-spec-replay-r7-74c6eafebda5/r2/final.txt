@@ -1,0 +1,2 @@
+The notes are updated. Now I'll submit the A-prod run — A is the higher dual-agent greedy fg tok/s arm (25.5 vs B 23.0), so it's the "best" arm for the prod comparison. This completes the missing data needed for the deployment decision.
+

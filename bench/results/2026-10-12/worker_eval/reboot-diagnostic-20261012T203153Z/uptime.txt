@@ -1,0 +1,5 @@
++ uptime 
+
+ 16:31:53 up 4 min,  1 user,  load average: 0.20, 0.92, 0.54
+
+[exit 0]

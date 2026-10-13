@@ -1,0 +1,4 @@
++ sh -c for\ f\ in\ /sys/fs/pstore/\*\;\ do\ \[\ -f\ \"\$f\"\ \]\ \|\|\ continue\;\ echo\ \"==\ \$f\"\;\ cat\ \"\$f\"\;\ done 
+
+
+[exit 0]

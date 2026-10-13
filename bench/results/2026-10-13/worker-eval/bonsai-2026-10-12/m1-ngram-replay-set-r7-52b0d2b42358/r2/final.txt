@@ -1,0 +1,2 @@
+I made a bug in `tool_list_for` — the mem0 arm references the loop variable `name`. Let me fix it before continuing.
+

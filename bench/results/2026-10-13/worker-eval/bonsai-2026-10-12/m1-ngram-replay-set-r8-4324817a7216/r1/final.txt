@@ -1,0 +1,2 @@
+The system prompt seems ~33K chars but small mem prompts are ~500 tokens — inconsistent. Let me measure the ADDITIVE_EXTRACTION_PROMPT precisely.
+

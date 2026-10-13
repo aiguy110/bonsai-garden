@@ -1,0 +1,133 @@
+diff --git a/bench/.diagnostic_host.py b/bench/.diagnostic_host.py
+new file mode 100644
+index 0000000..8d581a2
+--- /dev/null
++++ b/bench/.diagnostic_host.py
+@@ -0,0 +1,127 @@
++#!/usr/bin/env python3
++"""Self-contained HOST diagnostic for build_replay_set.py.
++Discovers host paths, verifies agent message structure, DB schema, mem tool calls, tap.jsonl."""
++import json, os, glob, sqlite3, sys
++
++BASE = "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs"
++print("BASE exists:", os.path.isdir(BASE))
++print("run dirs:", sorted(os.listdir(BASE)) if os.path.isdir(BASE) else None)
++
++runs = {}
++if os.path.isdir(BASE):
++    for d in sorted(os.listdir(BASE)):
++        p = os.path.join(BASE, d)
++        if not os.path.isdir(p):
++            continue
++        steps = {n: os.path.join(p, n) for n in os.listdir(p) if n.endswith(".events.jsonl")}
++        runs[d] = steps
++
++print("\n" + "=" * 70)
++print("AGENT MESSAGE VERIFICATION")
++print("=" * 70)
++def check_run(run_name, steps):
++    for step, ef in sorted(steps.items()):
++        if not os.path.exists(ef):
++            print(f"{run_name} {step}: MISSING {ef}")
++            continue
++        with open(ef) as f:
++            lines = [json.loads(l) for l in f if l.strip()]
++        ae = [e for e in lines if e.get("type") == "agent_end"]
++        if not ae:
++            print(f"{run_name} {step}: NO agent_end")
++            continue
++        msgs = ae[0].get("messages", [])
++        asst_idx = [i for i, m in enumerate(msgs) if m.get("role") == "assistant"]
++        expected = asst_idx
++        # n_mem from event: count mem0_memory tool calls
++        n_mem = sum(1 for m in msgs if m.get("role")=="assistant"
++                    for b in (m.get("content") or []) if b.get("type")=="toolCall"
++                    and (b.get("toolCall") or b).get("name") in ("mem0_memory",))
++        print(f"{run_name} {step}: asst={len(asst_idx)} msgs={len(msgs)} mem_toolcalls~{n_mem}")
++        # also dump n_messages we'd compute (index of asst)
++        print(f"   M[0:i] -> {expected}")
++
++for rn, steps in sorted(runs.items()):
++    check_run(rn, steps)
++
++print("\n" + "=" * 70)
++print("DB DISCOVERY + SCHEMA")
++print("=" * 70)
++for rn in sorted(runs):
++    steps = runs[rn]
++    run_dir = list(steps.values())[0].rsplit("/", 1)[0]
++    # search for db
++    dbs = glob.glob(os.path.join(run_dir, "*.db*")) + glob.glob(os.path.join(run_dir, "**", "*.db*"), recursive=True)
++    dbs = [d for d in dbs if not d.endswith(".sqlite~")]
++    print(f"\n{rn} run_dir={run_dir}")
++    if not dbs:
++        # parent dir
++        pdir = os.path.dirname(run_dir)
++        dbs2 = glob.glob(os.path.join(pdir, "*.db*"))
++        dbs = dbs2 + dbs
++        print(f"  parent dbs: {dbs2}")
++    if dbs:
++        db = sorted(set(dbs))[0]
++        print(f"  DB: {db}")
++        try:
++            conn = sqlite3.connect(db)
++            cur = conn.cursor()
++            tables = [x[0] for x in cur.execute("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'").fetchall()]
++            print(f"  tables: {tables}")
++            for tbl in tables:
++                cnt = cur.execute(f"SELECT COUNT(*) FROM {tbl}").fetchone()[0]
++                cols = [x[1] for x in cur.execute(f"PRAGMA table_info({tbl})").fetchall()]
++                print(f"   {tbl}: nrows={cnt} cols={cols}")
++                for row in cur.execute(f"SELECT * FROM {tbl} LIMIT 2").fetchall():
++                    print(f"     {row}")
++            conn.close()
++        except Exception as e:
++            print(f"  DB ERROR: {e}")
++    else:
++        print("  NO DB FOUND")
++
++print("\n" + "=" * 70)
++print("MEM0 TOOL CALL ACTIONS (mem0-r0 step0) + tap.jsonl search")
++print("=" * 70)
++for rn in sorted(runs):
++    if "baseline" in rn:
++        continue
++    ef = sorted(runs[rn].values())[0]
++    with open(ef) as f:
++        lines = [json.loads(l) for l in f if l.strip()]
++    ae = [e for e in lines if e.get("type") == "agent_end"]
++    msgs = ae[0].get("messages", [])
++    print(f"{rn} step{sorted(runs[rn])[0][3:]}:")
++    for i, m in enumerate(msgs):
++        if m.get("role") != "assistant":
++            continue
++        for b in (m.get("content") or []):
++            if b.get("type") != "toolCall":
++                continue
++            tc = b.get("toolCall") or b
++            name = tc.get("name")
++            args = tc.get("arguments") or tc.get("input") or {}
++            if isinstance(args, str):
++                try: args = json.loads(args)
++                except: pass
++            if name == "mem0_memory":
++                print(f"   @{i} action={args.get('action')} content={str(args.get('content',''))[:60]}")
++    break
++
++# search for tap.jsonl
++for pat in [
++    os.path.join("/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0", "*.jsonl"),
++    os.path.join("/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0", "**", "*.jsonl"),
++]:
++    try:
++        if pat.endswith("*/*.jsonl") or pat.startswith("**"):
++            hits = glob.glob(pat, recursive=True)
++        else:
++            hits = glob.glob(pat)
++        for h in hits:
++            if "tap" in h.lower():
++                print(f"\nTAP candidate: {h}")
++    except Exception:
++        pass
++
++print("\nDONE")

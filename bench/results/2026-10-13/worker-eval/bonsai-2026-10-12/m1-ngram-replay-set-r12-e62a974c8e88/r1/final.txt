@@ -1,0 +1,4 @@
+The §8 edit is applied and internally consistent. All numbers trace to repo results (`bench/results/2026-10-12/m1-ngram/recon/inventory.json` for token counts, `bench/results/2026-10-12/m1-ngram/replay_manifest.json` for char/role breakdowns and ratios). This was a notes-only change — I did not re-run the builder or touch the manifest, per the advisor.
+
+All acceptance criteria are now met with the corrected outlier explanation. Ending the session.
+

@@ -1,0 +1,16 @@
+{
+  "id": "bonsai-2-27b",
+  "name": "Bonsai 2 27B (llama-swap, local, 96k ctx)",
+  "reasoning": true,
+  "input": [
+    "text"
+  ],
+  "contextWindow": 98304,
+  "maxTokens": 16384,
+  "cost": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0
+  }
+}

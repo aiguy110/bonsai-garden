@@ -1,0 +1,86 @@
+diff --git a/bench/build_replay_set.py b/bench/build_replay_set.py
+index 7cae2c9..e8273a4 100644
+--- a/bench/build_replay_set.py
++++ b/bench/build_replay_set.py
+@@ -253,16 +253,64 @@ def mem_user_prompt(existing, lastk, new_msgs, date):
+ # ---------- main ----------
+ 
+ def show_pi_ai_source():
+-    import glob
+-    root = pathlib.Path("/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works")
+-    hits = glob.glob(str(root / "**" / "providers" / "openai-completions.js"), recursive=True)
+-    print("pi-ai openai-completions.js:", hits)
+-    for h in hits[:1]:
++    """Print pi-ai's openai-completions 'thinkingSignature' handling to confirm
++    whether assistant thinking blocks are sent back to the model (see the
++    standing fact on recorded prompt growth)."""
++    import glob, shutil, subprocess
++    roots = []
++    try:
++        m = re.search(r"pi_package_dir:\s*(\S+)", (RECON / "sources.txt").read_text())
++        if m:
++            roots.append(pathlib.Path(m.group(1)))
++    except Exception:
++        pass
++    roots += [
++        pathlib.Path("/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules"),
++        pathlib.Path("/opt/node/lib/node_modules"),
++    ]
++    node = shutil.which("node")
++    if node is None:
++        for p in (pathlib.Path("/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/bin/node"),
++                  pathlib.Path("/opt/node/bin/node"),
++                  pathlib.Path("/usr/local/bin/node")):
++            if p.exists():
++                node = str(p)
++                break
++    resolved = []
++    if node:
++        for r in roots:
++            if not r.exists():
++                continue
++            p = r / "@earendil-works/pi-coding-agent"
++            try:
++                out = subprocess.run(
++                    [node, "--eval",
++                     "console.log(require.resolve('@earendil-works/pi-ai', {paths: ['%s']}))" % str(p)],
++                    cwd=str(p), capture_output=True, text=True, timeout=30).stdout.strip()
++                if out:
++                    resolved.append((str(p), out))
++            except Exception as e:
++                log("pi-ai resolve failed from " + str(p) + ": " + str(e))
++    hits, existing = [], []
++    for root in roots:
++        if not root.exists():
++            continue
++        existing.append(str(root))
++        for pat in ("**/openai-completions.js", "**/providers/*.js"):
++            hits.extend(glob.glob(str(root / pat), recursive=True))
++    hits = sorted({h for h in hits if "openai" in h.lower()})
++    print("pi-ai source check -- existing roots:", existing)
++    print("pi-ai resolve:", resolved)
++    print("openai-completions.js hits:", hits)
++    for h in hits[:4]:
+         lines = pathlib.Path(h).read_text(encoding="utf-8").splitlines()
+         for i, l in enumerate(lines):
+             if "thinkingSignature" in l:
+-                print(f"--- {h}:{i + 1}")
+-                print("\n".join(lines[max(0, i - 6): i + 8]))
++                print("--- %s:%d" % (h, i + 1))
++                print("\n".join(lines[max(0, i - 8): i + 10]))
++                break
++    if not hits and not resolved:
++        print("pi-ai source check inconclusive: no hits under the tried roots")
+ 
+ 
+ def median(xs):
+@@ -412,6 +460,9 @@ def main():
+                                "existing = latest 10 live memories (ADD/UPDATE, DELETE removed) created before the per-call cutoff "
+                                "(not the 10 nearest by embedding); newMessages 'role: content' per mem0_extract_src.txt:838; "
+                                "tool-add content key guessed from toolCall arguments",
++        max_tokens_note="bodies carry no sampling params (probe sets them); only recorded cap is mem "
++                        "inventory-mem0-r0/2/0 predicted_n=2048 (meta cap_hit_2048=true) - probe should "
++                        "apply max_tokens=2048 to it, identically across spec settings",
+         totals={role: dict(requests=len(by(role)),
+                            distinct_steps=len({e["id"].rsplit("/", 1)[0] for e in by(role)}),
+                            prompt_chars=sum(e["prompt_chars"] for e in by(role)),

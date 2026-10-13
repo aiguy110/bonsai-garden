@@ -1,0 +1,4 @@
+The decision is clearly NO-DEPLOY: rule 2 fails (A dual-agent 26.7 vs off 31.3, ratio 0.853 < 1.10), rule 3 fails on single-mem (0.962) and dual-mem (0.920), rule 5 fails (A tcjson 0.988 < off 1.000). Rules 1, 4 pass. Now let me write `bench/spec_summarize.py`. First let me confirm the first-divergence blob reconstruction matches what was hashed and check the outputs format assumption by looking at the existing summary for how "same sha" was computed.
+
+Let me write the script now.
+

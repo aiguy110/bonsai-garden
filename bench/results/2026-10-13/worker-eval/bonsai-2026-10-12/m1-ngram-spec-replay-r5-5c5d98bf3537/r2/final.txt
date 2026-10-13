@@ -1,0 +1,9 @@
+All checks pass. State summary:
+
+- **`bench/spec_replay.py` (fixed probe):** records `t_end` per row, writes `[phase] window t0=... t_fg_end=... t_join_end=...` lines to `notes.txt` (so the in-flight bg request is no longer overcounted), vram after first fg request, refusal/nommproj fallback logic, and cmd parsing verifies against `serving/llama-swap.bonsai-2-27b.yaml` exactly (port 8089, `-np 2`, `--kv-unified`, q4_0 KV, all production flags).
+- **`bench/spec_analyze.py`:** per-phase fg tok/s with/without length rows, draft counts, same-sha share, plus the conservative combined two-slot throughput (fg + bg rows with `t_end <= t_fg_end`) over the fg window.
+- **`bench/m1-notes.md`:** the §9b duplicate was already resolved (single §9b at line 362) and the "two length rows" correction is in place — no edits needed.
+- **Existing results** (`results/2026-10-12/m1-ngram/replay/`): off-greedy, A-greedy, B-greedy, off-prod all present with 4 phases but no `t_end` (old format). The corrected re-run truncates and rewrites the off-prod dir with the new format; the aborted partial run was already discarded on the host.
+
+The replay set (`bench/.replay/m1`) is host-only, so I can't execute the probe here — resubmitting the approved off/prod run (round 5 didn't count), with A/prod next after it completes.
+

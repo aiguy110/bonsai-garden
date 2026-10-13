@@ -1,0 +1,2 @@
+Fix verified — `t0` is now recorded before `th.start()`, window notes are emitted for all four phases, and both scripts compile. The existing off-prod results lack `t_end` (confirmed), so this rerun replaces the baseline with the corrected format. Submitting the run.
+

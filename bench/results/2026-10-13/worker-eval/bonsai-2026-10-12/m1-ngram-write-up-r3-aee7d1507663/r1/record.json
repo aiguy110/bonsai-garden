@@ -1,0 +1,60 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-write-up-r3-aee7d1507663/r1",
+  "case_id": "m1-ngram-write-up-r3-aee7d1507663",
+  "cloud_kind": "done",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T03:06:08-04:00",
+  "flag_triggers": {},
+  "item": "write-up",
+  "kind_match": false,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/check_site.py",
+    "gpu": false,
+    "report": "Verified the full write-up state: site/series/serving/ngram-speculation.md has valid front matter (layer experiment, series serving, status done, date/updated 2026-10-12, tldr, 129-word summary \u2264 200) and every number matches bench/results/2026-10-12/m1-ngram/summary.md; serving/index.md, site/index.md, docs/engine-review.md \u00a73.2 + Phase C, docs/roadmap.md M1, README.md all reflect the no-deploy outcome; parent updated dates are \u2265 child. PyYAML is absent in the sandbox, so I need a fresh host run of the protected checker (delegated via the approved bench/check_site.py) before declaring the item done.",
+    "request": "run",
+    "timeout_min": 10,
+    "why": "Run the protected site checker (tools/check_site.py, delegated) on the current site state to confirm the write-up item's acceptance criterion, since PyYAML is unavailable in the sandbox."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 7842,
+  "timeout": false,
+  "tool_calls": 17,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 6,
+    "read": 10,
+    "submit_request": 1
+  },
+  "turns": 11,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 477.7
+}

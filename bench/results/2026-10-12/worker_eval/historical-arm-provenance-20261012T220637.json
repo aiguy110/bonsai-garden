@@ -1,0 +1,27 @@
+{
+  "selection": "nearest first-parent Bonsai configuration before first cloud case start",
+  "branch": "auto/M1-ngram",
+  "branch_tip": "c2de283b40c0e937e410ea1101eae5e7c963f0d6",
+  "first_cloud_case": "m1-ngram-replay-set-r6-9cf273aef422",
+  "first_cloud_timestamp": "2026-10-12T08:32:46-04:00",
+  "first_cloud_start_commit": "6e58f53652092b29d5fcdb6515a9d731bc51e206",
+  "pre_cloud_first_parent_commit": "c9c86b7338aa23ddcf0edd58493e1954d7eb7179",
+  "first_parent_commits_examined": 68,
+  "candidates": [],
+  "pre_cloud_json_paths": [
+    "agent/models.bonsai-2-27b.json",
+    "agent/models.bonsai-agent.json",
+    "autopilot/config.json",
+    "autopilot/state/M1-ngram/plan.json",
+    "autopilot/state/M1-ngram/status.json",
+    "bench/results/2026-10-11/conc_np1_c98304.1.json",
+    "bench/results/2026-10-11/conc_np2_c98304.1.json",
+    "bench/results/2026-10-11/conc_np2_c98304.2.json",
+    "bench/results/2026-10-11/evals-baseline-mem0/manifest.json",
+    "bench/results/2026-10-12/m1-ngram/recon/event_samples.json",
+    "bench/results/2026-10-12/m1-ngram/recon/inventory.json",
+    "evals/arms/baseline.json",
+    "evals/arms/mem0.json",
+    "evals/tasks/inventory/task.json"
+  ]
+}

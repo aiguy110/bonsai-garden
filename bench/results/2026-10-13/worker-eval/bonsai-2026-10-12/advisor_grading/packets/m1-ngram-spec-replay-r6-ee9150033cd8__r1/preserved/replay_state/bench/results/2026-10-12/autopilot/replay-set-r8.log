@@ -1,0 +1,25 @@
+ADDITIVE prompt chars: 33663
+steps loaded: 18
+{
+ "system_prompt_exact": true,
+ "totals": {
+  "agent": {
+   "requests": 30,
+   "distinct_steps": 6,
+   "prompt_chars": 509067,
+   "recorded_prompt_tokens": 241448,
+   "median_est_over_recorded": 0.457
+  },
+  "mem": {
+   "requests": 12,
+   "distinct_steps": 5,
+   "prompt_chars": 441240,
+   "recorded_prompt_tokens": 104716,
+   "median_est_over_recorded": 1.054
+  }
+ }
+}
+n_messages mismatches: 0 []
+mem0 db columns: {"inventory-mem0-r0": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}, "inventory-mem0-r1": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}, "inventory-mem0-r2": {"memory_history": ["id", "memory_id", "previous_value", "new_value", "action", "created_at", "updated_at", "is_deleted"], "messages": ["id", "session_scope", "role", "content", "name", "created_at"]}}
+outliers (ratio outside 0.75-1.33): [('inventory-baseline-r0/0/5', 0.246), ('inventory-baseline-r0/0/8', 0.272), ('inventory-baseline-r0/0/10', 0.278), ('inventory-baseline-r1/0/2', 0.743), ('inventory-baseline-r1/0/4', 0.381), ('inventory-baseline-r1/0/5', 0.396), ('inventory-baseline-r1/0/7', 0.414), ('inventory-baseline-r1/2/3', 0.745), ('inventory-mem0-r0/0/2', 0.5), ('inventory-mem0-r0/0/4', 0.384), ('inventory-mem0-r0/0/7', 0.406), ('inventory-mem0-r0/0/9', 0.405), ('inventory-mem0-r1/0/4', 0.407), ('inventory-mem0-r1/0/5', 0.391), ('inventory-mem0-r1/0/7', 0.394), ('inventory-mem0-r2/0/4', 0.349), ('inventory-mem0-r2/0/6', 0.384), ('inventory-mem0-r2/0/8', 0.399)]
+wrote /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/.replay/m1 /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/replay_manifest.json

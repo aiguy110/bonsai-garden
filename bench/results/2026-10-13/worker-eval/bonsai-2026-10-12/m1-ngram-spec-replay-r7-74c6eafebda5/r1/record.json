@@ -1,0 +1,58 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r7-74c6eafebda5/r1",
+  "case_id": "m1-ngram-spec-replay-r7-74c6eafebda5",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T01:35:11-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+    "gpu": true,
+    "report": "Verified off/prod corrected output (window lines in all 4 phases, t_end on all rows, exit 0). Confirmed A (ngram-mod defaults) beats B (ngram-mod n-min 8 / n-max 16 / n-match 12) on dual-agent greedy (A 25.5 fg tok/s no-length 26.1, B 23.0). A/B fg rows all carry draft fields. Next: A/prod.",
+    "request": "run",
+    "timeout_min": 120,
+    "why": "A is the higher dual-agent greedy decode tok/s of A/B, so A-prod is the best-prod run needed by the plan. Uses the corrected probe (t0 before bg thread start, t_end per row, window lines) on the private production-equivalent server :8089, four fresh-server phases, sampling prod (agent temp 1.0, top_p 0.95, top_k 20, seed 0; mem temp 0.2, seed 0)."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 6435,
+  "timeout": false,
+  "tool_calls": 14,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 11,
+    "read": 2,
+    "submit_request": 1
+  },
+  "turns": 9,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 212.7
+}

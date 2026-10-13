@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Updated bench/spec_summarize.py per advisor revise: (1) added explicit `criterion` field to each of the 6 rules and a \"criterion\" column to the decision table, with the exact thresholds (2) dual-agent >=1.10x off, (3) dual-mem/single-agent/single-mem >=0.97x off, (4) VRAM <= off+64 MiB, (5) tool_call_json_valid >= off, (6) identity >= off control -10 pts, (1) mmproj loaded; (2) rule 1 now verifies the pinned projector actually loaded by matching \"load_model: loaded multimodal model, ...mmproj...\" in ALL FOUR A-prod server logs (new helper mmproj_load_proof + pinned_mmproj_path), not inferring from notes. Verified in sandbox via temp-copy run: rule 1 now PASS with real evidence \"all 4 A-prod server logs contain 'load_model: loaded multimodal model, '/home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf'\"; rules 2,3,5 FAIL and 1,4,6 PASS (decision unchanged: do not deploy); JSON valid. Need the host run so summary.md/summary.json/deploy.json are regenerated with correct first-divergence indices (gitignored .replay exists only on host).",
+  "command": "python3 bench/spec_summarize.py bench/results/2026-10-12/m1-ngram/replay",
+  "why": "Regenerate summary.md/summary.json/deploy.json on the host so the new criterion column and log-based rule 1 take effect, using the host's .replay outputs for correct divergence indices.",
+  "timeout_min": 10,
+  "gpu": false
+}

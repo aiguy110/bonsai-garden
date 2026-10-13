@@ -1,0 +1,5 @@
++ nvidia-smi -q -d TEMPERATURE\,POWER\,PERFORMANCE\,ERROR 
+
+Failed to parse --display/-d flags
+
+[exit 2]

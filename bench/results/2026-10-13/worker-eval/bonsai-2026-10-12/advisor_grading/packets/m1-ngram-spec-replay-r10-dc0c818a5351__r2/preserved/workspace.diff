@@ -1,0 +1,32 @@
+diff --git a/autopilot/state/M1-ngram/journal.md b/autopilot/state/M1-ngram/journal.md
+index 1d90129..666ccfd 100644
+--- a/autopilot/state/M1-ngram/journal.md
++++ b/autopilot/state/M1-ngram/journal.md
+@@ -1167,3 +1167,27 @@ Made and documented the no-deploy decision. Added the serving experiment page an
+   "note": "Validate site metadata when PyYAML is available, then finish the milestone."
+ }
+ ```
++
++### 2026-10-13T06:43:00-04:00 · worker (gpt-5.6-terra), round 10
++
++Closed the milestone. Re-ran every acceptance check against the replay artifacts:
++all five configs (off-greedy, A-greedy, B-greedy, off-prod, A-prod) have
++requests.jsonl, vram.txt, notes.txt, and all four phase logs; per-phase row
++counts are complete (30 agent fg, 12 mem fg, plus bg loops); all 171 foreground
++rows in A/B carry draft_n/draft_n_accepted with no missing fields. The A-greedy
++and B-greedy dual-mem phases show mem-role ngram-mod drafts working despite the
++mmproj/embedded-batch restriction (fallback to ngram-mod, per the server warning
++line quoted in B-greedy/notes.txt and §3 of bench/m1-notes.md).
++
++PyYAML is unavailable in the sandbox and pip install fails (no CA bundle), so
++tools/check_site.py itself could not be executed. Instead, ran a pure-Python
++mirror of its checks (required frontmatter fields, 200-word summary limit, series
++reference, updated-date staleness) over the site tree: 10 pages checked, 0
++errors. Frontmatter dates are current: site/series/serving/ngram-self-speculation.md,
++site/series/serving/index.md, site/index.md all updated: 2026-10-12 with status
++consistent (experiment done; series done; no-deploy decision carried into all three
++summaries). No live-stack change: no infra request, bonsai-2-27b entry untouched
++(no --spec-* flag in any live config).
++
++Milestone M1 (n-gram self-speculation) complete: not deployed; per-role KV-cache
++precision remains deferred per the serving series "Deferred ideas".

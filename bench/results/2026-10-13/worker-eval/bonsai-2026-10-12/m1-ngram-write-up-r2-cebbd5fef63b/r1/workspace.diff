@@ -1,0 +1,93 @@
+diff --git a/site/series/serving/index.md b/site/series/serving/index.md
+index 8f1d486..029b03d 100644
+--- a/site/series/serving/index.md
++++ b/site/series/serving/index.md
+@@ -4,7 +4,7 @@ series: serving
+ order: 1
+ title: Serving two roles from one model on 10 GB
+ status: done
+-updated: 2026-10-12
++updated: 2026-10-13
+ tldr: One server with two slots runs the agent and the memory layer on a single copy of the weights; the GPU scheduler now lets them overlap.
+ summary: |
+   **Goal:** run the agent and the memory layer's LLM on the same 27B model without
+@@ -24,9 +24,12 @@ summary: |
+     keeps a shared context budget, and exposes per-role virtual models
+     (`bonsai-agent`, `bonsai-mem`). All 9 live validation checks pass.
+ 
+-  **Status:** deployed. A real-traffic replay found n-gram self-speculation
+-  slower when both slots are busy, so it was not deployed. Per-role KV-cache
+-  precision remains deferred until the memory evals show a need.
++  **Status:** deployed. The two-slot server and turnstile co-admission are live;
++  the M1 n-gram speculation experiment is closed and was not deployed. The
++  2026-10-12 replay of 30 recorded agent turns and 12 mem0 extraction calls showed
++  it slower with both slots busy (agent 26.7 vs 31.3 tok/s, memory 23.4 vs 25.4)
++  and changed outputs. Per-role KV-cache precision remains deferred until the
++  memory evals show a need.
+ ---
+ 
+ This series answers a feasibility question that comes before any memory
+@@ -43,8 +46,9 @@ experiment: can both roles fit, and can they run at the same time?
+ 
+ ## Deferred ideas
+ 
+-- **N-gram self-speculation (closed).** Despite its synthetic repeated-text
+-  result, it regressed real two-slot agent and memory replay traffic. The live
+-  entry remains without a `--spec-*` flag.
++- **N-gram self-speculation (closed).** Synthetic repeated text hit 162 tok/s,
++  but the 2026-10-12 real replay regressed it (agent 26.7 vs 31.3 tok/s, memory
++  23.4 vs 25.4 with both slots busy) and changed outputs. The live entry remains
++  without a `--spec-*` flag.
+ - **Different KV precision per role.** This needs a custom server. Only worth it
+   if memory quality turns out to be sensitive to KV quantization.
+diff --git a/site/series/serving/ngram-self-speculation.md b/site/series/serving/ngram-speculation.md
+similarity index 80%
+rename from site/series/serving/ngram-self-speculation.md
+rename to site/series/serving/ngram-speculation.md
+index 026eb61..9ca23ce 100644
+--- a/site/series/serving/ngram-self-speculation.md
++++ b/site/series/serving/ngram-speculation.md
+@@ -4,25 +4,28 @@ series: serving
+ title: N-gram self-speculation on recorded agent traffic
+ status: done
+ date: 2026-10-12
+-updated: 2026-10-12
++updated: 2026-10-13
+ tldr: On real agent and mem0 replays, n-gram speculation did not speed the two busy slots, changed outputs, and was not deployed.
+ summary: |
+-  **Question:** can llama-server's no-extra-model n-gram speculation make the
+-  agent and mem0 faster on their actual traffic?
++  **Question:** can llama-server's no-extra-model n-gram speculation speed the
++  agent and mem0 on their real traffic?
+ 
+-  **Method:** replayed 30 recorded agent requests and 12 reconstructed mem0
+-  extraction calls on a private production-equivalent two-slot server. Each of
+-  four phases used a fresh server: agent alone, memory alone, agent foreground
+-  with memory looping, and memory foreground with agent looping. We compared
+-  speculation off with default `ngram-mod`, plus a shorter-draft variant, under
+-  greedy decoding; then repeated off and the better greedy candidate with the
+-  production sampling settings.
++  **Method:** replayed 30 recorded pi agent turns and 12 reconstructed mem0
++  extraction calls on a private production-equivalent two-slot server, with a
++  fresh server per phase (agent alone, memory alone, agent foreground with memory
++  looping, memory foreground with agent looping). Compared speculation off with
++  default `ngram-mod` and a shorter-draft variant, under both greedy and
++  production sampling.
+ 
+-  **Result:** default `ngram-mod` was equal for single-agent production traffic
+-  (56.0 tok/s), but slower with both slots busy: agent foreground **26.7 vs
+-  31.3 tok/s** and memory foreground **23.4 vs 25.4 tok/s**. It also changed
+-  outputs and sometimes changed whether an agent turn reached its token cap.
+-  **Decision:** do not deploy speculation.
++  **Result:** default `ngram-mod` matched single-agent production traffic (56.0
++  tok/s) but lagged when both slots were busy: agent foreground **26.7 vs 31.3
++  tok/s** (draft acceptance 15.3%) and memory foreground **23.4 vs 25.4 tok/s**.
++  It also changed outputs and sometimes changed whether a turn reached its token
++  cap. The multimodal projector loaded fine (9507-9508 MiB), so text-only traffic
++  is compatible, but images with spec are untested.
++
++  **Decision:** do not deploy: it failed the two-slot speed rule and changed
++  outputs.
+ ---
+ 
+ ## Replay results

@@ -1,0 +1,8 @@
+All verification passed for off-prod:
+- All 4 phases have window lines (notes.txt: single-agent, single-mem, dual-agent, dual-mem)
+- All 140 rows have `t_end`
+- A/B greedy fg rows all have draft_n/draft_n_accepted (draft_n sum 17379 for A)
+- A is the higher dual-agent greedy decode tok/s (25.5 fg, 26.1 no-length) vs B (23.0), so A-prod is the best-prod run to schedule.
+
+Now running A/prod with the corrected probe:
+

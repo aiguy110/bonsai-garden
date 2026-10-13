@@ -1,0 +1,62 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 83d6b51..010e243 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -130,18 +130,23 @@ verified quotes below are literal.
+   1212: slot.spec    = spec.get();
+   ```
+ 
+-**Verdict: yes (static)** — nothing in the source refuses or disables
+-speculation when `--mmproj` is loaded. The complete set of spec gates is:
+-(a) `can_speculate() == !!spec` (424-426); (b) the init gate at 1185 on
++**Verdict (2026-10-12, empirically confirmed for text-only):** speculation
++works with `--mmproj` loaded **for text-only traffic**. The greedy replay
++confirms it: on :8089 with `--mmproj`/`--no-mmproj-offload` both on,
++`--spec-type ngram-mod` produced **`draft_n > 0` and `draft_n_accepted > 0`**
++in both spec arms (A-greedy 63/84 fg rows with drafts, B-greedy 77/84). The
++gate set is unchanged from the static reading above: (a) `can_speculate() ==
++!!spec` (424-426); (b) the init gate at 1185 on
+ `ctx_tgt_seq_rm_type != COMMON_CONTEXT_SEQ_RM_TYPE_NO` (no mctx/mmproj term);
+ and (c) the slot assignment `slot.spec = spec.get()` (1212). The mmproj block
+-disables only `ctx_shift` (1123) and `cache_reuse` (1128), never spec. This
+-static verdict is confirmed **empirically** on the live server only when the
+-replay probe reports **`draft_n > 0`** and **`draft_n_accepted > 0`** in the
+-tap records on :8089 (draft fields appear only when speculation is on;
+-`predicted_n` is just the generated-token count — §2, §7). If those are zero,
+-check the server log for the checkpoint-mode line (1168) before concluding spec
+-is disabled.
++disables only `ctx_shift` (1123) and `cache_reuse` (1128), never spec.
++Off arms (`--spec-type none`) show `draft_n 0` as expected — no spec backend.
++
++**Caveat (embd / image input):** the verdict is text-only. A batch carrying
++embeddings (image input) throws `unsupported batch.has_embd + spec case` at
++`server-context.cpp:3550-3553` when spec is on, so **image input with
++speculation is untested and risky**; it is out of scope for this replay, which
++is text-only agent/mem0 traffic.
+ 
+ ## 4. Message-reconstruction mapping (from `event_samples.json`)
+ 
+@@ -379,5 +384,21 @@ The earlier §9 reading of A's single-agent 86.0 tok/s as a gain is wrong.
+ - 'restore checkpoint' lines in A/B server logs: 0 in every phase.
+ - Prod-sampling pick: highest dual-agent greedy fg tok/s is A (25.5 vs B 23.0), also with
+   length rows excluded (26.1 vs 23.0). Prod runs: off, then A.
+-- Combined two-slot throughput over wall time was not recorded for off/A/B greedy;
+-  spec_replay.py now notes `fg wall_s` per phase, so prod runs have it.
++- Combined two-slot throughput over wall time was not recorded for off/A/B
++greedy (the old probe lacked per-row `t_end` and `window` notes). The
++corrected probe records per-row `t_end` plus `[phase] window t0=... t_fg_end=...
++t_join_end=...`, so **prod runs** now yield a conservatively-bounded combined
++figure (completed-output throughput, not exact aggregate decode tok/s).
++
++### 9c. Prod-sampling status (round 5)
++
++- off-prod: **rerun complete** on the corrected probe (t0 recorded before the
++  background thread starts; per-row `t_end` + `window` notes). Its combined
++  two-slot throughput is now computable.
++- A-prod: **pending** — A is the higher dual-agent greedy fg tok/s arm (25.5
++  vs B 23.0, with/without length rows). After it lands, decide on deployment
++  from: (i) combined fg+bg tok/s (the "both slots busy" metric), (ii)
++  single-slot fg tok/s, (iii) draft acceptance, (iv) length rows / looping
++  (does A still loop mem0-r0/0/2 and mem0-r2/0/2 under prod sampling?), and
++  (v) tool_call_json_valid failures. (off-arm `draft_n` 0 is expected: no
++  `--spec-type`.)

@@ -1,0 +1,263 @@
++ journalctl --no-pager -b -8 -g Xid\|NVRM\|nvidia\|Out\ of\ memory\|oom-kill\|Killed\ process\|thermal\|overheat\|Temperature\|power\|Power\|watchdog\|soft\ lockup\|hard\ LOCKUP\|hung\ task\|panic\|reboot\|shutdown\|reset\|I/O\ error\|GPU\ has\ fallen\ off\ the\ bus -o short-iso-precise 
+
+2026-10-08T19:22:56.874219-04:00 bifrost kernel: secureboot: Secure boot disabled
+2026-10-08T19:22:56.874361-04:00 bifrost kernel: secureboot: Secure boot disabled
+2026-10-08T19:22:56.875813-04:00 bifrost kernel: NMI watchdog: Enabled. Permanently consumes one hw-PMU counter.
+2026-10-08T19:22:56.876066-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'fair_share'
+2026-10-08T19:22:56.876080-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'bang_bang'
+2026-10-08T19:22:56.876087-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'step_wise'
+2026-10-08T19:22:56.876094-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'user_space'
+2026-10-08T19:22:56.876101-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'power_allocator'
+2026-10-08T19:22:56.902967-04:00 bifrost kernel: pci 0000:08:00.1: extending delay after power-on from D3hot to 20 msec
+2026-10-08T19:22:56.903093-04:00 bifrost kernel: pci 0000:08:00.1: D0 power state depends on 0000:08:00.0
+2026-10-08T19:22:56.909346-04:00 bifrost kernel: input: Power Button as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0C:00/input/input0
+2026-10-08T19:22:56.909357-04:00 bifrost kernel: ACPI: button: Power Button [PWRB]
+2026-10-08T19:22:56.909364-04:00 bifrost kernel: input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input1
+2026-10-08T19:22:56.909371-04:00 bifrost kernel: ACPI: button: Power Button [PWRF]
+2026-10-08T19:22:56.909669-04:00 bifrost kernel: thermal LNXTHERM:00: registered as thermal_zone0
+2026-10-08T19:22:56.909679-04:00 bifrost kernel: ACPI: thermal: Thermal Zone [TZ10] (17 C)
+2026-10-08T19:22:56.988084-04:00 bifrost kernel: nvidia: loading out-of-tree module taints kernel.
+2026-10-08T19:22:56.988110-04:00 bifrost kernel: nvidia: module verification failed: signature and/or required key missing - tainting kernel
+2026-10-08T19:22:57.063090-04:00 bifrost kernel: nvidia-nvlink: Nvlink Core is being initialized, major device number 236
+2026-10-08T19:22:57.068090-04:00 bifrost kernel: nvidia 0000:08:00.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=none:owns=io+mem
+2026-10-08T19:22:57.149173-04:00 bifrost kernel: NVRM: loading NVIDIA UNIX Open Kernel Module for x86_64  580.159.04  Release Build  (dvs-builder@U22-I3-AF04-09-6)  Wed Apr 29 17:15:53 UTC 2026
+2026-10-08T19:22:57.112464-04:00 bifrost systemd-modules-load[465]: Inserted module 'nvidia'
+2026-10-08T19:22:57.308080-04:00 bifrost kernel: nvidia-modeset: Loading NVIDIA UNIX Open Kernel Mode Setting Driver for x86_64  580.159.04  Release Build  (dvs-builder@U22-I3-AF04-09-6)  Wed Apr 29 17:04:37 UTC 2026
+2026-10-08T19:22:57.313093-04:00 bifrost kernel: [drm] [nvidia-drm] [GPU ID 0x00000800] Loading driver
+2026-10-08T19:22:57.481276-04:00 bifrost kernel: thermal thermal_zone1: failed to read out thermal zone (-61)
+2026-10-08T19:22:58.889080-04:00 bifrost kernel: [drm] Initialized nvidia-drm 0.0.0 20160202 for 0000:08:00.0 on minor 1
+2026-10-08T19:22:58.911083-04:00 bifrost kernel: nvidia 0000:08:00.0: vgaarb: deactivate vga console
+2026-10-08T19:22:58.915084-04:00 bifrost kernel: nvidia 0000:08:00.0: [drm] Cannot find any crtc or sizes
+2026-10-08T19:22:59.792938-04:00 bifrost cron[1387]: (CRON) INFO (Running @reboot jobs)
+2026-10-08T19:22:59.794199-04:00 bifrost systemd[1]: Starting nvidia-persistenced.service - NVIDIA Persistence Daemon...
+2026-10-08T19:22:59.797183-04:00 bifrost systemd[1]: Starting power-profiles-daemon.service - Power Profiles daemon...
+2026-10-08T19:22:59.799140-04:00 bifrost systemd[1]: secureboot-db.service - Secure Boot updates for DB and DBX was skipped because of an unmet condition check (ConditionPathExists=/sys/firmware/efi/efivars/db-d719b2cb-3d3a-4596-a3bc-dad00e67656f).
+2026-10-08T19:22:59.805095-04:00 bifrost dbus-daemon[1388]: dbus[1388]: Unknown group "power" in message bus configuration file
+2026-10-08T19:22:59.808042-04:00 bifrost systemd[1]: Starting thermald.service - Thermal Daemon Service...
+2026-10-08T19:22:59.808085-04:00 bifrost systemd[1]: ua-reboot-cmds.service - Ubuntu Pro reboot cmds was skipped because of an unmet condition check (ConditionPathExists=/var/lib/ubuntu-advantage/private/machine-token.json).
+2026-10-08T19:22:59.811039-04:00 bifrost systemd[1]: Started nvidia-persistenced.service - NVIDIA Persistence Daemon.
+2026-10-08T19:22:59.817895-04:00 bifrost dbus-daemon[1388]: dbus[1388]: Unknown group "power" in message bus configuration file
+2026-10-08T19:22:59.844440-04:00 bifrost systemd[1]: thermald.service: Deactivated successfully.
+2026-10-08T19:22:59.844724-04:00 bifrost systemd[1]: Started thermald.service - Thermal Daemon Service.
+2026-10-08T19:22:59.848259-04:00 bifrost dbus-daemon[1388]: [system] Activating via systemd: service name='org.freedesktop.PolicyKit1' unit='polkit.service' requested by ':1.8' (uid=0 pid=1398 comm="/usr/libexec/power-profiles-daemon" label="unconfined")
+2026-10-08T19:22:59.872728-04:00 bifrost systemd-logind[1421]: Watching system buttons on /dev/input/event1 (Power Button)
+2026-10-08T19:22:59.872747-04:00 bifrost systemd-logind[1421]: Watching system buttons on /dev/input/event0 (Power Button)
+2026-10-08T19:22:59.891311-04:00 bifrost NetworkManager[1466]: <info>  [1791501779.8913] Read config: /etc/NetworkManager/NetworkManager.conf (lib: 10-default-firewall-use-iptables.conf, 10-dns-resolved.conf, 20-connectivity-ubuntu.conf, no-mac-addr-change.conf) (run: 10-globally-managed-devices.conf) (etc: default-wifi-powersave-on.conf)
+2026-10-08T19:22:59.915330-04:00 bifrost systemd[1]: Started power-profiles-daemon.service - Power Profiles daemon.
+2026-10-08T19:23:01.358206-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) LoadModule: "nvidia"
+2026-10-08T19:23:01.358269-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) Loading /usr/lib/xorg/modules/drivers/nvidia_drv.so
+2026-10-08T19:23:01.361443-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) Module nvidia: vendor="NVIDIA Corporation"
+2026-10-08T19:23:01.364714-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) Loading sub module "glxserver_nvidia"
+2026-10-08T19:23:01.364740-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) LoadModule: "glxserver_nvidia"
+2026-10-08T19:23:01.364830-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) Loading /usr/lib/xorg/modules/extensions/libglxserver_nvidia.so
+2026-10-08T19:23:01.381573-04:00 bifrost wireplumber[1897]: Failed to get percentage from UPower: org.freedesktop.DBus.Error.NameHasNoOwner
+2026-10-08T19:23:01.401861-04:00 bifrost wireplumber[1875]: Failed to get percentage from UPower: org.freedesktop.DBus.Error.NameHasNoOwner
+2026-10-08T19:23:01.434980-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) Module glxserver_nvidia: vendor="NVIDIA Corporation"
+2026-10-08T19:23:01.449612-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (==) NVIDIA(0): No modes were requested; the default mode "nvidia-auto-select"
+2026-10-08T19:23:01.449990-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (WW) NVIDIA:     '/var/run/nvidia-xdriver-16c1c542' Permission denied
+2026-10-08T19:23:01.525917-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) NVIDIA(0): [DRI2]   VDPAU driver: nvidia
+2026-10-08T19:23:01.604604-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) config/udev: Adding input device Power Button (/dev/input/event1)
+2026-10-08T19:23:01.604641-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (**) Power Button: Applying InputClass "libinput keyboard catchall"
+2026-10-08T19:23:01.606942-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) Using input driver 'libinput' for 'Power Button'
+2026-10-08T19:23:01.607555-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (**) Power Button: always reports core events
+2026-10-08T19:23:01.615310-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event1  - Power Button: is tagged by udev as: Keyboard
+2026-10-08T19:23:01.615310-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event1  - Power Button: device is a keyboard
+2026-10-08T19:23:01.615310-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event1  - Power Button: device removed
+2026-10-08T19:23:01.615310-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) XINPUT: Adding extended input device "Power Button" (type: KEYBOARD, id 6)
+2026-10-08T19:23:01.615310-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event1  - Power Button: is tagged by udev as: Keyboard
+2026-10-08T19:23:01.615310-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event1  - Power Button: device is a keyboard
+2026-10-08T19:23:01.616187-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) config/udev: Adding input device Power Button (/dev/input/event0)
+2026-10-08T19:23:01.616187-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (**) Power Button: Applying InputClass "libinput keyboard catchall"
+2026-10-08T19:23:01.616187-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) Using input driver 'libinput' for 'Power Button'
+2026-10-08T19:23:01.616361-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (**) Power Button: always reports core events
+2026-10-08T19:23:01.617033-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event0  - Power Button: is tagged by udev as: Keyboard
+2026-10-08T19:23:01.617098-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event0  - Power Button: device is a keyboard
+2026-10-08T19:23:01.617187-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event0  - Power Button: device removed
+2026-10-08T19:23:01.617241-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) XINPUT: Adding extended input device "Power Button" (type: KEYBOARD, id 7)
+2026-10-08T19:23:01.617958-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event0  - Power Button: is tagged by udev as: Keyboard
+2026-10-08T19:23:01.618016-04:00 bifrost /usr/libexec/gdm-x-session[1906]: (II) event0  - Power Button: device is a keyboard
+2026-10-08T19:23:01.835185-04:00 bifrost chrome-remote-desktop[2083]: (II) config/udev: Adding input device Power Button (/dev/input/event1)
+2026-10-08T19:23:01.835604-04:00 bifrost chrome-remote-desktop[2083]: (II) config/udev: Adding input device Power Button (/dev/input/event0)
+2026-10-08T19:23:02.599041-04:00 bifrost dbus-daemon[1388]: [system] Activating via systemd: service name='org.freedesktop.UPower' unit='upower.service' requested by ':1.50' (uid=128 pid=2162 comm="/usr/bin/gnome-shell" label="unconfined")
+2026-10-08T19:23:02.615982-04:00 bifrost systemd[1]: Starting upower.service - Daemon for power management...
+2026-10-08T19:23:02.711986-04:00 bifrost dbus-daemon[1388]: [system] Successfully activated service 'org.freedesktop.UPower'
+2026-10-08T19:23:02.712179-04:00 bifrost systemd[1]: Started upower.service - Daemon for power management.
+2026-10-08T19:23:02.771846-04:00 bifrost /usr/libexec/gdm-x-session[2105]: dbus-daemon[2105]: [session uid=128 pid=2105] Activating service name='org.gnome.ScreenSaver' requested by ':1.27' (uid=128 pid=2440 comm="/usr/libexec/gsd-power" label="unconfined")
+2026-10-08T19:23:06.803036-04:00 bifrost llama-swap[2746]: [INFO] using nvidia-smi for GPU monitoring
+2026-10-08T19:24:06.794105-04:00 bifrost autossh[2762]: thread 'main' (2762) panicked at src/client.rs:170:67:
+2026-10-08T19:25:06.814308-04:00 bifrost autossh[9263]: thread 'main' (9263) panicked at src/client.rs:170:67:
+2026-10-08T19:26:06.826488-04:00 bifrost autossh[10020]: thread 'main' (10020) panicked at src/client.rs:170:67:
+2026-10-08T19:27:06.836273-04:00 bifrost autossh[10523]: thread 'main' (10523) panicked at src/client.rs:170:67:
+2026-10-08T19:28:06.847143-04:00 bifrost autossh[11303]: thread 'main' (11303) panicked at src/client.rs:170:67:
+2026-10-08T19:29:06.856299-04:00 bifrost autossh[12209]: thread 'main' (12209) panicked at src/client.rs:170:67:
+2026-10-08T19:30:06.866866-04:00 bifrost autossh[13258]: thread 'main' (13258) panicked at src/client.rs:170:67:
+2026-10-08T19:31:06.879268-04:00 bifrost autossh[13763]: thread 'main' (13763) panicked at src/client.rs:170:67:
+2026-10-08T19:32:06.898232-04:00 bifrost autossh[14288]: thread 'main' (14288) panicked at src/client.rs:170:67:
+2026-10-08T19:33:06.908946-04:00 bifrost autossh[14906]: thread 'main' (14906) panicked at src/client.rs:170:67:
+2026-10-08T19:34:06.919038-04:00 bifrost autossh[15428]: thread 'main' (15428) panicked at src/client.rs:170:67:
+2026-10-08T19:35:06.929658-04:00 bifrost autossh[16022]: thread 'main' (16022) panicked at src/client.rs:170:67:
+2026-10-08T19:36:06.939610-04:00 bifrost autossh[16525]: thread 'main' (16525) panicked at src/client.rs:170:67:
+2026-10-08T19:37:06.950544-04:00 bifrost autossh[17246]: thread 'main' (17246) panicked at src/client.rs:170:67:
+2026-10-08T19:38:06.960418-04:00 bifrost autossh[17757]: thread 'main' (17757) panicked at src/client.rs:170:67:
+2026-10-08T19:39:06.970989-04:00 bifrost autossh[18236]: thread 'main' (18236) panicked at src/client.rs:170:67:
+2026-10-08T19:40:06.981520-04:00 bifrost autossh[19160]: thread 'main' (19160) panicked at src/client.rs:170:67:
+2026-10-08T19:41:06.994634-04:00 bifrost autossh[19705]: thread 'main' (19705) panicked at src/client.rs:170:67:
+2026-10-08T19:42:07.006334-04:00 bifrost autossh[20566]: thread 'main' (20566) panicked at src/client.rs:170:67:
+2026-10-08T19:43:07.018092-04:00 bifrost autossh[21306]: thread 'main' (21306) panicked at src/client.rs:170:67:
+2026-10-08T19:44:07.028323-04:00 bifrost autossh[22074]: thread 'main' (22074) panicked at src/client.rs:170:67:
+2026-10-08T19:45:07.038405-04:00 bifrost autossh[22848]: thread 'main' (22848) panicked at src/client.rs:170:67:
+2026-10-08T19:46:07.057465-04:00 bifrost autossh[23708]: thread 'main' (23708) panicked at src/client.rs:170:67:
+2026-10-08T19:47:07.074875-04:00 bifrost autossh[24602]: thread 'main' (24602) panicked at src/client.rs:170:67:
+2026-10-08T19:48:07.088675-04:00 bifrost autossh[25373]: thread 'main' (25373) panicked at src/client.rs:170:67:
+2026-10-08T19:49:07.101382-04:00 bifrost autossh[26405]: thread 'main' (26405) panicked at src/client.rs:170:67:
+2026-10-08T19:50:07.113271-04:00 bifrost autossh[27053]: thread 'main' (27053) panicked at src/client.rs:170:67:
+2026-10-08T19:51:07.126290-04:00 bifrost autossh[27942]: thread 'main' (27942) panicked at src/client.rs:170:67:
+2026-10-08T19:52:07.140351-04:00 bifrost autossh[28955]: thread 'main' (28955) panicked at src/client.rs:170:67:
+2026-10-08T19:53:07.156223-04:00 bifrost autossh[29918]: thread 'main' (29918) panicked at src/client.rs:170:67:
+2026-10-08T19:54:07.172350-04:00 bifrost autossh[30690]: thread 'main' (30690) panicked at src/client.rs:170:67:
+2026-10-08T19:55:07.184837-04:00 bifrost autossh[31539]: thread 'main' (31539) panicked at src/client.rs:170:67:
+2026-10-08T19:56:07.199360-04:00 bifrost autossh[32363]: thread 'main' (32363) panicked at src/client.rs:170:67:
+2026-10-08T19:57:07.217063-04:00 bifrost autossh[32864]: thread 'main' (32864) panicked at src/client.rs:170:67:
+2026-10-08T19:58:07.228270-04:00 bifrost autossh[33445]: thread 'main' (33445) panicked at src/client.rs:170:67:
+2026-10-08T19:59:07.240412-04:00 bifrost autossh[33927]: thread 'main' (33927) panicked at src/client.rs:170:67:
+2026-10-08T20:00:07.255168-04:00 bifrost autossh[34787]: thread 'main' (34787) panicked at src/client.rs:170:67:
+2026-10-08T20:01:07.273472-04:00 bifrost autossh[35479]: thread 'main' (35479) panicked at src/client.rs:170:67:
+2026-10-08T20:02:07.285285-04:00 bifrost autossh[36007]: thread 'main' (36007) panicked at src/client.rs:170:67:
+2026-10-08T20:03:07.300080-04:00 bifrost autossh[36563]: thread 'main' (36563) panicked at src/client.rs:170:67:
+2026-10-08T20:04:07.315201-04:00 bifrost autossh[37055]: thread 'main' (37055) panicked at src/client.rs:170:67:
+2026-10-08T20:05:07.329342-04:00 bifrost autossh[37558]: thread 'main' (37558) panicked at src/client.rs:170:67:
+2026-10-08T20:06:07.345884-04:00 bifrost autossh[38093]: thread 'main' (38093) panicked at src/client.rs:170:67:
+2026-10-08T20:07:07.357413-04:00 bifrost autossh[38601]: thread 'main' (38601) panicked at src/client.rs:170:67:
+2026-10-08T20:08:07.374493-04:00 bifrost autossh[39099]: thread 'main' (39099) panicked at src/client.rs:170:67:
+2026-10-08T20:09:07.388604-04:00 bifrost autossh[39593]: thread 'main' (39593) panicked at src/client.rs:170:67:
+2026-10-08T20:10:07.402186-04:00 bifrost autossh[40096]: thread 'main' (40096) panicked at src/client.rs:170:67:
+2026-10-08T20:11:07.413339-04:00 bifrost autossh[40587]: thread 'main' (40587) panicked at src/client.rs:170:67:
+2026-10-08T20:12:07.426566-04:00 bifrost autossh[41417]: thread 'main' (41417) panicked at src/client.rs:170:67:
+2026-10-08T20:13:07.437343-04:00 bifrost autossh[41912]: thread 'main' (41912) panicked at src/client.rs:170:67:
+2026-10-08T20:14:07.451496-04:00 bifrost autossh[42419]: thread 'main' (42419) panicked at src/client.rs:170:67:
+2026-10-08T20:15:07.466346-04:00 bifrost autossh[42921]: thread 'main' (42921) panicked at src/client.rs:170:67:
+2026-10-08T20:16:07.478291-04:00 bifrost autossh[43803]: thread 'main' (43803) panicked at src/client.rs:170:67:
+2026-10-08T20:17:07.501401-04:00 bifrost autossh[44295]: thread 'main' (44295) panicked at src/client.rs:170:67:
+2026-10-08T20:18:07.513416-04:00 bifrost autossh[45014]: thread 'main' (45014) panicked at src/client.rs:170:67:
+2026-10-08T20:19:07.524282-04:00 bifrost autossh[45502]: thread 'main' (45502) panicked at src/client.rs:170:67:
+2026-10-08T20:20:07.537282-04:00 bifrost autossh[45995]: thread 'main' (45995) panicked at src/client.rs:170:67:
+2026-10-08T20:21:07.549320-04:00 bifrost autossh[46501]: thread 'main' (46501) panicked at src/client.rs:170:67:
+2026-10-08T20:22:07.563259-04:00 bifrost autossh[46994]: thread 'main' (46994) panicked at src/client.rs:170:67:
+2026-10-08T20:23:07.576268-04:00 bifrost autossh[47493]: thread 'main' (47493) panicked at src/client.rs:170:67:
+2026-10-08T20:24:07.588258-04:00 bifrost autossh[48411]: thread 'main' (48411) panicked at src/client.rs:170:67:
+2026-10-08T20:25:07.603369-04:00 bifrost autossh[49280]: thread 'main' (49280) panicked at src/client.rs:170:67:
+2026-10-08T20:26:07.616410-04:00 bifrost autossh[50083]: thread 'main' (50083) panicked at src/client.rs:170:67:
+2026-10-08T20:27:07.628385-04:00 bifrost autossh[50863]: thread 'main' (50863) panicked at src/client.rs:170:67:
+2026-10-08T20:28:07.642985-04:00 bifrost autossh[52408]: thread 'main' (52408) panicked at src/client.rs:170:67:
+2026-10-08T20:29:07.658272-04:00 bifrost autossh[53462]: thread 'main' (53462) panicked at src/client.rs:170:67:
+2026-10-08T20:30:07.676082-04:00 bifrost autossh[53985]: thread 'main' (53985) panicked at src/client.rs:170:67:
+2026-10-08T20:31:07.690324-04:00 bifrost autossh[54630]: thread 'main' (54630) panicked at src/client.rs:170:67:
+2026-10-08T20:31:15.798849-04:00 bifrost python[1863]: WARNING plugins.platforms.telegram.telegram_network: [Telegram] Sticky fallback IP 149.154.166.110 failed; resetting to primary DNS path
+2026-10-08T20:32:07.707256-04:00 bifrost autossh[55913]: thread 'main' (55913) panicked at src/client.rs:170:67:
+2026-10-08T20:33:07.722483-04:00 bifrost autossh[56844]: thread 'main' (56844) panicked at src/client.rs:170:67:
+2026-10-08T20:34:07.733313-04:00 bifrost autossh[57705]: thread 'main' (57705) panicked at src/client.rs:170:67:
+2026-10-08T20:35:07.742928-04:00 bifrost autossh[58273]: thread 'main' (58273) panicked at src/client.rs:170:67:
+2026-10-08T20:36:07.757084-04:00 bifrost autossh[58874]: thread 'main' (58874) panicked at src/client.rs:170:67:
+2026-10-08T20:37:07.770369-04:00 bifrost autossh[59422]: thread 'main' (59422) panicked at src/client.rs:170:67:
+2026-10-08T20:38:07.785365-04:00 bifrost autossh[60546]: thread 'main' (60546) panicked at src/client.rs:170:67:
+2026-10-08T20:39:07.801375-04:00 bifrost autossh[61495]: thread 'main' (61495) panicked at src/client.rs:170:67:
+2026-10-08T20:40:07.819304-04:00 bifrost autossh[62096]: thread 'main' (62096) panicked at src/client.rs:170:67:
+2026-10-08T20:41:07.834399-04:00 bifrost autossh[62861]: thread 'main' (62861) panicked at src/client.rs:170:67:
+2026-10-08T20:42:07.849392-04:00 bifrost autossh[64264]: thread 'main' (64264) panicked at src/client.rs:170:67:
+2026-10-08T20:43:07.865266-04:00 bifrost autossh[65214]: thread 'main' (65214) panicked at src/client.rs:170:67:
+2026-10-08T20:44:07.876329-04:00 bifrost autossh[66125]: thread 'main' (66125) panicked at src/client.rs:170:67:
+2026-10-08T20:45:07.890363-04:00 bifrost autossh[66930]: thread 'main' (66930) panicked at src/client.rs:170:67:
+2026-10-08T20:46:07.913288-04:00 bifrost autossh[67909]: thread 'main' (67909) panicked at src/client.rs:170:67:
+2026-10-08T20:47:07.924181-04:00 bifrost autossh[68925]: thread 'main' (68925) panicked at src/client.rs:170:67:
+2026-10-08T20:48:07.937368-04:00 bifrost autossh[69573]: thread 'main' (69573) panicked at src/client.rs:170:67:
+2026-10-08T20:49:07.952323-04:00 bifrost autossh[70132]: thread 'main' (70132) panicked at src/client.rs:170:67:
+2026-10-08T20:50:07.966318-04:00 bifrost autossh[70691]: thread 'main' (70691) panicked at src/client.rs:170:67:
+2026-10-08T20:51:07.978338-04:00 bifrost autossh[71548]: thread 'main' (71548) panicked at src/client.rs:170:67:
+2026-10-08T20:52:07.996863-04:00 bifrost autossh[72114]: thread 'main' (72114) panicked at src/client.rs:170:67:
+2026-10-08T20:53:08.013422-04:00 bifrost autossh[72678]: thread 'main' (72678) panicked at src/client.rs:170:67:
+2026-10-08T20:54:08.029338-04:00 bifrost autossh[73234]: thread 'main' (73234) panicked at src/client.rs:170:67:
+2026-10-08T20:55:08.046356-04:00 bifrost autossh[73916]: thread 'main' (73916) panicked at src/client.rs:170:67:
+2026-10-08T20:56:08.058307-04:00 bifrost autossh[74493]: thread 'main' (74493) panicked at src/client.rs:170:67:
+2026-10-08T20:57:08.075895-04:00 bifrost autossh[75060]: thread 'main' (75060) panicked at src/client.rs:170:67:
+2026-10-08T20:58:08.090390-04:00 bifrost autossh[75590]: thread 'main' (75590) panicked at src/client.rs:170:67:
+2026-10-08T20:59:08.106270-04:00 bifrost autossh[76157]: thread 'main' (76157) panicked at src/client.rs:170:67:
+2026-10-08T21:00:08.125034-04:00 bifrost autossh[76929]: thread 'main' (76929) panicked at src/client.rs:170:67:
+2026-10-08T21:01:08.140418-04:00 bifrost autossh[77573]: thread 'main' (77573) panicked at src/client.rs:170:67:
+2026-10-08T21:02:08.154384-04:00 bifrost autossh[78899]: thread 'main' (78899) panicked at src/client.rs:170:67:
+2026-10-08T21:03:08.170518-04:00 bifrost autossh[79476]: thread 'main' (79476) panicked at src/client.rs:170:67:
+2026-10-08T21:04:08.182342-04:00 bifrost autossh[80247]: thread 'main' (80247) panicked at src/client.rs:170:67:
+2026-10-08T21:05:08.199418-04:00 bifrost autossh[81040]: thread 'main' (81040) panicked at src/client.rs:170:67:
+2026-10-08T21:06:08.219245-04:00 bifrost autossh[81614]: thread 'main' (81614) panicked at src/client.rs:170:67:
+2026-10-08T21:07:08.235215-04:00 bifrost autossh[82192]: thread 'main' (82192) panicked at src/client.rs:170:67:
+2026-10-08T21:08:08.252055-04:00 bifrost autossh[82745]: thread 'main' (82745) panicked at src/client.rs:170:67:
+2026-10-08T21:09:08.268031-04:00 bifrost autossh[83324]: thread 'main' (83324) panicked at src/client.rs:170:67:
+2026-10-08T21:10:08.281974-04:00 bifrost autossh[83867]: thread 'main' (83867) panicked at src/client.rs:170:67:
+2026-10-08T21:11:08.301412-04:00 bifrost autossh[84430]: thread 'main' (84430) panicked at src/client.rs:170:67:
+2026-10-08T21:12:08.317365-04:00 bifrost autossh[84977]: thread 'main' (84977) panicked at src/client.rs:170:67:
+2026-10-08T21:13:08.328454-04:00 bifrost autossh[85847]: thread 'main' (85847) panicked at src/client.rs:170:67:
+2026-10-08T21:14:08.343878-04:00 bifrost autossh[86838]: thread 'main' (86838) panicked at src/client.rs:170:67:
+2026-10-08T21:15:08.354881-04:00 bifrost autossh[88013]: thread 'main' (88013) panicked at src/client.rs:170:67:
+2026-10-08T21:16:08.364405-04:00 bifrost autossh[88894]: thread 'main' (88894) panicked at src/client.rs:170:67:
+2026-10-08T21:17:08.377340-04:00 bifrost autossh[89777]: thread 'main' (89777) panicked at src/client.rs:170:67:
+2026-10-08T21:18:08.391040-04:00 bifrost autossh[90640]: thread 'main' (90640) panicked at src/client.rs:170:67:
+2026-10-08T21:19:08.406273-04:00 bifrost autossh[91510]: thread 'main' (91510) panicked at src/client.rs:170:67:
+2026-10-08T21:20:08.416029-04:00 bifrost autossh[92350]: thread 'main' (92350) panicked at src/client.rs:170:67:
+2026-10-08T21:21:08.429396-04:00 bifrost autossh[93213]: thread 'main' (93213) panicked at src/client.rs:170:67:
+2026-10-08T21:22:08.439415-04:00 bifrost autossh[94062]: thread 'main' (94062) panicked at src/client.rs:170:67:
+2026-10-08T21:23:08.453084-04:00 bifrost autossh[94930]: thread 'main' (94930) panicked at src/client.rs:170:67:
+2026-10-08T21:24:08.462372-04:00 bifrost autossh[95767]: thread 'main' (95767) panicked at src/client.rs:170:67:
+2026-10-08T21:25:08.475174-04:00 bifrost autossh[96741]: thread 'main' (96741) panicked at src/client.rs:170:67:
+2026-10-08T21:26:08.495209-04:00 bifrost autossh[97618]: thread 'main' (97618) panicked at src/client.rs:170:67:
+2026-10-08T21:27:08.511911-04:00 bifrost autossh[98749]: thread 'main' (98749) panicked at src/client.rs:170:67:
+2026-10-08T21:28:08.523753-04:00 bifrost autossh[99441]: thread 'main' (99441) panicked at src/client.rs:170:67:
+2026-10-08T21:29:08.534355-04:00 bifrost autossh[100599]: thread 'main' (100599) panicked at src/client.rs:170:67:
+2026-10-08T21:30:08.548351-04:00 bifrost autossh[101305]: thread 'main' (101305) panicked at src/client.rs:170:67:
+2026-10-08T21:31:08.562278-04:00 bifrost autossh[102473]: thread 'main' (102473) panicked at src/client.rs:170:67:
+2026-10-08T21:32:08.571115-04:00 bifrost autossh[103462]: thread 'main' (103462) panicked at src/client.rs:170:67:
+2026-10-08T21:33:08.580980-04:00 bifrost autossh[104100]: thread 'main' (104100) panicked at src/client.rs:170:67:
+2026-10-08T21:34:08.589904-04:00 bifrost autossh[104644]: thread 'main' (104644) panicked at src/client.rs:170:67:
+2026-10-08T21:35:08.603155-04:00 bifrost autossh[105224]: thread 'main' (105224) panicked at src/client.rs:170:67:
+2026-10-08T21:36:08.615421-04:00 bifrost autossh[105815]: thread 'main' (105815) panicked at src/client.rs:170:67:
+2026-10-08T21:37:08.633721-04:00 bifrost autossh[106381]: thread 'main' (106381) panicked at src/client.rs:170:67:
+2026-10-08T21:38:08.646432-04:00 bifrost autossh[107295]: thread 'main' (107295) panicked at src/client.rs:170:67:
+2026-10-08T21:39:08.656487-04:00 bifrost autossh[107861]: thread 'main' (107861) panicked at src/client.rs:170:67:
+2026-10-08T21:40:08.667993-04:00 bifrost autossh[108413]: thread 'main' (108413) panicked at src/client.rs:170:67:
+2026-10-08T21:41:08.680126-04:00 bifrost autossh[108980]: thread 'main' (108980) panicked at src/client.rs:170:67:
+2026-10-08T21:42:08.691029-04:00 bifrost autossh[109522]: thread 'main' (109522) panicked at src/client.rs:170:67:
+2026-10-08T21:43:08.702447-04:00 bifrost autossh[110100]: thread 'main' (110100) panicked at src/client.rs:170:67:
+2026-10-08T21:44:08.712518-04:00 bifrost autossh[110652]: thread 'main' (110652) panicked at src/client.rs:170:67:
+2026-10-08T21:45:08.723332-04:00 bifrost autossh[111229]: thread 'main' (111229) panicked at src/client.rs:170:67:
+2026-10-08T21:46:08.735143-04:00 bifrost autossh[111840]: thread 'main' (111840) panicked at src/client.rs:170:67:
+2026-10-08T21:47:08.747668-04:00 bifrost autossh[112419]: thread 'main' (112419) panicked at src/client.rs:170:67:
+2026-10-08T21:48:08.757816-04:00 bifrost autossh[112965]: thread 'main' (112965) panicked at src/client.rs:170:67:
+2026-10-08T21:49:08.768595-04:00 bifrost autossh[113555]: thread 'main' (113555) panicked at src/client.rs:170:67:
+2026-10-08T21:50:08.781154-04:00 bifrost autossh[114114]: thread 'main' (114114) panicked at src/client.rs:170:67:
+2026-10-08T21:51:08.791726-04:00 bifrost autossh[114685]: thread 'main' (114685) panicked at src/client.rs:170:67:
+2026-10-08T21:52:08.802564-04:00 bifrost autossh[115229]: thread 'main' (115229) panicked at src/client.rs:170:67:
+2026-10-08T21:53:08.813776-04:00 bifrost autossh[115811]: thread 'main' (115811) panicked at src/client.rs:170:67:
+2026-10-08T21:54:08.825514-04:00 bifrost autossh[116389]: thread 'main' (116389) panicked at src/client.rs:170:67:
+2026-10-08T21:55:08.835655-04:00 bifrost autossh[117081]: thread 'main' (117081) panicked at src/client.rs:170:67:
+2026-10-08T21:56:08.846227-04:00 bifrost autossh[117663]: thread 'main' (117663) panicked at src/client.rs:170:67:
+2026-10-08T21:57:08.858289-04:00 bifrost autossh[118269]: thread 'main' (118269) panicked at src/client.rs:170:67:
+2026-10-08T21:58:08.870259-04:00 bifrost autossh[119121]: thread 'main' (119121) panicked at src/client.rs:170:67:
+2026-10-08T21:59:08.883794-04:00 bifrost autossh[120281]: thread 'main' (120281) panicked at src/client.rs:170:67:
+2026-10-08T22:00:08.894886-04:00 bifrost autossh[121107]: thread 'main' (121107) panicked at src/client.rs:170:67:
+2026-10-08T22:01:08.906048-04:00 bifrost autossh[121750]: thread 'main' (121750) panicked at src/client.rs:170:67:
+2026-10-08T22:02:08.917248-04:00 bifrost autossh[122302]: thread 'main' (122302) panicked at src/client.rs:170:67:
+2026-10-08T22:03:08.929301-04:00 bifrost autossh[123239]: thread 'main' (123239) panicked at src/client.rs:170:67:
+2026-10-08T22:04:08.941554-04:00 bifrost autossh[124099]: thread 'main' (124099) panicked at src/client.rs:170:67:
+2026-10-08T22:05:08.952428-04:00 bifrost autossh[125057]: thread 'main' (125057) panicked at src/client.rs:170:67:
+2026-10-08T22:06:08.962298-04:00 bifrost autossh[126014]: thread 'main' (126014) panicked at src/client.rs:170:67:
+2026-10-08T22:07:08.972257-04:00 bifrost autossh[126605]: thread 'main' (126605) panicked at src/client.rs:170:67:
+2026-10-08T22:08:08.982124-04:00 bifrost autossh[127539]: thread 'main' (127539) panicked at src/client.rs:170:67:
+2026-10-08T22:09:08.994910-04:00 bifrost autossh[128129]: thread 'main' (128129) panicked at src/client.rs:170:67:
+2026-10-08T22:10:09.014010-04:00 bifrost autossh[128938]: thread 'main' (128938) panicked at src/client.rs:170:67:
+2026-10-08T22:11:09.032853-04:00 bifrost autossh[129520]: thread 'main' (129520) panicked at src/client.rs:170:67:
+2026-10-08T22:12:09.045412-04:00 bifrost autossh[130166]: thread 'main' (130166) panicked at src/client.rs:170:67:
+2026-10-08T22:13:09.055371-04:00 bifrost autossh[130967]: thread 'main' (130967) panicked at src/client.rs:170:67:
+2026-10-08T22:14:09.075270-04:00 bifrost autossh[131904]: thread 'main' (131904) panicked at src/client.rs:170:67:
+2026-10-08T22:15:09.088585-04:00 bifrost autossh[132540]: thread 'main' (132540) panicked at src/client.rs:170:67:
+2026-10-08T22:16:09.101269-04:00 bifrost autossh[133187]: thread 'main' (133187) panicked at src/client.rs:170:67:
+2026-10-08T22:17:09.118416-04:00 bifrost autossh[133762]: thread 'main' (133762) panicked at src/client.rs:170:67:
+
+[exit 0]

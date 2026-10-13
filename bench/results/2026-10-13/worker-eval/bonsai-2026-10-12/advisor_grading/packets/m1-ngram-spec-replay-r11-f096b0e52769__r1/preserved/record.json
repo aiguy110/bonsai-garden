@@ -1,0 +1,60 @@
+{
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r11-f096b0e52769/r1",
+  "case_id": "m1-ngram-spec-replay-r11-f096b0e52769",
+  "cloud_kind": "done",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T01:50:18-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "done",
+  "request": {
+    "report": "Applied the advisor's three revision requests. (1) bench/m1-notes.md \u00a77: mem0-r0 step0 agent requests corrected 11\u219210, cross-checked against bench/results/2026-10-12/m1-ngram/recon/inventory.json (10 agent taps; sums prompt_n=36127/cache_n=30196/predicted_n=6654 unchanged). (2) bench/m1-notes.md \u00a71: per-type ngram descriptions re-attributed \u2014 help.txt lists only value names (line 369) and per-flag help (lines 374\u2013405); the one-liners are now labeled inferences from flag names + docs/engine-review.md. (3) B's server warning \"ngram_mod n_match=12 is too small - poor quality is possible\" disclosed in bench/m1-notes.md \u00a79 (all four B server logs emit it, quoted with PR link) and on the experiment page site/series/serving/ngram-self-speculation.md. No rerun needed; measurement artifacts untouched.",
+    "request": "done",
+    "summary": "M1 complete with advisor revisions applied. (1) Real-traffic replay measured in bench/spec_replay.py on :8089: spec off vs ngram-mod (A defaults, B short drafts), 4 fresh-server phases (single-agent, single-mem, dual-agent, dual-mem), greedy + production sampling \u2014 results in bench/results/2026-10-12/m1-ngram/replay/{off-greedy,A-greedy,B-greedy,off-prod,A-prod}/, each with 4 phases, requests.jsonl (decode tok/s, draft_n/draft_n_accepted, out_sha256, t_end), vram.txt, per-phase server logs; combined rates analyzed via bench/spec_analyze.py as conservative completed-output throughput. (2) Decision: no-deploy \u2014 A slower on both production two-slot foreground roles (agent 26.7 vs 31.3; mem 23.4 vs 25.4) and B worse (dual 23.0/22.4); live bonsai-2-27b entry unchanged. (3) Docs: site/series/serving/ngram-self-speculation.md (with B warning disclosure), site/series/serving/index.md, site/index.md, docs/engine-review.md updated. Advisor revisions: \u00a77 count fixed (bench/m1-notes.md:322), \u00a71 attribution corrected, B's \"n_match=12 too small\" warning disclosed in bench/m1-notes.md \u00a79 and the experiment page."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 10012,
+  "timeout": false,
+  "tool_calls": 18,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 11,
+    "edit": 2,
+    "read": 4,
+    "submit_request": 1
+  },
+  "turns": 14,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 295.2
+}

@@ -1,0 +1,88 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-replay-set-r10-0046c6599fd4/r1",
+  "case_id": "m1-ngram-replay-set-r10-0046c6599fd4",
+  "cloud_kind": "run",
+  "compaction_end": 1,
+  "compaction_start": 1,
+  "complete": true,
+  "context_overflow": true,
+  "errors": [
+    "400: {\"code\":\"context_length_exceeded\",\"message\":\"estimated 65701 prompt tokens + 16384 max_tokens exceeds bonsai-agent's context of 81920 tokens\",\"param\":\"messages\",\"type\":\"invalid_request_error\"}"
+  ],
+  "finished": "2026-10-12T23:38:54-04:00",
+  "flag_triggers": {
+    "context_overflow": [
+      "400: {\"code\":\"context_length_exceeded\",\"message\":\"estimated 65701 prompt tokens + 16384 max_tokens exceeds bonsai-agent's context of 81920 tokens\",\"param\":\"messages\",\"type\":\"invalid_request_error\"}"
+    ]
+  },
+  "item": "replay-set",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/build_replay_set.py --dry-run",
+    "gpu": false,
+    "report": "Rewrote bench/build_replay_set.py to apply the advisor's round-10 fixes: (1) to_openai now sets assistant[thinkingSignature] = '\\n'.join(thinking) per pi-ai's convertMessages (verified against openai-completions.js), (2) est_chars/chars_by_role count reasoning_content as a separate 'reasoning' key, (3) two per-request ratios (all-prior-assistant reasoning vs after-last-user), (4) verify_pi_ai_converter() globs pi-ai's openai-completions.js at runtime and prints lines around thinkingSignature, (5) bodies keep reasoning_content + manifest note about --jinja. .gitignore already has bench/.replay/. Syntax OK, local logic test OK. Running on host to generate replay set + manifest.",
+    "request": "run",
+    "summary": "python3 bench/build_replay_set.py --dry-run",
+    "timeout_min": 20,
+    "why": "Read-only build of the replay set from recorded host traffic; need the est/recorded ratios to confirm reasoning inclusion fixes the agent median to 0.75-1.33."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "error",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 21009,
+  "timeout": false,
+  "tool_calls": 30,
+  "tool_errors": {
+    "bash": 3,
+    "submit_request": 1
+  },
+  "tools": {
+    "bash": 21,
+    "edit": 1,
+    "read": 5,
+    "submit_request": 2,
+    "write": 1
+  },
+  "turns": 29,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 844.0
+}

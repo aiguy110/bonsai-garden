@@ -1,0 +1,857 @@
+{
+ "system_prompt_exact": true,
+ "server_requirement": "probe llama-server needs --jinja (production has it) so the chat template sees reasoning_content on assistant messages",
+ "system_prompt_note": "agent system prompt = recorded sections joined by blank lines; the join is INFERRED (getSystemMessageText is not in pi_prompt_src.txt); exactness is supported only by the est/recorded ratios of requests with n_messages<=3",
+ "mem_prompt_assumptions": "serializeMemories=JSON list; formatConversationHistory='role: content' lines; existing = latest 10 live memories (ADD/UPDATE, DELETE removed) created before the per-call cutoff (not the 10 nearest by embedding); newMessages 'role: content' per mem0_extract_src.txt:838; tool-add content key guessed from toolCall arguments",
+ "totals": {
+  "agent": {
+   "requests": 30,
+   "distinct_steps": 6,
+   "prompt_chars": 798969,
+   "recorded_prompt_tokens": 241448,
+   "median_est_over_recorded": 0.833
+  },
+  "mem": {
+   "requests": 12,
+   "distinct_steps": 5,
+   "prompt_chars": 431077,
+   "recorded_prompt_tokens": 104716,
+   "median_est_over_recorded": 1.027
+  }
+ },
+ "n_messages_mismatches": [],
+ "mem0_db_columns": {
+  "inventory-mem0-r0": {
+   "memory_history": [
+    "id",
+    "memory_id",
+    "previous_value",
+    "new_value",
+    "action",
+    "created_at",
+    "updated_at",
+    "is_deleted"
+   ],
+   "messages": [
+    "id",
+    "session_scope",
+    "role",
+    "content",
+    "name",
+    "created_at"
+   ]
+  },
+  "inventory-mem0-r1": {
+   "memory_history": [
+    "id",
+    "memory_id",
+    "previous_value",
+    "new_value",
+    "action",
+    "created_at",
+    "updated_at",
+    "is_deleted"
+   ],
+   "messages": [
+    "id",
+    "session_scope",
+    "role",
+    "content",
+    "name",
+    "created_at"
+   ]
+  },
+  "inventory-mem0-r2": {
+   "memory_history": [
+    "id",
+    "memory_id",
+    "previous_value",
+    "new_value",
+    "action",
+    "created_at",
+    "updated_at",
+    "is_deleted"
+   ],
+   "messages": [
+    "id",
+    "session_scope",
+    "role",
+    "content",
+    "name",
+    "created_at"
+   ]
+  }
+ },
+ "requests": [
+  {
+   "id": "inventory-baseline-r0/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 6187,
+   "est_tokens_chars4": 1547,
+   "recorded_prompt_tokens": 1829,
+   "est_over_recorded": 0.846,
+   "predicted_n": 71,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 0,
+    "user": 763
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.846,
+   "est_over_recorded_no_reasoning": 0.846
+  },
+  {
+   "id": "inventory-baseline-r0/0/2",
+   "role": "agent",
+   "n_messages": 7,
+   "prompt_chars": 8502,
+   "est_tokens_chars4": 2126,
+   "recorded_prompt_tokens": 2761,
+   "est_over_recorded": 0.77,
+   "predicted_n": 8565,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 148,
+    "user": 763,
+    "assistant": 220,
+    "tool": 1935
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.77,
+   "est_over_recorded_no_reasoning": 0.756
+  },
+  {
+   "id": "inventory-baseline-r0/0/5",
+   "role": "agent",
+   "n_messages": 13,
+   "prompt_chars": 38559,
+   "est_tokens_chars4": 9640,
+   "recorded_prompt_tokens": 13032,
+   "est_over_recorded": 0.74,
+   "predicted_n": 305,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 25717,
+    "user": 763,
+    "assistant": 4475,
+    "tool": 2154
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.74,
+   "est_over_recorded_no_reasoning": 0.246
+  },
+  {
+   "id": "inventory-baseline-r0/0/8",
+   "role": "agent",
+   "n_messages": 19,
+   "prompt_chars": 41401,
+   "est_tokens_chars4": 10350,
+   "recorded_prompt_tokens": 13939,
+   "est_over_recorded": 0.743,
+   "predicted_n": 189,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 26225,
+    "user": 763,
+    "assistant": 5507,
+    "tool": 3444
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.743,
+   "est_over_recorded_no_reasoning": 0.272
+  },
+  {
+   "id": "inventory-baseline-r0/0/10",
+   "role": "agent",
+   "n_messages": 23,
+   "prompt_chars": 42495,
+   "est_tokens_chars4": 10624,
+   "recorded_prompt_tokens": 14317,
+   "est_over_recorded": 0.742,
+   "predicted_n": 538,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 26591,
+    "user": 763,
+    "assistant": 5918,
+    "tool": 3753
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.742,
+   "est_over_recorded_no_reasoning": 0.278
+  },
+  {
+   "id": "inventory-baseline-r1/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 6187,
+   "est_tokens_chars4": 1547,
+   "recorded_prompt_tokens": 1829,
+   "est_over_recorded": 0.846,
+   "predicted_n": 71,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 0,
+    "user": 763
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.846,
+   "est_over_recorded_no_reasoning": 0.846
+  },
+  {
+   "id": "inventory-baseline-r1/0/2",
+   "role": "agent",
+   "n_messages": 9,
+   "prompt_chars": 8948,
+   "est_tokens_chars4": 2237,
+   "recorded_prompt_tokens": 2959,
+   "est_over_recorded": 0.756,
+   "predicted_n": 5684,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 154,
+    "user": 763,
+    "assistant": 376,
+    "tool": 2211
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.756,
+   "est_over_recorded_no_reasoning": 0.743
+  },
+  {
+   "id": "inventory-baseline-r1/0/4",
+   "role": "agent",
+   "n_messages": 15,
+   "prompt_chars": 31465,
+   "est_tokens_chars4": 7866,
+   "recorded_prompt_tokens": 9693,
+   "est_over_recorded": 0.812,
+   "predicted_n": 383,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 16687,
+    "user": 763,
+    "assistant": 4208,
+    "tool": 4345
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.812,
+   "est_over_recorded_no_reasoning": 0.381
+  },
+  {
+   "id": "inventory-baseline-r1/0/5",
+   "role": "agent",
+   "n_messages": 18,
+   "prompt_chars": 33275,
+   "est_tokens_chars4": 8319,
+   "recorded_prompt_tokens": 10315,
+   "est_over_recorded": 0.806,
+   "predicted_n": 144,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 16916,
+    "user": 763,
+    "assistant": 4891,
+    "tool": 5235
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.806,
+   "est_over_recorded_no_reasoning": 0.396
+  },
+  {
+   "id": "inventory-baseline-r1/0/7",
+   "role": "agent",
+   "n_messages": 22,
+   "prompt_chars": 35276,
+   "est_tokens_chars4": 8819,
+   "recorded_prompt_tokens": 10960,
+   "est_over_recorded": 0.805,
+   "predicted_n": 511,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 17126,
+    "user": 763,
+    "assistant": 5301,
+    "tool": 6608
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.805,
+   "est_over_recorded_no_reasoning": 0.414
+  },
+  {
+   "id": "inventory-baseline-r1/2/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 5618,
+   "est_tokens_chars4": 1404,
+   "recorded_prompt_tokens": 1672,
+   "est_over_recorded": 0.84,
+   "predicted_n": 167,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 0,
+    "user": 194
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.84,
+   "est_over_recorded_no_reasoning": 0.84
+  },
+  {
+   "id": "inventory-baseline-r1/2/3",
+   "role": "agent",
+   "n_messages": 11,
+   "prompt_chars": 11038,
+   "est_tokens_chars4": 2760,
+   "recorded_prompt_tokens": 3517,
+   "est_over_recorded": 0.785,
+   "predicted_n": 118,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 555,
+    "user": 194,
+    "assistant": 500,
+    "tool": 4341
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.785,
+   "est_over_recorded_no_reasoning": 0.745
+  },
+  {
+   "id": "inventory-baseline-r1/2/6",
+   "role": "agent",
+   "n_messages": 18,
+   "prompt_chars": 67819,
+   "est_tokens_chars4": 16955,
+   "recorded_prompt_tokens": 19127,
+   "est_over_recorded": 0.886,
+   "predicted_n": 463,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 1754,
+    "user": 194,
+    "assistant": 1064,
+    "tool": 59343
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.886,
+   "est_over_recorded_no_reasoning": 0.864
+  },
+  {
+   "id": "inventory-baseline-r1/2/8",
+   "role": "agent",
+   "n_messages": 22,
+   "prompt_chars": 72598,
+   "est_tokens_chars4": 18150,
+   "recorded_prompt_tokens": 20624,
+   "est_over_recorded": 0.88,
+   "predicted_n": 1323,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 5221,
+    "user": 194,
+    "assistant": 1323,
+    "tool": 60388
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.88,
+   "est_over_recorded_no_reasoning": 0.817
+  },
+  {
+   "id": "inventory-baseline-r1/2/11",
+   "role": "agent",
+   "n_messages": 29,
+   "prompt_chars": 80059,
+   "est_tokens_chars4": 20015,
+   "recorded_prompt_tokens": 22553,
+   "est_over_recorded": 0.887,
+   "predicted_n": 452,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 2841,
+    "system": 2583,
+    "reasoning": 10547,
+    "user": 194,
+    "assistant": 3104,
+    "tool": 60724
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.887,
+   "est_over_recorded_no_reasoning": 0.771
+  },
+  {
+   "id": "inventory-mem0-r0/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 7557,
+   "est_tokens_chars4": 1889,
+   "recorded_prompt_tokens": 2153,
+   "est_over_recorded": 0.877,
+   "predicted_n": 175,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 0,
+    "user": 763
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.877,
+   "est_over_recorded_no_reasoning": 0.877
+  },
+  {
+   "id": "inventory-mem0-r0/0/2",
+   "role": "agent",
+   "n_messages": 8,
+   "prompt_chars": 14419,
+   "est_tokens_chars4": 3605,
+   "recorded_prompt_tokens": 4273,
+   "est_over_recorded": 0.844,
+   "predicted_n": 3121,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 5871,
+    "user": 763,
+    "assistant": 433,
+    "tool": 542
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.844,
+   "est_over_recorded_no_reasoning": 0.5
+  },
+  {
+   "id": "inventory-mem0-r0/0/4",
+   "role": "agent",
+   "n_messages": 13,
+   "prompt_chars": 25210,
+   "est_tokens_chars4": 6302,
+   "recorded_prompt_tokens": 7551,
+   "est_over_recorded": 0.835,
+   "predicted_n": 354,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 13609,
+    "user": 763,
+    "assistant": 3253,
+    "tool": 761
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.835,
+   "est_over_recorded_no_reasoning": 0.384
+  },
+  {
+   "id": "inventory-mem0-r0/0/7",
+   "role": "agent",
+   "n_messages": 22,
+   "prompt_chars": 27726,
+   "est_tokens_chars4": 6932,
+   "recorded_prompt_tokens": 8369,
+   "est_over_recorded": 0.828,
+   "predicted_n": 223,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 14148,
+    "user": 763,
+    "assistant": 4852,
+    "tool": 1080
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.828,
+   "est_over_recorded_no_reasoning": 0.406
+  },
+  {
+   "id": "inventory-mem0-r0/0/9",
+   "role": "agent",
+   "n_messages": 26,
+   "prompt_chars": 30523,
+   "est_tokens_chars4": 7631,
+   "recorded_prompt_tokens": 9312,
+   "est_over_recorded": 0.819,
+   "predicted_n": 428,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 15440,
+    "user": 763,
+    "assistant": 4972,
+    "tool": 2443
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.819,
+   "est_over_recorded_no_reasoning": 0.405
+  },
+  {
+   "id": "inventory-mem0-r1/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 7557,
+   "est_tokens_chars4": 1889,
+   "recorded_prompt_tokens": 2153,
+   "est_over_recorded": 0.877,
+   "predicted_n": 147,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 0,
+    "user": 763
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.877,
+   "est_over_recorded_no_reasoning": 0.877
+  },
+  {
+   "id": "inventory-mem0-r1/0/2",
+   "role": "agent",
+   "n_messages": 7,
+   "prompt_chars": 8615,
+   "est_tokens_chars4": 2154,
+   "recorded_prompt_tokens": 2648,
+   "est_over_recorded": 0.813,
+   "predicted_n": 100,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 189,
+    "user": 763,
+    "assistant": 340,
+    "tool": 517
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.813,
+   "est_over_recorded_no_reasoning": 0.796
+  },
+  {
+   "id": "inventory-mem0-r1/0/4",
+   "role": "agent",
+   "n_messages": 11,
+   "prompt_chars": 18859,
+   "est_tokens_chars4": 4715,
+   "recorded_prompt_tokens": 5651,
+   "est_over_recorded": 0.834,
+   "predicted_n": 2102,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 9665,
+    "user": 763,
+    "assistant": 700,
+    "tool": 917
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.834,
+   "est_over_recorded_no_reasoning": 0.407
+  },
+  {
+   "id": "inventory-mem0-r1/0/5",
+   "role": "agent",
+   "n_messages": 14,
+   "prompt_chars": 25918,
+   "est_tokens_chars4": 6480,
+   "recorded_prompt_tokens": 7798,
+   "est_over_recorded": 0.831,
+   "predicted_n": 122,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 13735,
+    "user": 763,
+    "assistant": 3558,
+    "tool": 1038
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.831,
+   "est_over_recorded_no_reasoning": 0.391
+  },
+  {
+   "id": "inventory-mem0-r1/0/7",
+   "role": "agent",
+   "n_messages": 19,
+   "prompt_chars": 26882,
+   "est_tokens_chars4": 6720,
+   "recorded_prompt_tokens": 8199,
+   "est_over_recorded": 0.82,
+   "predicted_n": 258,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 13962,
+    "user": 763,
+    "assistant": 3955,
+    "tool": 1359
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.82,
+   "est_over_recorded_no_reasoning": 0.394
+  },
+  {
+   "id": "inventory-mem0-r2/0/0",
+   "role": "agent",
+   "n_messages": 2,
+   "prompt_chars": 7557,
+   "est_tokens_chars4": 1889,
+   "recorded_prompt_tokens": 2153,
+   "est_over_recorded": 0.877,
+   "predicted_n": 141,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 0,
+    "user": 763
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.877,
+   "est_over_recorded_no_reasoning": 0.877
+  },
+  {
+   "id": "inventory-mem0-r2/0/2",
+   "role": "agent",
+   "n_messages": 9,
+   "prompt_chars": 8548,
+   "est_tokens_chars4": 2137,
+   "recorded_prompt_tokens": 2623,
+   "est_over_recorded": 0.815,
+   "predicted_n": 4854,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 171,
+    "user": 763,
+    "assistant": 411,
+    "tool": 389
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.815,
+   "est_over_recorded_no_reasoning": 0.798
+  },
+  {
+   "id": "inventory-mem0-r2/0/4",
+   "role": "agent",
+   "n_messages": 15,
+   "prompt_chars": 29309,
+   "est_tokens_chars4": 7327,
+   "recorded_prompt_tokens": 8554,
+   "est_over_recorded": 0.857,
+   "predicted_n": 258,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 17366,
+    "user": 763,
+    "assistant": 3699,
+    "tool": 649
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.857,
+   "est_over_recorded_no_reasoning": 0.349
+  },
+  {
+   "id": "inventory-mem0-r2/0/6",
+   "role": "agent",
+   "n_messages": 20,
+   "prompt_chars": 34056,
+   "est_tokens_chars4": 8514,
+   "recorded_prompt_tokens": 10025,
+   "est_over_recorded": 0.849,
+   "predicted_n": 210,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 18649,
+    "user": 763,
+    "assistant": 4459,
+    "tool": 3341
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.849,
+   "est_over_recorded_no_reasoning": 0.384
+  },
+  {
+   "id": "inventory-mem0-r2/0/8",
+   "role": "agent",
+   "n_messages": 25,
+   "prompt_chars": 36806,
+   "est_tokens_chars4": 9202,
+   "recorded_prompt_tokens": 10859,
+   "est_over_recorded": 0.847,
+   "predicted_n": 251,
+   "kind": null,
+   "chars_by_role": {
+    "tools": 3743,
+    "system": 3051,
+    "reasoning": 19456,
+    "user": 763,
+    "assistant": 5301,
+    "tool": 4416
+   },
+   "est_over_recorded_reasoning_after_last_user_only": 0.847,
+   "est_over_recorded_no_reasoning": 0.399
+  },
+  {
+   "id": "inventory-mem0-r0/0/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 34674,
+   "est_tokens_chars4": 8668,
+   "recorded_prompt_tokens": 8427,
+   "est_over_recorded": 1.029,
+   "predicted_n": 383,
+   "kind": "capture",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r0/0/1",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 35796,
+   "est_tokens_chars4": 8949,
+   "recorded_prompt_tokens": 8646,
+   "est_over_recorded": 1.035,
+   "predicted_n": 6,
+   "kind": "tool_add",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r0/0/2",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 35482,
+   "est_tokens_chars4": 8870,
+   "recorded_prompt_tokens": 8639,
+   "est_over_recorded": 1.027,
+   "predicted_n": 6,
+   "kind": "tool_add",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r0/0/3",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36036,
+   "est_tokens_chars4": 9009,
+   "recorded_prompt_tokens": 8702,
+   "est_over_recorded": 1.035,
+   "predicted_n": 6,
+   "kind": "tool_add",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r0/0/4",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 35823,
+   "est_tokens_chars4": 8956,
+   "recorded_prompt_tokens": 8724,
+   "est_over_recorded": 1.027,
+   "predicted_n": 6,
+   "kind": "tool_add",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r0/0/5",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 35873,
+   "est_tokens_chars4": 8968,
+   "recorded_prompt_tokens": 8744,
+   "est_over_recorded": 1.026,
+   "predicted_n": 6,
+   "kind": "tool_add",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r0/0/6",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 35954,
+   "est_tokens_chars4": 8988,
+   "recorded_prompt_tokens": 8763,
+   "est_over_recorded": 1.026,
+   "predicted_n": 6,
+   "kind": "tool_add",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r0/1/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 36285,
+   "est_tokens_chars4": 9071,
+   "recorded_prompt_tokens": 8874,
+   "est_over_recorded": 1.022,
+   "predicted_n": 289,
+   "kind": "capture",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r0/2/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 37548,
+   "est_tokens_chars4": 9387,
+   "recorded_prompt_tokens": 9183,
+   "est_over_recorded": 1.022,
+   "predicted_n": 2048,
+   "kind": "capture",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r1/0/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 34080,
+   "est_tokens_chars4": 8520,
+   "recorded_prompt_tokens": 8231,
+   "est_over_recorded": 1.035,
+   "predicted_n": 61,
+   "kind": "tool_add",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r1/0/1",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 35511,
+   "est_tokens_chars4": 8878,
+   "recorded_prompt_tokens": 8650,
+   "est_over_recorded": 1.026,
+   "predicted_n": 311,
+   "kind": "capture",
+   "chars_by_role": null
+  },
+  {
+   "id": "inventory-mem0-r1/1/0",
+   "role": "mem",
+   "n_messages": 2,
+   "prompt_chars": 38015,
+   "est_tokens_chars4": 9504,
+   "recorded_prompt_tokens": 9133,
+   "est_over_recorded": 1.041,
+   "predicted_n": 384,
+   "kind": "capture",
+   "chars_by_role": null
+  }
+ ],
+ "agent_ratio_n_messages_le3": [
+  0.846,
+  0.846,
+  0.84,
+  0.877,
+  0.877,
+  0.877
+ ]
+}

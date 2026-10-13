@@ -1,0 +1,8 @@
+{
+  "report": "Write-up complete and verified locally: site/series/serving/ngram-speculation.md has valid front matter (all fields, summary 129 words \u2264200), every number traces to summary.md/deploy.json, serving/index.md + site/index.md mention the M1 no-deploy outcome with updated \u2265 experiment, and docs/engine-review.md \u00a73.2 + Phase C, docs/roadmap.md M1, README next-steps all reflect the result. Doing a final fresh host run of the site checker for citable output.",
+  "request": "run",
+  "command": "python3 bench/check_site.py",
+  "timeout_min": 10,
+  "why": "Run the protected site checker (tools/check_site.py, via bench/check_site.py wrapper) to confirm current site front-matter/word-limit/date invariants pass before marking the milestone done.",
+  "gpu": false
+}

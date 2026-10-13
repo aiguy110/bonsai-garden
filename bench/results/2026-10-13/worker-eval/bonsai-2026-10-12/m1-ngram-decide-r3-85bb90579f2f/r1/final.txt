@@ -1,0 +1,7 @@
+All artifacts regenerated correctly. Verifying the final state before submitting:
+
+- **summary.md**: decision table now has a `criterion` column with exact thresholds (≥1.10×, ≥0.97×, ≤+64 MiB, ≥ off's valid rate, ≥ control − 10 pts, mmproj load condition); rule 1 PASS verified from server logs (4/4 `load_model: loaded multimodal model` lines with the pinned path)
+- **summary.json**: all rules carry `criterion` + `pass` + `value`; identity/control tables with divergence indices intact
+- **deploy.json**: `deployed: false`, rules 2/3/5 failed with values
+- No files under `serving/candidates/`; live YAML unchanged
+

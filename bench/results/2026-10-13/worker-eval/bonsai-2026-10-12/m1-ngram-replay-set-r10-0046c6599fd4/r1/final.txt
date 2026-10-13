@@ -1,0 +1,2 @@
+Both modes work correctly (diff = 50 = reasoning before the last user dropped in `after_user`). The script is correct. Let me run it on the host.
+

@@ -1,0 +1,35 @@
+# APPLIED 2026-10-11: the "bonsai-2-27b" entry in /etc/llama-swap/config.yaml
+# (Phase A of ../docs/engine-review.md; backup config.yaml.bak.20261011-160339).
+# Keep the model NAME unchanged: turnstile evicts by name, so the agent and the
+# memory LLM must both resolve to "bonsai-2-27b" or they will thrash the GPU.
+#
+# Changes vs the previous entry:
+#   --parallel 2 --kv-unified   one weights copy, two slots (agent + memory) over
+#                               one KV pool; measured 9503 MiB, +154 MiB vs 1 slot
+# Not applied: --checkpoint-min-step 2048. Replays of agent-shaped traffic and a
+# real pi session showed zero re-processing at the default 8192 (the fork
+# checkpoints near the end of every prompt), so it buys nothing.
+# Optional if headroom (~730 MiB) feels too tight: --ubatch-size 256.
+"bonsai-2-27b":
+  env:
+    - "LLAMA_ATTN_ROT_DISABLE=1"
+  cmd: |
+    /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server
+    --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf
+    --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf
+    --no-mmproj-offload
+    --port ${PORT}
+    --n-gpu-layers 99
+    --ctx-size 98304
+    --parallel 2
+    --kv-unified
+    --threads 8
+    --flash-attn on
+    --cache-type-k q4_0
+    --cache-type-v q4_0
+    --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf
+    --temp 1.0
+    --top-p 0.95
+    --top-k 20
+    --jinja
+  ttl: 0

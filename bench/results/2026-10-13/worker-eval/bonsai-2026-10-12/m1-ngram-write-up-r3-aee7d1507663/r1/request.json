@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Verified the full write-up state: site/series/serving/ngram-speculation.md has valid front matter (layer experiment, series serving, status done, date/updated 2026-10-12, tldr, 129-word summary \u2264 200) and every number matches bench/results/2026-10-12/m1-ngram/summary.md; serving/index.md, site/index.md, docs/engine-review.md \u00a73.2 + Phase C, docs/roadmap.md M1, README.md all reflect the no-deploy outcome; parent updated dates are \u2265 child. PyYAML is absent in the sandbox, so I need a fresh host run of the protected checker (delegated via the approved bench/check_site.py) before declaring the item done.",
+  "command": "python3 bench/check_site.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Run the protected site checker (tools/check_site.py, delegated) on the current site state to confirm the write-up item's acceptance criterion, since PyYAML is unavailable in the sandbox."
+}

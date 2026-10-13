@@ -1,0 +1,2 @@
+My test labels were misleading — I never passed `reasoning=` in the last test. Single definition confirmed (line 142). Let me test the reasoning branches properly.
+

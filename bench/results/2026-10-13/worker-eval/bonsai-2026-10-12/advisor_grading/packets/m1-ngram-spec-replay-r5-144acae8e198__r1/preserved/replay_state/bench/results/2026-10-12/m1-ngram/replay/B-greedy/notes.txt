@@ -1,0 +1,10 @@
+cmd: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf --no-mmproj-offload --port 8089 --n-gpu-layers 99 --ctx-size 98304 --parallel 2 --kv-unified --threads 8 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf --temp 1.0 --top-p 0.95 --top-k 20 --jinja --spec-type ngram-mod --spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12
+[single-agent] log: 0.03.858.861 W spec common_specu: ngram_mod n_match=12 is too small - poor quality is possible, see: https://github.com/ggml-org/llama.cpp/pull/19164
+[single-agent] log: 0.03.858.861 W spec common_specu: ngram_mod n_match=12 is too small - poor quality is possible, see: https://github.com/ggml-org/llama.cpp/pull/19164
+[single-mem] log: 0.03.827.812 W spec common_specu: ngram_mod n_match=12 is too small - poor quality is possible, see: https://github.com/ggml-org/llama.cpp/pull/19164
+[single-mem] log: 0.03.827.812 W spec common_specu: ngram_mod n_match=12 is too small - poor quality is possible, see: https://github.com/ggml-org/llama.cpp/pull/19164
+[dual-agent] log: 0.03.885.241 W spec common_specu: ngram_mod n_match=12 is too small - poor quality is possible, see: https://github.com/ggml-org/llama.cpp/pull/19164
+[dual-agent] log: 0.03.885.241 W spec common_specu: ngram_mod n_match=12 is too small - poor quality is possible, see: https://github.com/ggml-org/llama.cpp/pull/19164
+[dual-mem] log: 0.03.858.549 W spec common_specu: ngram_mod n_match=12 is too small - poor quality is possible, see: https://github.com/ggml-org/llama.cpp/pull/19164
+[dual-mem] log: 0.03.858.549 W spec common_specu: ngram_mod n_match=12 is too small - poor quality is possible, see: https://github.com/ggml-org/llama.cpp/pull/19164
+done

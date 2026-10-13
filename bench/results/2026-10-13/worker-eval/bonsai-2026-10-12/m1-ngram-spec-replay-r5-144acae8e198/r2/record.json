@@ -1,0 +1,53 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r5-144acae8e198/r2",
+  "case_id": "m1-ngram-spec-replay-r5-144acae8e198",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T06:21:24-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+    "gpu": true,
+    "report": "Checked state after rate-limit interruptions: greedy off/A/B complete; off-prod complete (4 phases, requests.jsonl + 4 server logs + vram.txt under bench/results/2026-10-12/m1-ngram/replay/off-prod). m1-notes \u00a79b deduped and fixed (two length rows, output-identity caveat, 0 restore-checkpoint lines). spec_replay.py now logs full phase windows so combined two-slot throughput is computable. Next scheduled run per plan: A/prod (A chosen by dual-agent greedy rule, 25.5 vs B 23.0 fg tok/s). No other prod runs needed.",
+    "request": "run",
+    "timeout_min": 120,
+    "why": "Final scheduled replay: A/prod baseline-comparable arm (ngram-mod defaults, prod sampling), 4 phases on fresh servers; off/prod already recorded."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 4284,
+  "timeout": false,
+  "tool_calls": 9,
+  "tool_errors": {},
+  "tools": {
+    "bash": 5,
+    "read": 3,
+    "submit_request": 1
+  },
+  "turns": 6,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 96.6
+}

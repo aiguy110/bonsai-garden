@@ -1,0 +1,4 @@
+The script works correctly in the sandbox. The identity comparison logic is intact (correctly identifying diverged rows like B dual-agent 0/30); the `None` indices are purely because the gitignored `.replay` outputs aren't present in the sandbox — they'll be correct on the host. My changes (rules + criterion column) don't touch that logic, so the host run will preserve the correct first-divergence indices.
+
+Now I need to regenerate the actual artifacts **on the host** (where `bench/.replay` exists) so the committed `summary.md`/`summary.json`/`deploy.json` reflect the new criteria column and rule-1 evidence. Let me request the run.
+

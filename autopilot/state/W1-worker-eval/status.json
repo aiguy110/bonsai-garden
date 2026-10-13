@@ -1,0 +1,13 @@
+{
+  "phase": "publish",
+  "item": 5,
+  "round": 0,
+  "reviews": 0,
+  "base": "ddf2545a3b89a963014e4efc3937c6456e3b259d",
+  "dropped": [],
+  "caveats": {
+    "replay-harness": "The replay harness is sufficient for the baseline runs, but provenance and smoke validation are not fully final. The SHA-256 values cited in bench/worker_eval/README.md and arms/bonsai-2026-10-12.json came from historical-arm-provenance-20261012T221002.json, which hashed stripped git-show text rather than exact blob bytes; do not trust those digest strings. inspect_historical_arm.py now hashes raw blobs and extracts harness settings, but that revision was not rerun on the host and its output was not incorporated. Also, the historical config omitted worker_memory rather than explicitly setting it to null; omission still disabled memory through CFG.get(), but the current wording is inaccurate. The successful host smoke used an earlier arm hash and a dirty repository commit, so it demonstrates the execution, artifact, cleanup, and resume paths but does not pin the exact final source revision. For attempts with no recovered request, run.py records null in results.jsonl but does not create a per-attempt request.json artifact. Before interpreting results, retain the documented fidelity caveats that replay checkouts expose Git history unavailable to the original worker and that the exact replay prompt still says 45 minutes although the arm enforces 20.",
+    "worker-eval-writeup": "Two wording defects remain. In site/series/local-worker/worker-eval.md:156-157, \u201c32 compactions at attempt start and 29 at attempt end\u201d is wrong: summary.json counts 32 compaction_start events and 29 compaction_end events occurring within attempts, not boundary events. Readers must not trust the stated timing interpretation, though the totals are correct. In site/series/local-worker/index.md:14-15 and :34, \u201chistorical Bonsai worker configuration\u201d obscures that the historical timeout was 45 minutes while W1 deliberately enforced 20 minutes; treat this as an arm based on the historical configuration with a W1 timeout override. Consequently, the final numerical/semantic verification acceptance criterion is not fully met. All other reviewed metrics match the artifacts, and the site checker passed."
+  },
+  "replans": 0
+}

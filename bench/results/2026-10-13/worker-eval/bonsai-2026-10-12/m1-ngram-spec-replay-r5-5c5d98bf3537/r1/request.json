@@ -1,0 +1,8 @@
+{
+  "report": "Checked the corrected replay/analyzer scripts (both compile; spec_replay.py now records t_end per row + per-phase window lines, spec_analyze.py excludes in-flight bg rows) and the notes (advisor's two doc fixes already applied \u2014 single \u00a79b at line 362, 'two length rows' wording). off-greedy/A-greedy/B-greedy are complete. off-prod is in the old format (no t_end/window lines) so it needs a re-run with the corrected probe, which will overwrite it in place.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Resubmit off/prod (prod-sampling baseline) with the corrected probe: each row now records t_end and notes.txt records per-phase windows (t0/t_fg_end/t_join_end) so combined two-slot throughput can be computed excluding the in-flight bg request. The prior old-format off-prod result will be overwritten. 4 phases on fresh servers."
+}

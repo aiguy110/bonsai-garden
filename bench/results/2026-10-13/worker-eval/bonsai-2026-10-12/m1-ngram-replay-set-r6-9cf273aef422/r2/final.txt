@@ -1,0 +1,2 @@
+Let me check the git state, the filesystem layout, and whether the host paths are reachable from the sandbox — this determines how the run request's outputs get committed.
+

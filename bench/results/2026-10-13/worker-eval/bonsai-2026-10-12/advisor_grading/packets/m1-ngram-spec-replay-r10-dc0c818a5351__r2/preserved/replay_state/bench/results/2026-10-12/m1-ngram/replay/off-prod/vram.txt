@@ -1,0 +1,12 @@
+== single-agent (after first fg request)
+memory.used [MiB], memory.total [MiB]
+9507 MiB, 10240 MiB
+== single-mem (after first fg request)
+memory.used [MiB], memory.total [MiB]
+9507 MiB, 10240 MiB
+== dual-agent (after first fg request)
+memory.used [MiB], memory.total [MiB]
+9507 MiB, 10240 MiB
+== dual-mem (after first fg request)
+memory.used [MiB], memory.total [MiB]
+9508 MiB, 10240 MiB

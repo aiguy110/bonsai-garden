@@ -1,0 +1,16 @@
+{
+  "id": "bonsai-agent",
+  "name": "Bonsai 2 27B agent slot (turnstile virtual, 80k ctx)",
+  "reasoning": true,
+  "input": [
+    "text"
+  ],
+  "contextWindow": 81920,
+  "maxTokens": 16384,
+  "cost": {
+    "input": 0,
+    "output": 0,
+    "cacheRead": 0,
+    "cacheWrite": 0
+  }
+}

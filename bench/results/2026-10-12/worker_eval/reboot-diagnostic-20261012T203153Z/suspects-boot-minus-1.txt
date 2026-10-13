@@ -1,0 +1,94 @@
++ journalctl --no-pager -b -1 -g Xid\|NVRM\|nvidia\|Out\ of\ memory\|oom-kill\|Killed\ process\|thermal\|overheat\|Temperature\|power\|Power\|watchdog\|soft\ lockup\|hard\ LOCKUP\|hung\ task\|panic\|reboot\|shutdown\|reset\|I/O\ error\|GPU\ has\ fallen\ off\ the\ bus -o short-iso-precise 
+
+2026-10-12T16:19:44.442575-04:00 bifrost kernel: secureboot: Secure boot disabled
+2026-10-12T16:19:44.442716-04:00 bifrost kernel: secureboot: Secure boot disabled
+2026-10-12T16:19:44.444149-04:00 bifrost kernel: NMI watchdog: Enabled. Permanently consumes one hw-PMU counter.
+2026-10-12T16:19:44.444401-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'fair_share'
+2026-10-12T16:19:44.444407-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'bang_bang'
+2026-10-12T16:19:44.444414-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'step_wise'
+2026-10-12T16:19:44.444421-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'user_space'
+2026-10-12T16:19:44.444428-04:00 bifrost kernel: thermal_sys: Registered thermal governor 'power_allocator'
+2026-10-12T16:19:44.472179-04:00 bifrost kernel: pci 0000:08:00.1: extending delay after power-on from D3hot to 20 msec
+2026-10-12T16:19:44.472307-04:00 bifrost kernel: pci 0000:08:00.1: D0 power state depends on 0000:08:00.0
+2026-10-12T16:19:44.478725-04:00 bifrost kernel: input: Power Button as /devices/LNXSYSTM:00/LNXSYBUS:00/PNP0C0C:00/input/input0
+2026-10-12T16:19:44.478732-04:00 bifrost kernel: ACPI: button: Power Button [PWRB]
+2026-10-12T16:19:44.478740-04:00 bifrost kernel: input: Power Button as /devices/LNXSYSTM:00/LNXPWRBN:00/input/input1
+2026-10-12T16:19:44.478747-04:00 bifrost kernel: ACPI: button: Power Button [PWRF]
+2026-10-12T16:19:44.479052-04:00 bifrost kernel: thermal LNXTHERM:00: registered as thermal_zone0
+2026-10-12T16:19:44.479062-04:00 bifrost kernel: ACPI: thermal: Thermal Zone [TZ10] (17 C)
+2026-10-12T16:19:44.546876-04:00 bifrost kernel: nvidia: loading out-of-tree module taints kernel.
+2026-10-12T16:19:44.546963-04:00 bifrost kernel: nvidia: module verification failed: signature and/or required key missing - tainting kernel
+2026-10-12T16:19:44.623875-04:00 bifrost kernel: nvidia-nvlink: Nvlink Core is being initialized, major device number 236
+2026-10-12T16:19:44.628878-04:00 bifrost kernel: nvidia 0000:08:00.0: vgaarb: VGA decodes changed: olddecodes=io+mem,decodes=none:owns=io+mem
+2026-10-12T16:19:44.675875-04:00 bifrost kernel: NVRM: loading NVIDIA UNIX Open Kernel Module for x86_64  580.159.04  Release Build  (dvs-builder@U22-I3-AF04-09-6)  Wed Apr 29 17:15:53 UTC 2026
+2026-10-12T16:19:44.676035-04:00 bifrost systemd-modules-load[463]: Inserted module 'nvidia'
+2026-10-12T16:19:44.902882-04:00 bifrost kernel: nvidia-modeset: Loading NVIDIA UNIX Open Kernel Mode Setting Driver for x86_64  580.159.04  Release Build  (dvs-builder@U22-I3-AF04-09-6)  Wed Apr 29 17:04:37 UTC 2026
+2026-10-12T16:19:44.924166-04:00 bifrost kernel: [drm] [nvidia-drm] [GPU ID 0x00000800] Loading driver
+2026-10-12T16:19:45.064793-04:00 bifrost kernel: thermal thermal_zone1: failed to read out thermal zone (-61)
+2026-10-12T16:19:46.502881-04:00 bifrost kernel: [drm] Initialized nvidia-drm 0.0.0 20160202 for 0000:08:00.0 on minor 1
+2026-10-12T16:19:46.523899-04:00 bifrost kernel: nvidia 0000:08:00.0: vgaarb: deactivate vga console
+2026-10-12T16:19:46.527877-04:00 bifrost kernel: nvidia 0000:08:00.0: [drm] Cannot find any crtc or sizes
+2026-10-12T16:19:47.131723-04:00 bifrost cron[1353]: (CRON) INFO (Running @reboot jobs)
+2026-10-12T16:19:47.135296-04:00 bifrost systemd[1]: Starting nvidia-persistenced.service - NVIDIA Persistence Daemon...
+2026-10-12T16:19:47.138449-04:00 bifrost systemd[1]: Starting power-profiles-daemon.service - Power Profiles daemon...
+2026-10-12T16:19:47.140368-04:00 bifrost systemd[1]: secureboot-db.service - Secure Boot updates for DB and DBX was skipped because of an unmet condition check (ConditionPathExists=/sys/firmware/efi/efivars/db-d719b2cb-3d3a-4596-a3bc-dad00e67656f).
+2026-10-12T16:19:47.146082-04:00 bifrost dbus-daemon[1354]: dbus[1354]: Unknown group "power" in message bus configuration file
+2026-10-12T16:19:47.148603-04:00 bifrost systemd[1]: Starting thermald.service - Thermal Daemon Service...
+2026-10-12T16:19:47.148638-04:00 bifrost systemd[1]: ua-reboot-cmds.service - Ubuntu Pro reboot cmds was skipped because of an unmet condition check (ConditionPathExists=/var/lib/ubuntu-advantage/private/machine-token.json).
+2026-10-12T16:19:47.152361-04:00 bifrost systemd[1]: Started nvidia-persistenced.service - NVIDIA Persistence Daemon.
+2026-10-12T16:19:47.159008-04:00 bifrost dbus-daemon[1354]: dbus[1354]: Unknown group "power" in message bus configuration file
+2026-10-12T16:19:47.184082-04:00 bifrost systemd[1]: thermald.service: Deactivated successfully.
+2026-10-12T16:19:47.184349-04:00 bifrost systemd[1]: Started thermald.service - Thermal Daemon Service.
+2026-10-12T16:19:47.188710-04:00 bifrost dbus-daemon[1354]: [system] Activating via systemd: service name='org.freedesktop.PolicyKit1' unit='polkit.service' requested by ':1.9' (uid=0 pid=1364 comm="/usr/libexec/power-profiles-daemon" label="unconfined")
+2026-10-12T16:19:47.210491-04:00 bifrost systemd-logind[1386]: Watching system buttons on /dev/input/event1 (Power Button)
+2026-10-12T16:19:47.210512-04:00 bifrost systemd-logind[1386]: Watching system buttons on /dev/input/event0 (Power Button)
+2026-10-12T16:19:47.229998-04:00 bifrost NetworkManager[1431]: <info>  [1791836387.2299] Read config: /etc/NetworkManager/NetworkManager.conf (lib: 10-default-firewall-use-iptables.conf, 10-dns-resolved.conf, 20-connectivity-ubuntu.conf, no-mac-addr-change.conf) (run: 10-globally-managed-devices.conf) (etc: default-wifi-powersave-on.conf)
+2026-10-12T16:19:47.263221-04:00 bifrost systemd[1]: Started power-profiles-daemon.service - Power Profiles daemon.
+2026-10-12T16:19:48.682724-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) LoadModule: "nvidia"
+2026-10-12T16:19:48.682791-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) Loading /usr/lib/xorg/modules/drivers/nvidia_drv.so
+2026-10-12T16:19:48.685482-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) Module nvidia: vendor="NVIDIA Corporation"
+2026-10-12T16:19:48.690648-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) Loading sub module "glxserver_nvidia"
+2026-10-12T16:19:48.690648-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) LoadModule: "glxserver_nvidia"
+2026-10-12T16:19:48.690740-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) Loading /usr/lib/xorg/modules/extensions/libglxserver_nvidia.so
+2026-10-12T16:19:48.738015-04:00 bifrost wireplumber[1845]: Failed to get percentage from UPower: org.freedesktop.DBus.Error.NameHasNoOwner
+2026-10-12T16:19:48.764779-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) Module glxserver_nvidia: vendor="NVIDIA Corporation"
+2026-10-12T16:19:48.767436-04:00 bifrost wireplumber[1862]: Failed to get percentage from UPower: org.freedesktop.DBus.Error.NameHasNoOwner
+2026-10-12T16:19:48.780330-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (==) NVIDIA(0): No modes were requested; the default mode "nvidia-auto-select"
+2026-10-12T16:19:48.781070-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (WW) NVIDIA:     '/var/run/nvidia-xdriver-ad839d0b' Permission denied
+2026-10-12T16:19:48.867476-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) NVIDIA(0): [DRI2]   VDPAU driver: nvidia
+2026-10-12T16:19:48.949158-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) config/udev: Adding input device Power Button (/dev/input/event1)
+2026-10-12T16:19:48.949220-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (**) Power Button: Applying InputClass "libinput keyboard catchall"
+2026-10-12T16:19:48.952027-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) Using input driver 'libinput' for 'Power Button'
+2026-10-12T16:19:48.952601-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (**) Power Button: always reports core events
+2026-10-12T16:19:48.956911-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event1  - Power Button: is tagged by udev as: Keyboard
+2026-10-12T16:19:48.956966-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event1  - Power Button: device is a keyboard
+2026-10-12T16:19:48.957036-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event1  - Power Button: device removed
+2026-10-12T16:19:48.957100-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) XINPUT: Adding extended input device "Power Button" (type: KEYBOARD, id 6)
+2026-10-12T16:19:48.957739-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event1  - Power Button: is tagged by udev as: Keyboard
+2026-10-12T16:19:48.957777-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event1  - Power Button: device is a keyboard
+2026-10-12T16:19:48.958415-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) config/udev: Adding input device Power Button (/dev/input/event0)
+2026-10-12T16:19:48.958444-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (**) Power Button: Applying InputClass "libinput keyboard catchall"
+2026-10-12T16:19:48.958444-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) Using input driver 'libinput' for 'Power Button'
+2026-10-12T16:19:48.958992-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (**) Power Button: always reports core events
+2026-10-12T16:19:48.959695-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event0  - Power Button: is tagged by udev as: Keyboard
+2026-10-12T16:19:48.959738-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event0  - Power Button: device is a keyboard
+2026-10-12T16:19:48.959805-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event0  - Power Button: device removed
+2026-10-12T16:19:48.959840-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) XINPUT: Adding extended input device "Power Button" (type: KEYBOARD, id 7)
+2026-10-12T16:19:48.960671-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event0  - Power Button: is tagged by udev as: Keyboard
+2026-10-12T16:19:48.960731-04:00 bifrost /usr/libexec/gdm-x-session[1853]: (II) event0  - Power Button: device is a keyboard
+2026-10-12T16:19:49.200528-04:00 bifrost chrome-remote-desktop[2025]: (II) config/udev: Adding input device Power Button (/dev/input/event1)
+2026-10-12T16:19:49.200961-04:00 bifrost chrome-remote-desktop[2025]: (II) config/udev: Adding input device Power Button (/dev/input/event0)
+2026-10-12T16:19:49.935473-04:00 bifrost dbus-daemon[1354]: [system] Activating via systemd: service name='org.freedesktop.UPower' unit='upower.service' requested by ':1.51' (uid=128 pid=2125 comm="/usr/bin/gnome-shell" label="unconfined")
+2026-10-12T16:19:49.950675-04:00 bifrost systemd[1]: Starting upower.service - Daemon for power management...
+2026-10-12T16:19:50.034429-04:00 bifrost dbus-daemon[1354]: [system] Successfully activated service 'org.freedesktop.UPower'
+2026-10-12T16:19:50.034631-04:00 bifrost systemd[1]: Started upower.service - Daemon for power management.
+2026-10-12T16:19:50.082605-04:00 bifrost /usr/libexec/gdm-x-session[2062]: dbus-daemon[2062]: [session uid=128 pid=2062] Activating service name='org.gnome.ScreenSaver' requested by ':1.27' (uid=128 pid=2450 comm="/usr/libexec/gsd-power" label="unconfined")
+2026-10-12T16:19:54.155898-04:00 bifrost llama-swap[2768]: [INFO] using nvidia-smi for GPU monitoring
+2026-10-12T16:20:54.635753-04:00 bifrost autossh[2789]: thread 'main' (2789) panicked at src/client.rs:170:67:
+2026-10-12T16:21:54.648923-04:00 bifrost autossh[9337]: thread 'main' (9337) panicked at src/client.rs:170:67:
+2026-10-12T16:22:54.659552-04:00 bifrost autossh[10036]: thread 'main' (10036) panicked at src/client.rs:170:67:
+2026-10-12T16:23:54.670815-04:00 bifrost autossh[10867]: thread 'main' (10867) panicked at src/client.rs:170:67:
+2026-10-12T16:24:54.682057-04:00 bifrost autossh[11500]: thread 'main' (11500) panicked at src/client.rs:170:67:
+2026-10-12T16:25:54.693623-04:00 bifrost autossh[11861]: thread 'main' (11861) panicked at src/client.rs:170:67:
+
+[exit 0]

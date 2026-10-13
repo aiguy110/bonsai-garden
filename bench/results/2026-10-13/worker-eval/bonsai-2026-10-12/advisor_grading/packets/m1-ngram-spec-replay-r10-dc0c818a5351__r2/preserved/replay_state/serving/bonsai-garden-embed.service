@@ -1,0 +1,19 @@
+# CPU-only embedding server for the mem0 memory layer (docs/architecture.md).
+# Install: cp to ~/.config/systemd/user/ && systemctl --user enable --now bonsai-garden-embed
+# CUDA_VISIBLE_DEVICES is empty so the CUDA build never opens a context on the 3080
+# (that alone would cost VRAM and bypass turnstile).
+[Unit]
+Description=bonsai-garden CPU embedder (Qwen3-Embedding-0.6B, :8095)
+
+[Service]
+Environment=CUDA_VISIBLE_DEVICES=
+ExecStart=/home/josiah/Projects/llama.cpp/build/bin/llama-server \
+  --model /home/josiah/models/Qwen3-Embedding-0.6B-Q8_0.gguf \
+  --host 127.0.0.1 --port 8095 \
+  --embedding --pooling last --n-gpu-layers 0 \
+  --ctx-size 8192 --batch-size 2048 --ubatch-size 2048 --parallel 2 --threads 4 \
+  --alias qwen3-embedding-0.6b
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

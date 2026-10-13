@@ -1,0 +1,59 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r6-ee9150033cd8/r2",
+  "case_id": "m1-ngram-spec-replay-r6-ee9150033cd8",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T06:26:24-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+    "gpu": true,
+    "report": "Checked state of spec_replay.py/spec_analyze.py: the t0-before-th.start() ordering fix was still needed (th.start() preceded t0), so I applied it and both scripts compile. Existing off-prod results confirmed to lack per-row t_end, so they can't yield valid conservative two-slot throughput. The corrected probe now records t_end per row plus window lines (t0/t_fg_end/t_join_end) per phase. Resubmitting the same off/prod run to re-baseline with the corrected measurement format; A/prod follows next.",
+    "request": "run",
+    "timeout_min": 120,
+    "why": "Rerun off/prod on the corrected probe with the t0-before-th.start() fix, re-baselines with per-row t_end and window lines for valid conservative two-slot throughput. Previous off-prod results lack t_end."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 6433,
+  "timeout": false,
+  "tool_calls": 12,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 7,
+    "edit": 1,
+    "read": 3,
+    "submit_request": 1
+  },
+  "turns": 9,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 148.4
+}

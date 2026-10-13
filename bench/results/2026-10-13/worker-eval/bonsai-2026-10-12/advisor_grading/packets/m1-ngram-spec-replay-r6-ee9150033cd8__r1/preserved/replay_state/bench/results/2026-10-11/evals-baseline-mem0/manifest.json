@@ -1,0 +1,105 @@
+{
+  "started": "2026-10-11T19:23:42-04:00",
+  "bonsai_garden_commit": "d97ea63415c8f466a2ac3b9e8983de0fcd788ba8",
+  "bonsai_garden_dirty": true,
+  "pi_version": "0.86.1",
+  "pi_flags": [
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-themes"
+  ],
+  "model_file": "/home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+  "model_sha256": "3907dc1658db1f78a9826bf8d5bcb8dc65db0d466388937af57f2294fae62ec1",
+  "llama_swap_entry": "    env:\n      - \"LLAMA_ATTN_ROT_DISABLE=1\"\n    cmd: |\n      /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server\n      --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf\n      --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf\n      --no-mmproj-offload\n      --port ${PORT}\n      --n-gpu-layers 99\n      --ctx-size 98304\n      --parallel 2\n      --kv-unified\n      --threads 8\n      --flash-attn on\n      --cache-type-k q4_0\n      --cache-type-v q4_0\n      --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf\n      --temp 1.0\n      --top-p 0.95\n      --top-k 20\n      --jinja\n    ttl: 0\n\n",
+  "turnstile_routing": "models:\n  bonsai-2-27b: { slots: 2, ctxPool: 98304 }\nvirtual:\n  bonsai-agent:\n    backend: bonsai-2-27b\n    maxCtx: 81920\n    inject: { id_slot: 0 }\n  bonsai-mem:\n    backend: bonsai-2-27b\n    maxCtx: 32768         # mem0 3.x extraction prompts estimate at ~11k tokens alone\n    defaultMaxTokens: 1024\n    inject:\n      id_slot: 1\n      chat_template_kwargs: { enable_thinking: false }\n      temperature: 0.2      # mem0 sends no sampling params; JSON extraction wants low temp\n      max_tokens: 2048      # nor a cap; this also sets its context budget\n",
+  "turnstile_commit": "336dcd6ef468c2558f5b8fab4e08c590248479fe",
+  "embedder_unit": "# CPU-only embedding server for the mem0 memory layer (docs/architecture.md).\n# Install: cp to ~/.config/systemd/user/ && systemctl --user enable --now bonsai-garden-embed\n# CUDA_VISIBLE_DEVICES is empty so the CUDA build never opens a context on the 3080\n# (that alone would cost VRAM and bypass turnstile).\n[Unit]\nDescription=bonsai-garden CPU embedder (Qwen3-Embedding-0.6B, :8095)\n\n[Service]\nEnvironment=CUDA_VISIBLE_DEVICES=\nExecStart=/home/josiah/Projects/llama.cpp/build/bin/llama-server \\\n  --model /home/josiah/models/Qwen3-Embedding-0.6B-Q8_0.gguf \\\n  --host 127.0.0.1 --port 8095 \\\n  --embedding --pooling last --n-gpu-layers 0 \\\n  --ctx-size 8192 --batch-size 2048 --ubatch-size 2048 --parallel 2 --threads 4 \\\n  --alias qwen3-embedding-0.6b\nRestart=on-failure\n\n[Install]\nWantedBy=default.target\n",
+  "priority_key": "local-llm-bench",
+  "python": "Python 3.12.3",
+  "pytest": "pytest==8.4.2",
+  "sandbox_image": "sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
+  "repeats": 3,
+  "arms": [
+    {
+      "name": "baseline",
+      "description": "Control: pi on bonsai-agent, no memory extension, pi default compaction.",
+      "model": "bonsai-agent",
+      "thinking": "low",
+      "packages": [],
+      "npm": [],
+      "settings": {},
+      "env": {}
+    },
+    {
+      "name": "mem0",
+      "description": "pi + @amaster.ai/pi-memory-mem0 in embedded mode (hybrid: auto-capture, auto-recall per user input, mem0_memory tool). mem0's LLM is bonsai-mem (Bonsai slot 1, thinking off) via the tap; embeddings from the CPU Qwen3-Embedding-0.6B server; SQLite vector store in the run dir.",
+      "model": "bonsai-agent",
+      "thinking": "low",
+      "packages": [
+        "npm:@amaster.ai/pi-memory-mem0@0.1.24"
+      ],
+      "npm": [
+        "better-sqlite3@12.11.1"
+      ],
+      "settings": {
+        "pi-memory-mem0": {
+          "mode": "embedded",
+          "memoryMode": "hybrid",
+          "userId": "garden",
+          "topK": 5,
+          "oss": {
+            "llm": {
+              "provider": "openai",
+              "config": {
+                "model": "bonsai-mem",
+                "apiKey": "tap",
+                "baseURL": "{TAP}/mem/v1"
+              }
+            },
+            "embedder": {
+              "provider": "openai",
+              "config": {
+                "model": "qwen3-embedding-0.6b",
+                "apiKey": "unused",
+                "baseURL": "{TAP}/embed/v1"
+              }
+            },
+            "vectorStore": {
+              "provider": "memory",
+              "config": {
+                "collectionName": "garden",
+                "dbPath": "{MEM}/mem0-vectors.db",
+                "dimension": 1024
+              }
+            },
+            "historyDbPath": "{MEM}/mem0-history.db"
+          }
+        }
+      },
+      "env": {
+        "MEM0_TELEMETRY": "false"
+      }
+    }
+  ],
+  "tasks": {
+    "inventory": {
+      "name": "inventory",
+      "suite": "cross-session",
+      "description": "Three fresh pi sessions in one repo. Step 1 states coding conventions and two facts; later steps say only 'follow the project conventions' or 'as discussed'. Conventions 1-3 leave traces in the repo after step 1 (rediscoverable); the closing 'Risk:' line and the staging host/port exist only in the step 1 conversation.",
+      "steps": [
+        {
+          "prompt": "In inventory/units.py, implement parse_qty(text) that turns strings like \"3kg\", \"250 g\" or \"1.5 kg\" into an integer number of grams (round to the nearest gram), and raises ValueError for anything else.\n\nSome conventions for this project. Follow them now and in every future task:\n1. Every public function's docstring starts with \"Inventory:\".\n2. Tests live in tests/test_<module>.py and use plain assert statements run by pytest. Never use unittest.\n3. Every change gets a one-line entry under \"## Unreleased\" in CHANGELOG.md, in the form \"- <module>: <summary>\".\n4. End your final message to me with a line \"Risk: low\", \"Risk: medium\" or \"Risk: high\" for the change.\n\nAlso, for a later task: our staging API is served over HTTPS at staging.internal on port 8443."
+        },
+        {
+          "prompt": "Add format_qty(grams) to inventory/units.py. It renders a gram count for display: values of 1000 g or more as kilograms with up to three decimals and no trailing zeros (1500 -> \"1.5 kg\", 2000 -> \"2 kg\"), smaller values as whole grams (250 -> \"250 g\"). Follow the project conventions."
+        },
+        {
+          "prompt": "Add inventory/config.py with a function staging_url() that returns the base URL of our staging API, as discussed before (scheme, host and port, no trailing path). Follow the project conventions."
+        }
+      ]
+    }
+  },
+  "task_hashes": {
+    "inventory": "6430c9196cc77d31"
+  }
+}

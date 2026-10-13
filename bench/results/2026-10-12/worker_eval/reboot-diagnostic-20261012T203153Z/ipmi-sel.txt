@@ -1,0 +1,5 @@
++ ipmitool sel elist 
+
+bench/worker_eval/diagnose_reboots.sh: line 26: ipmitool: command not found
+
+[exit 127]
