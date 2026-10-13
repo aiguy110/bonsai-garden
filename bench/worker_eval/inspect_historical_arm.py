@@ -11,6 +11,7 @@ import datetime as dt
 import hashlib
 import json
 import pathlib
+import re
 import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
@@ -27,12 +28,25 @@ def git(*args, check=True):
     return p.stdout.strip()
 
 
+def show_raw(commit, path):
+    """Return the exact Git blob bytes, preserving trailing newlines for hashes."""
+    p = subprocess.run(["git", "show", f"{commit}:{path}"], cwd=ROOT,
+                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return p.stdout if p.returncode == 0 else None
+
+
 def show(commit, path):
-    return git("show", f"{commit}:{path}", check=False) or None
+    raw = show_raw(commit, path)
+    return raw.decode("utf-8") if raw is not None else None
 
 
-def sha(text):
-    return hashlib.sha256(text.encode()).hexdigest()
+def sha(value):
+    return hashlib.sha256(value if isinstance(value, bytes) else value.encode()).hexdigest()
+
+
+def blob_sha(commit, path):
+    raw = show_raw(commit, path)
+    return sha(raw) if raw is not None else None
 
 
 def branch_tip():
@@ -95,10 +109,15 @@ def model_registrations(commit):
 
 
 def harness_files(commit):
-    """Hashes for the historical harness sources that supply non-JSON arm knobs."""
+    """Exact blob hashes and extracted arm knobs from the historical harness."""
     paths = ("autopilot/autopilot.py", "autopilot/extensions/submit_request.ts")
-    return [{"path": path, "sha256": sha(text)} for path in paths
-            if (text := show(commit, path)) is not None]
+    files = [{"path": path, "sha256": blob_sha(commit, path)} for path in paths
+             if show_raw(commit, path) is not None]
+    source = show(commit, "autopilot/autopilot.py") or ""
+    reserve = re.search(r"reserveTokens[\"']?\s*[:=]\s*(\d+)", source)
+    extension = "autopilot/extensions/submit_request.ts"
+    return {"files": files, "compaction_reserve_tokens": int(reserve.group(1)) if reserve else None,
+            "submit_request_extension": extension if show_raw(commit, extension) is not None else None}
 
 
 def main():
@@ -136,7 +155,7 @@ def main():
                 "commit": commit,
                 "commit_time": git("show", "-s", "--format=%cI", commit),
                 "path": "autopilot/config.json",
-                "sha256": sha(raw_config),
+                "sha256": blob_sha(commit, "autopilot/config.json"),
                 "value": config_value,
             })
             previous_config = raw_config
@@ -160,13 +179,13 @@ def main():
                 "commit": commit,
                 "commit_time": git("show", "-s", "--format=%cI", commit),
                 "config_path": config_path,
-                "config_sha256": sha(config_text),
+                "config_sha256": blob_sha(commit, config_path),
                 "worker": worker,
                 "worker_timeout_min": config.get("worker_timeout_min"),
                 "worker_memory": config.get("worker_memory"),
-                "model_registrations": [{"path": path, "sha256": sha(text), "value": value}
+                "model_registrations": [{"path": path, "sha256": blob_sha(commit, path), "value": value}
                                         for path, text, value in registrations],
-                "harness_files": harness_files(commit),
+                "harness": harness_files(commit),
             })
         # The nearest Bonsai state is the provenance source; preserve the
         # transition trail separately instead of timestamp-ranking ancestors.

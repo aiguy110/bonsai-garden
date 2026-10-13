@@ -1143,3 +1143,19 @@ Replaced provisional arm provenance with the exact pre-cloud config/model-regist
 Added to the standing facts:
 
 - bench/worker_eval/inspect_historical_arm.py:25-36 hashes `git show` output after `.strip()`, so its reported SHA-256 values—including those already cited in README—are hashes of stripped text, not exact historical file bytes.
+
+### 2026-10-12T22:12:56-04:00 · worker (gpt-5.6-terra), round 12
+
+Updated provenance inspector; local compile and 27 fixture tests pass. Requesting host inspection for exact blob hashes and extracted settings.
+
+### 2026-10-12T22:12:56-04:00 · orchestrator
+
+The session ended without a request (cut off by the time limit or an error), so nothing ran. Files changed in it:
+
+```
+autopilot/state/W1-worker-eval/journal.md   |  4 +++
+ bench/worker_eval/inspect_historical_arm.py | 39 +++++++++++++++++++++--------
+ 2 files changed, 33 insertions(+), 10 deletions(-)
+```
+
+Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
