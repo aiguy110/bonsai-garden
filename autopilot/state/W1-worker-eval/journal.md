@@ -1810,3 +1810,24 @@ Ran `python3 bench/worker_eval/grade.py verify` (gpu=False) in 80s, exit 0. Full
 /home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/advisor_verification_response.txt
 
 ```
+
+### 2026-10-13T08:57:30-04:00 · worker (gpt-5.6-terra), round 6
+
+Finalized grading artifacts and validated 10 grade records.
+
+```json
+{
+  "request": "done",
+  "summary": "`bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/` contains the deterministic 10-attempt manifest, packets with preserved replay evidence, verbatim first and transcription-verification advisor responses/call metadata, `advisor_grades.jsonl`, and `advisor_summary.md`. The independent, verified sample is 7 approve, 3 revise, 0 reject (70.0%) from `openai-codex/gpt-5.6-sol`; the summary separately reports baseline valid-request and kind-match rates."
+}
+```
+
+### 2026-10-13T08:59:04-04:00 · advisor (finished item)
+
+**approve**: Acceptance criteria are met. The manifest deterministically selects 10 unique valid attempts (5 run, 5 done; no valid infra), packets preserve the request, diff, replay state, requested scripts, review instructions, and hashes, and the original cloud verdict is redacted. Both finished-item advisor calls are journal-traceable and their verbatim responses agree exactly. `advisor_grades.jsonl` records 7 approve, 3 revise, 0 reject from `openai-codex/gpt-5.6-sol`; `advisor_summary.md` correctly labels the 70.0% result as a small judged sample and separately reports the traceable 25/44 valid-request and 21/44 kind-match baseline rates.
+
+### 2026-10-13T08:59:04-04:00 · orchestrator
+
+Added to the standing facts:
+
+- The accepted deterministic advisor sample in `bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/` is 7/10 approve, 3/10 revise, and 0/10 reject from `openai-codex/gpt-5.6-sol`; this is a small judged sample, not a deterministic performance rate.
