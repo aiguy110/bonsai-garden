@@ -1159,3 +1159,27 @@ autopilot/state/W1-worker-eval/journal.md   |  4 +++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
+
+### 2026-10-12T22:12:59-04:00 · orchestrator
+
+Item `replay-harness` used all 12 rounds; asking the advisor to triage it.
+
+### 2026-10-12T22:15:15-04:00 · advisor (triage)
+
+**accept_with_caveats**: Proceed with baseline-results. Run it from the committed harness revision into one fixed output directory; the first clean manifest should be treated as the authoritative harness pin. The provenance hashes should be corrected opportunistically before the final write-up, but they do not affect the arm's operational values or deterministic metrics.
+
+### 2026-10-12T22:15:15-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/worker_eval/inspect_historical_arm.py now hashes raw blobs via show_raw(), but no corresponding post-fix host report exists.
+- bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T221002.json reports worker_memory as null through config.get(), while its embedded historical config contains no worker_memory key.
+- bench/results/2026-10-12/worker_eval/smoke/manifest-20261012-200746.json has repo_dirty=true and an older arm hash, although the smoke record and replay-harness-r1.log confirm a completed live run and duplicate-free resume.
+- bench/worker_eval/run.py creates request.json only when a request is recovered; absent requests remain represented in record.json and results.jsonl.
+- bench/worker_eval/README.md notes that replay checkouts expose Git ancestry unavailable in the original autopilot sandbox and that prompts retain the historical 45-minute wording despite the enforced 20-minute timeout.
+
+### 2026-10-12T22:15:15-04:00 · orchestrator
+
+Added to the standing facts:
+
+- `replay-harness` was accepted with caveats: The replay harness is sufficient for the baseline runs, but provenance and smoke validation are not fully final. The SHA-256 values cited in bench/worker_eval/README.md and arms/bonsai-2026-10-12.json came from historical-arm-provenance-20261012T221002.json, which hashed stripped git-show text rather than exact blob bytes; do not trust those digest strings. inspect_historical_arm.py now hashes raw blobs and extracts harness settings, but that revision was not rerun on the host and its output was not incorporated. Also, the historical config omitted worker_memory rather than explicitly setting it to null; omission still disabled memory through CFG.get(), but the current wording is inaccurate. The successful host smoke used an earlier arm hash and a dirty repository commit, so it demonstrates the execution, artifact, cleanup, and resume paths but does not pin the exact final source revision. For attempts with no recovered request, run.py records null in results.jsonl but does not create a per-attempt request.json artifact. Before interpreting results, retain the documented fidelity caveats that replay checkouts expose Git history unavailable to the original worker and that the exact replay prompt still says 45 minutes although the arm enforces 20.

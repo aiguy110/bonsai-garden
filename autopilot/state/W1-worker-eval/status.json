@@ -1,10 +1,12 @@
 {
   "phase": "work",
-  "item": 1,
-  "round": 12,
-  "reviews": 1,
-  "base": "4d8b3d15167ab43c45f33d8dd2252f527964e80d",
+  "item": 2,
+  "round": 0,
+  "reviews": 0,
+  "base": "9221c3935b551c632b3fdf1cbb14fcf38f2dd84f",
   "dropped": [],
-  "caveats": {},
+  "caveats": {
+    "replay-harness": "The replay harness is sufficient for the baseline runs, but provenance and smoke validation are not fully final. The SHA-256 values cited in bench/worker_eval/README.md and arms/bonsai-2026-10-12.json came from historical-arm-provenance-20261012T221002.json, which hashed stripped git-show text rather than exact blob bytes; do not trust those digest strings. inspect_historical_arm.py now hashes raw blobs and extracts harness settings, but that revision was not rerun on the host and its output was not incorporated. Also, the historical config omitted worker_memory rather than explicitly setting it to null; omission still disabled memory through CFG.get(), but the current wording is inaccurate. The successful host smoke used an earlier arm hash and a dirty repository commit, so it demonstrates the execution, artifact, cleanup, and resume paths but does not pin the exact final source revision. For attempts with no recovered request, run.py records null in results.jsonl but does not create a per-attempt request.json artifact. Before interpreting results, retain the documented fidelity caveats that replay checkouts expose Git history unavailable to the original worker and that the exact replay prompt still says 45 minutes although the arm enforces 20."
+  },
   "replans": 0
 }
