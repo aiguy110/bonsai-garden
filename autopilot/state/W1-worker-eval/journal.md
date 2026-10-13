@@ -1973,3 +1973,20 @@ Added to the standing facts:
 ### 2026-10-13T09:18:07-04:00 · orchestrator
 
 Item `worker-eval-writeup` failed review 3 times; asking the advisor to triage it.
+
+### 2026-10-13T09:18:43-04:00 · advisor (triage)
+
+**accept_with_caveats**: The committed corpus, baseline results, advisor sample, experiment tables, parent summaries, and W2 priorities are sufficient for later work. These localized publication defects do not warrant replanning, especially because there are no subsequent items in this milestone.
+
+### 2026-10-13T09:18:43-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/summary.json records 32 compaction_start and 29 compaction_end events, not compactions at attempt boundaries.
+- bench/worker_eval/arms/bonsai-2026-10-12.json sets session_timeout_min to 20 as an intentional change from the historical 45-minute setting.
+
+### 2026-10-13T09:18:43-04:00 · orchestrator
+
+Added to the standing facts:
+
+- `worker-eval-writeup` was accepted with caveats: Two wording defects remain. In site/series/local-worker/worker-eval.md:156-157, “32 compactions at attempt start and 29 at attempt end” is wrong: summary.json counts 32 compaction_start events and 29 compaction_end events occurring within attempts, not boundary events. Readers must not trust the stated timing interpretation, though the totals are correct. In site/series/local-worker/index.md:14-15 and :34, “historical Bonsai worker configuration” obscures that the historical timeout was 45 minutes while W1 deliberately enforced 20 minutes; treat this as an arm based on the historical configuration with a W1 timeout override. Consequently, the final numerical/semantic verification acceptance criterion is not fully met. All other reviewed metrics match the artifacts, and the site checker passed.
