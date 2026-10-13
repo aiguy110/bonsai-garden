@@ -1,0 +1,1085 @@
+diff --git a/bench/results/2026-10-12/m1-ngram/deploy.json b/bench/results/2026-10-12/m1-ngram/deploy.json
+new file mode 100644
+index 0000000..4f4b812
+--- /dev/null
++++ b/bench/results/2026-10-12/m1-ngram/deploy.json
+@@ -0,0 +1,8 @@
++{
++  "deployed": false,
++  "why": [
++    "rule 2 (2_dual_agent_speedup): A dual-agent 26.68 tok/s vs off 31.27 -> ratio 0.853, need >= 1.10x",
++    "rule 3 (3_min_0p97_single_and_dual): dual-mem A=23.37 off=25.39 ratio=0.92 >=0.97 -> False | single-agent A=56.04 off=55.97 ratio=1.001 >=0.97 -> True | single-mem A=53.52 off=55.65 ratio=0.962 >=0.97 -> False",
++    "rule 5 (5_tool_call_json_valid): single-agent A=1.0 off=1.0 -> True | single-mem A=1.0 off=1.0 -> True | dual-agent A=1.0 off=1.0 -> True | dual-mem A=0.9167 off=1.0 -> False"
++  ]
++}
+\ No newline at end of file
+diff --git a/bench/results/2026-10-12/m1-ngram/summary.json b/bench/results/2026-10-12/m1-ngram/summary.json
+new file mode 100644
+index 0000000..59c6663
+--- /dev/null
++++ b/bench/results/2026-10-12/m1-ngram/summary.json
+@@ -0,0 +1,544 @@
++{
++  "date": "2026-10-12",
++  "arms": [
++    [
++      "A",
++      "greedy"
++    ],
++    [
++      "A",
++      "prod"
++    ],
++    [
++      "B",
++      "greedy"
++    ],
++    [
++      "off",
++      "greedy"
++    ],
++    [
++      "off",
++      "prod"
++    ]
++  ],
++  "per_phase": {
++    "A-greedy": {
++      "single-agent": {
++        "n": 30,
++        "predicted_n": 14044,
++        "predicted_ms": 163234.2,
++        "decode_tok_s": 86.04,
++        "median_tok_s": 53.6,
++        "draft_n": 8229,
++        "draft_n_accepted": 6212,
++        "acceptance": 0.7549,
++        "draft_per_generated": 0.5859,
++        "tool_call_json_valid": 1.0
++      },
++      "single-mem": {
++        "n": 12,
++        "predicted_n": 1338,
++        "predicted_ms": 25179.7,
++        "decode_tok_s": 53.14,
++        "median_tok_s": 35.91,
++        "draft_n": 740,
++        "draft_n_accepted": 69,
++        "acceptance": 0.0932,
++        "draft_per_generated": 0.5531,
++        "tool_call_json_valid": 0.9167
++      },
++      "dual-agent": {
++        "n": 30,
++        "predicted_n": 8007,
++        "predicted_ms": 314356.0,
++        "decode_tok_s": 25.47,
++        "median_tok_s": 29.99,
++        "draft_n": 1856,
++        "draft_n_accepted": 259,
++        "acceptance": 0.1395,
++        "draft_per_generated": 0.2318,
++        "tool_call_json_valid": 1.0
++      },
++      "dual-mem": {
++        "n": 12,
++        "predicted_n": 1328,
++        "predicted_ms": 55757.6,
++        "decode_tok_s": 23.82,
++        "median_tok_s": 17.03,
++        "draft_n": 740,
++        "draft_n_accepted": 69,
++        "acceptance": 0.0932,
++        "draft_per_generated": 0.5572,
++        "tool_call_json_valid": 0.8333
++      }
++    },
++    "A-prod": {
++      "single-agent": {
++        "n": 30,
++        "predicted_n": 14497,
++        "predicted_ms": 258679.8,
++        "decode_tok_s": 56.04,
++        "median_tok_s": 54.26,
++        "draft_n": 3231,
++        "draft_n_accepted": 670,
++        "acceptance": 0.2074,
++        "draft_per_generated": 0.2229,
++        "tool_call_json_valid": 1.0
++      },
++      "single-mem": {
++        "n": 12,
++        "predicted_n": 1223,
++        "predicted_ms": 22849.2,
++        "decode_tok_s": 53.52,
++        "median_tok_s": 35.86,
++        "draft_n": 804,
++        "draft_n_accepted": 90,
++        "acceptance": 0.1119,
++        "draft_per_generated": 0.6574,
++        "tool_call_json_valid": 1.0
++      },
++      "dual-agent": {
++        "n": 30,
++        "predicted_n": 17355,
++        "predicted_ms": 650558.9,
++        "decode_tok_s": 26.68,
++        "median_tok_s": 27.57,
++        "draft_n": 2293,
++        "draft_n_accepted": 350,
++        "acceptance": 0.1526,
++        "draft_per_generated": 0.1321,
++        "tool_call_json_valid": 1.0
++      },
++      "dual-mem": {
++        "n": 12,
++        "predicted_n": 1465,
++        "predicted_ms": 62697.5,
++        "decode_tok_s": 23.37,
++        "median_tok_s": 17.03,
++        "draft_n": 996,
++        "draft_n_accepted": 115,
++        "acceptance": 0.1155,
++        "draft_per_generated": 0.6799,
++        "tool_call_json_valid": 0.9167
++      }
++    },
++    "B-greedy": {
++      "single-agent": {
++        "n": 30,
++        "predicted_n": 7425,
++        "predicted_ms": 139147.2,
++        "decode_tok_s": 53.36,
++        "median_tok_s": 54.83,
++        "draft_n": 2757,
++        "draft_n_accepted": 1194,
++        "acceptance": 0.4331,
++        "draft_per_generated": 0.3713,
++        "tool_call_json_valid": 1.0
++      },
++      "single-mem": {
++        "n": 12,
++        "predicted_n": 1315,
++        "predicted_ms": 25954.6,
++        "decode_tok_s": 50.67,
++        "median_tok_s": 38.34,
++        "draft_n": 592,
++        "draft_n_accepted": 142,
++        "acceptance": 0.2399,
++        "draft_per_generated": 0.4502,
++        "tool_call_json_valid": 0.9167
++      },
++      "dual-agent": {
++        "n": 30,
++        "predicted_n": 7576,
++        "predicted_ms": 328995.2,
++        "decode_tok_s": 23.03,
++        "median_tok_s": 24.84,
++        "draft_n": 1562,
++        "draft_n_accepted": 679,
++        "acceptance": 0.4347,
++        "draft_per_generated": 0.2062,
++        "tool_call_json_valid": 1.0
++      },
++      "dual-mem": {
++        "n": 12,
++        "predicted_n": 1317,
++        "predicted_ms": 58700.2,
++        "decode_tok_s": 22.44,
++        "median_tok_s": 20.29,
++        "draft_n": 624,
++        "draft_n_accepted": 145,
++        "acceptance": 0.2324,
++        "draft_per_generated": 0.4738,
++        "tool_call_json_valid": 0.8333
++      }
++    },
++    "off-greedy": {
++      "single-agent": {
++        "n": 30,
++        "predicted_n": 10813,
++        "predicted_ms": 196079.7,
++        "decode_tok_s": 55.15,
++        "median_tok_s": 55.71,
++        "draft_n": 0,
++        "draft_n_accepted": 0,
++        "acceptance": null,
++        "draft_per_generated": 0.0,
++        "tool_call_json_valid": 1.0
++      },
++      "single-mem": {
++        "n": 12,
++        "predicted_n": 1322,
++        "predicted_ms": 23786.2,
++        "decode_tok_s": 55.58,
++        "median_tok_s": 48.88,
++        "draft_n": 0,
++        "draft_n_accepted": 0,
++        "acceptance": null,
++        "draft_per_generated": 0.0,
++        "tool_call_json_valid": 0.8333
++      },
++      "dual-agent": {
++        "n": 30,
++        "predicted_n": 6628,
++        "predicted_ms": 252155.8,
++        "decode_tok_s": 26.29,
++        "median_tok_s": 30.67,
++        "draft_n": 0,
++        "draft_n_accepted": 0,
++        "acceptance": null,
++        "draft_per_generated": 0.0,
++        "tool_call_json_valid": 1.0
++      },
++      "dual-mem": {
++        "n": 12,
++        "predicted_n": 1320,
++        "predicted_ms": 52789.3,
++        "decode_tok_s": 25.01,
++        "median_tok_s": 31.57,
++        "draft_n": 0,
++        "draft_n_accepted": 0,
++        "acceptance": null,
++        "draft_per_generated": 0.0,
++        "tool_call_json_valid": 0.9167
++      }
++    },
++    "off-prod": {
++      "single-agent": {
++        "n": 30,
++        "predicted_n": 14524,
++        "predicted_ms": 259492.1,
++        "decode_tok_s": 55.97,
++        "median_tok_s": 55.92,
++        "draft_n": 0,
++        "draft_n_accepted": 0,
++        "acceptance": null,
++        "draft_per_generated": 0.0,
++        "tool_call_json_valid": 1.0
++      },
++      "single-mem": {
++        "n": 12,
++        "predicted_n": 1293,
++        "predicted_ms": 23235.1,
++        "decode_tok_s": 55.65,
++        "median_tok_s": 48.76,
++        "draft_n": 0,
++        "draft_n_accepted": 0,
++        "acceptance": null,
++        "draft_per_generated": 0.0,
++        "tool_call_json_valid": 1.0
++      },
++      "dual-agent": {
++        "n": 30,
++        "predicted_n": 9831,
++        "predicted_ms": 314409.7,
++        "decode_tok_s": 31.27,
++        "median_tok_s": 33.78,
++        "draft_n": 0,
++        "draft_n_accepted": 0,
++        "acceptance": null,
++        "draft_per_generated": 0.0,
++        "tool_call_json_valid": 1.0
++      },
++      "dual-mem": {
++        "n": 12,
++        "predicted_n": 1412,
++        "predicted_ms": 55610.3,
++        "decode_tok_s": 25.39,
++        "median_tok_s": 31.4,
++        "draft_n": 0,
++        "draft_n_accepted": 0,
++        "acceptance": null,
++        "draft_per_generated": 0.0,
++        "tool_call_json_valid": 1.0
++      }
++    }
++  },
++  "vram_mib": {
++    "A-greedy": {
++      "single-agent": 9507,
++      "single-mem": 9507,
++      "dual-agent": 9507,
++      "dual-mem": 9507
++    },
++    "A-prod": {
++      "single-agent": 9508,
++      "single-mem": 9508,
++      "dual-agent": 9508,
++      "dual-mem": 9507
++    },
++    "B-greedy": {
++      "single-agent": 9507,
++      "single-mem": 9507,
++      "dual-agent": 9507,
++      "dual-mem": 9507
++    },
++    "off-greedy": {
++      "single-agent": 9507,
++      "single-mem": 9507,
++      "dual-agent": 9507,
++      "dual-mem": 9507
++    },
++    "off-prod": {
++      "single-agent": 9507,
++      "single-mem": 9507,
++      "dual-agent": 9507,
++      "dual-mem": 9508
++    }
++  },
++  "mmproj_loaded": {
++    "A-greedy": true,
++    "A-prod": true,
++    "B-greedy": true,
++    "off-greedy": true,
++    "off-prod": true
++  },
++  "identity_greedy": [
++    {
++      "config": "A",
++      "phase": "single-agent",
++      "role": "agent",
++      "sampling": "greedy",
++      "n": 30,
++      "matches": 3,
++      "same_sha_rate": 0.1,
++      "mismatch_ids": [
++        "inventory-baseline-r0/0/0",
++        "inventory-baseline-r0/0/2",
++        "inventory-baseline-r0/0/5",
++        "inventory-baseline-r0/0/8",
++        "inventory-baseline-r0/0/10",
++        "inventory-baseline-r1/0/0",
++        "inventory-baseline-r1/0/2",
++        "inventory-baseline-r1/0/4"
++      ],
++      "...": 19,
++      "div_index_min": null,
++      "div_index_max": null,
++      "div_index_list": []
++    },
++    {
++      "config": "B",
++      "phase": "single-agent",
++      "role": "agent",
++      "sampling": "greedy",
++      "n": 30,
++      "matches": 2,
++      "same_sha_rate": 0.0667,
++      "mismatch_ids": [
++        "inventory-baseline-r0/0/0",
++        "inventory-baseline-r0/0/2",
++        "inventory-baseline-r0/0/5",
++        "inventory-baseline-r0/0/8",
++        "inventory-baseline-r0/0/10",
++        "inventory-baseline-r1/0/0",
++        "inventory-baseline-r1/0/2",
++        "inventory-baseline-r1/0/4"
++      ],
++      "...": 20,
++      "div_index_min": null,
++      "div_index_max": null,
++      "div_index_list": []
++    },
++    {
++      "config": "A",
++      "phase": "single-mem",
++      "role": "mem",
++      "sampling": "greedy",
++      "n": 12,
++      "matches": 10,
++      "same_sha_rate": 0.8333,
++      "mismatches": [
++        {
++          "id": "inventory-mem0-r0/1/0",
++          "div_index": null
++        },
++        {
++          "id": "inventory-mem0-r1/1/0",
++          "div_index": null
++        }
++      ],
++      "div_index_min": null,
++      "div_index_max": null,
++      "div_index_list": []
++    },
++    {
++      "config": "B",
++      "phase": "single-mem",
++      "role": "mem",
++      "sampling": "greedy",
++      "n": 12,
++      "matches": 10,
++      "same_sha_rate": 0.8333,
++      "mismatches": [
++        {
++          "id": "inventory-mem0-r0/0/0",
++          "div_index": null
++        },
++        {
++          "id": "inventory-mem0-r1/1/0",
++          "div_index": null
++        }
++      ],
++      "div_index_min": null,
++      "div_index_max": null,
++      "div_index_list": []
++    },
++    {
++      "config": "A",
++      "phase": "dual-agent",
++      "role": "agent",
++      "sampling": "greedy",
++      "n": 30,
++      "matches": 0,
++      "same_sha_rate": 0.0,
++      "mismatch_ids": [
++        "inventory-baseline-r0/0/0",
++        "inventory-baseline-r0/0/2",
++        "inventory-baseline-r0/0/5",
++        "inventory-baseline-r0/0/8",
++        "inventory-baseline-r0/0/10",
++        "inventory-baseline-r1/0/0",
++        "inventory-baseline-r1/0/2",
++        "inventory-baseline-r1/0/4"
++      ],
++      "...": 22,
++      "div_index_min": null,
++      "div_index_max": null,
++      "div_index_list": []
++    },
++    {
++      "config": "B",
++      "phase": "dual-agent",
++      "role": "agent",
++      "sampling": "greedy",
++      "n": 30,
++      "matches": 0,
++      "same_sha_rate": 0.0,
++      "mismatch_ids": [
++        "inventory-baseline-r0/0/0",
++        "inventory-baseline-r0/0/2",
++        "inventory-baseline-r0/0/5",
++        "inventory-baseline-r0/0/8",
++        "inventory-baseline-r0/0/10",
++        "inventory-baseline-r1/0/0",
++        "inventory-baseline-r1/0/2",
++        "inventory-baseline-r1/0/4"
++      ],
++      "...": 22,
++      "div_index_min": null,
++      "div_index_max": null,
++      "div_index_list": []
++    },
++    {
++      "config": "A",
++      "phase": "dual-mem",
++      "role": "mem",
++      "sampling": "greedy",
++      "n": 12,
++      "matches": 11,
++      "same_sha_rate": 0.9167,
++      "mismatches": [
++        {
++          "id": "inventory-mem0-r1/1/0",
++          "div_index": null
++        }
++      ],
++      "div_index_min": null,
++      "div_index_max": null,
++      "div_index_list": []
++    },
++    {
++      "config": "B",
++      "phase": "dual-mem",
++      "role": "mem",
++      "sampling": "greedy",
++      "n": 12,
++      "matches": 11,
++      "same_sha_rate": 0.9167,
++      "mismatches": [
++        {
++          "id": "inventory-mem0-r1/1/0",
++          "div_index": null
++        }
++      ],
++      "div_index_min": null,
++      "div_index_max": null,
++      "div_index_list": []
++    }
++  ],
++  "off_dual_vs_single_control": [
++    {
++      "control": "off dual-agent vs off single-agent",
++      "pairs": 30,
++      "matches": 0,
++      "rate": 0.0
++    },
++    {
++      "control": "off dual-mem vs off single-mem",
++      "pairs": 12,
++      "matches": 10,
++      "rate": 0.8333
++    },
++    {
++      "control": "off dual-vs-single (overall)",
++      "pairs": 42,
++      "matches": 10,
++      "rate": 0.2381
++    }
++  ],
++  "off_dual_vs_single_control_rate": 0.23809523809523808,
++  "rules": {
++    "1_mmproj": {
++      "passed": true,
++      "detail": "notes.txt cmd for A-prod includes --mmproj: True"
++    },
++    "2_dual_agent_speedup": {
++      "passed": false,
++      "detail": "A dual-agent 26.68 tok/s vs off 31.27 -> ratio 0.853, need >= 1.10x"
++    },
++    "3_min_0p97_single_and_dual": {
++      "passed": false,
++      "detail": "dual-mem A=23.37 off=25.39 ratio=0.92 >=0.97 -> False | single-agent A=56.04 off=55.97 ratio=1.001 >=0.97 -> True | single-mem A=53.52 off=55.65 ratio=0.962 >=0.97 -> False"
++    },
++    "4_vram": {
++      "passed": true,
++      "detail": "single-agent A=9508 MiB off=9507 MiB diff=+1 <=+64 -> True | single-mem A=9508 MiB off=9507 MiB diff=+1 <=+64 -> True | dual-agent A=9508 MiB off=9507 MiB diff=+1 <=+64 -> True | dual-mem A=9507 MiB off=9508 MiB diff=+-1 <=+64 -> True"
++    },
++    "5_tool_call_json_valid": {
++      "passed": false,
++      "detail": "single-agent A=1.0 off=1.0 -> True | single-mem A=1.0 off=1.0 -> True | dual-agent A=1.0 off=1.0 -> True | dual-mem A=0.9167 off=1.0 -> False"
++    },
++    "6_greedy_identical_output": {
++      "passed": true,
++      "detail": "A-greedy same-sha 24/84 = 0.2857; off dual-vs-single control = 0.2381; threshold = 0.1381; need rate >= control - 10pp -> True"
++    }
++  },
++  "decision": "no_deploy",
++  "deployed": false,
++  "why": [
++    "rule 2 (2_dual_agent_speedup): A dual-agent 26.68 tok/s vs off 31.27 -> ratio 0.853, need >= 1.10x",
++    "rule 3 (3_min_0p97_single_and_dual): dual-mem A=23.37 off=25.39 ratio=0.92 >=0.97 -> False | single-agent A=56.04 off=55.97 ratio=1.001 >=0.97 -> True | single-mem A=53.52 off=55.65 ratio=0.962 >=0.97 -> False",
++    "rule 5 (5_tool_call_json_valid): single-agent A=1.0 off=1.0 -> True | single-mem A=1.0 off=1.0 -> True | dual-agent A=1.0 off=1.0 -> True | dual-mem A=0.9167 off=1.0 -> False"
++  ]
++}
+\ No newline at end of file
+diff --git a/bench/results/2026-10-12/m1-ngram/summary.md b/bench/results/2026-10-12/m1-ngram/summary.md
+new file mode 100644
+index 0000000..bb4cedf
+--- /dev/null
++++ b/bench/results/2026-10-12/m1-ngram/summary.md
+@@ -0,0 +1,61 @@
++# M1 n-gram self-speculation on real traffic — decision summary
++- date dir: `bench/results/2026-10-12/m1-ngram`
++- arms: A-greedy, A-prod, B-greedy, off-greedy, off-prod
++- all rates use foreground requests only; decode tok/s = 1000*sum(predicted_n)/sum(predicted_ms)
++- **Decision: DO NOT DEPLOY**
++
++## Per (config, sampling, phase, role)
++| config | sampling | phase | role | n | decode tok/s | median tok/s | acceptance | draft/gen | speedup vs off | tool_call_json_valid | VRAM (MiB) | VRAM vs off |
++|---|---|---|---|---|---|---|---|---|---|---|---|---|
++| A | greedy | single-agent | agent | 30 | 86.04 | 53.6 | 0.7549 | 0.5859 | 1.560x | 1.0 | 9507 | +0 |
++| A | greedy | single-mem | mem | 12 | 53.14 | 35.91 | 0.0932 | 0.5531 | 0.956x | 0.9167 | 9507 | +0 |
++| A | greedy | dual-agent | agent | 30 | 25.47 | 29.99 | 0.1395 | 0.2318 | 0.969x | 1.0 | 9507 | +0 |
++| A | greedy | dual-mem | mem | 12 | 23.82 | 17.03 | 0.0932 | 0.5572 | 0.952x | 0.8333 | 9507 | +0 |
++| A | prod | single-agent | agent | 30 | 56.04 | 54.26 | 0.2074 | 0.2229 | 1.001x | 1.0 | 9508 | +1 |
++| A | prod | single-mem | mem | 12 | 53.52 | 35.86 | 0.1119 | 0.6574 | 0.962x | 1.0 | 9508 | +1 |
++| A | prod | dual-agent | agent | 30 | 26.68 | 27.57 | 0.1526 | 0.1321 | 0.853x | 1.0 | 9508 | +1 |
++| A | prod | dual-mem | mem | 12 | 23.37 | 17.03 | 0.1155 | 0.6799 | 0.920x | 0.9167 | 9507 | +-1 |
++| B | greedy | single-agent | agent | 30 | 53.36 | 54.83 | 0.4331 | 0.3713 | 0.968x | 1.0 | 9507 | +0 |
++| B | greedy | single-mem | mem | 12 | 50.67 | 38.34 | 0.2399 | 0.4502 | 0.912x | 0.9167 | 9507 | +0 |
++| B | greedy | dual-agent | agent | 30 | 23.03 | 24.84 | 0.4347 | 0.2062 | 0.876x | 1.0 | 9507 | +0 |
++| B | greedy | dual-mem | mem | 12 | 22.44 | 20.29 | 0.2324 | 0.4738 | 0.897x | 0.8333 | 9507 | +0 |
++| off | greedy | single-agent | agent | 30 | 55.15 | 55.71 | n/a | 0.0 | 1.000x | 1.0 | 9507 | +0 |
++| off | greedy | single-mem | mem | 12 | 55.58 | 48.88 | n/a | 0.0 | 1.000x | 0.8333 | 9507 | +0 |
++| off | greedy | dual-agent | agent | 30 | 26.29 | 30.67 | n/a | 0.0 | 1.000x | 1.0 | 9507 | +0 |
++| off | greedy | dual-mem | mem | 12 | 25.01 | 31.57 | n/a | 0.0 | 1.000x | 0.9167 | 9507 | +0 |
++| off | prod | single-agent | agent | 30 | 55.97 | 55.92 | n/a | 0.0 | 1.000x | 1.0 | 9507 | +0 |
++| off | prod | single-mem | mem | 12 | 55.65 | 48.76 | n/a | 0.0 | 1.000x | 1.0 | 9507 | +0 |
++| off | prod | dual-agent | agent | 30 | 31.27 | 33.78 | n/a | 0.0 | 1.000x | 1.0 | 9507 | +0 |
++| off | prod | dual-mem | mem | 12 | 25.39 | 31.4 | n/a | 0.0 | 1.000x | 1.0 | 9508 | +0 |
++
++## Identity table (greedy; same phase + id vs off-greedy)
++| config | phase | n | same-sha as off | same-sha rate | mismatches | first-divergence char index (min) |
++|---|---|---|---|---|---|---|
++| A | single-agent | 30 | 3 | 0.1 | 27 | None |
++| B | single-agent | 30 | 2 | 0.0667 | 28 | None |
++| A | single-mem | 12 | 10 | 0.8333 | 2 | None |
++| B | single-mem | 12 | 10 | 0.8333 | 2 | None |
++| A | dual-agent | 30 | 0 | 0.0 | 30 | None |
++| B | dual-agent | 30 | 0 | 0.0 | 30 | None |
++| A | dual-mem | 12 | 11 | 0.9167 | 1 | None |
++| B | dual-mem | 12 | 11 | 0.9167 | 1 | None |
++
++## Control: off dual vs off single (greedy, no spec) — batch numerics
++- off dual-agent vs off single-agent: 0/30 same sha (0.0)
++- off dual-mem vs off single-mem: 10/12 same sha (0.8333)
++- off dual-vs-single (overall): 10/42 same sha (0.2381)
++
++## Decision rules (deploy only if ALL pass)
++- **1_mmproj**: PASS — notes.txt cmd for A-prod includes --mmproj: True
++- **2_dual_agent_speedup**: FAIL — A dual-agent 26.68 tok/s vs off 31.27 -> ratio 0.853, need >= 1.10x
++- **3_min_0p97_single_and_dual**: FAIL — dual-mem A=23.37 off=25.39 ratio=0.92 >=0.97 -> False | single-agent A=56.04 off=55.97 ratio=1.001 >=0.97 -> True | single-mem A=53.52 off=55.65 ratio=0.962 >=0.97 -> False
++- **4_vram**: PASS — single-agent A=9508 MiB off=9507 MiB diff=+1 <=+64 -> True | single-mem A=9508 MiB off=9507 MiB diff=+1 <=+64 -> True | dual-agent A=9508 MiB off=9507 MiB diff=+1 <=+64 -> True | dual-mem A=9507 MiB off=9508 MiB diff=+-1 <=+64 -> True
++- **5_tool_call_json_valid**: FAIL — single-agent A=1.0 off=1.0 -> True | single-mem A=1.0 off=1.0 -> True | dual-agent A=1.0 off=1.0 -> True | dual-mem A=0.9167 off=1.0 -> False
++- **6_greedy_identical_output**: PASS — A-greedy same-sha 24/84 = 0.2857; off dual-vs-single control = 0.2381; threshold = 0.1381; need rate >= control - 10pp -> True
++
++## Decision
++Rules fail; **no deployment**. The live `bonsai-2-27b` entry is unchanged (no spec flags, `serving/candidates/` untouched).
++Failed rules:
++- rule 2 (2_dual_agent_speedup): A dual-agent 26.68 tok/s vs off 31.27 -> ratio 0.853, need >= 1.10x
++- rule 3 (3_min_0p97_single_and_dual): dual-mem A=23.37 off=25.39 ratio=0.92 >=0.97 -> False | single-agent A=56.04 off=55.97 ratio=1.001 >=0.97 -> True | single-mem A=53.52 off=55.65 ratio=0.962 >=0.97 -> False
++- rule 5 (5_tool_call_json_valid): single-agent A=1.0 off=1.0 -> True | single-mem A=1.0 off=1.0 -> True | dual-agent A=1.0 off=1.0 -> True | dual-mem A=0.9167 off=1.0 -> False
+diff --git a/bench/spec_summarize.py b/bench/spec_summarize.py
+new file mode 100644
+index 0000000..6b29619
+--- /dev/null
++++ b/bench/spec_summarize.py
+@@ -0,0 +1,446 @@
++#!/usr/bin/env python3
++"""M1 n-gram decision summary: summarize replay results and decide on deployment.
++
++Usage:
++  python3 bench/spec_summarize.py [DATE_DIR]
++
++DATE_DIR (optional): bench/results/<DATE_DIR>/m1-ngram. Defaults to
++bench/results/2026-10-12. Reads the recorded `requests.jsonl` (foreground-only)
++from every arm dir under <DATE>/m1-ngram/replay/, the gitignored full outputs
++under bench/.replay/outputs/{label}-{sampling}.jsonl (used for the first-divergence
++character index in the greedy identity table), and each arm's vram.txt.
++
++Arms are named {label}-{sampling}, label in {off, A, B}, sampling in {greedy, prod}.
++Only foreground (fg) rows are used for rates.
++
++Writes:
++  <DATE>/m1-ngram/summary.md
++  <DATE>/m1-ngram/summary.json
++  <DATE>/m1-ngram/deploy.json
++
++Decision rules (deploy the best config only if ALL hold):
++  1. config ran with --mmproj loaded (live entry's pinned line)
++  2. prod sampling dual-agent fg tok/s >= 1.10 * off
++  3. prod dual-mem and both single phases fg tok/s >= 0.97 * off
++  4. per-phase VRAM <= off + 64 MiB
++  5. per-phase tool_call_json_valid rate >= off's
++  6. greedy identical-output rate not below (off dual-vs-single control) - 10pp
++
++Not deploying -> deploy.json = {"deployed": false, "why": [failed rule numbers + values]}.
++"""
++import json
++import os
++import re
++import statistics
++import sys
++from pathlib import Path
++
++ROOT = Path(__file__).resolve().parent.parent
++DEFAULT_DATE = "2026-10-12"
++PHASES = ["single-agent", "single-mem", "dual-agent", "dual-mem"]
++SPEC_CONFIGS = ["A", "B"]
++
++
++def num(x):
++    return x if x is not None else 0
++
++
++def phase_role(phase):
++    return "agent" if phase in ("single-agent", "dual-agent") else "mem"
++
++
++def group_fg(rows, phase):
++    return [r for r in rows if r.get("phase") == phase and r.get("fg_bg") == "fg"
++            and not r.get("error")]
++
++
++def load_arm(base, arm):
++    p = base / arm / "requests.jsonl"
++    rows = []
++    for ln in open(p):
++        ln = ln.strip()
++        if ln:
++            rows.append(json.loads(ln))
++    return rows
++
++
++def parse_vram(base, arm):
++    """{phase: memory.used MiB} from vram.txt."""
++    v = {}
++    p = base / arm / "vram.txt"
++    if not p.exists():
++        return v
++    phase = None
++    for ln in p.read_text().splitlines():
++        m = re.match(r"==\s+(.+?)\s*\(", ln)
++        if m:
++            phase = m.group(1)
++            continue
++        m2 = re.search(r"(\d+)\s*MiB", ln)
++        if m2 and phase:
++            v[phase] = int(m2.group(1))
++    return v
++
++
++def mmproj_loaded(base, arm):
++    """True if the server cmd recorded in notes.txt for this arm carried --mmproj."""
++    p = base / arm / "notes.txt"
++    if not p.exists():
++        return None
++    txt = p.read_text()
++    m = re.search(r"cmd:\s+(.*)", txt, re.S)
++    if not m:
++        return None
++    return "--mmproj" in m.group(1)
++
++
++def stats(rs):
++    if not rs:
++        return {}
++    pn = sum(num(r.get("predicted_n")) for r in rs)
++    ms = sum(num(r.get("predicted_ms")) for r in rs)
++    tok = 1000.0 * pn / ms if ms > 0 else None
++    med = statistics.median((num(r.get("predicted_per_second")) for r in rs))
++    dn = sum(num(r.get("draft_n")) for r in rs)
++    da = sum(num(r.get("draft_n_accepted")) for r in rs)
++    return {
++        "n": len(rs),
++        "predicted_n": pn,
++        "predicted_ms": round(ms, 1),
++        "decode_tok_s": round(tok, 2) if tok is not None else None,
++        "median_tok_s": round(med, 2) if med is not None else None,
++        "draft_n": dn,
++        "draft_n_accepted": da,
++        "acceptance": round(da / dn, 4) if dn > 0 else None,
++        "draft_per_generated": round(dn / pn, 4) if pn > 0 else None,
++        "tool_call_json_valid": round(sum(1 for r in rs if r.get("tool_call_json_valid")) / len(rs), 4),
++    }
++
++
++def load_outputs(label, sampling):
++    """{(phase, id, fg_bg): output blob} from bench/.replay/outputs/{label}-{sampling}.jsonl.
++    Blob recomputed exactly as spec_replay.py hashed it."""
++    p = ROOT / "bench/.replay" / "outputs" / f"{label}-{sampling}.jsonl"
++    out = {}
++    if not p.exists():
++        return out
++    for ln in open(p):
++        ln = ln.strip()
++        if not ln:
++            continue
++        rec = json.loads(ln)
++        m = rec.get("message", {})
++        tcs = m.get("tool_calls") or []
++        blob = (m.get("reasoning_content") or "") + (m.get("content") or "") + \
++            json.dumps(tcs, sort_keys=True)
++        out[(rec.get("phase"), rec.get("id"), rec.get("fg_bg"))] = blob
++    return out
++
++
++def first_divergence(a, b):
++    """First char index where a and b differ; min length if one prefixes the other."""
++    n = min(len(a), len(b))
++    for i in range(n):
++        if a[i] != b[i]:
++            return i
++    return len(a) if a != b else None
++
++
++def build_identity(arm_rows_by_arm, out_by_arm):
++    """For each spec config and phase: count fg rows whose out_sha256 equals
++    off-greedy's for the same (phase, id); for mismatches, first-divergence char
++    index from the full output blobs."""
++    rows = []
++    for ph in PHASES:
++        for label in SPEC_CONFIGS:
++            arm = f"{label}-greedy"
++            if arm not in arm_rows_by_arm:
++                continue
++            rs = group_fg(arm_rows_by_arm[arm], ph)
++            off_map = {r["id"]: r for r in group_fg(arm_rows_by_arm["off-greedy"], ph)}
++            spec_out = out_by_arm.get((label, "greedy"), {})
++            off_out = out_by_arm.get(("off", "greedy"), {})
++            matches = 0
++            mismatches = []
++            for r in rs:
++                same = off_map.get(r["id"]) is not None and \
++                    off_map[r["id"]].get("out_sha256") == r.get("out_sha256")
++                if same:
++                    matches += 1
++                    continue
++                idx = None
++                sb = spec_out.get((ph, r["id"], "fg"))
++                ob = off_out.get((ph, r["id"], "fg"))
++                if sb is not None and ob is not None:
++                    idx = first_divergence(sb, ob)
++                mismatches.append({"id": r["id"], "div_index": idx})
++            idxs = [d["div_index"] for d in mismatches if d["div_index"] is not None]
++            row = {
++                "config": label, "phase": ph, "role": phase_role(ph), "sampling": "greedy",
++                "n": len(rs), "matches": matches,
++                "same_sha_rate": round(matches / len(rs), 4) if rs else None,
++            }
++            if len(mismatches) > 0:
++                if len(mismatches) <= 8:
++                    row["mismatches"] = mismatches
++                else:
++                    row["mismatch_ids"] = [d["id"] for d in mismatches[:8]]
++                    row["..."] = len(mismatches) - 8
++                row["div_index_min"] = min(idxs) if idxs else None
++                row["div_index_max"] = max(idxs) if idxs else None
++                row["div_index_list"] = idxs if len(idxs) <= 8 else idxs[:8]
++            else:
++                row["div_index_list"] = []
++            rows.append(row)
++    return rows
++
++
++def build_off_control(arm_rows_by_arm):
++    """Control: off-greedy dual phase vs off-greedy single phase for the same
++    (id, role). Shows batch numerics change temp-0 outputs even without spec."""
++    off = arm_rows_by_arm.get("off-greedy", [])
++
++    def gmap(ph):
++        return {r["id"]: r for r in group_fg(off, ph)}
++
++    sa, da = gmap("single-agent"), gmap("dual-agent")
++    sm, dm = gmap("single-mem"), gmap("dual-mem")
++    results = []
++    control = None
++    for name, single, dual, sampling_key in [
++        ("agent", sa, da, "dual-agent"),
++        ("mem", sm, dm, "dual-mem"),
++    ]:
++        pairs = [d for i, d in dual.items() if i in single]
++        matches = sum(1 for d in pairs if d.get("out_sha256") == single[d["id"]].get("out_sha256"))
++        rate = matches / len(pairs) if pairs else None
++        results.append({"control": f"off {sampling_key} vs off single-{name}",
++                        "pairs": len(pairs), "matches": matches,
++                        "rate": round(rate, 4) if rate is not None else None})
++    total_pairs = sum(r["pairs"] for r in results)
++    total_matches = sum(r["matches"] for r in results)
++    control = total_matches / total_pairs if total_pairs else None
++    results.append({"control": "off dual-vs-single (overall)",
++                    "pairs": total_pairs, "matches": total_matches,
++                    "rate": round(control, 4) if control is not None else None})
++    return results, control
++
++
++def decide(arm_stats, identity_rows, off_control_rate, vram_by_arm, mmproj_by_arm):
++    off_prod = arm_stats.get(("off", "prod"), {})
++    a_prod = arm_stats.get(("A", "prod"), {})
++    rules = {}
++
++    rules["1_mmproj"] = {"passed": bool(mmproj_by_arm.get(("A", "prod"))),
++                         "detail": f"notes.txt cmd for A-prod includes --mmproj: "
++                                   f"{mmproj_by_arm.get(('A','prod'))}"}
++
++    def tok(src, ph):
++        return src.get(ph, {}).get("decode_tok_s")
++
++    da, od = tok(a_prod, "dual-agent"), tok(off_prod, "dual-agent")
++    rules["2_dual_agent_speedup"] = {
++        "passed": da is not None and od is not None and da >= 1.10 * od,
++        "detail": f"A dual-agent {da} tok/s vs off {od} -> ratio "
++                  f"{round(da/od, 3) if od else None}, need >= 1.10x",
++    }
++
++    parts = []
++    r3 = True
++    for ph in ["dual-mem", "single-agent", "single-mem"]:
++        v, o = tok(a_prod, ph), tok(off_prod, ph)
++        ok = v is not None and o is not None and v >= 0.97 * o
++        r3 = r3 and ok
++        parts.append(f"{ph} A={v} off={o} ratio={round(v/o,3) if o else None} >=0.97 -> {ok}")
++    rules["3_min_0p97_single_and_dual"] = {"passed": r3, "detail": " | ".join(parts)}
++
++    parts = []
++    r4 = True
++    for ph in PHASES:
++        av, ov = vram_by_arm.get(("A", "prod"), {}).get(ph), vram_by_arm.get(("off", "prod"), {}).get(ph)
++        if av is None or ov is None:
++            parts.append(f"{ph} VRAM missing (A={av} off={ov})")
++            continue
++        ok = av <= ov + 64
++        r4 = r4 and ok
++        parts.append(f"{ph} A={av} MiB off={ov} MiB diff=+{av-ov} <=+64 -> {ok}")
++    rules["4_vram"] = {"passed": r4, "detail": " | ".join(parts)}
++
++    parts = []
++    r5 = True
++    for ph in PHASES:
++        av, ov = a_prod.get(ph, {}).get("tool_call_json_valid"), off_prod.get(ph, {}).get("tool_call_json_valid")
++        ok = av is not None and ov is not None and av >= ov
++        r5 = r5 and ok
++        parts.append(f"{ph} A={av} off={ov} -> {ok}")
++    rules["5_tool_call_json_valid"] = {"passed": r5, "detail": " | ".join(parts)}
++
++    a_greedy = [r for r in identity_rows if r["config"] == "A"]
++    a_n = sum(r["n"] for r in a_greedy)
++    a_m = sum(r["matches"] for r in a_greedy)
++    a_id_rate = a_m / a_n if a_n else None
++    threshold = round(off_control_rate - 0.10, 4) if off_control_rate is not None else None
++    r6 = a_id_rate is not None and threshold is not None and a_id_rate >= threshold
++    rules["6_greedy_identical_output"] = {
++        "passed": r6,
++        "detail": f"A-greedy same-sha {a_m}/{a_n} = {round(a_id_rate,4) if a_id_rate else None}; "
++                  f"off dual-vs-single control = {round(off_control_rate,4) if off_control_rate else None}; "
++                  f"threshold = {threshold}; need rate >= control - 10pp -> {r6}",
++    }
++
++    failed = [k for k, r in rules.items() if not r["passed"]]
++    deployed = len(failed) == 0
++    if deployed:
++        return rules, True, []
++    return rules, False, [f"rule {k.split('_')[0]} ({k}): {r['detail']}" for k, r in sorted(rules.items()) if not r["passed"]]
++
++
++def fmt(x, n=2):
++    return f"{x:.{n}f}" if isinstance(x, float) or isinstance(x, int) else (str(x) if x is not None else "-")
++
++
++def main():
++    date = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] else DEFAULT_DATE
++    replay_dir = ROOT / "bench/results" / date / "m1-ngram/replay"
++    out_dir = ROOT / "bench/results" / date / "m1-ngram"
++    out_dir.mkdir(parents=True, exist_ok=True)
++
++    arm_list = []
++    arm_rows_by_arm, arm_stats, vram_by_arm, mmproj_by_arm = {}, {}, {}, {}
++    for arm in sorted(replay_dir.glob("*")):
++        if not (arm / "requests.jsonl").exists():
++            continue
++        parts = arm.name.split("-")
++        if len(parts) != 2 or parts[1] not in ("greedy", "prod"):
++            continue
++        label, sampling = parts
++        arm_rows_by_arm[f"{label}-{sampling}"] = load_arm(replay_dir, arm.name)
++        arm_stats[(label, sampling)] = {
++            ph: stats(group_fg(arm_rows_by_arm[arm.name], ph)) for ph in PHASES
++        }
++        vram_by_arm[(label, sampling)] = parse_vram(replay_dir, arm.name)
++        mmproj_by_arm[(label, sampling)] = mmproj_loaded(replay_dir, arm.name)
++        arm_list.append((label, sampling))
++    if not arm_list:
++        raise SystemExit(f"no arms found under {replay_dir}")
++    print("arms:", arm_list)
++
++    out_by_arm = {(l, "greedy"): load_outputs(l, "greedy") for l in ["off"] + SPEC_CONFIGS}
++    for (l, s), n in out_by_arm.items():
++        print(f"outputs {l}-{s}: {n} rows")
++    if not out_by_arm.get(("off", "greedy")):
++        print("NOTE: bench/.replay/outputs not present in this environment;"
++              " first-divergence char indices will be null. Run again on the host "
++              "where the recordings live to fill them in.")
++    else:
++        print("NOTE: .replay/outputs present; first-divergence indices computed from blobs.")
++
++    identity_rows = build_identity(arm_rows_by_arm, out_by_arm)
++    off_controls, off_control_rate = build_off_control(arm_rows_by_arm)
++    rules, deployed, reasons = decide(arm_stats, identity_rows, off_control_rate,
++                                      vram_by_arm, mmproj_by_arm)
++
++    # ---------------- summary.md ----------------
++    L = []
++    L.append("# M1 n-gram self-speculation on real traffic — decision summary")
++    L.append(f"- date dir: `bench/results/{date}/m1-ngram`")
++    L.append(f"- arms: {', '.join(f'{l}-{s}' for (l, s) in arm_list)}")
++    L.append(f"- all rates use foreground requests only; decode tok/s = "
++             f"1000*sum(predicted_n)/sum(predicted_ms)")
++    L.append(f"- **Decision: {'DEPLOY' if deployed else 'DO NOT DEPLOY'}**")
++    L.append("")
++    L.append("## Per (config, sampling, phase, role)")
++    L.append("| config | sampling | phase | role | n | decode tok/s | median tok/s | "
++             "acceptance | draft/gen | speedup vs off | tool_call_json_valid | VRAM (MiB) | VRAM vs off |")
++    L.append("|---|---|---|---|---|---|---|---|---|---|---|---|---|")
++    for (label, sampling) in arm_list:
++        for ph in PHASES:
++            s = arm_stats[(label, sampling)].get(ph, {})
++            n = s.get("n", 0)
++            if n == 0:
++                L.append(f"| {label} | {sampling} | {ph} | {phase_role(ph)} | 0 | - | - | - | - | - | - | - | - |")
++                continue
++            off = arm_stats[("off", sampling)].get(ph, {})
++            ratio = f"{s['decode_tok_s']/off['decode_tok_s']:.3f}x" if \
++                    (s["decode_tok_s"] and off["decode_tok_s"]) else "-"
++            va = vram_by_arm[(label, sampling)].get(ph)
++            vo = vram_by_arm[("off", sampling)].get(ph)
++            vdiff = f"+{va-vo}" if va is not None and vo is not None else "-"
++            L.append("| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
++                label, sampling, ph, phase_role(ph), n,
++                s["decode_tok_s"], s["median_tok_s"],
++                s["acceptance"] if s["acceptance"] is not None else "n/a",
++                s["draft_per_generated"], ratio, s["tool_call_json_valid"],
++                va if va is not None else "-", vdiff))
++    L.append("")
++
++    L.append("## Identity table (greedy; same phase + id vs off-greedy)")
++    L.append("| config | phase | n | same-sha as off | same-sha rate | mismatches | first-divergence char index (min) |")
++    L.append("|---|---|---|---|---|---|---|")
++    for r in identity_rows:
++        divs = r.get("div_index_list") or []
++        dmin = divs[0] if divs else (r.get("div_index_min") if "mismatches" in r else None)
++        dmin_disp = "n/a" if dmin is None else dmin
++        L.append("| {} | {} | {} | {} | {} | {} | {} |".format(
++            r["config"], r["phase"], r["n"], r["matches"], r["same_sha_rate"],
++            r["n"] - r["matches"], dmin_disp))
++    L.append("- `n/a` = full output blob not recorded here (recompute on the host).")
++    L.append("")
++    L.append("## Control: off dual vs off single (greedy, no spec) — batch numerics")
++    for c in off_controls:
++        L.append(f"- {c['control']}: {c['matches']}/{c['pairs']} same sha "
++                 f"({c['rate']})")
++    L.append("")
++    L.append("## Decision rules (deploy only if ALL pass)")
++    for k, r in rules.items():
++        L.append(f"- **{k}**: {'PASS' if r['passed'] else 'FAIL'} — {r['detail']}")
++    L.append("")
++    L.append("## Decision")
++    if deployed:
++        L.append("All rules pass. Create `serving/candidates/bonsai-2-27b.ngram.yaml` "
++                 "(copy of the live entry with only `--spec-type`/`--spec-ngram-*` "
++                 "flags added to `cmd`, header citing `bench/results/"
++                 f"{date}/m1-ngram/summary.md`) and submit an `infra` request; the "
++                 "returned JSON is saved as `deploy.json` here.")
++    else:
++        L.append("Rules fail; **no deployment**. The live `bonsai-2-27b` entry is "
++                 "unchanged (no spec flags, `serving/candidates/` untouched).")
++        L.append("Failed rules:")
++        for w in reasons:
++            L.append(f"- {w}")
++    (out_dir / "summary.md").write_text("\n".join(L) + "\n")
++    print("wrote summary.md")
++
++    # ---------------- summary.json ----------------
++    summary = {
++        "date": date,
++        "arms": [list(a) for a in arm_list],
++        "per_phase": {f"{l}-{s}": v for (l, s), v in arm_stats.items()},
++        "vram_mib": {f"{l}-{s}": v for (l, s), v in vram_by_arm.items()},
++        "mmproj_loaded": {f"{l}-{s}": v for (l, s), v in mmproj_by_arm.items()},
++        "identity_greedy": identity_rows,
++        "off_dual_vs_single_control": off_controls,
++        "off_dual_vs_single_control_rate": off_control_rate,
++        "rules": rules,
++        "decision": "deploy" if deployed else "no_deploy",
++        "deployed": deployed,
++        "why": reasons,
++    }
++    (out_dir / "summary.json").write_text(json.dumps(summary, indent=2))
++    print("wrote summary.json")
++
++    # ---------------- deploy.json ----------------
++    if deployed:
++        deploy = {"deployed": True,
++                  "config": "A",
++                  "note": "rules pass; submit infra request with "
++                           "serving/candidates/bonsai-2-27b.ngram.yaml and "
++                           "replace this file with the infra result."}
++    else:
++        deploy = {"deployed": False, "why": reasons}
++    (out_dir / "deploy.json").write_text(json.dumps(deploy, indent=2))
++    print("wrote deploy.json; deployed =", deployed)
++
++
++if __name__ == "__main__":
++    main()

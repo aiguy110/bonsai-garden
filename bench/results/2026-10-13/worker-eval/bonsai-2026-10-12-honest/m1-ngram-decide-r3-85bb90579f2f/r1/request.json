@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Updated bench/spec_summarize.py per review: (1) the rule table in summary.md (and summary.json rules) now carries a criterion column with the exact predicates (1.10x, 0.97x, +64 MiB, validity comparison, 10-point identity allowance, mmproj condition); (2) rule 1 now reads the pinned --mmproj path from the live entry and verifies 'loaded multimodal model, <path>' in all four A-prod phase server logs (confirmed present in all four logs) instead of inferring from notes. Local sandbox compile + smoke run reproduce all prior pass/fail results (rules 1,4,6 PASS; 2,3,5 FAIL -> no deploy). The full message outputs for first-divergence indices live only in the host's bench/.replay, so final regeneration must run there.",
+  "command": "python3 bench/spec_summarize.py bench/results/2026-10-12/m1-ngram/replay",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Regenerate summary.md/summary.json/deploy.json with the new criteria and log-verified rule 1, using the host's full bench/.replay outputs so first-divergence character indices are preserved. Pure file processing, no GPU."
+}

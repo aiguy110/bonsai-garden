@@ -1,0 +1,2 @@
+All three advisor-revised documentation fixes are applied, verified against source (inventory.json for the request count, server logs for the warning), and committed (`091e261`). The no-deploy conclusion is unchanged. Submitting completion:
+

@@ -1,0 +1,2 @@
+The script now emits a criterion column and rule 1 is verified from the A-prod server logs (the local check passed — the only local difference is missing `.replay` outputs, so divergence indices are `None` in the sandbox run). Now I must regenerate the artifacts on the host where the full outputs exist, to keep the divergence indices intact.
+

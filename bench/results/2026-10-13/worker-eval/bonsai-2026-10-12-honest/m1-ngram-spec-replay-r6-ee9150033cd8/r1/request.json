@@ -1,0 +1,8 @@
+{
+  "report": "Applied the advisor's revise: in bench/spec_replay.py phase(), moved `t0 = time.time()` to before `th.start()` (so the measured window captures all counted bg work, not rows produced before t0). Python compile check passed for both spec_replay.py and spec_analyze.py. No other changes. The current bench/results/.../off-prod/ is the restored pre-timestamp baseline (rows lack t_end), so this rerun overwrites it with the corrected format (per-row t_end plus window t0/t_fg_end lines for spec_analyze.py's conservative two-slot throughput).",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Rerun off/prod with the corrected probe (t0 now set before the background thread starts) so all four fresh-server phases record per-row t_end and window boundaries, enabling a valid conservative completed-output two-slot throughput for the baseline arm."
+}

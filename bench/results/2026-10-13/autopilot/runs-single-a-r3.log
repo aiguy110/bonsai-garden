@@ -1,0 +1,31 @@
+== bonsai-2026-10-12-honest (145.0 min of budget left)
+[2026-10-13T16:48:56-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r5-5c5d98bf3537 r1
+  valid=True kind=run match=True 80.0s turns=8 tools=8
+[2026-10-13T16:50:16-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r6-ee9150033cd8 r1
+  valid=True kind=run match=True 272.1s turns=14 tools=15
+[2026-10-13T16:54:48-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r7-74c6eafebda5 r1
+  valid=True kind=run match=True 606.5s turns=9 tools=16
+[2026-10-13T17:04:55-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r10-dc0c818a5351 r1
+  valid=True kind=done match=True 457.7s turns=12 tools=17
+[2026-10-13T17:12:33-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r11-f096b0e52769 r1
+  valid=True kind=done match=True 773.2s turns=24 tools=26
+[2026-10-13T17:25:26-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r1-480691022b4e r1
+  valid=False kind=None match=False 1200.5s turns=26 tools=31
+[2026-10-13T17:45:27-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r2-e17c18c1927d r1
+  valid=True kind=run match=False 1197.8s turns=30 tools=33
+[2026-10-13T18:05:25-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r3-85bb90579f2f r1
+  valid=True kind=run match=False 430.5s turns=14 tools=17
+[2026-10-13T18:12:35-04:00] bonsai-2026-10-12-honest m1-ngram-write-up-r2-cebbd5fef63b r1
+  valid=False kind=None match=False 1200.5s turns=14 tools=21
+[2026-10-13T18:32:36-04:00] bonsai-2026-10-12-honest m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=True kind=done match=True 389.8s turns=14 tools=21
+[2026-10-13T18:39:06-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r6-9cf273aef422 r2
+  valid=False kind=None match=False 1200.3s turns=36 tools=41
+budget: 14.8 min left, a session may take 20; stopping
+{"skipped": 12, "ran": 11, "remaining": 21}
+bonsai-2026-10-12-honest: records 23/44
+w2-think-drop: records 0/44
+w2-reasoning-budget: records 0/44
+w2-session-budget: records 0/44
+w2-hashline: records 0/44
+w2-compaction: records 0/44

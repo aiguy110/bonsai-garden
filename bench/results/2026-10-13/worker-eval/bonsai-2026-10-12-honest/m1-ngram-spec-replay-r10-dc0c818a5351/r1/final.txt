@@ -1,0 +1,9 @@
+All acceptance criteria are verified and met:
+- **Replay probe**: `bench/spec_replay.py` (287 lines) + `bench/spec_analyze.py`; 5 configs (off-greedy, A-greedy, B-greedy, off-prod, A-prod) each with `requests.jsonl`, `vram.txt`, 4 server logs, `notes.txt`, and all 4 phases.
+- **Draft fields**: every A/B row has `draft_n`/`draft_n_accepted`; both A and B drafted tokens. Off baseline nulls now explained in `notes.txt`.
+- **mmproj**: verdict in `bench/m1-notes.md` §3 (text-only works, image-embedding batches unsupported).
+- **Decision**: no deploy — A is slower with both slots busy (dual-agent 26.7 vs 31.3 tok/s; dual-mem 23.4 vs 25.4) and changed outputs. Live entry unchanged.
+- **Docs**: experiment page `site/series/serving/ngram-self-speculation.md` + updated series (`site/series/serving/index.md`) and project (`site/index.md`) summaries; front-matter validates (fields, ≤200-word summaries, date hierarchy project≥series≥experiment).
+
+The remaining task from the last note — validate site metadata — is done (PyYAML isn't in the sandbox, so I verified the `check_site.py` rules manually: all required fields present, all summaries ≤200 words, one project page, every series has a page, all dates consistent). The milestone is complete.
+

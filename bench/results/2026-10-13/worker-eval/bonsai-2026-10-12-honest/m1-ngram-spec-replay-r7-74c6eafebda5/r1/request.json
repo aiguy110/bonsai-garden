@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Round 7 (spec-replay). Verified the r6 off-prod rerun: 4 phases each have window t0/t_fg_end/t_join_end lines in notes.txt and 140/140 rows carry t_end; fg tok/s 56.0/55.6/31.3/25.4 (sa/mem/dual-agent/dual-mem), conservative combined two-slot 43.8/32.7/47.8/35.4. Confirmed all existing arms (off-greedy, A-greedy, B-greedy, off-prod) have all 4 phases with requests.jsonl/vram.txt/server logs; A/B have draft_n+draft_n_accepted on all 84 fg rows. mmproj verdict now empirical: A and B ran with --mmproj --no-mmproj-offload, no refusals in logs, real drafts (A 11565/6609, B 5535/2160 accepted). Greedy: no spec arm beats off with both slots busy \u2014 dual-agent 26.3(off)/25.5(A)/23.0(B), dual-mem 25.0/23.8/22.4. Per the plan rule the best of A/B is A (dual-agent fg 25.5 vs B 23.0), so the remaining prod run is A. Updated m1-notes.md (\u00a710 mmproj confirmed, \u00a711 off-prod verified, \u00a712 state/decision) and noted off arms' missing draft fields are by design in each notes.txt. Next: run A-prod, then decide (deploy only if A-prod's combined dual throughput beats off-prod 47.8 tok/s).",
+  "why": "Prod-sampling run for A, chosen as the better of A/B by dual-agent greedy fg tok/s (25.5 vs 23.0). Uses the corrected spec_replay.py (t0 recorded before bg start, per-row t_end, window boundaries), giving conservative combined two-slot throughput on the private :8089 server to compare A vs off with both slots busy for the deploy decision.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod",
+  "gpu": true,
+  "timeout_min": 120
+}

@@ -1,0 +1,2 @@
+Let me understand the git/tracking situation before committing.
+

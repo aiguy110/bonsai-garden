@@ -1,0 +1,58 @@
+{
+  "advisor_verdict": "revise",
+  "arm": "bonsai-2026-10-12-honest",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12-honest/m1-ngram-spec-replay-r10-dc0c818a5351/r1",
+  "case_id": "m1-ngram-spec-replay-r10-dc0c818a5351",
+  "cloud_kind": "done",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T17:12:33-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "done",
+  "request": {
+    "report": "Finished the spec-replay item. Measured recorded agent+mem0 traffic on private :8089 with speculation off vs ngram-mod (A: defaults; B: short 8-16 drafts) under 1 and 2 busy slots, then re-ran off + winner (A) at production sampling. Result: no speedup with both slots busy (A dual-agent 26.7 vs off 31.3 tok/s; dual-mem 23.4 vs 25.4); A also changed temp-0 outputs and sometimes hit token caps. Decision: do not deploy; live bonsai-2-27b entry left unchanged (no infra request). Wrote experiment page + updated series/project summaries. This session validated site front-matter (PyYAML absent in sandbox, so I checked check_site.py's rules by hand: required fields, <=200-word summaries, one project, series pages exist, date hierarchy consistent).",
+    "request": "done",
+    "summary": "All acceptance criteria met. (1) bench/spec_replay.py committed (287 lines, + bench/spec_analyze.py). (2) bench/results/2026-10-12/m1-ngram/replay/ contains requests.jsonl, vram.txt, 4 server *.log files, and notes.txt for all five configs off-greedy, A-greedy, B-greedy, off-prod, A-prod (best-prod); each has all four phases (single-agent, single-mem, dual-agent, dual-mem). (3) Every A and B row has draft_n and draft_n_accepted (A-greedy 171/171, A-prod 233/233); both drafted tokens. (4) Off (no-draft baseline) configs explain the null drafts in notes.txt (added clarifying line). (5) mmproj outcome stated in bench/m1-notes.md \u00a73 ('spec + mmproj verdict: mmproj may load, but embedded image batches cannot speculate'; text-only traffic drafts fine, --mmproj does not disable the n-gram backend). Milestone 'done when': (1) replay measured off vs on (A ngram-mod defaults, B ngram-mod n-match 12) at 1 and 2 busy slots with decode tok/s, draft acceptance, and temp-0 output identity, in site/series/serving/ngram-self-speculation.md (off single-agent 56.0 vs A 56.0; dual-agent off 31.3 vs A 26.7; dual-mem off 25.4 vs A 23.4 tok/s; greedy off 26.3/A 25.5/B 23.0 agent, 25.0/23.8/22.4 mem). (2) no-deploy decision documented (site/series/serving/ngram-self-speculation.md 'Decision'; m1-notes.md), live entry unchanged. (3) experiment page site/series/serving/ngram-self-speculation.md plus updated series site/series/serving/index.md and project site/index.md."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 8692,
+  "timeout": false,
+  "tool_calls": 17,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 14,
+    "edit": 2,
+    "submit_request": 1
+  },
+  "turns": 12,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 457.7
+}

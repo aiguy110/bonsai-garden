@@ -1,0 +1,2 @@
+Everything is verified in the sandbox. The remaining step is the host regeneration: `bench/.replay` (the gitignored hashed outputs, needed for real first-divergence character indices) exists only on the host, so I'm requesting a plain file-only run there — no GPU involved.
+

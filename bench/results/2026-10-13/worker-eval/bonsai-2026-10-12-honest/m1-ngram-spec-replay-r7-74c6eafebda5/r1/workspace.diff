@@ -1,0 +1,82 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 83d6b51..60400f4 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -378,6 +378,57 @@ The earlier §9 reading of A's single-agent 86.0 tok/s as a gain is wrong.
+   expected even for off, see standing facts); dual-mem 11/12 both.
+ - 'restore checkpoint' lines in A/B server logs: 0 in every phase.
+ - Prod-sampling pick: highest dual-agent greedy fg tok/s is A (25.5 vs B 23.0), also with
+-  length rows excluded (26.1 vs 23.0). Prod runs: off, then A.
++  length rows excluded (26.1 vs 23.0). Prod runs: off (done, r6), then A (pending).
+ - Combined two-slot throughput over wall time was not recorded for off/A/B greedy;
+   spec_replay.py now notes `fg wall_s` per phase, so prod runs have it.
++
++## 10. mmproj verdict — confirmed on :8089 (spec-replay)
++
++Both spec arms ran with `--mmproj .../Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf
++--no-mmproj-offload` (A-greedy/notes.txt, B-greedy/notes.txt cmd lines), no
++exit, no "not supported by this context"/"unsupported batch.has_embd" log
++lines, and drafts were actually drafted: A draft_n=11565/accepted=6609, B
++5535/2160 (summed over 84 fg rows). The §3 static verdict is confirmed on the
++live server: ngram speculation works with `--mmproj` loaded for text-only
++traffic. The `unsupported batch.has_embd + spec case` throw (server-context.cpp:
++3550-3553) fires only when a batch carries embeddings (image input); the replay
++is text-only and image + spec remains untested. No "restore checkpoint" lines
++in any A/B phase, i.e., checkpoint-mode speculation was not needed.
++
++## 11. off/prod rerun (r6) — corrected probe, verified
++
++Re-run after the t0-before-bg-start and t_end-per-row fixes; exit 0, 883 s
++(results/2026-10-12/autopilot/spec-replay-r6.log). Verified:
++
++- all 4 phases carry `[phase] window t0=... t_fg_end=... t_join_end=...` lines
++  in off-prod/notes.txt; 140/140 rows carry t_end.
++- fg tok/s: single-agent 56.0, single-mem 55.6, dual-agent 31.3, dual-mem 25.4.
++- combined two-slot throughput (fg + bg rows ending before fg, / fg wall s):
++  single-agent 43.8, single-mem 32.7, dual-agent 47.8, dual-mem 35.4.
++  This is a conservative completed-output measure, not exact aggregate decode
++  tok/s: a bg request still in flight at fg end is excluded (spec_analyze.py).
++- spec off; prod sampling, so out_sha256 is not comparable across arms.
++
++## 12. State and decision so far
++
++Greedy (all 4 phases present per arm; A/B carry draft_n/draft_n_accepted on all
++84 fg rows; off has no draft fields by design, noted in notes.txt):
++
++| phase | off | A | B |
++|---|---|---|---|
++| single-agent fg tok/s | 55.1 | 86.0 (54.3 no-length) | 53.4 |
++| single-mem fg tok/s | 55.6 | 53.1 | 50.7 |
++| dual-agent fg tok/s | 26.3 | 25.5 (26.1 no-length) | 23.0 |
++| dual-mem fg tok/s | 25.0 | 23.8 | 22.4 |
++
++No arm beats off with both slots busy (dual-agent 26.3 / 25.5 / 23.0;
++dual-mem 25.0 / 23.8 / 22.4). Per the plan rule, the remaining prod run is A
++(highest dual-agent greedy fg of A/B: 25.5 vs 23.0).
++
++Outstanding: A-prod run (turnstile lease, :8089). If its combined dual
++throughput does not beat off-prod 47.8 tok/s (and no other metric reverses the
++picture), the decision is **no-deploy**: speculation does not help real agent
++traffic with both slots busy. A no-deploy note must then state that (a) `--spec-
++type ngram-mod` changes temperature-0 outputs even with draft_n 0 (baseline-r0/
++0/0: off 530c... vs A cdad... vs B f20f...) and (b) image input with spec on
++is untested (has_embd throw).
+diff --git a/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt b/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
+index 1268a47..f1a3cb1 100644
+--- a/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
++++ b/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
+@@ -1,2 +1,4 @@
+ cmd: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf --no-mmproj-offload --port 8089 --n-gpu-layers 99 --ctx-size 98304 --parallel 2 --kv-unified --threads 8 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf --temp 1.0 --top-p 0.95 --top-k 20 --jinja
+ done
++
++[off] no --spec-type flag (spec off by construction); draft_n/draft_n_accepted are absent per spec because the server emits them only when n_draft_tokens > 0 (tools/server/server-common.cpp:82-85).
+diff --git a/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt b/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
+index 3194612..c72523b 100644
+--- a/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
++++ b/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
+@@ -8,3 +8,5 @@ cmd: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server --model /hom
+ [dual-mem] fg wall_s=77.2
+ [dual-mem] window t0=1791816548.841 t_fg_end=1791816626.027 t_join_end=1791816627.439
+ done
++
++[off] no --spec-type flag (spec off by construction); draft_n/draft_n_accepted are absent per spec because the server emits them only when n_draft_tokens > 0 (tools/server/server-common.cpp:82-85).

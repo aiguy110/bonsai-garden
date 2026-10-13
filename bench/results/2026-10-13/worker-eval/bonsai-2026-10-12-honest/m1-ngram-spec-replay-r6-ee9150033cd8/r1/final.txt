@@ -1,0 +1,2 @@
+The t0 fix is in place (`t0 = time.time()` now precedes `th.start()`) and both scripts compile. The restored `off-prod` dir is the pre-timestamp baseline, so this rerun replaces it with the corrected measurement format (per-row `t_end` + dual-phase window boundaries). Submitting the off/prod run.
+

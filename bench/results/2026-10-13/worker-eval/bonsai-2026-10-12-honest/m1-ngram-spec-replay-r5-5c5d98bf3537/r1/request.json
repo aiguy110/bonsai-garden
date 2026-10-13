@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Checked the corrected probe before re-running: spec_replay.py now records t_end per row plus a window line including t_join_end, and truncates all per-run output files on start; spec_analyze.py now prints combined fg+bg throughput over the fg window (completed-output throughput, not exact GPU throughput) and length-row ids. m1-notes.md has a single corrected \u00a79b (two length rows drive A's 86.0 tok/s). Existing off-greedy/A-greedy/B-greedy results are intact. Resubmitting the off/prod baseline on the corrected probe, since the round-5 run was aborted for the config restart and its output discarded.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Repeat off/prod baseline with the corrected probe so every row has t_end and each phase records a full window line, enabling valid combined two-slot throughput. Next session will run A/prod with the same corrected script."
+}

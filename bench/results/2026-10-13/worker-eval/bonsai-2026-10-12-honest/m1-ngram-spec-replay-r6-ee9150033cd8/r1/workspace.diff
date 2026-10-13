@@ -1,0 +1,16 @@
+diff --git a/bench/spec_replay.py b/bench/spec_replay.py
+index 85fa10b..dabcf0d 100644
+--- a/bench/spec_replay.py
++++ b/bench/spec_replay.py
+@@ -233,10 +233,10 @@ class Run:
+                     self.one(name, bg[i % len(bg)], "bg", False)
+                     i += 1
+ 
++            t0 = time.time()
+             th = threading.Thread(target=loop, daemon=True) if bg else None
+             if th:
+                 th.start()
+-            t0 = time.time()
+             for i, item in enumerate(fg):
+                 self.one(name, item, "fg", i == 0)
+             t_fg = time.time()

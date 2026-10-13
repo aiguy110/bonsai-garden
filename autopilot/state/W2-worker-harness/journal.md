@@ -465,3 +465,60 @@ The first full-queue chunk produced 8/44 current-SHA records for the corrected h
 ### 2026-10-13T15:41:25-04:00 · advisor (run request)
 
 **approve**: Run as submitted. It resumes the honest arm from 8/44 using current-arm-SHA filtering and the existing output directory, then continues in queue order only if time remains. The 145-minute internal budget leaves shutdown margin within the 150-minute request. Preserve all records and report any stop after three consecutive infrastructure failures.
+
+### 2026-10-13T16:48:22-04:00 · worker (gpt-5.6-terra), round 3
+
+Checked current queue progress using its current-arm-SHA filter: honest has 12/44 records, then think-drop and reasoning-budget remain at 0/44. No arm, extension, or result changes were made. Requesting the next bounded queue chunk.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "The corrected honest arm has 12/44 current-SHA records; think-drop and reasoning-budget have none. Resume the ordered queue. The harness uses tap/turnstile, so gpu:false is required to avoid holding the lease and deadlocking inference."
+}
+```
+
+### 2026-10-13T16:48:56-04:00 · advisor (run request)
+
+**approve**: Run as submitted. It safely resumes the honest arm using current-arm-SHA filtering, retries any interrupted unrecorded attempt, and preserves completed records. The 145-minute budget leaves shutdown margin. gpu:false is required because inference goes through the bench-key tap to turnstile on :8080; it does not directly access :11435 or modify live configuration. Outputs stay under the repository with transient work under /tmp.
+
+### 2026-10-13T18:59:07-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145` (gpu=False) in 7811s, exit 0. Full output: `bench/results/2026-10-13/autopilot/runs-single-a-r3.log`. Last lines:
+
+```
+== bonsai-2026-10-12-honest (145.0 min of budget left)
+[2026-10-13T16:48:56-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r5-5c5d98bf3537 r1
+  valid=True kind=run match=True 80.0s turns=8 tools=8
+[2026-10-13T16:50:16-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r6-ee9150033cd8 r1
+  valid=True kind=run match=True 272.1s turns=14 tools=15
+[2026-10-13T16:54:48-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r7-74c6eafebda5 r1
+  valid=True kind=run match=True 606.5s turns=9 tools=16
+[2026-10-13T17:04:55-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r10-dc0c818a5351 r1
+  valid=True kind=done match=True 457.7s turns=12 tools=17
+[2026-10-13T17:12:33-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r11-f096b0e52769 r1
+  valid=True kind=done match=True 773.2s turns=24 tools=26
+[2026-10-13T17:25:26-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r1-480691022b4e r1
+  valid=False kind=None match=False 1200.5s turns=26 tools=31
+[2026-10-13T17:45:27-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r2-e17c18c1927d r1
+  valid=True kind=run match=False 1197.8s turns=30 tools=33
+[2026-10-13T18:05:25-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r3-85bb90579f2f r1
+  valid=True kind=run match=False 430.5s turns=14 tools=17
+[2026-10-13T18:12:35-04:00] bonsai-2026-10-12-honest m1-ngram-write-up-r2-cebbd5fef63b r1
+  valid=False kind=None match=False 1200.5s turns=14 tools=21
+[2026-10-13T18:32:36-04:00] bonsai-2026-10-12-honest m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=True kind=done match=True 389.8s turns=14 tools=21
+[2026-10-13T18:39:06-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r6-9cf273aef422 r2
+  valid=False kind=None match=False 1200.3s turns=36 tools=41
+budget: 14.8 min left, a session may take 20; stopping
+{"skipped": 12, "ran": 11, "remaining": 21}
+bonsai-2026-10-12-honest: records 23/44
+w2-think-drop: records 0/44
+w2-reasoning-budget: records 0/44
+w2-session-budget: records 0/44
+w2-hashline: records 0/44
+w2-compaction: records 0/44
+
+```

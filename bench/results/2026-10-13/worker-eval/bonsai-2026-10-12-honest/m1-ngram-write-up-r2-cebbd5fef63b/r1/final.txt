@@ -1,0 +1,2 @@
+The system python has PyYAML; the venv is missing it. I'll symlink it into the venv so the plain `python3` command works, then write the new canonical page and remove the old name.
+

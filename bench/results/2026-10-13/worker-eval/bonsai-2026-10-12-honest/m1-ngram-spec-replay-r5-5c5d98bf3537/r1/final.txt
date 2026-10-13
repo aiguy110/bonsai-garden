@@ -1,0 +1,9 @@
+All files checked. State summary before the next host run:
+
+1. **`bench/spec_replay.py`** — corrected version in place: `t_end` timestamp on every row (line 198), phase window lines now include `t_join_end` (lines 243, 247), and new runs truncate `requests.jsonl`/`notes.txt`/`vram.txt`/server logs (mode `"w"`), so the restored old off-prod files will be cleanly replaced.
+2. **`bench/spec_analyze.py`** — corrected version in place: combined two-slot throughput computed as fg + bg tokens that ended before `t_fg_end` over fg wall time, per phase; fg tok/s with and without `length` rows, length-row ids listed, `draft_n`/accepted totals, and out_sha256 match-vs-first-arm per phase.
+3. **`bench/m1-notes.md`** — exactly one §9b (line 362), now correctly stating A's 86.0 single-agent comes from **two** length rows (`mem0-r0/0/2`, `mem0-r2/0/2`; `baseline-r1/2/8` is also length but draft_n 0), no duplicated §9b.
+4. **Results dir** has `off-greedy`, `A-greedy`, `B-greedy`, `summary-greedy.md` complete; `off-prod` present only in the old (pre-timestamp) format and will be overwritten by the corrected probe.
+
+Per the advisor's round-4 instructions and the last orchestrator note, the off/prod run (round 5) was interrupted for the config restart, so I resubmit it with the corrected probe. After it, A/prod next (A won dual-agent greedy at 25.5 vs B 23.0), and I'll check for A's spec-induced loops on the two length rows.
+

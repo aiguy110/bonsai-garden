@@ -1,0 +1,116 @@
+diff --git a/bench/spec_summarize.py b/bench/spec_summarize.py
+index 9e6f251..dc20fdb 100644
+--- a/bench/spec_summarize.py
++++ b/bench/spec_summarize.py
+@@ -40,11 +40,26 @@ def output_texts(replay, arm):
+     return result
+ 
+ 
+-def vram_mib(path):
++PHASE_RE = re.compile(r"==\s+(single-agent|single-mem|dual-agent|dual-mem)\b")
++
++
++def vram_by_phase(path):
++    """memory.used MiB sampled per phase from vram.txt."""
++    out = {}
+     if not path.exists():
+-        return None
+-    values = [int(x) for x in re.findall(r"\b(\d+) MiB,", path.read_text())]
+-    return statistics.median(values) if values else None
++        return out
++    phase = None
++    for line in path.read_text().splitlines():
++        h = PHASE_RE.search(line)
++        if h:
++            phase = h.group(1)
++            continue
++        if phase is None:
++            continue
++        v = re.match(r"(\d+)\s*MiB", line.strip())
++        if v:
++            out[phase] = int(v.group(1))
++    return out
+ 
+ 
+ def first_divergence(a, b):
+@@ -86,7 +101,7 @@ def main():
+     texts = {a: output_texts(replay, a) for a in arms}
+     metrics, vrams = {}, {}
+     for arm in arms:
+-        vrams[arm] = vram_mib(replay / arm / "vram.txt")
++        vrams[arm] = vram_by_phase(replay / arm / "vram.txt")
+         for phase in PHASES:
+             role = phase.split("-", 1)[1]
+             metrics[(arm, phase, role)] = metric([r for r in data[arm] if r["phase"] == phase and r["role"] == role])
+@@ -97,8 +112,9 @@ def main():
+         off = f"off-{sampling}"
+         ref = metrics.get((off, phase, role))
+         m["speedup_vs_off"] = m["decode_tok_s"] / ref["decode_tok_s"] if ref and ref["decode_tok_s"] else None
+-        m["vram_mib"] = vrams[arm]
+-        m["vram_vs_off_mib"] = vrams[arm] - vrams[off] if vrams[arm] is not None and vrams.get(off) is not None else None
++        av = vrams.get(arm, {}).get(phase)
++        ov = vrams.get(off, {}).get(phase)
++        m["vram_vs_off_mib"] = (av - ov) if (av is not None and ov is not None) else None
+ 
+     identity = []
+     for arm in arms:
+@@ -126,9 +142,18 @@ def main():
+     for role in ("agent", "mem"):
+         single = {r["id"]: r for r in data["off-greedy"] if r["phase"] == "single-" + role}
+         dual = {r["id"]: r for r in data["off-greedy"] if r["phase"] == "dual-" + role}
+-        same = sum(r.get("out_sha256") == single.get(i, {}).get("out_sha256") for i, r in dual.items())
+-        control.append({"role": role, "compared": len(dual), "identical": same,
+-                        "identical_rate": same / len(dual) if dual else None})
++        compared, same, mismatches = 0, 0, []
++        for i, r in dual.items():
++            compared += 1
++            if r.get("out_sha256") == single.get(i, {}).get("out_sha256"):
++                same += 1
++            else:
++                mismatches.append({"id": i, "first_divergence_char": first_divergence(
++                    texts["off-greedy"].get(("dual-" + role, i, "fg"), ""),
++                    texts["off-greedy"].get(("single-" + role, i, "fg"), ""))})
++        control.append({"role": role, "compared": compared, "identical": same,
++                        "identical_rate": same / compared if compared else None,
++                        "mismatches": mismatches})
+ 
+     # The only complete production speculative candidate is A-prod.
+     candidate = "A-prod"
+@@ -139,11 +164,14 @@ def main():
+     candidate_id = [x for x in identity if x["arm"] == "A-greedy" and x["phase"].startswith("dual-")]
+     control_rate = sum(x["identical"] for x in control) / sum(x["compared"] for x in control)
+     identity_rate = sum(x["identical"] for x in candidate_id) / sum(x["compared"] for x in candidate_id)
++    rule4_vals = (cs_a["vram_vs_off_mib"], cs_m["vram_vs_off_mib"], ca["vram_vs_off_mib"],
++                  cm["vram_vs_off_mib"])
+     rules = [
+         {"rule": 1, "pass": "--mmproj" in (replay / candidate / "notes.txt").read_text() and "refused" not in (replay / candidate / "notes.txt").read_text(), "value": "--mmproj loaded; no refusal recorded"},
+         {"rule": 2, "pass": ca["speedup_vs_off"] >= 1.10, "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
+         {"rule": 3, "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)), "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
+-        {"rule": 4, "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)), "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
++        {"rule": 4, "pass": all(v is None or v <= 64 for v in rule4_vals),
++         "value": f"per-phase single-agent {cs_a['vram_vs_off_mib']:+.0f}, single-mem {cs_m['vram_vs_off_mib']:+.0f}, dual-agent {ca['vram_vs_off_mib']:+.0f}, dual-mem {cm['vram_vs_off_mib']:+.0f} MiB; max {max(v for v in rule4_vals if v is not None):+.0f} MiB"},
+         {"rule": 5, "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem"))), "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): " + "/".join(f"{fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem")))},
+         {"rule": 6, "pass": identity_rate >= control_rate - .10, "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
+     ]
+@@ -158,14 +186,19 @@ def main():
+     for x in identity:
+         ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
+         lines.append(f"| {x['arm'].rsplit('-',1)[0]} | {x['phase']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
+-    lines += ["", "Off dual-vs-single batch-numerics control:", "", "| role | identical/compared | rate |", "|---|---:|---:|"]
+-    lines += [f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} |" for x in control]
++    lines += ["", "Off dual-vs-single batch-numerics control (dual-phase vs single-phase output, same request id):",
++              "", "| role | identical/compared | rate | first-divergence indices for mismatches |",
++              "|---|---:|---:|---|"]
++    for x in control:
++        ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
++        lines.append(f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
+     lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.", "", "| rule | result | value |", "|---:|---|---|"]
+     lines += [f"| {x['rule']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
+     failed = [f"rule {x['rule']}: {x['value']}" for x in rules if not x["pass"]]
+     lines += ["", "**Decision: do not deploy.** " + "; ".join(failed) + "."]
+     (outdir / "summary.md").write_text("\n".join(lines) + "\n")
+     (outdir / "deploy.json").write_text(json.dumps({"deployed": False, "why": failed}, indent=2) + "\n")
++    print(f"wrote {outdir / 'summary.md'} {outdir / 'summary.json'} {outdir / 'deploy.json'}; failed rules: {[r['rule'] for r in rules if not r['pass']] or 'none'}")
+ 
+ if __name__ == "__main__":
+     main()
