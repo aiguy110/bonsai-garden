@@ -143,3 +143,27 @@ Revised bench/worker_eval/w2_reasoning_probe.py after the first 900-second no-bu
 ### 2026-10-13T12:06:37-04:00 · orchestrator
 
 `openai-codex/gpt-5.6-sol` hit its subscription's usage limit; the advisor uses `meridian/claude-opus-5-5` until 12:36. This session doesn't count as a round.
+
+### 2026-10-13T12:07:00-04:00 · worker (gpt-5.6-terra), round 7
+
+The revised probe has not run yet. There is no r6 log and no result.json, only a partial tap.jsonl from the first attempt. I'm resubmitting the same run request. Still to do after it: write W2-decisions.md using the probe result and trace_analysis.json.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/w2_reasoning_probe.py",
+  "gpu": true,
+  "timeout_min": 30,
+  "why": "Re-run the three-request reasoning-budget probe via the bench-key tap/turnstile route. The revised script records per-variant failures and always writes result.json. Its outcome decides whether the w2-reasoning-budget arm exists."
+}
+```
+
+### 2026-10-13T12:08:30-04:00 · advisor (run request)
+
+**revise**: Resubmit the same command with "gpu": false (timeout_min 30). The script is fine. The first attempt deadlocked: gpu:true makes turnstile_run.py hold a turnstile lease, and turnstile serves no LLM request while a lease holds the GPU (gpu-turnstile/README.md:37-38). So the probe's own bonsai-agent request through the tap waited behind its own lease until the 900 s client timeout (r5 log: lease granted 11:49:27, released 12:04:27, tap.jsonl empty). W1's run.py used the same tap->turnstile route and ran gpu=False every time (W1 journal:1236 etc.). Optional: add a timestamp and turnstile queue_wait_ms per variant to result.json (the tap already logs queue_wait_ms), so a slow variant can be told apart from queueing behind live traffic. If any variant still fails on transport, report it as inconclusive in W2-decisions.md and rerun it. Don't count it as a probe failure that removes the arm.
+
+### 2026-10-13T12:08:30-04:00 · orchestrator
+
+Added to the standing facts:
+
+- Anything that sends LLM requests through turnstile (the tap/run.py route, model bonsai-agent/bonsai-mem) must run as gpu:false. gpu:true holds a turnstile lease (local-llm-bench/turnstile_run.py:60-88), turnstile serves no LLM request while a lease holds the GPU (gpu-turnstile/README.md:37-38), and the request deadlocks (recon-and-w1-traces-r5.log). Use gpu:true only for a private llama-server on :8089.
