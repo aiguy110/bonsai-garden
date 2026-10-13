@@ -1445,3 +1445,36 @@ Ran `python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/r
 {"skipped": 41, "ran": 3, "remaining": 0}
 
 ```
+
+### 2026-10-13T08:16:42-04:00 · worker (gpt-5.6-terra), round 8
+
+The final replay chunk completed all 44 N=2 attempts (22 cases). Requesting deterministic summary generation from results.jsonl; next session will run --check and inspect the generated totals.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/summarize.py bench/results/2026-10-13/worker-eval/bonsai-2026-10-12",
+  "gpu": false,
+  "timeout_min": 5,
+  "why": "Generate summary.json and summary.md directly from the complete fixed-directory baseline records. The summarizer makes no inference calls and changes no live stack."
+}
+```
+
+### 2026-10-13T08:17:27-04:00 · advisor (run request)
+
+**approve**: Safe deterministic summarization only. It reads cases.jsonl, results.jsonl, and manifests, then writes summary.json and summary.md inside the specified repository result directory. It starts no server, sends no inference traffic, and touches no live services. Afterward, run summarize.py --check on the same directory and inspect that completion_errors is empty and pooled attempts is 44.
+
+### 2026-10-13T08:17:27-04:00 · orchestrator
+
+Added to the standing facts:
+
+- All five manifests under bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/ record repo_dirty=true; this is a provenance caveat but does not prevent deterministic summarization of the fixed 44-attempt result set.
+
+### 2026-10-13T08:17:27-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/summarize.py bench/results/2026-10-13/worker-eval/bonsai-2026-10-12` (gpu=False) in 0s, exit 0. Full output: `bench/results/2026-10-13/autopilot/baseline-results-r8.log`. Last lines:
+
+```
+bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/summary.json
+
+```
