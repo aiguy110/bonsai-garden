@@ -1,0 +1,651 @@
+diff --git a/bench/spec_summarize.py b/bench/spec_summarize.py
+new file mode 100644
+index 0000000..7771564
+--- /dev/null
++++ b/bench/spec_summarize.py
+@@ -0,0 +1,645 @@
++#!/usr/bin/env python3
++"""M1 decision summary: ngram self-speculation on real traffic.
++
++Usage:
++    python3 bench/spec_summarize.py [OUTDIR]
++
++OUTDIR defaults to the newest bench/results/<date>/m1-ngram directory that
++contains a replay/ sub-directory. Reads:
++
++    OUTDIR/replay/<config>-<sampling>/requests.jsonl
++    OUTDIR/replay/<config>-<sampling>/notes.txt
++    OUTDIR/replay/<config>-<sampling>/vram.txt
++    bench/.replay/outputs/<config>-<sampling>.jsonl   (gitignored, host only;
++                                                        full message text)
++
++Writes OUTDIR/summary.md and OUTDIR/summary.json. When no arm qualifies for
++deployment, also writes OUTDIR/deploy.json =
++    {"deployed": false, "why": ["<rule N>: <value> ..."]}.
++If an arm qualifies, the summaries mark it deploy-warranted and leave
++deploy.json for the infra request (the returned JSON replaces it).
++
++Metrics use foreground (fg) rows only.
++  token-weighted decode tok/s = sum(predicted_n) / sum(predicted_ms) * 1000
++  acceptance = sum(draft_n_accepted) / sum(draft_n)
++  null/0 draft fields mean 0 drafted (llama.cpp returns draft_n /
++  draft_n_accepted only when > 0; server-common.cpp:82-85).
++
++Deployment rules (all must hold for the best spec arm, prod sampling unless
++noted):
++  1. the arm ran with the pinned --mmproj line (live entry) in every phase,
++     and no -nommproj fallback was needed
++  2. best spec arm prod dual-agent fg tok/s >= 1.10 x off
++  3. spec arm prod dual-mem, single-agent and single-mem fg tok/s
++     >= 0.97 x off
++  4. spec arm VRAM (after first fg request, every phase) <= off + 64 MiB
++  5. spec arm tool_call_json_valid rate >= off rate (greedy and prod,
++     per phase)
++  6. greedy identical-output rate (same phase + id vs off) is not below the
++     off dual-vs-single control rate (batching baseline) by more than 10
++     percentage points
++"""
++import json
++import os
++import re
++import statistics
++import sys
++
++ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++OUT_ROOT = os.path.join(ROOT, "bench", "results")
++FULL_OUT_ROOT = os.path.join(ROOT, "bench", ".replay", "outputs")
++PHASES = ["single-agent", "single-mem", "dual-agent", "dual-mem"]
++SAMPLINGS = ["greedy", "prod"]
++CONFIGS = ["off", "A", "B"]
++
++
++def abspath_outdir():
++    outdir = sys.argv[1] if len(sys.argv) > 1 else None
++    if outdir:
++        return os.path.abspath(outdir)
++    cands = []
++    for d in os.listdir(OUT_ROOT):
++        if os.path.isdir(os.path.join(OUT_ROOT, d, "m1-ngram", "replay")):
++            cands.append(os.path.join(OUT_ROOT, d, "m1-ngram"))
++    if not cands:
++        sys.exit("error: no bench/results/<date>/m1-ngram/replay; pass OUTDIR")
++    return max(cands)
++
++
++def rows_for(outdir, arm):
++    p = os.path.join(outdir, "replay", arm, "requests.jsonl")
++    if not os.path.exists(p):
++        return None
++    rows = []
++    with open(p) as f:
++        for ln in f:
++            if ln.strip():
++                rows.append(json.loads(ln))
++    return rows if rows else None
++
++
++def discover_arms(outdir):
++    rp = os.path.join(outdir, "replay")
++    arms = []
++    for name in sorted(os.listdir(rp)):
++        if name.endswith("-nommproj"):
++            continue
++        d = os.path.join(rp, name)
++        if os.path.isdir(d) and os.path.exists(os.path.join(d, "requests.jsonl")):
++            arms.append(name)
++    return arms
++
++
++def arm_config(arm):
++    return arm.rsplit("-", 1)[0]
++
++
++def arm_sampling(arm):
++    return arm.rsplit("-", 1)[1]
++
++
++def fg_rows(rows, phase):
++    return [r for r in rows if r.get("fg_bg") == "fg" and r.get("phase") == phase]
++
++
++def rate(rs):
++    ms = sum((r.get("predicted_ms") or 0) for r in rs)
++    if not ms:
++        return None
++    return 1000.0 * sum((r.get("predicted_n") or 0) for r in rs) / ms
++
++
++def median_toks(rs):
++    vals = [(r["predicted_n"] / r["predicted_ms"]) * 1000.0
++            for r in rs if (r.get("predicted_ms") or 0) > 0 and r.get("predicted_n", 0)]
++    return statistics.median(vals) if vals else None
++
++
++def acceptance(rs):
++    dn = sum((r.get("draft_n") or 0) for r in rs)
++    if not dn:
++        return None
++    da = sum((r.get("draft_n_accepted") or 0) for r in rs)
++    return da / dn
++
++
++def draft_per_gen(rs):
++    pn = sum((r.get("predicted_n") or 0) for r in rs)
++    if not pn:
++        return None
++    return sum((r.get("draft_n") or 0) for r in rs) / pn
++
++
++def valid_rate(rs):
++    if not rs:
++        return None
++    return sum(1 for r in rs if r.get("tool_call_json_valid")) / len(rs)
++
++
++def vram_mib(outdir, arm, phase):
++    p = os.path.join(outdir, "replay", arm, "vram.txt")
++    used = {}
++    try:
++        cur = None
++        with open(p) as f:
++            for ln in f:
++                m = re.match(r"^\s*==\s*(\S+?)\s*\(", ln)
++                if m:
++                    cur = m.group(1)
++                    continue
++                mv = re.search(r"([\d.]+)\s*MiB", ln)
++                if cur and mv:
++                    used[cur] = float(mv.group(1))
++    except OSError:
++        pass
++    return used.get(phase)
++
++
++def cmd_of(outdir, arm):
++    p = os.path.join(outdir, "replay", arm, "notes.txt")
++    try:
++        with open(p) as f:
++            for ln in f:
++                if ln.startswith("cmd: "):
++                    return ln[len("cmd: "):].strip()
++    except OSError:
++        pass
++    return None
++
++
++def warning_of(outdir, arm):
++    """ngram quality warning from notes.txt, if present (e.g. 'too small')."""
++    p = os.path.join(outdir, "replay", arm, "notes.txt")
++    try:
++        with open(p) as f:
++            for ln in f:
++                m = re.search(r"ngram_mod n_match=\d+ is too small", ln)
++                if m:
++                    return ln.strip()
++    except OSError:
++        pass
++    return None
++
++
++def load_full_outputs(label, sampling):
++    p = os.path.join(FULL_OUT_ROOT, f"{label}-{sampling}.jsonl")
++    if not os.path.exists(p):
++        return None
++    d = {}
++    with open(p) as f:
++        for ln in f:
++            if not ln.strip():
++                continue
++            r = json.loads(ln)
++            if r.get("fg_bg") == "fg":
++                d[(r.get("phase"), r.get("id"))] = r
++    return d
++
++
++def blob_of(m):
++    """Exactly the blob spec_replay.py hashed (same order, same json.dumps)."""
++    tcs = m.get("tool_calls") or []
++    return ((m.get("reasoning_content") or "")
++            + (m.get("content") or "")
++            + json.dumps(tcs, sort_keys=True))
++
++
++def first_diff(a, b):
++    for i, (ca, cb) in enumerate(zip(a, b)):
++        if ca != cb:
++            return i
++    if len(a) != len(b):
++        return min(len(a), len(b))
++    return -1
++
++
++def compare_rows(off_rows, off_full, spec_rows, spec_full, phase):
++    """Compare spec fg rows against off fg rows (same phase/id). Returns dict."""
++    out = {"n": len(spec_rows), "same": 0, "mismatches": [], "missing": []}
++    for r in spec_rows:
++        o = next((x for x in off_rows if x.get("phase") == phase
++                  and x.get("id") == r.get("id")), None)
++        if o is None:
++            out["missing"].append(r["id"])
++            continue
++        if o.get("out_sha256") == r.get("out_sha256"):
++            out["same"] += 1
++            continue
++        idx = None
++        note = "sha differs"
++        if off_full is not None and spec_full is not None:
++            om = off_full.get((phase, r["id"]))
++            sm = spec_full.get((phase, r["id"]))
++            if om is not None and sm is not None:
++                a = blob_of(om.get("message", {}))
++                b = blob_of(sm.get("message", {}))
++                if a == b:
++                    idx = -1
++                    note = "blobs equal (sha mismatch?)"
++                else:
++                    idx = first_diff(a, b)
++                    note = "first divergence at char %d" % idx
++        out["mismatches"].append({"id": r["id"], "idx": idx, "note": note})
++    return out
++
++
++def pct(x):
++    return "n/a" if x is None else "%0.1f%%" % (x * 100)
++
++
++def fnum(x, nd):
++    return "n/a" if x is None else "%.*f" % (nd, x)
++
++
++def div_col(mismatches, limit=6):
++    if not mismatches:
++        return ""
++    shown = []
++    for m in mismatches[:limit]:
++        idx = "n/a" if m["idx"] is None else str(m["idx"])
++        shown.append("%s@%s" % (m["id"].rsplit("/", 1)[-1], idx))
++    tail = ""
++    if len(mismatches) > limit:
++        idxs = [m["idx"] for m in mismatches if m["idx"] is not None]
++        if idxs:
++            tail = ("; %d total, idx min/median/max %d/%.0f/%d"
++                    % (len(mismatches), min(idxs), statistics.median(idxs),
++                       max(idxs)))
++    return ", ".join(shown) + tail
++
++
++def main():
++    outdir = abspath_outdir()
++    replay = os.path.join(outdir, "replay")
++    arms = discover_arms(outdir)
++    missing_arms = [a for a in ("off-greedy", "off-prod", "A-greedy", "A-prod",
++                                 "B-greedy") if a not in arms]
++    data = {a: rows_for(outdir, a) for a in arms}
++
++    # ---- metrics per (config, sampling, phase) using fg rows only ----
++    metric_rows = []
++    rates = {}  # (config, sampling, phase) -> rate
++    for arm in arms:
++        rows = data[arm]
++        for phase in PHASES:
++            rs = fg_rows(rows, phase)
++            role = rs[0]["role"] if rs else "n/a"
++            r = rate(rs)
++            rates[(arm_config(arm), arm_sampling(arm), phase)] = r
++            metric_rows.append({
++                "config": arm_config(arm), "sampling": arm_sampling(arm),
++                "phase": phase, "role": role, "n": len(rs),
++                "tok_s": r,
++                "median_toks_s": median_toks(rs),
++                "acceptance": acceptance(rs),
++                "draft_tokens_per_generated_token": draft_per_gen(rs),
++                "tool_call_json_valid": valid_rate(rs),
++                "vram_mib": vram_mib(outdir, arm, phase),
++            })
++    for mr in metric_rows:
++        c, s = mr["config"], mr["sampling"]
++        off_r = rates.get(("off", s, mr["phase"]))
++        mr["speedup_vs_off"] = (mr["tok_s"] / off_r) if (mr["tok_s"] and off_r) else None
++        off_v = vram_mib(outdir, "off-%s" % s, mr["phase"])
++        v = mr["vram_mib"]
++        mr["vram_delta_mib"] = (v - off_v) if (v is not None and off_v is not None) else None
++
++    # ---- identity table (greedy only) ----
++    off_g = rows_for(outdir, "off-greedy") if "off-greedy" in data else None
++    off_full = load_full_outputs("off", "greedy")
++    identity = []
++    control = {}
++    if off_g is not None:
++        for phase in PHASES:
++            single = phase.replace("dual-", "single-")
++            dual = phase.replace("single-", "dual-")
++            cd = fg_rows(off_g, dual)
++            csha = {}
++            for r in fg_rows(off_g, single):
++                csha[(single, r.get("id"))] = r.get("out_sha256")
++            ctl = {"n": len(cd), "same": 0, "mismatches": []}
++            for r in cd:
++                o = csha.get((single, r.get("id")))
++                if o == r.get("out_sha256"):
++                    ctl["same"] += 1
++                    continue
++                idx = None
++                note = "sha differs"
++                if off_full is not None:
++                    dm = off_full.get((dual, r.get("id")))
++                    sm = off_full.get((single, r.get("id")))
++                    if dm is not None and sm is not None:
++                        a = blob_of(dm.get("message", {}))
++                        b = blob_of(sm.get("message", {}))
++                        if a == b:
++                            idx = -1
++                            note = "blobs equal (sha mismatch?)"
++                        else:
++                            idx = first_diff(a, b)
++                            note = "first divergence at char %d" % idx
++                ctl["mismatches"].append({"id": r["id"], "idx": idx, "note": note})
++            ctl["ident_rate"] = (ctl["same"] / len(cd)) if cd else None
++            control[phase] = ctl
++
++        for cfg in ["A", "B"]:
++            arm = cfg + "-greedy"
++            if arm not in data:
++                continue
++            s_full = load_full_outputs(cfg, "greedy")
++            for phase in PHASES:
++                cmp_ = compare_rows(fg_rows(off_g, phase), off_full,
++                                     fg_rows(data[arm], phase), s_full, phase)
++                cmp_["config"] = cfg
++                ctl = control.get(phase, {})
++                cmp_["control_ident_rate"] = ctl.get("ident_rate")
++                cmp_["control_same"] = ctl.get("same")
++                cmp_["control_n"] = ctl.get("n")
++                cmp_["ident_rate"] = (cmp_["same"] / (len(cmp_["same_listed"]) + 0)) if False else \
++                    ((cmp_["same"] / cmp_["n"]) if cmp_["n"] else None)
++                identity.append(cmp_)
++
++    def summ(row):
++        return {
++            "n": row.get("n"),
++            "same": row.get("same"),
++            "ident_rate": row.get("ident_rate"),
++            "mismatches": [
++                {"id": m["id"], "first_divergence_index": m["idx"], "note": m["note"]}
++                for m in row.get("mismatches", [])
++            ],
++        }
++
++    # ---- server command per config (from notes.txt) ----
++    cmds = {}
++    warnings = {}
++    for arm in arms:
++        c = arm_config(arm)
++        cd = cmd_of(outdir, arm)
++        if cd and c not in cmds:
++            cmds[c] = cd
++        w = warning_of(outdir, arm)
++        if w:
++            warnings[c] = w
++
++    # ---- decision rules on the best spec arm ----
++    spec_arms = [a for a in arms if arm_config(a) in ("A", "B")]
++
++    def spec_rate(cfg, s, phase):
++        return rates.get((cfg, s, phase))
++
++    def off_rate(s, phase):
++        return rates.get(("off", s, phase))
++
++    best_cfg = None
++    best_val = -1
++    for a in spec_arms:
++        v = spec_rate(arm_config(a), "prod", "dual-agent")
++        if v is not None and v > best_val:
++            best_val = v
++            best_cfg = arm_config(a)
++
++    rule_details = []
++
++    if best_cfg is None:
++        rule_details.append({"n": 0, "rule": "no spec arm measurable",
++                             "status": False,
++                             "value": "missing arms: %s" % ",".join(missing_arms)})
++    else:
++        # rule 1: mmproj pinned in every phase, no nommproj fallback
++        r1 = []
++        c = cmds.get(best_cfg)
++        if not c or not re.search(r"--mmproj\s+\S+", c):
++            r1.append("cmd lacks --mmproj")
++        r1 = [x for x in r1 if x]
++        rule_details.append({
++            "n": 1,
++            "rule": "spec arm ran with pinned --mmproj line (live entry) in every phase",
++            "status": not r1,
++            "value": "ok: all phases, --mmproj in cmd" if not r1 else "; ".join(r1)})
++
++        # rule 2: dual-agent prod >= 1.10x off
++        v = best_val
++        o = off_rate("prod", "dual-agent")
++        ratio = (v / o) if (v and o) else None
++        rule_details.append({
++            "n": 2,
++            "rule": "prod dual-agent fg tok/s >= 1.10x off",
++            "status": ratio is not None and ratio >= 1.10,
++            "value": ("%s: %.1f vs off %.1f tok/s = %.2fx"
++                      % (best_cfg, v, o, ratio)) if ratio is not None else "n/a"})
++
++        # rule 3: dual-mem, single-agent, single-mem >= 0.97x off (prod)
++        r3_fail = []
++        for phase in ["dual-mem", "single-agent", "single-mem"]:
++            v = spec_rate(best_cfg, "prod", phase)
++            o = off_rate("prod", phase)
++            ratio = (v / o) if (v and o) else None
++            if ratio is None or ratio < 0.97:
++                r3_fail.append(
++                    ("%s: %.1f vs off %.1f = %.2fx" % (phase, v, o, ratio))
++                    if ratio is not None else "%s: n/a" % phase)
++        rule_details.append({
++            "n": 3,
++            "rule": "prod dual-mem, single-agent, single-mem fg tok/s >= 0.97x off",
++            "status": not r3_fail,
++            "value": "all phases ok" if not r3_fail else "; ".join(r3_fail)})
++
++        # rule 4: VRAM <= off + 64 MiB (every phase)
++        r4_fail = []
++        diffs = []
++        for phase in PHASES:
++            v = vram_mib(outdir, best_cfg + "-prod", phase)
++            ov = vram_mib(outdir, "off-prod", phase)
++            if v is None or ov is None:
++                continue
++            d = v - ov
++            diffs.append(d)
++            if d > 64.0:
++                r4_fail.append("%s: %.0f MiB vs off %.0f MiB (+%.0f MiB)"
++                                % (phase, v, ov, d))
++        rule_details.append({
++            "n": 4,
++            "rule": "VRAM <= off + 64 MiB (after first fg request, every phase)",
++            "status": not r4_fail,
++            "value": ("max +%.0f MiB across phases" % max(diffs)) if diffs and not r4_fail
++                     else ("; ".join(r4_fail) if r4_fail else "n/a")})
++
++        # rule 5: tool_call_json_valid >= off (greedy and prod, per phase)
++        r5_fail = []
++        for s in SAMPLINGS:
++            for phase in PHASES:
++                a_arm = best_cfg + "-" + s
++                if a_arm not in data or ("off-" + s) not in data:
++                    continue
++                v = valid_rate(fg_rows(data[a_arm], phase))
++                o = valid_rate(fg_rows(data["off-" + s], phase))
++                if v is None or o is None:
++                    continue
++                if v < o:
++                    r5_fail.append("%s %s: %.1f%% vs off %.1f%%"
++                                    % (s, phase, v * 100, o * 100))
++        rule_details.append({
++            "n": 5,
++            "rule": "tool_call_json_valid rate >= off (greedy+prod, per phase)",
++            "status": not r5_fail,
++            "value": "all sampling/phase combinations ok" if not r5_fail
++                     else "; ".join(r5_fail)})
++
++        # rule 6: greedy identity not below control by > 10 points
++        r6_fail = []
++        for row in identity:
++            if row.get("config") != best_cfg:
++                continue
++            ip = row.get("ident_rate")
++            cp = row.get("control_ident_rate")
++            if ip is None or cp is None:
++                r6_fail.append(row["phase"] + ": rates n/a")
++                continue
++            if ip < cp - 0.10:
++                r6_fail.append("%s: identical %.1f%% vs control %.1f%% "
++                                "(-%.1f pts, control %d/%d same)"
++                                % (row["phase"], ip * 100, cp * 100,
++                                   abs(ip - cp), row["control_same"], row["control_n"]))
++        rule_details.append({
++            "n": 6,
++            "rule": "greedy identical-output rate >= off dual-vs-single control - 10 pts",
++            "status": not r6_fail,
++            "value": "all phases ok" if not r6_fail else "; ".join(r6_fail)})
++
++    all_ok = bool(rule_details) and all(r["status"] for r in rule_details)
++    deploy = best_cfg is not None and all_ok
++    deploy_why = [f"rule {r['n']}: {r['value']}" for r in rule_details if not r["status"]]
++
++    # ---- write summary.md ----
++    lines = []
++    lines.append("# M1 ngram self-speculation — decision summary")
++    lines.append("")
++    lines.append("*Outdir:* `%s`" % outdir)
++    lines.append("*Arms:* `%s`" % ", ".join(arms))
++    if missing_arms:
++        lines.append("*Missing expected arms:* `%s`" % ", ".join(missing_arms))
++    lines.append("")
++    lines.append("Foreground (fg) rows only. Token-weighted decode tok/s = "
++                 "`sum(predicted_n)/sum(predicted_ms)*1000`. Null draft fields mean "
++                 "0 drafted (llama.cpp reports `draft_n`/`draft_n_accepted` only when > 0). "
++                 "VRAM = memory used after the first fg request of each phase, fresh server "
++                 "(private :8089, production flags; `--spec-type` added for spec arms). "
++                 "Identity (greedy) compares the hashed blob = "
++                 "reasoning_content + content + sorted tool_calls JSON, per "
++                 "`spec_replay.py`; first-divergence index is computed from the full "
++                 "outputs `bench/.replay/outputs/*.jsonl` (gitignored; host only).")
++    lines.append("")
++    lines.append("## Server command per config (from notes.txt)")
++    for c in CONFIGS:
++        if c in cmds:
++            lines.append("- **%s:** `%s`" % (c, cmds[c]))
++        if c in warnings:
++            lines.append("  - server log: `%s`" % warnings[c])
++    lines.append("")
++    lines.append("## Metrics per (config, sampling, phase)")
++    lines.append("")
++    lines.append("| config | sampling | phase | n | tok/s (token-weighted) | median tok/s | acceptance | "
++                 "draft gen tok/gen tok | speedup vs off | tool_call_json_valid | "
++                 "VRAM MiB | VRAM vs off (MiB) |")
++    lines.append("|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|")
++    for mr in metric_rows:
++        lines.append("| %s | %s | %s | %d | %s | %s | %s | %s | %s | %s | %s | %s |" % (
++            mr["config"], mr["sampling"], mr["phase"], mr["n"],
++            fnum(mr["tok_s"], 1), fnum(mr["median_toks_s"], 1),
++            "n/a" if mr["acceptance"] is None else "%.3f" % mr["acceptance"],
++            "n/a" if mr["draft_tokens_per_generated_token"] is None
++            else "%.3f" % mr["draft_tokens_per_generated_token"],
++            "n/a" if mr["speedup_vs_off"] is None else "%.2fx" % mr["speedup_vs_off"],
++            pct(mr["tool_call_json_valid"]),
++            "n/a" if mr["vram_mib"] is None else "%.0f" % mr["vram_mib"],
++            "n/a" if mr["vram_delta_mib"] is None else "%+.0f" % mr["vram_delta_mib"],
++        ))
++    lines.append("")
++    lines.append("## Output identity (greedy only, same phase + id vs off-greedy)")
++    lines.append("")
++    lines.append("| arm | phase | n | same as off | identical | first-divergence char index |")
++    lines.append("|---|---|---:|---:|---:|---|")
++    for row in identity:
++        lines.append("| %s-greedy | %s | %d | %d | %s | %s |" % (
++            row["config"], row["phase"], row["n"], row["same"],
++            pct(row.get("ident_rate")),
++            div_col(row.get("mismatches", []))))
++    lines.append("")
++    lines.append("### off dual-vs-single control (batching baseline, no speculation)")
++    lines.append("")
++    lines.append("| phase (dual vs single) | n (dual fg) | same sha | identical | first-divergence char index |")
++    lines.append("|---|---:|---:|---:|---|")
++    for phase in PHASES:
++        ctl = control.get(phase)
++        if ctl is None:
++            continue
++        lines.append("| %s (dual vs %s) | %d | %d | %s | %s |" % (
++            phase, phase.replace("dual-", "single-").replace("single-", "dual-"),
++            ctl["n"], ctl["same"], pct(ctl["ident_rate"]),
++            div_col(ctl.get("mismatches", []))))
++    lines.append("")
++    lines.append("## Deployment rules (best spec arm = `%s`, prod sampling)"
++                 % (best_cfg or "n/a"))
++    lines.append("")
++    lines.append("| # | rule | result | value |")
++    lines.append("|---|---|---|---|")
++    for r in rule_details:
++        status = "PASS" if r["status"] else "FAIL"
++        lines.append("| %d | %s | **%s** | %s |" % (r["n"], r["rule"], status, r["value"]))
++    lines.append("")
++    lines.append("## Decision")
++    if deploy:
++        lines.append("**Deploy warranted:** best arm `%s` satisfies all six rules." % best_cfg)
++        lines.append("Create `serving/candidates/bonsai-2-27b.ngram.yaml` (copy of the live "
++                     "entry with only the spec flags appended to `cmd`) and submit an `infra` "
++                     "request. `deploy.json` will then hold the returned infra JSON.")
++    else:
++        lines.append("**No deployment.** Rules failed for the best arm "
++                     "`%s`: %s. The live `bonsai-2-27b` entry is left unchanged."
++                     % (best_cfg, "; ".join(deploy_why)))
++    lines.append("")
++    lines.append("_Computed by `bench/spec_summarize.py` from "
++                 "`%s/replay/*/requests.jsonl`._" % outdir)
++
++    with open(os.path.join(outdir, "summary.md"), "w") as f:
++        f.write("\n".join(lines) + "\n")
++
++    # ---- summary.json ----
++    summary = {
++        "outdir": outdir,
++        "arms": arms,
++        "missing_arms": missing_arms,
++        "best_config": best_cfg,
++        "metrics": metric_rows,
++        "identity": [summ(r) for r in identity],
++        "identity_control": {p: summ(ctl) for p, ctl in control.items()},
++        "commands": cmds,
++        "warnings": warnings,
++        "rules": rule_details,
++        "decision": {
++            "deploy": deploy,
++            "config": best_cfg if deploy else None,
++            "why": deploy_why,
++        },
++    }
++    with open(os.path.join(outdir, "summary.json"), "w") as f:
++        json.dump(summary, f, indent=2)
++        f.write("\n")
++
++    # ---- deploy.json only when NOT deploying ----
++    if not deploy:
++        with open(os.path.join(outdir, "deploy.json"), "w") as f:
++            json.dump({"deployed": False, "why": deploy_why}, f, indent=2)
++            f.write("\n")
++
++    print("wrote %s and %s" % (os.path.join(outdir, "summary.md"),
++                                os.path.join(outdir, "summary.json")))
++    if not deploy:
++        print("deploy.json: deployed=false; failed rules=%s"
++              % ", ".join(str(r["n"]) for r in rule_details if not r["status"]))
++    else:
++        print("deployment warranted for arm %s" % best_cfg)
++
++
++if __name__ == "__main__":
++    main()

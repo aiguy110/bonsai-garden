@@ -1,0 +1,2 @@
+`id_slot` is the slot-pinning field (confirmed in docs/engine-review.md Phase A + phase_b_validate.py). Now I have the full picture. Let me write the replay probe script.
+

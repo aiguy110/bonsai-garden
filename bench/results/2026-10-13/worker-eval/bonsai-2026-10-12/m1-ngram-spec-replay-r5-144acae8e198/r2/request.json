@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Checked state after rate-limit interruptions: greedy off/A/B complete; off-prod complete (4 phases, requests.jsonl + 4 server logs + vram.txt under bench/results/2026-10-12/m1-ngram/replay/off-prod). m1-notes \u00a79b deduped and fixed (two length rows, output-identity caveat, 0 restore-checkpoint lines). spec_replay.py now logs full phase windows so combined two-slot throughput is computable. Next scheduled run per plan: A/prod (A chosen by dual-agent greedy rule, 25.5 vs B 23.0 fg tok/s). No other prod runs needed.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Final scheduled replay: A/prod baseline-comparable arm (ngram-mod defaults, prod sampling), 4 phases on fresh servers; off/prod already recorded."
+}

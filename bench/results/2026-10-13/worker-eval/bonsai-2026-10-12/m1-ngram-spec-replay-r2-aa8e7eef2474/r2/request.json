@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "applied advisor's 3 fixes to bench/spec_replay.py: (1) default draft_n/draft_n_accepted to 0; (2) fall back to -nommproj only on status 'refused' (other failures exit non-zero); (3) abort if :8089/health already answers before launch; plus robust refusal detection (at phase start AND end) and a _spec_on() guard. Verified compile + dry-ran server_cmd for off/A/B/A-nommproj (flag sets correct). Added m1-notes.md \u00a79 documenting probe, B-config choice (ngram-mod --spec-draft-n-max 8, justified), mmproj handling, and the finish_reason=length analysis caveat. off/greedy already complete (151 rows, all 4 phases). Next: A/greedy with --spec-type ngram-mod (defaults).",
+  "why": "A/greedy: first speculation config (ngram-mod, fork defaults) against the 4 replay phases on :8089. Confirms spec+mmproj works (draft_n>0 per \u00a73) and gives the baseline spec arm for the deploy decision.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A greedy --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120
+}

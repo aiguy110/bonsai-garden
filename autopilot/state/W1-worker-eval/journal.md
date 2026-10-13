@@ -1358,3 +1358,57 @@ budget: 17.0 min left, a session may take 20; stopping
 {"skipped": 21, "ran": 7, "remaining": 16}
 
 ```
+
+### 2026-10-13T05:06:41-04:00 · worker (gpt-5.6-terra), round 6
+
+Verified the fixed baseline directory has 28 unique completed (case_id, repeat) records across 22 cases; 16 attempts remain. The replay and summarizer compile. Continuing without edits preserves the same resumable N=2 run.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Continue the required N=2 replay in the fixed dated output directory. The harness skips completed keys and uses its configured live turnstile bench route/key; the 145-minute budget fits the 150-minute request limit."
+}
+```
+
+### 2026-10-13T05:07:23-04:00 · advisor (run request)
+
+**approve**: Safe resumable continuation. run.py skips completed keys, writes artifacts only under the fixed repository result directory plus transient /tmp checkouts, and runs each worker in a network-disabled container. Inference is forwarded solely through the bench-key turnstile route to bonsai-agent; it neither starts a server nor modifies live configuration or services. The 145-minute budget leaves room within the 150-minute host request.
+
+### 2026-10-13T07:31:48-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145` (gpu=False) in 8665s, exit 0. Full output: `bench/results/2026-10-13/autopilot/baseline-results-r6.log`. Last lines:
+
+```
+[2026-10-13T05:07:23-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r12-e62a974c8e88 r2
+  valid=True kind=done match=True 404.0s turns=17 tools=20
+[2026-10-13T05:14:07-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r1-7be283086913 r2
+  valid=False kind=None match=False 1200.3s turns=12 tools=17
+[2026-10-13T05:34:08-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r2-aa8e7eef2474 r2
+  valid=True kind=run match=True 637.6s turns=25 tools=25
+[2026-10-13T05:44:46-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r3-b72fe4dade49 r2
+  valid=True kind=run match=True 900.8s turns=27 tools=27
+[2026-10-13T05:59:47-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r4-1147202353a6 r2
+  valid=False kind=None match=False 1200.4s turns=42 tools=45
+[2026-10-13T06:19:47-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r5-144acae8e198 r2
+  valid=True kind=run match=True 96.6s turns=6 tools=9
+[2026-10-13T06:21:24-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r5-5c5d98bf3537 r2
+  valid=True kind=run match=True 151.5s turns=9 tools=13
+[2026-10-13T06:23:55-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r6-ee9150033cd8 r2
+  valid=True kind=run match=True 148.4s turns=9 tools=12
+[2026-10-13T06:26:24-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r7-74c6eafebda5 r2
+  valid=True kind=run match=True 582.5s turns=14 tools=17
+[2026-10-13T06:36:06-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r10-dc0c818a5351 r2
+  valid=True kind=done match=True 499.6s turns=23 tools=32
+[2026-10-13T06:44:26-04:00] bonsai-2026-10-12 m1-ngram-spec-replay-r11-f096b0e52769 r2
+  valid=True kind=done match=True 440.3s turns=28 tools=33
+[2026-10-13T06:51:47-04:00] bonsai-2026-10-12 m1-ngram-decide-r1-480691022b4e r2
+  valid=False kind=None match=False 1200.5s turns=14 tools=18
+[2026-10-13T07:11:47-04:00] bonsai-2026-10-12 m1-ngram-decide-r2-e17c18c1927d r2
+  valid=False kind=None match=False 1200.5s turns=34 tools=38
+budget: 0.6 min left, a session may take 20; stopping
+{"skipped": 28, "ran": 13, "remaining": 3}
+
+```

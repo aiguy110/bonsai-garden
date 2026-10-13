@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Round 12: (1) Analyzed the completed off/greedy and A/greedy (ngram-mod defaults) replay results: A gives 86 tok/s single-agent (+56% vs off) but only ~neutral-to-slightly-worse dual fg (25.5 vs 26.3 agent, 23.8 vs 25.0 mem); draft acceptance collapses in dual to 14%/9.3% vs 75.5% single-agent. (2) Confirmed the mmproj+spec verdict empirically: all runs report 9507 MiB VRAM, no -nommproj fallback, no checkpoint-mode refusal, draft_n>0 and draft_n_accepted>0 for both agent and mem \u2192 ngram-mod runs with --mmproj on text-only traffic. (3) Found at temp 0 the outputs are NOT identical between arms (fg out_sha256: single-agent 3/30, single-mem 10/12, dual-agent 10/38, dual-mem 11/19 identical) \u2014 must investigate before deploy. (4) Recorded all of this in bench/m1-notes.md \u00a79 (results) and \u00a710 (B choice). B = ngram-mod with --spec-ngram-mod-n-max 128 (double the default draft size), which matches the script's hard-coded B label; justified as the cleanest axis-isolating probe on the proven algorithm.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay B greedy",
+  "why": "Run the required next phase (B/greedy) in the off \u2192 A \u2192 B \u2192 prod order. It needs the GPU via turnstile (llama-server on private :8089) and spins up a fresh server per phase, so it must run on the GPU slot. Completing B lets me pick the best of A/B for the final off/prod and best/prod runs.",
+  "gpu": true,
+  "timeout_min": 90
+}

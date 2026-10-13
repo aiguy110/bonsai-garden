@@ -1,0 +1,2 @@
+The script has some garbled conditional/walrus constructs in the markdown generation section. Let me rewrite it cleanly.
+

@@ -1,0 +1,9 @@
+All checks pass. State confirmed:
+
+- `bench/spec_replay.py` / `spec_analyze.py` committed; script records per-phase `window t0/t_fg_end/t_join_end` in notes, analyzer computes combined two-slot throughput over fg window (bg rows ending before fg end).
+- Greedy complete (off/A/B, 4 phases each); `off-prod` complete (4 phases, 184 rows, all 4 server logs present).
+- m1-notes §9b: duplicate removed, "two length rows" correction in, output-identity and 'restore checkpoint' counts recorded.
+- Prod-arm pick per dual-agent rule: A (25.5 vs B 23.0 fg tok/s), so last run needed is **A/prod** (label `A` with `--spec-type ngram-mod` extra arg).
+
+Submitting the final `run` request now.
+

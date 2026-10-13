@@ -1,0 +1,8 @@
+{
+  "report": "Checked the amended scripts before resubmitting. spec_replay.py now records t_end per row and window lines (t0/t_fg_end/t_join_end) so dual-slot throughput is computed correctly; spec_analyze.py adds the conservative combined fg+bg tok/s table. m1-notes.md \u00a79b duplicate is already gone. Existing off-greedy/A-greedy/B-greedy/off-prod results all have 4 phases but lack t_end, so off/prod is re-run to overwrite with the corrected format. Next: A/prod after off/prod completes, then analysis per the advisor's prod guidance.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Re-run off/prod with the corrected probe that timestamps responses and records per-phase windows for valid combined two-slot throughput. The aborted partial run was discarded; this overwrites the off-prod results dir with the new format."
+}

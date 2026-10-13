@@ -1,0 +1,2 @@
+Now I understand the pattern: each round has a "before decide round N" commit (baseline) followed by a "decide round N" commit (the fixed code + regenerated artifacts). I'm at "before decide round 2". Let me inspect what the "decide round 1" commit actually changed so I mirror it correctly.
+

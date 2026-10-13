@@ -1,0 +1,2 @@
+All three reviewer corrections are applied and verified. The advisor's triage said the no-deploy conclusion remains supported, so I'm submitting `done` with the full acceptance accounting plus the doc fixes.
+
