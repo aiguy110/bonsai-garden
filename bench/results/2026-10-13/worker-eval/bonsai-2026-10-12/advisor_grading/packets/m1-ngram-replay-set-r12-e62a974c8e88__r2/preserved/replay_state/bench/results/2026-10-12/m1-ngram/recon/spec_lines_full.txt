@@ -1,0 +1,216 @@
+server-context.cpp:16: #include "speculative.h"
+server-context.cpp:40: static common_speculative_output_limits server_output_limits(const common_params & params) {
+server-context.cpp:42: (params.pooling_type != LLAMA_POOLING_TYPE_UNSPECIFIED && params.pooling_type != LLAMA_POOLING_TYPE_NONE)) {
+server-context.cpp:46: auto result = common_speculative_get_output_limits(
+server-context.cpp:47: params.n_batch, params.n_parallel, common_speculative_n_max(&params.speculative));
+server-context.cpp:202: // multimodal
+server-context.cpp:203: mtmd_context * mctx = nullptr;
+server-context.cpp:206: // speculative decoding
+server-context.cpp:207: common_speculative * spec;
+server-context.cpp:209: llama_tokens spec_draft;
+server-context.cpp:210: llama_tokens spec_prompt;
+server-context.cpp:211: std::vector<int32_t> spec_i_batch;
+server-context.cpp:212: common_prompt_checkpoint spec_ckpt;
+server-context.cpp:213: bool spec_is_replay = false;
+server-context.cpp:304: llama_token sampled; // in speculative mode, this is the last accepted token
+server-context.cpp:326: spec_is_replay = false;
+server-context.cpp:336: if (can_speculate()) {
+server-context.cpp:337: spec_draft.clear();
+server-context.cpp:338: spec_i_batch.clear();
+server-context.cpp:339: spec_ckpt.clear();
+server-context.cpp:359: // clear multimodal state
+server-context.cpp:424: bool can_speculate() const {
+server-context.cpp:425: return !!spec;
+server-context.cpp:440: if (!can_speculate()) {
+server-context.cpp:458: // add sampled token of this slot to the batch, optionally add the speculative draft tokens if any
+server-context.cpp:461: if (spec_draft.empty()) {
+server-context.cpp:462: // no speculative decoding
+server-context.cpp:475: sampled, prompt.tokens.size(), spec_draft.size(), prompt.tokens.pos_next());
+server-context.cpp:477: GGML_ASSERT(spec_i_batch.empty());
+server-context.cpp:479: spec_i_batch.push_back(batch.size());
+server-context.cpp:480: for (size_t i = 0; i < spec_draft.size(); i++) {
+server-context.cpp:481: spec_i_batch.push_back(batch.size() + i + 1);
+server-context.cpp:487: for (auto token : spec_draft) {
+server-context.cpp:495: prompt.tokens.insert(spec_draft);
+server-context.cpp:637: common_speculative_print_stats(spec);
+server-context.cpp:646: {"speculative",   can_speculate()},
+server-context.cpp:697: GGML_ASSERT(slot.mctx);
+server-context.cpp:698: const auto & mctx = slot.mctx;
+server-context.cpp:707: void * cb_data = slot.spec;
+server-context.cpp:709: common_speculative * spec = static_cast<common_speculative *>(user_data);
+server-context.cpp:710: if (!common_speculative_process(spec, batch)) {
+server-context.cpp:718: mctx,
+server-context.cpp:752: mbatch.reset(mtmd_batch_init(mctx));
+server-context.cpp:796: mtmd_context * mctx = nullptr;
+server-context.cpp:843: common_speculative_init_result_ptr spec_init;
+server-context.cpp:848: common_speculative_ptr spec;
+server-context.cpp:891: spec.reset();
+server-context.cpp:892: spec_init.reset();
+server-context.cpp:902: mtmd_free(mctx);
+server-context.cpp:903: mctx = nullptr;
+server-context.cpp:960: load_progress_data load_progress_mmproj(this, "mmproj_model");
+server-context.cpp:961: load_progress_data load_progress_spec  (this, "spec_model");
+server-context.cpp:970: const bool has_mmproj = !params.mmproj.path.empty();
+server-context.cpp:971: const bool has_draft = params.speculative.has_dft();
+server-context.cpp:972: const bool spec_mtp = std::find(params_base.speculative.types.begin(),
+server-context.cpp:973: params_base.speculative.types.end(),
+server-context.cpp:974: COMMON_SPECULATIVE_TYPE_DRAFT_MTP) != params_base.speculative.types.end();
+server-context.cpp:975: const bool has_spec = has_draft || spec_mtp;
+server-context.cpp:979: if (has_spec) {
+server-context.cpp:980: stages.push_back("spec_model");
+server-context.cpp:982: if (has_mmproj) {
+server-context.cpp:983: stages.push_back("mmproj_model");
+server-context.cpp:986: load_progress_mmproj.stages = stages;
+server-context.cpp:987: load_progress_spec.stages   = stages;
+server-context.cpp:997: std::string & mmproj_path = params_base.mmproj.path;
+server-context.cpp:999: if (has_mmproj) {
+server-context.cpp:1000: mparams.use_gpu          = params_base.mmproj_use_gpu;
+server-context.cpp:1001: mparams.device           = params_base.mmproj_device;
+server-context.cpp:1012: mparams.progress_callback_user_data = &load_progress_mmproj;
+server-context.cpp:1015: // optionally get the memory usage of mmproj
+server-context.cpp:1016: if (has_mmproj && params_base.fit_params) {
+server-context.cpp:1018: auto mmproj_mem = mtmd_get_memory_usage(mmproj_path.c_str(), mparams);
+server-context.cpp:1020: if (!mmproj_mem.empty()) {
+server-context.cpp:1022: for (auto & [dev, size] : mmproj_mem) {
+server-context.cpp:1025: SRV_TRC("[mtmd] estimated worst-case memory usage of mmproj is %.2f MiB (took %.2f ms)\n", total / (1024.0 * 1024.0), t_elapsed / 1000.0);
+server-context.cpp:1027: for (auto & [dev, size] : mmproj_mem) {
+server-context.cpp:1039: SRV_ERR("%s", "[mtmd] failed to get memory usage of mmproj\n");
+server-context.cpp:1072: if (has_spec) {
+server-context.cpp:1073: // spec_mtp doesn't use load a model internally, so we report 0.0 and 1.0 manually
+server-context.cpp:1074: load_progress_callback(0.0f, &load_progress_spec);
+server-context.cpp:1075: load_progress_spec.t_last_load_progress_ms = 0;  // reset so internal cbs aren't delayed
+server-context.cpp:1078: common_params params_dft = common_base_params_to_speculative(params_base);
+server-context.cpp:1082: params_dft.load_progress_callback_user_data = &load_progress_spec;
+server-context.cpp:1084: spec_init = common_speculative_init_from_params(params_dft, model_tgt, ctx_tgt);
+server-context.cpp:1085: model_dft = spec_init->model();
+server-context.cpp:1086: ctx_dft   = spec_init->context();
+server-context.cpp:1098: params_base.speculative.draft.ctx_tgt = ctx_tgt;
+server-context.cpp:1099: params_base.speculative.draft.ctx_dft = ctx_dft;
+server-context.cpp:1102: load_progress_callback(1.0f, &load_progress_spec);
+server-context.cpp:1105: if (has_mmproj) {
+server-context.cpp:1107: callback_state(SERVER_STATE_LOADING, {{"stage", "mmproj_model"}});
+server-context.cpp:1114: mctx = mtmd_init_from_file(mmproj_path.c_str(), model_tgt, mparams);
+server-context.cpp:1115: if (mctx == nullptr) {
+server-context.cpp:1116: SRV_ERR("failed to load multimodal model, '%s'\n", mmproj_path.c_str());
+server-context.cpp:1119: SRV_INF("loaded multimodal model, '%s'\n", mmproj_path.c_str());
+server-context.cpp:1123: SRV_WRN("%s\n", "ctx_shift is not supported by multimodal, it will be disabled");
+server-context.cpp:1128: SRV_WRN("%s\n", "cache_reuse is not supported by multimodal, it will be disabled");
+server-context.cpp:1168: SRV_WRN("%s", "speculative decoding not supported by this context\n");
+server-context.cpp:1172: SRV_TRC("%s", "speculative decoding will use checkpoints\n");
+server-context.cpp:1184: // try speculative decoding
+server-context.cpp:1187: spec.reset(common_speculative_init(params_base.speculative, params_base.n_parallel));
+server-context.cpp:1189: SRV_ERR("failed to initialize speculative decoding context: %s\n", e.what());
+server-context.cpp:1197: if (spec) {
+server-context.cpp:1198: SRV_TRC("%s", "speculative decoding context initialized\n");
+server-context.cpp:1200: spec_init.reset();
+server-context.cpp:1212: slot.spec    = spec.get();
+server-context.cpp:1215: slot.mctx                   = mctx;
+server-context.cpp:1216: slot.prompt.tokens.has_mtmd = mctx != nullptr;
+server-context.cpp:1400: /* allow_image           */ mctx ? mtmd_support_vision(mctx) : false,
+server-context.cpp:1401: /* allow_audio           */ mctx ? mtmd_support_audio (mctx) : false,
+server-context.cpp:1402: /* allow_video           */ mctx ? mtmd_helper_support_video(mctx) : false,
+server-context.cpp:1459: // if a specific slot is requested, use it (still goes through cache update logic below)
+server-context.cpp:1490: // fraction of the Longest Common Prefix length with respect to the input prompt length
+server-context.cpp:1864: void populate_token_probs(const server_slot & slot, completion_token_output & result, bool post_sampling, bool special, int idx) const {
+server-context.cpp:1891: common_token_to_piece(ctx_tgt, cur_p->data[i].id, special),
+server-context.cpp:1914: common_token_to_piece(ctx_tgt, cur[i].id, special),
+server-context.cpp:2136: if (mctx != nullptr) {
+server-context.cpp:2137: task.tokens = process_mtmd_prompt(mctx, prompt, task.cli_files);
+server-context.cpp:2139: task.tokens = std::move(tokenize_input_prompts(vocab, mctx, prompt, true, true)[0]);
+server-context.cpp:2249: // stash the draft's speculative state with the checkpoint
+server-context.cpp:2250: common_speculative_get_state(spec.get(), slot.id, cur.data_spec);
+server-context.cpp:2272: // special case: if input is provided via CLI, tokenize it first
+server-context.cpp:2513: server_tokens restored = server_tokens::deserialize(packed, mctx != nullptr);
+server-context.cpp:2806: if (mctx) {
+server-context.cpp:2807: // we should never reach this because params_base.ctx_shift is automatically disabled if mmproj is loaded
+server-context.cpp:2809: GGML_ABORT("not supported by multimodal");
+server-context.cpp:2882: if (spec) {
+server-context.cpp:2883: common_speculative_get_draft_params(spec.get(), slot.id).drafting = false;
+server-context.cpp:2891: GGML_ASSERT(slot.can_speculate());
+server-context.cpp:2893: if (!slot.spec_draft.empty()) {
+server-context.cpp:2896: GGML_ASSERT(!slot.spec_ckpt.empty());
+server-context.cpp:2899: GGML_ASSERT(slot.spec_i_batch.empty());
+server-context.cpp:2901: slot.spec_ckpt.update_pos(
+server-context.cpp:2907: slot.spec_ckpt.update_dft(ctx_dft, slot.id, LLAMA_STATE_SEQ_FLAGS_PARTIAL_ONLY);
+server-context.cpp:2910: slot.spec_prompt = slot.prompt.tokens.get_text_tokens();
+server-context.cpp:2912: common_speculative_get_draft_params(spec.get(), slot.id) = {
+server-context.cpp:2917: /* .prompt   = */ &slot.spec_prompt,
+server-context.cpp:2918: /* .result   = */ &slot.spec_draft,
+server-context.cpp:2930: common_speculative_draft(spec.get());
+server-context.cpp:2936: auto & draft = slot.spec_draft;
+server-context.cpp:2937: auto & ckpt  = slot.spec_ckpt;
+server-context.cpp:2941: // TODO: avoid restoring the draft context and re-evaluating the drafted tokens when not needed [TAG_SPEC_AVOID_DRAFT_REEVAL]
+server-context.cpp:2970: SLT_DBG(slot, "created speculative checkpoint (pos_min = %d, pos_max = %d, n_tokens = %d, size = %.3f MiB, draft = %.3f MiB)\n",
+server-context.cpp:3128: if (mctx) {
+server-context.cpp:3130: GGML_ABORT("not supported by multimodal");
+server-context.cpp:3255: // restore the draft's speculative state
+server-context.cpp:3256: common_speculative_set_state(spec.get(), slot.id, it->data_spec);
+server-context.cpp:3550: if (spec && batch.has_embd) {
+server-context.cpp:3552: SRV_ERR("%s", "unsupported batch.has_embd + spec case\n");
+server-context.cpp:3553: throw std::runtime_error("unsupported batch.has_embd + spec case");
+server-context.cpp:3625: // TODO: avoid restoring the draft context and re-evaluating the drafted tokens when not needed [TAG_SPEC_AVOID_DRAFT_REEVAL]
+server-context.cpp:3628: if (spec) {
+server-context.cpp:3631: ok = common_speculative_process(spec.get(), batch_view);
+server-context.cpp:3635: SRV_ERR("%s", "failed to process speculative batch\n");
+server-context.cpp:3638: throw std::runtime_error("failed to process speculative batch");
+server-context.cpp:3677: for (auto & i : slot.spec_i_batch) {
+server-context.cpp:3679: throw std::runtime_error(string_format("speculative batch index %d is not inside the current sub-batch [%d, %d)", i, off, off + n_batch_tokens));
+server-context.cpp:3684: auto accept_special_token = [&](server_slot & slot, llama_token token) {
+server-context.cpp:3685: return params_base.special ||
+server-context.cpp:3723: if (slot.can_speculate()) {
+server-context.cpp:3724: common_speculative_begin(spec.get(), slot.id, slot.prompt.tokens.get_text_tokens());
+server-context.cpp:3730: if (slot.can_speculate() && !slot.spec_draft.empty()) {
+server-context.cpp:3731: return; // sample using speculative decoding
+server-context.cpp:3762: result.text_to_send = common_token_to_piece(slot.ctx_tgt, result.tok, accept_special_token(slot, result.tok));
+server-context.cpp:3766: populate_token_probs(slot, result, slot.task->params.post_sampling_probs, params_base.special, tok_idx);
+server-context.cpp:3781: // speculative decoding - main model sample and accept
+server-context.cpp:3783: if (slot.state != SLOT_STATE_GENERATING || !slot.can_speculate() ||
+server-context.cpp:3784: slot.spec_draft.empty() || slot.spec_i_batch.empty()) {
+server-context.cpp:3789: const size_t n_draft = slot.spec_draft.size();
+server-context.cpp:3797: GGML_ASSERT(slot.spec_i_batch.size() == n_draft + 1);
+server-context.cpp:3798: auto accepted = common_sampler_sample_and_accept_n(slot.smpl.get(), slot.ctx_tgt, slot.spec_i_batch, slot.spec_draft);
+server-context.cpp:3799: slot.spec_i_batch.clear();
+server-context.cpp:3803: const uint32_t n_rollback = slot.spec_draft.size() + 1 - accepted.size();
+server-context.cpp:3813: SLT_INF(slot, "accepted %2zu/%2zu draft tokens (restore checkpoint)\n", accepted.size() - 1, slot.spec_draft.size());
+server-context.cpp:3817: slot.spec_is_replay = true;
+server-context.cpp:3818: slot.spec_draft = std::move(accepted);
+server-context.cpp:3820: const auto & ckpt = slot.spec_ckpt;
+server-context.cpp:3822: SLT_DBG(slot, "restoring speculative checkpoint (pos_min = %d, pos_max = %d, size = %zu)\n", ckpt.pos_min, ckpt.pos_max, ckpt.size());
+server-context.cpp:3843: common_speculative_accept(spec.get(), slot.id, accepted.size() - 1);
+server-context.cpp:3845: slot.spec_draft = std::move(accepted);
+server-context.cpp:3848: const auto ids = std::move(slot.spec_draft);
+server-context.cpp:3851: if (slot.spec_is_replay && n_accepted > 0) {
+server-context.cpp:3854: slot.spec_is_replay = false;
+server-context.cpp:3864: n_accepted_per_pos.resize(common_speculative_n_max(&params_base.speculative), 0);
+server-context.cpp:3883: result.text_to_send = common_token_to_piece(slot.ctx_tgt, result.tok, accept_special_token(slot, result.tok));
+server-context.cpp:4067: /* has_mtmd               */ impl->mctx != nullptr,
+server-context.cpp:4166: if (res_type != TASK_RESPONSE_TYPE_NONE && ctx_server.mctx != nullptr) {
+server-context.cpp:4168: inputs.push_back(process_mtmd_prompt(ctx_server.mctx, prompt.get<std::string>(), files));
+server-context.cpp:4170: // Everything else, including multimodal completions.
+server-context.cpp:4171: inputs = tokenize_input_prompts(ctx_server.vocab, ctx_server.mctx, prompt, true, true);
+server-context.cpp:4452: {"capabilities", meta.has_mtmd ? json::array({"completion","multimodal"}) : json::array({"completion"})},
+server-context.cpp:4755: std::vector<server_tokens> tokenized_prompts = tokenize_input_prompts(ctx_server.vocab, ctx_server.mctx, prompt, false, true);
+server-context.cpp:4766: tokenized_prompts[0].get_tokens() // TODO: this could maybe be multimodal.
+server-context.cpp:4819: return handle_count_tokens(ctx_server.vocab, ctx_server.mctx, req, TASK_RESPONSE_TYPE_OAI_CHAT);
+server-context.cpp:4878: return handle_count_tokens(ctx_server.vocab, ctx_server.mctx, req, TASK_RESPONSE_TYPE_OAI_RESP);
+server-context.cpp:4928: return handle_count_tokens(ctx_server.vocab, ctx_server.mctx, req, TASK_RESPONSE_TYPE_ANTHROPIC);
+server-context.cpp:4961: const bool add_special = json_value(body, "add_special", false);
+server-context.cpp:4962: const bool parse_special = json_value(body, "parse_special", true);
+server-context.cpp:4965: llama_tokens tokens = tokenize_mixed(ctx_server.vocab, body.at("content"), add_special, parse_special);
+server-context.cpp:5061: auto tmp = format_prompt_rerank(ctx_server.model_tgt, ctx_server.vocab, ctx_server.mctx, query, documents[i]);
+server-context.cpp:5299: auto tokenized_prompts = tokenize_input_prompts(ctx_server.vocab, ctx_server.mctx, prompt, true, true);
+server-context.cpp:5360: std::unique_ptr<server_res_generator> server_routes::handle_count_tokens(const llama_vocab * vocab, mtmd_context * mctx, const server_http_req & req, task_response_type res_type) {
+server-context.cpp:5394: if (mctx != nullptr) {
+server-context.cpp:5398: n_tokens = process_mtmd_prompt(mctx, prompt.get<std::string>(), files, true).size();
+server-common.h:207: // for compatibility with speculative decoding, ctx shift
+server-common.h:215: // for compatibility with speculative decoding
+server-common.h:229: std::string detokenize(const llama_context * ctx, bool special) const;
+server-common.h:263: llama_tokens tokenize_mixed(const llama_vocab * vocab, const json & json_prompt, bool add_special, bool parse_special);
+server-common.h:272: server_tokens process_mtmd_prompt(mtmd_context * mctx, const std::string & prompt, const std::vector<raw_buffer> & files, bool is_placeholder = false);
+server-common.h:280: * - "prompt": { "prompt_string": "string", "multimodal_data": [ "base64" ] }
+server-common.h:285: * - "prompt": [[12, 34, "string", 56, 78], [12, 34, 56], { "prompt_string": "string", "multimodal_data": [ "base64" ]}]
+server-common.h:289: mtmd_context * mctx,
+server-common.h:291: bool add_special,
+server-common.h:292: bool parse_special);
+server-common.h:350: // speculative decoding stats
+server-common.h:539: mtmd_context * mctx,

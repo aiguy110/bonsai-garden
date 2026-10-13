@@ -1,0 +1,10 @@
+cmd: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf --no-mmproj-offload --port 8089 --n-gpu-layers 99 --ctx-size 98304 --parallel 2 --kv-unified --threads 8 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf --temp 1.0 --top-p 0.95 --top-k 20 --jinja --spec-type ngram-mod
+[single-agent] fg wall_s=331.6
+[single-agent] window t0=1791816771.347 t_fg_end=1791817102.923 t_join_end=1791817102.923
+[single-mem] fg wall_s=39.3
+[single-mem] window t0=1791817108.104 t_fg_end=1791817147.398 t_join_end=1791817147.399
+[dual-agent] fg wall_s=753.0
+[dual-agent] window t0=1791817152.093 t_fg_end=1791817905.091 t_join_end=1791817906.326
+[dual-mem] fg wall_s=84.2
+[dual-mem] window t0=1791817911.625 t_fg_end=1791817995.835 t_join_end=1791818006.679
+done

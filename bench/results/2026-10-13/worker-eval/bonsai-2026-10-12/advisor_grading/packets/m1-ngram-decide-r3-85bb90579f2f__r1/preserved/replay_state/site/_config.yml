@@ -1,0 +1,11 @@
+title: bonsai-garden
+description: A local coding agent with memory on one 10 GB GPU — research log
+baseurl: /bonsai-garden
+markdown: kramdown
+kramdown:
+  input: GFM
+exclude:
+  - AUTHORING.md
+defaults:
+  - scope: { path: "" }
+    values: { layout: default }

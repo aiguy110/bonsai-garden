@@ -1,0 +1,18 @@
+[recon] out dir: /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon
+[recon] src dir: /home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0
+[recon] done -> /home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon
+{
+  "out_dir": "/home/josiah/Projects/bonsai-garden-auto/M1-ngram/bench/results/2026-10-12/m1-ngram/recon",
+  "files": {
+    "event_samples.json": 124668,
+    "help.txt": 57121,
+    "inventory.json": 99448,
+    "mem0_extract_src.txt": 62229,
+    "pi_prompt_src.txt": 64537,
+    "sources.txt": 3308,
+    "spec_ctx.txt": 10860,
+    "spec_flags.txt": 8810,
+    "spec_lines_full.txt": 17368,
+    "spec_mmproj_grep.txt": 2952
+  }
+}

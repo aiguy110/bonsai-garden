@@ -1,0 +1,9 @@
+[PASS] agent+mem co-admitted -- mem waited 0 ms, overlap 6.1s
+[PASS] both decode at the 2-slot rate (~45 tok/s) -- tok/s [43.9, 44.9]
+[PASS] alias logged
+[PASS] agent pinned to slot 0, mem to slot 1 -- {0: 918, 1: 684} -> {0: 930, 1: 932}
+[PASS] bonsai-mem returns no reasoning -- reasoning chars 0
+[PASS] bonsai-agent still reasons -- reasoning chars 998
+[PASS] over-maxCtx request gets 400 context_length_exceeded -- {"error": {"code": "context_length_exceeded", "message": "estimated 13342 prompt tokens + 64 max_tokens exceeds bonsai-mem's context of 12288 tokens", "param": 
+[PASS] over-budget pair serializes -- second waited 28814 ms
+[PASS] lease waits for both LLM holders -- lease waited 6.2s

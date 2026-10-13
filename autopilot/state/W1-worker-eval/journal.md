@@ -1575,3 +1575,30 @@ Reworked `bench/worker_eval/grade.py` to regenerate packets with root-relative p
 Added to the standing facts:
 
 - bench/worker_eval/grade.py currently copies each replay record.json, whose advisor_verdict field exposes the original cloud-worker request verdict despite cloud_prompt() saying that verdict is absent.
+
+### 2026-10-13T08:45:54-04:00 · worker (gpt-5.6-terra), round 3
+
+Revised `bench/worker_eval/grade.py` after advisor feedback and locally syntax-checked it. Packets now use redacted records and complete replay-state snapshots; response prompts require review.md-compatible batch JSON; finalization will require exact first/transcription grade agreement and separately report baseline deterministic rates. Host packet regeneration is needed because this sandbox cannot resolve the checkout Git pointer.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/grade.py prepare",
+  "gpu": false,
+  "timeout_min": 20,
+  "why": "Regenerate the deterministic W1 advisor-grading packets on the host checkout. The revised preparer caps the round-robin kind-stratified sample at 10, redacts cloud advisor_verdict from grader-visible record evidence, preserves a complete reconstructed replay state (including unchanged start-commit files) plus requested scripts and hashes, and fails on patch errors. It only reads Git/replay artifacts and writes under the fixed result directory; it makes no model or live-stack calls."
+}
+```
+
+### 2026-10-13T08:47:49-04:00 · advisor (run request)
+
+**approve**: Safe and appropriate to run. `prepare` only reads Git/replay artifacts, uses temporary directories, and rewrites `advisor_grading/packets` plus `sample_manifest.json` under the fixed repository result directory. It makes no model, GPU, network, or live-service calls. The revised implementation enforces a 1–10 deterministic round-robin sample, redacts `advisor_verdict` from copied records, uses repo-relative packet paths, reconstructs tracked replay state with fatal patch handling, and preserves/hash-records requested scripts. Afterward, confirm the manifest reports 10 unique valid attempts, version 3, root-relative paths, and no `advisor_verdict` in grader-visible preserved records before requesting the first advisor grading.
+
+### 2026-10-13T08:47:50-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/grade.py prepare` (gpu=False) in 1s, exit 0. Full output: `bench/results/2026-10-13/autopilot/advisor-grades-r3.log`. Last lines:
+
+```
+/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/sample_manifest.json
+
+```

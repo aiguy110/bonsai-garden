@@ -1,0 +1,8 @@
+memory/data/
+evals/results/*
+!evals/results/.gitkeep
+evals/.cache/
+__pycache__/
+autopilot/.runtime/
+autopilot/.cache/
+bench/.replay/

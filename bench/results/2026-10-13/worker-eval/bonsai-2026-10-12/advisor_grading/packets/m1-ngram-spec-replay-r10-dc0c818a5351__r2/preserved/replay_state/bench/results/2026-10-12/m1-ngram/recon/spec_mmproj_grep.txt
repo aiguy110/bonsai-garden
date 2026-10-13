@@ -1,0 +1,25 @@
+README-dev.md:335: - Speculative decoding: https://github.com/ggml-org/llama.cpp/pull/17808 and rework in https://github.com/ggml-org/llama.cpp/pull/17808
+README.md:19: * Speculative decoding
+README.md:174: | `--pooling {none,mean,cls,last,rank}` | pooling type for embeddings, use model default if unspecified<br/>(env: LLAMA_ARG_POOLING) |
+README.md:503: Note for `multimodal_data` in JSON object prompts. This should be an array of strings, containing base64 encoded multimodal data such as images and audio. There must be an identical number of MTMD media markers in the string prompt element which act as placeholders for the data provided to this parameter. The multimodal data files will be substituted in order. The marker string (e.g. `<__media__>`) can be found by calling `mtmd_default_marker()` defined in [the MTMD C API](https://github.com/ggml-org/llama.cpp/blob/5fd160bbd9d70b94b5b11b0001fd7f477005e4a0/tools/mtmd/mtmd.h#L87). A client *must not* specify this field unless the server has the multimodal capability. Clients should check `/models` or `/v1/models` for the `multimodal` capability before a multimodal request.
+README.md:1331: - Either `input_audio.data` or `input_audio.url` can be specified, can be a remote URL, raw base64 or path to local file
+server-common.cpp:933: /* add_special */   true,
+server-common.cpp:934: /* parse_special */ true,
+server-common.cpp:959: static server_tokens tokenize_input_subprompt(const llama_vocab * vocab, mtmd_context * mctx, const json & json_prompt, bool add_special, bool parse_special) {
+server-common.cpp:965: llama_tokens tmp = tokenize_mixed(vocab, json_prompt, add_special, parse_special);
+server-common.cpp:985: llama_tokens tmp = tokenize_mixed(vocab, json_prompt.at(JSON_STRING_PROMPT_KEY), add_special, parse_special);
+server-common.cpp:993: std::vector<server_tokens> tokenize_input_prompts(const llama_vocab * vocab, mtmd_context * mctx, const json & json_prompt, bool add_special, bool parse_special) {
+server-common.cpp:998: result.push_back(tokenize_input_subprompt(vocab, mctx, p,add_special, parse_special));
+server-common.cpp:1001: result.push_back(tokenize_input_subprompt(vocab, mctx, json_prompt, add_special, parse_special));
+server-common.h:215: // for compatibility with speculative decoding
+server-common.h:291: bool add_special,
+server-common.h:292: bool parse_special);
+server-context.cpp:16: #include "speculative.h"
+server-context.cpp:206: // speculative decoding
+server-context.cpp:207: common_speculative * spec;
+server-context.cpp:209: llama_tokens spec_draft;
+server-context.cpp:707: void * cb_data = slot.spec;
+server-context.cpp:709: common_speculative * spec = static_cast<common_speculative *>(user_data);
+server-context.cpp:710: if (!common_speculative_process(spec, batch)) {
+server-context.cpp:1212: slot.spec    = spec.get();
+server-task.cpp:1547: "Total number of llama_decode() calls, excluding speculative decoding and multimodal decoding",

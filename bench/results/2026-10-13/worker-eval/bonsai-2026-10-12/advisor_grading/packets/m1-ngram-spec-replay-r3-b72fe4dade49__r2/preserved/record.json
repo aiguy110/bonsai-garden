@@ -1,5 +1,4 @@
 {
-  "advisor_verdict": "approve",
   "arm": "bonsai-2026-10-12",
   "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r3-b72fe4dade49/r2",
   "case_id": "m1-ngram-spec-replay-r3-b72fe4dade49",

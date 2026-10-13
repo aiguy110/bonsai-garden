@@ -1,0 +1,23 @@
+pi_package_dir: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent
+mem0ai_pkg_dir: /home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/agent/npm/node_modules/mem0ai
+mem0ai_dist_oss_index_mjs: /home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/agent/npm/node_modules/mem0ai/dist/oss/index.mjs
+
+pi_system_prompt_file: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/system-prompt.js
+pi_tools_dir: /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools
+pi_tools_index.js: found
+mem0_additive_extraction_prompt: found
+mem0_extraction_user_prompt_windows: found
+mem0_generateAdditiveExtractionPrompt: found @ /home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/agent/npm/node_modules/mem0ai/dist/oss/index.js
+built_in_tool_schemas_extracted: 12
+  - bash /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/bash.js (function=createBashToolDefinition, schema=None)
+  - edit-diff /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/edit-diff.js
+  - edit /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/edit.js (function=createEditToolDefinition, schema=None)
+  - file-mutation-queue /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/file-mutation-queue.js
+  - find /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/find.js (function=createFindToolDefinition, schema=None)
+  - grep /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/grep.js (function=createGrepToolDefinition, schema=None)
+  - ls /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/ls.js (function=createLsToolDefinition, schema=None)
+  - output-accumulator /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/output-accumulator.js
+  - powershell /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/powershell.js
+  - read /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/read.js (function=createReadToolDefinition, schema=None)
+  - render-utils /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/render-utils.js
+  - write /home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works/pi-coding-agent/dist/core/tools/write.js (function=createWriteToolDefinition, schema=None)

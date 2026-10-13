@@ -1,0 +1,49 @@
+{
+  "roles": {
+    "worker": {
+      "model": "bonsai-agent",
+      "thinking": "low",
+      "where": "sandbox"
+    },
+    "advisor": {
+      "model": "meridian/claude-opus-5-5",
+      "thinking": "high",
+      "where": "host",
+      "tools": "read,grep,find,ls"
+    },
+    "fixer": {
+      "model": "meridian/claude-opus-5-5",
+      "thinking": "high",
+      "where": "host",
+      "tools": "read,bash,edit,write,grep,find,ls"
+    }
+  },
+  "cloud_calls_per_day": 25,
+  "worker_rounds_per_item": 8,
+  "review_rounds_per_item": 3,
+  "worker_timeout_min": 45,
+  "publisher": "/home/josiah/Projects/bonsai-garden-pub",
+  "remote": "origin",
+  "status_push_min_interval_min": 60,
+  "protected_paths": [
+    "autopilot/",
+    ".github/",
+    "tools/check_site.py",
+    "evals/run.py",
+    "evals/tap.py",
+    "evals/relay.py",
+    "evals/arms/baseline.json",
+    "evals/arms/mem0.json",
+    "serving/llama-swap.bonsai-2-27b.yaml",
+    "site/autopilot.md"
+  ],
+  "infra": {
+    "tok_s_floor_ratio": 0.8,
+    "soak_worker_calls": 3
+  },
+  "milestones": [
+    "M1-ngram"
+  ],
+  "worktree_root": "/home/josiah/Projects/bonsai-garden-auto",
+  "cloud_extension": "npm:pi-meridian-extension@0.2.5"
+}

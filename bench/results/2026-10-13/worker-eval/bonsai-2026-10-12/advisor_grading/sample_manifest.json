@@ -1,7 +1,9 @@
 {
-  "selection_version": 1,
-  "rule": "Filter valid_request=true; stratify by replay_kind in [run, infra, done]; sort each stratum by SHA-256(case_id + '/r' + repeat), then run_id; retain first five from each nonempty stratum. Exclude continue and stuck because the real orchestrator does not send them to advisor review.",
-  "source_results": "/home/dev/garden/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/results.jsonl",
+  "selection_version": 3,
+  "review_template": "autopilot/prompts/review.md",
+  "review_template_sha256": "827e25e829a682c58d1c74a0661b342635bf33f030c4fe8ab15c3060ab17c80e",
+  "rule": "Filter valid_request=true; stratify by replay_kind in [run, infra, done]; sort each stratum by SHA-256(case_id + '/r' + repeat), then run_id; take at most 10 by round-robin passes through run, infra, done, taking the next member of each nonempty stratum per pass. Exclude continue and stuck because the real orchestrator does not send them to advisor review.",
+  "source_results": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/results.jsonl",
   "source_results_sha256": "71c1cf6076ad6299c6c984f4b622c06e9619e837b49fcc684fd2099653d357cc",
   "sample_size": 10,
   "strata": {
@@ -16,49 +18,49 @@
       "repeat": 2,
       "kind": "run",
       "ordering_sha256": "06c08043376e4f3a5c5b527ca433c56cc935810f670728c69302c7647322b9c1",
-      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2.md",
-      "packet_sha256": "5407ff63d2764d704cb6623fb103a7e4ceea549b2f992790a8ca95419eef8059",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r3-b72fe4dade49/r2"
-    },
-    {
-      "run_id": "m1-ngram-spec-replay-r4-1147202353a6/r1",
-      "case_id": "m1-ngram-spec-replay-r4-1147202353a6",
-      "repeat": 1,
-      "kind": "run",
-      "ordering_sha256": "09ccd68e2535c0a9c65136287e90c6cbfdf3391334b2cd0a76abf0d864b26be7",
-      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1.md",
-      "packet_sha256": "0ab464927ed5faa80d3e2aba2d254aef58c248de4bde7667d797543f222e36f2",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r4-1147202353a6/r1"
-    },
-    {
-      "run_id": "m1-ngram-write-up-r3-aee7d1507663/r1",
-      "case_id": "m1-ngram-write-up-r3-aee7d1507663",
-      "repeat": 1,
-      "kind": "run",
-      "ordering_sha256": "0d9b97f0bbcae8a3ead81d87794cf32f1f941d26b8f40b7663734b6bcaede0ba",
-      "packet": "advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1.md",
-      "packet_sha256": "e34fb07752683ae67f3b9e8075c13a636e36571b58e2e30ea5a829df3973a832",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-write-up-r3-aee7d1507663/r1"
-    },
-    {
-      "run_id": "m1-ngram-spec-replay-r6-ee9150033cd8/r1",
-      "case_id": "m1-ngram-spec-replay-r6-ee9150033cd8",
-      "repeat": 1,
-      "kind": "run",
-      "ordering_sha256": "2a7eb17ea2d810ded70f10f96101e3b91f7a72fb5e837eb15fcaa0b121b99838",
-      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1.md",
-      "packet_sha256": "99e8fc174d6196672aabfa7ef5020b98c8e31a331ed44487b69b2e374d258539",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r6-ee9150033cd8/r1"
-    },
-    {
-      "run_id": "m1-ngram-spec-replay-r5-144acae8e198/r1",
-      "case_id": "m1-ngram-spec-replay-r5-144acae8e198",
-      "repeat": 1,
-      "kind": "run",
-      "ordering_sha256": "50fcb460793d7f1793f8a49855a5d3b13e13a9444e7eac8812f3b3afccaadd83",
-      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1.md",
-      "packet_sha256": "81787ea0132c39b69feb8265786656c1fbb3232de7f938c1c89ac84bd5c54f0f",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r5-144acae8e198/r1"
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2.md",
+      "packet_sha256": "d4a47ab3d58f9e5465e801095268d657d87db5954d369faa8df570f991828cc4",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/request.json",
+          "sha256": "03373890c9000534123f192d357feb8ccb0454762fbd6326156e60bed6039154"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/final.txt",
+          "sha256": "746d3829a108795d80bee982efe1ac8eb816d72b2a31decc8e966bb7400d45e4"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/workspace.diff",
+          "sha256": "1576550b03630d5181e4fcd50d0ecde7716ba86afce8d7add9c502d388320a1a"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/manifest.json",
+          "sha256": "af13322ce54b61555136ae04a496a933c5127046ae81036a698f2f251f372789"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/events.jsonl",
+          "sha256": "44208cc7faaff6efc0f438936ae030777ffcd80c8f0ddb4c18f2450a84ae1a49"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/record.json",
+          "sha256": "d71ba4a29317864f5f36655d0464b0fe44bddd9db380db81ef7f884e14810191",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/replay_state",
+        "file_count": 124,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/replay_state_manifest.json",
+        "inventory_sha256": "7b94caaf2d7a0bdaf9a9c34d92e55858d1afca61b3e96a22bb9b62b4a340f775"
+      },
+      "requested_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2/preserved/requested/bench/spec_replay.py",
+          "sha256": "a9323e8a5e0ffe181ca154770b8943e14968abea253ff57681f71e184898d196"
+        }
+      ]
     },
     {
       "run_id": "m1-ngram-spec-replay-r10-dc0c818a5351/r1",
@@ -66,9 +68,94 @@
       "repeat": 1,
       "kind": "done",
       "ordering_sha256": "2abbea3f3b76716155295aa2741e535ca5e17cb71cd5258e3fea2964256157bb",
-      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1.md",
-      "packet_sha256": "0de8747d95ee410dc77158be4cf14dc7fa07ed0db57e9b2e6f8ca9452d480be4",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r10-dc0c818a5351/r1"
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1.md",
+      "packet_sha256": "596a187980009b1f5ec5113f3226d9bf76084492694d500aabbb9e2e666d5c35",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1/preserved/request.json",
+          "sha256": "7c909e6ebc6d93ff28a82dd2b5987a59f7f52f142c28f2c5d239dca991fe0141"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1/preserved/final.txt",
+          "sha256": "60300da2e9a045a640afcdc0b644d03c6ad46216778702e7ea5727f3835244ae"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1/preserved/workspace.diff",
+          "sha256": "7014c5142d5086871eee2b4b962ba418e91567fc5e4718d238fb137cc2f3b13a"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1/preserved/manifest.json",
+          "sha256": "38074b971ac059ee54abd7cdd506556a9329261ff9d8fd913bc48345ff1437ce"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1/preserved/events.jsonl",
+          "sha256": "3f32d8d66e6a1d2be7199fc44068c8685258714de6ef68149b809788ef763311"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1/preserved/record.json",
+          "sha256": "7b4da8d8bd31e99d81c5d855e1f618657ad75d7eb6c1d85595bd97413bec4917",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1/preserved/replay_state",
+        "file_count": 152,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1/preserved/replay_state_manifest.json",
+        "inventory_sha256": "c91e027ed50adcc312efcb0449a18e0230951827753c1d3f6996039e33d6f0bf"
+      },
+      "requested_files": []
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r4-1147202353a6/r1",
+      "case_id": "m1-ngram-spec-replay-r4-1147202353a6",
+      "repeat": 1,
+      "kind": "run",
+      "ordering_sha256": "09ccd68e2535c0a9c65136287e90c6cbfdf3391334b2cd0a76abf0d864b26be7",
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1.md",
+      "packet_sha256": "c7caf831dec9d51ca2bc383d6ce39cdb40fbbef138d495ed0f8a81bcde1b4956",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/request.json",
+          "sha256": "e6e353bceb55b1fea2925aa35d0b692ac306b6f90f949c9883210b9072f0cf51"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/final.txt",
+          "sha256": "bc940b3d8fba1626b5f8cbc06e554b630c70f1e504f7bc7fe31c25bebc69fcf0"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/workspace.diff",
+          "sha256": "49c40709297fc0d912b2f8d2d289bb74efa702acea6397818b76a24f7b2ac600"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/manifest.json",
+          "sha256": "3ca65a6cabc59013f8eb019412c1abac542d81bcfc3acf29c7358c9571a5bd22"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/events.jsonl",
+          "sha256": "e2b77c7f9bde6579e9925f11f924f91b80bcb33012b87de10153e5a199fc0adb"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/record.json",
+          "sha256": "99c05aaf2bc216adcca9d2e3b5b537937f6985beb1d7f51a2fc59e26c559cf8e",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/replay_state",
+        "file_count": 132,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/replay_state_manifest.json",
+        "inventory_sha256": "d0eac3e232918ab2bac6af7c9a89e8aab96dcd9a57ef07186b9987bc70bc49dc"
+      },
+      "requested_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1/preserved/requested/bench/spec_replay.py",
+          "sha256": "a9323e8a5e0ffe181ca154770b8943e14968abea253ff57681f71e184898d196"
+        }
+      ]
     },
     {
       "run_id": "m1-ngram-spec-replay-r11-f096b0e52769/r1",
@@ -76,9 +163,94 @@
       "repeat": 1,
       "kind": "done",
       "ordering_sha256": "4831c557938197260d5ca885a6ad4986b2138b611478d0c8506a7e6addfae673",
-      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1.md",
-      "packet_sha256": "7f3c1eba7514ee053172465b1f070744549d195fcd0329d526c07d3a96c0c2a9",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r11-f096b0e52769/r1"
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1.md",
+      "packet_sha256": "fb6e84e63e983a876c10af60afdd8dd44580fd56d658767c5c0e45b81f3a16ed",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1/preserved/request.json",
+          "sha256": "e81ba10cbf715ebfb1c557231eaea4acfa5a29b434993832555a2a41d9f1ad42"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1/preserved/final.txt",
+          "sha256": "7f59588c735701062b5a8e80a86be51ea7885878e6aac6455f55a6a3acd8114a"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1/preserved/workspace.diff",
+          "sha256": "17730b08f565e6cc0df9ebcf445bbdfe4c0afae2889ccbd2c58098ab1e044a6d"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1/preserved/manifest.json",
+          "sha256": "45d8c1dc73eb46c9346a95c40c9bef481cb22f7c606d443e3a87cb28993fd841"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1/preserved/events.jsonl",
+          "sha256": "cb0b14fc08e610ff70152ad215638d3baa3b54d188aa99b4067ced286b7979e7"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1/preserved/record.json",
+          "sha256": "bc39fa6067e7e0ff67a5030a393da1c7ced808b59a1d076b781a124c0b593560",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1/preserved/replay_state",
+        "file_count": 152,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1/preserved/replay_state_manifest.json",
+        "inventory_sha256": "fedf77346bb966d0bc7cb2424f8db5ecf182d3e72f7566823c9e4e7ac80980c7"
+      },
+      "requested_files": []
+    },
+    {
+      "run_id": "m1-ngram-write-up-r3-aee7d1507663/r1",
+      "case_id": "m1-ngram-write-up-r3-aee7d1507663",
+      "repeat": 1,
+      "kind": "run",
+      "ordering_sha256": "0d9b97f0bbcae8a3ead81d87794cf32f1f941d26b8f40b7663734b6bcaede0ba",
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1.md",
+      "packet_sha256": "417860a642a1d09cdaa206544fd0252391cbf692a4425f7a8b1b43f940c7a285",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/request.json",
+          "sha256": "cea27b0e14e56a658d0220c0667ac476f7c4685d38d8927f4136481b317fb29d"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/final.txt",
+          "sha256": "07b99a2159282ec68a1f1e9db274745c32aa82a72f55787ce473b3fee8a798d4"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/workspace.diff",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/manifest.json",
+          "sha256": "c87d63b2d694e91419b02f328c3af5e769352cb8b2bbc016937a6cfe3a80d7aa"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/events.jsonl",
+          "sha256": "3617eb6bf4595adc63e90cc3d1ec12946e4180a6fbf1942ee34b497abaeb5cc0"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/record.json",
+          "sha256": "321ae43509295826eb84cf8b34699825def6784b926221906bca21583833a213",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/replay_state",
+        "file_count": 158,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/replay_state_manifest.json",
+        "inventory_sha256": "6b1870ce31dae5887331df40e42514caf1fde3c722fd59cfc5724f195cf4fd23"
+      },
+      "requested_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1/preserved/requested/bench/check_site.py",
+          "sha256": "da5ee6f0586df012c15c196a51356585b792016137962e3479e362234b4ca8c8"
+        }
+      ]
     },
     {
       "run_id": "m1-ngram-replay-set-r12-e62a974c8e88/r2",
@@ -86,9 +258,94 @@
       "repeat": 2,
       "kind": "done",
       "ordering_sha256": "74d3bad21a752768b1a7cef56f90db3fa81089429efde50f03bd1fad0c3c6116",
-      "packet": "advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2.md",
-      "packet_sha256": "3478c2f35c1c3bd0a973585eeeb4189a0868e369998e2a6c75c824ce099922c9",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-replay-set-r12-e62a974c8e88/r2"
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2.md",
+      "packet_sha256": "168ffb6ed474e9be9fff5a17871ded45e07eb5289b4a0728a8ac72b710283778",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2/preserved/request.json",
+          "sha256": "80ce776d683bfad423d243b3684f2272315ce74495b3680630a3bf27d751d52c"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2/preserved/final.txt",
+          "sha256": "ec3f33c14152d4989c69c8b8fa7c363d18b2ea6c6d49436ba6cf79bb44272308"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2/preserved/workspace.diff",
+          "sha256": "de5ffa5aeedfa1b983807a7e99b394178a500da28567b6744fac4c1c325cd5e0"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2/preserved/manifest.json",
+          "sha256": "fddd9f4a9cf235320dce89f5ffed860774fd726f5539ab31d5f9169513a5de48"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2/preserved/events.jsonl",
+          "sha256": "dacb6265b68d2a4bb770a62a271a594230744f297bb92d796160cd726558d614"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2/preserved/record.json",
+          "sha256": "d8f7910a5dc911773662df8f5b722fadebd01b26774b10274d414c2d3bf2bb32",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2/preserved/replay_state",
+        "file_count": 107,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2/preserved/replay_state_manifest.json",
+        "inventory_sha256": "7b49de0e63e8bb2b37f289b823dd396c89ecefea36236606aa7f00a48afcefc5"
+      },
+      "requested_files": []
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r6-ee9150033cd8/r1",
+      "case_id": "m1-ngram-spec-replay-r6-ee9150033cd8",
+      "repeat": 1,
+      "kind": "run",
+      "ordering_sha256": "2a7eb17ea2d810ded70f10f96101e3b91f7a72fb5e837eb15fcaa0b121b99838",
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1.md",
+      "packet_sha256": "b3977546411d706f152a33d437244ef1351366327f02f0fd461a8577b332237a",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/request.json",
+          "sha256": "763b9a2c9ed5d0d25baa4400652f01c54c437ec27d6c1708e1c529ba1d46aa84"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/final.txt",
+          "sha256": "45c952cbe4fecbcda95a8b5f9478747953b14b90a71a68d0c8862e8aa342d368"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/workspace.diff",
+          "sha256": "ed81a4b92e5b544de3176528b34dd91e447992d03cf5b6e76e49a479524035cb"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/manifest.json",
+          "sha256": "36873234872ead6c3dcec02ba5a1cbcfe6e66a0b156165f8073777b0a63221bc"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/events.jsonl",
+          "sha256": "b1836b5fd2cba684b0fa86b92b8f71344bde562c20a2ae20993765e2dfc6ef9e"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/record.json",
+          "sha256": "8a8e6c55697e7d7798b75662260441c5face4290a42f087f5382abfb573df8d5",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/replay_state",
+        "file_count": 142,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/replay_state_manifest.json",
+        "inventory_sha256": "04d45f58eec7d5842da56d04a82fcab56fa1e31ae32b0708c25395bd039e753e"
+      },
+      "requested_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1/preserved/requested/bench/spec_replay.py",
+          "sha256": "52812a766e748910f16159e779baec2781acfc1629c0d63555bec8d36671b561"
+        }
+      ]
     },
     {
       "run_id": "m1-ngram-spec-replay-r10-dc0c818a5351/r2",
@@ -96,9 +353,94 @@
       "repeat": 2,
       "kind": "done",
       "ordering_sha256": "7cafcf58d0c1ced43247db1ed135cbe3d0a6b908a98981dd043e89f1e6ec8fd0",
-      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2.md",
-      "packet_sha256": "e69516d2fc86fb7495efd1d67a97a161613b1fe4f8c11f4f5f045dea152da81e",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r10-dc0c818a5351/r2"
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2.md",
+      "packet_sha256": "e45ba354b0779178143e1db1edc45e3595a3bd91559ff834ef312786df9f3e0b",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2/preserved/request.json",
+          "sha256": "a6b796d0f160c957609d653e7ebe267bc3e084a1271826e994b2654df955a617"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2/preserved/final.txt",
+          "sha256": "7e2656238a1955133ff49b24b244724e490f947786573b0cd1d30c5a3ce31045"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2/preserved/workspace.diff",
+          "sha256": "557066863ed37729d6dbb236747a39107a9c9e81dafcddb5e3e207fdd0c2e8ac"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2/preserved/manifest.json",
+          "sha256": "c496dcb7d7ad4b72022a83dc78245f010b4925aa3eff585e17af75c1e6509b1d"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2/preserved/events.jsonl",
+          "sha256": "88855e7561bbc5cfdee83f49b4c0295127170e494035d315cb8e4d0eccd4cae2"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2/preserved/record.json",
+          "sha256": "7d323a90f7acfbc79dcdc41391d75407856ed902ab14c3610059e23c1cd52432",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2/preserved/replay_state",
+        "file_count": 152,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2/preserved/replay_state_manifest.json",
+        "inventory_sha256": "15a40795b157915e668c349bf699539ef0785e71e5041f00a886fcee14d900dc"
+      },
+      "requested_files": []
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r5-144acae8e198/r1",
+      "case_id": "m1-ngram-spec-replay-r5-144acae8e198",
+      "repeat": 1,
+      "kind": "run",
+      "ordering_sha256": "50fcb460793d7f1793f8a49855a5d3b13e13a9444e7eac8812f3b3afccaadd83",
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1.md",
+      "packet_sha256": "d1226186f9e731faf839f0dafba51a4750637e37b8f5590585daaf163b052447",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/request.json",
+          "sha256": "921d181da496f9e9a617d21ae730ca35032420d25403ac5096e22488cfde4f30"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/final.txt",
+          "sha256": "374d23e78cf603a3a8c92835b8ead351a839dcab2ddc6830f30e8df47f37bd49"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/workspace.diff",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/manifest.json",
+          "sha256": "b5983b8138291e373a44f271d2f77bc31905524ecd94646af5c0ea76c088fbd1"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/events.jsonl",
+          "sha256": "4d65690b51ea726aba936d02bc56d689755dd1086cd7aac9be76872db55b218b"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/record.json",
+          "sha256": "71c861e22fefce7fe8fa6e6ed31222daac9ac2299d9aca92fb21e3be77ebe48e",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/replay_state",
+        "file_count": 142,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/replay_state_manifest.json",
+        "inventory_sha256": "56025556296ad155cb3e156bf401257d6f4f6b112cebeb6e8e651e4da37e366d"
+      },
+      "requested_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1/preserved/requested/bench/spec_replay.py",
+          "sha256": "054b264ecbc8260b9afd4561de850cd4bc4548ae9a6433a642343de142892080"
+        }
+      ]
     },
     {
       "run_id": "m1-ngram-decide-r3-85bb90579f2f/r1",
@@ -106,9 +448,44 @@
       "repeat": 1,
       "kind": "done",
       "ordering_sha256": "8d438cb4d8bedc7b8babe40087796d50debb7d83f0c0fd07ef384cd18ed16c6a",
-      "packet": "advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1.md",
-      "packet_sha256": "92973951d0c86e26ac57d31819de67be9225668e25d26b3554704afb5c8720cb",
-      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-decide-r3-85bb90579f2f/r1"
+      "packet": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1.md",
+      "packet_sha256": "df3e8a76aeeab12347d492fe76b555f433740964a9aae6c0468078cd395ff4a8",
+      "preserved_files": [
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1/preserved/request.json",
+          "sha256": "1d8692f58a9577cbbb4e5fa174a3bd36b297bd28c1ff3a6d3b2ce969179d8475"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1/preserved/final.txt",
+          "sha256": "87a8903f23991b0d0a43501ec37bd4e8c5c196468a779a989d631c439c35cc63"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1/preserved/workspace.diff",
+          "sha256": "2e8586f0189fe8eda6c3a711deb5726e55124a6bbccacb1cc429ba9102fe0be9"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1/preserved/manifest.json",
+          "sha256": "13e7ac39ef0d4831e8177e432ea9d04cd3b03bcf162d6817d12d3856ab4c39da"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1/preserved/events.jsonl",
+          "sha256": "d4c2f574a730ba9d2e5e925493c7ced68e3499cf8586cc1cacac08955b546586"
+        },
+        {
+          "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1/preserved/record.json",
+          "sha256": "760c11734b3762ba0d41064a28cdbb8f9d29781cec3913a18bac83199fea658c",
+          "redacted": [
+            "advisor_verdict"
+          ]
+        }
+      ],
+      "replay_state": {
+        "path": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1/preserved/replay_state",
+        "file_count": 156,
+        "inventory": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1/preserved/replay_state_manifest.json",
+        "inventory_sha256": "b8600343d41e77de8ef0871d320d0fa636d9a9a031cd7c7c439197090435eed8"
+      },
+      "requested_files": []
     }
   ]
 }

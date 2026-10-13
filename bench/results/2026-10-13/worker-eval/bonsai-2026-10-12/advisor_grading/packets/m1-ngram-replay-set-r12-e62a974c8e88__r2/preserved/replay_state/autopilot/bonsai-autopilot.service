@@ -1,0 +1,16 @@
+# Install: cp autopilot/bonsai-autopilot.service ~/.config/systemd/user/ &&
+#          systemctl --user daemon-reload && systemctl --user enable --now bonsai-autopilot
+# Stop:    systemctl --user stop bonsai-autopilot
+[Unit]
+Description=bonsai-garden autopilot (Bonsai worker, cloud advisor)
+After=meridian.service bonsai-garden-embed.service
+
+[Service]
+WorkingDirectory=/home/josiah/Projects/bonsai-garden
+Environment=PATH=/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/bin/python3 -u /home/josiah/Projects/bonsai-garden/autopilot/autopilot.py loop
+Restart=on-failure
+RestartSec=60
+
+[Install]
+WantedBy=default.target

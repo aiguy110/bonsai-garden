@@ -1,0 +1,50 @@
+{
+  "name": "mem0",
+  "description": "pi + @amaster.ai/pi-memory-mem0 in embedded mode (hybrid: auto-capture, auto-recall per user input, mem0_memory tool). mem0's LLM is bonsai-mem (Bonsai slot 1, thinking off) via the tap; embeddings from the CPU Qwen3-Embedding-0.6B server; SQLite vector store in the run dir.",
+  "model": "bonsai-agent",
+  "thinking": "low",
+  "packages": [
+    "npm:@amaster.ai/pi-memory-mem0@0.1.24"
+  ],
+  "npm": [
+    "better-sqlite3@12.11.1"
+  ],
+  "settings": {
+    "pi-memory-mem0": {
+      "mode": "embedded",
+      "memoryMode": "hybrid",
+      "userId": "garden",
+      "topK": 5,
+      "oss": {
+        "llm": {
+          "provider": "openai",
+          "config": {
+            "model": "bonsai-mem",
+            "apiKey": "tap",
+            "baseURL": "{TAP}/mem/v1"
+          }
+        },
+        "embedder": {
+          "provider": "openai",
+          "config": {
+            "model": "qwen3-embedding-0.6b",
+            "apiKey": "unused",
+            "baseURL": "{TAP}/embed/v1"
+          }
+        },
+        "vectorStore": {
+          "provider": "memory",
+          "config": {
+            "collectionName": "garden",
+            "dbPath": "{MEM}/mem0-vectors.db",
+            "dimension": 1024
+          }
+        },
+        "historyDbPath": "{MEM}/mem0-history.db"
+      }
+    }
+  },
+  "env": {
+    "MEM0_TELEMETRY": "false"
+  }
+}

@@ -1,0 +1,3348 @@
+{
+  "runs": [
+    {
+      "run_id": "inventory-baseline-r0",
+      "steps": {
+        "0": {
+          "n_events": 11414,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 11,
+            "message_start": 24,
+            "message_end": 24,
+            "message_update": 11305,
+            "tool_execution_start": 11,
+            "tool_execution_update": 13,
+            "tool_execution_end": 11,
+            "turn_end": 11,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 11,
+          "tool_calls": {
+            "bash": 4,
+            "read": 2,
+            "write": 2,
+            "edit": 3
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r0/step0.events.jsonl",
+          "events_size": 3093773,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 1829,
+              "cache_n": 0,
+              "predicted_n": 71
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 696,
+              "cache_n": 1899,
+              "predicted_n": 128
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 7,
+              "prompt_n": 39,
+              "cache_n": 2722,
+              "predicted_n": 8565
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 8620,
+              "cache_n": 2757,
+              "predicted_n": 576
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 29,
+              "cache_n": 11952,
+              "predicted_n": 1024
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 28,
+              "cache_n": 13004,
+              "predicted_n": 305
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 15,
+              "prompt_n": 34,
+              "cache_n": 13336,
+              "predicted_n": 167
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 17,
+              "prompt_n": 34,
+              "cache_n": 13536,
+              "predicted_n": 65
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 19,
+              "prompt_n": 305,
+              "cache_n": 13634,
+              "predicted_n": 189
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 21,
+              "prompt_n": 34,
+              "cache_n": 14127,
+              "predicted_n": 85
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 23,
+              "prompt_n": 72,
+              "cache_n": 14245,
+              "predicted_n": 538
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 11,
+              "prompt_n": 11720,
+              "cache_n": 101212,
+              "predicted_n": 11713
+            }
+          }
+        },
+        "1": {
+          "n_events": 11666,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 30,
+            "message_start": 64,
+            "message_end": 64,
+            "message_update": 11379,
+            "tool_execution_start": 32,
+            "tool_execution_update": 31,
+            "tool_execution_end": 32,
+            "turn_end": 30,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 30,
+          "tool_calls": {
+            "bash": 12,
+            "read": 6,
+            "edit": 14
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r0/step1.events.jsonl",
+          "events_size": 3314014,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 404,
+              "cache_n": 1313,
+              "predicted_n": 100
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 33,
+              "cache_n": 1816,
+              "predicted_n": 79
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 135,
+              "cache_n": 1927,
+              "predicted_n": 134
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 1158,
+              "cache_n": 2195,
+              "predicted_n": 2780
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 168,
+              "cache_n": 6132,
+              "predicted_n": 371
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 35,
+              "cache_n": 6670,
+              "predicted_n": 544
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 15,
+              "prompt_n": 34,
+              "cache_n": 7248,
+              "predicted_n": 116
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 17,
+              "prompt_n": 34,
+              "cache_n": 7397,
+              "predicted_n": 183
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 19,
+              "prompt_n": 84,
+              "cache_n": 7613,
+              "predicted_n": 319
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 69,
+              "cache_n": 8015,
+              "predicted_n": 92
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 24,
+              "prompt_n": 51,
+              "cache_n": 8175,
+              "predicted_n": 119
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 26,
+              "prompt_n": 46,
+              "cache_n": 8344,
+              "predicted_n": 194
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 28,
+              "prompt_n": 108,
+              "cache_n": 8583,
+              "predicted_n": 250
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 30,
+              "prompt_n": 46,
+              "cache_n": 8940,
+              "predicted_n": 118
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 32,
+              "prompt_n": 46,
+              "cache_n": 9103,
+              "predicted_n": 128
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 34,
+              "prompt_n": 33,
+              "cache_n": 9276,
+              "predicted_n": 852
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 36,
+              "prompt_n": 46,
+              "cache_n": 10160,
+              "predicted_n": 514
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 38,
+              "prompt_n": 34,
+              "cache_n": 10719,
+              "predicted_n": 93
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 40,
+              "prompt_n": 427,
+              "cache_n": 10845,
+              "predicted_n": 888
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 42,
+              "prompt_n": 34,
+              "cache_n": 12159,
+              "predicted_n": 137
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 44,
+              "prompt_n": 38,
+              "cache_n": 12329,
+              "predicted_n": 1265
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 46,
+              "prompt_n": 65,
+              "cache_n": 13631,
+              "predicted_n": 271
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 48,
+              "prompt_n": 34,
+              "cache_n": 13966,
+              "predicted_n": 154
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 51,
+              "prompt_n": 722,
+              "cache_n": 14153,
+              "predicted_n": 83
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 53,
+              "prompt_n": 332,
+              "cache_n": 14957,
+              "predicted_n": 178
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 55,
+              "prompt_n": 477,
+              "cache_n": 15466,
+              "predicted_n": 651
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 57,
+              "prompt_n": 224,
+              "cache_n": 16593,
+              "predicted_n": 254
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 59,
+              "prompt_n": 53,
+              "cache_n": 17070,
+              "predicted_n": 357
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 61,
+              "prompt_n": 35,
+              "cache_n": 17479,
+              "predicted_n": 244
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 63,
+              "prompt_n": 193,
+              "cache_n": 17757,
+              "predicted_n": 916
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 30,
+              "prompt_n": 5198,
+              "cache_n": 300031,
+              "predicted_n": 12384
+            }
+          }
+        },
+        "2": {
+          "n_events": 2907,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 10,
+            "message_start": 23,
+            "message_end": 23,
+            "message_update": 2798,
+            "tool_execution_start": 11,
+            "tool_execution_update": 17,
+            "tool_execution_end": 11,
+            "turn_end": 10,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 10,
+          "tool_calls": {
+            "bash": 6,
+            "read": 3,
+            "write": 2
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r0/step2.events.jsonl",
+          "events_size": 867705,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 359,
+              "cache_n": 1313,
+              "predicted_n": 90
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 281,
+              "cache_n": 1761,
+              "predicted_n": 93
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 138,
+              "cache_n": 2134,
+              "predicted_n": 139
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 681,
+              "cache_n": 2410,
+              "predicted_n": 371
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 12,
+              "prompt_n": 708,
+              "cache_n": 3461,
+              "predicted_n": 276
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 14,
+              "prompt_n": 1557,
+              "cache_n": 4165,
+              "predicted_n": 538
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 16,
+              "prompt_n": 133,
+              "cache_n": 6259,
+              "predicted_n": 991
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 28,
+              "cache_n": 7382,
+              "predicted_n": 177
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 28,
+              "cache_n": 7586,
+              "predicted_n": 143
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 49,
+              "cache_n": 7756,
+              "predicted_n": 327
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 10,
+              "prompt_n": 3962,
+              "cache_n": 44227,
+              "predicted_n": 3145
+            }
+          }
+        }
+      },
+      "mem0_dbs": {}
+    },
+    {
+      "run_id": "inventory-baseline-r1",
+      "steps": {
+        "0": {
+          "n_events": 7237,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 8,
+            "message_start": 23,
+            "message_end": 23,
+            "message_update": 7136,
+            "tool_execution_start": 13,
+            "tool_execution_update": 9,
+            "tool_execution_end": 13,
+            "turn_end": 8,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 8,
+          "tool_calls": {
+            "bash": 4,
+            "read": 4,
+            "write": 2,
+            "edit": 3
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r1/step0.events.jsonl",
+          "events_size": 2021213,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 1829,
+              "cache_n": 0,
+              "predicted_n": 71
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 699,
+              "cache_n": 1899,
+              "predicted_n": 249
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 113,
+              "cache_n": 2846,
+              "predicted_n": 5684
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 6227,
+              "cache_n": 2955,
+              "predicted_n": 477
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 15,
+              "prompt_n": 35,
+              "cache_n": 9658,
+              "predicted_n": 383
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 240,
+              "cache_n": 10075,
+              "predicted_n": 144
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 34,
+              "cache_n": 10458,
+              "predicted_n": 85
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 384,
+              "cache_n": 10576,
+              "predicted_n": 511
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 8,
+              "prompt_n": 9561,
+              "cache_n": 48467,
+              "predicted_n": 7604
+            }
+          }
+        },
+        "1": {
+          "n_events": 6479,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 19,
+            "message_start": 40,
+            "message_end": 40,
+            "message_update": 6305,
+            "tool_execution_start": 19,
+            "tool_execution_update": 14,
+            "tool_execution_end": 19,
+            "turn_end": 19,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 19,
+          "tool_calls": {
+            "bash": 6,
+            "read": 8,
+            "edit": 5
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r1/step1.events.jsonl",
+          "events_size": 1864807,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 404,
+              "cache_n": 1313,
+              "predicted_n": 81
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 258,
+              "cache_n": 1797,
+              "predicted_n": 131
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 7,
+              "prompt_n": 388,
+              "cache_n": 2185,
+              "predicted_n": 60
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 24,
+              "cache_n": 2632,
+              "predicted_n": 72
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 547,
+              "cache_n": 2727,
+              "predicted_n": 2483
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 83,
+              "cache_n": 5756,
+              "predicted_n": 1165
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 15,
+              "prompt_n": 1203,
+              "cache_n": 5835,
+              "predicted_n": 334
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 17,
+              "prompt_n": 34,
+              "cache_n": 7371,
+              "predicted_n": 123
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 19,
+              "prompt_n": 190,
+              "cache_n": 7527,
+              "predicted_n": 255
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 21,
+              "prompt_n": 34,
+              "cache_n": 7971,
+              "predicted_n": 169
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 23,
+              "prompt_n": 704,
+              "cache_n": 8173,
+              "predicted_n": 101
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 25,
+              "prompt_n": 526,
+              "cache_n": 8977,
+              "predicted_n": 520
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 27,
+              "prompt_n": 35,
+              "cache_n": 10022,
+              "predicted_n": 197
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 29,
+              "prompt_n": 533,
+              "cache_n": 10253,
+              "predicted_n": 91
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 31,
+              "prompt_n": 257,
+              "cache_n": 10876,
+              "predicted_n": 236
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 33,
+              "prompt_n": 82,
+              "cache_n": 11368,
+              "predicted_n": 289
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 35,
+              "prompt_n": 48,
+              "cache_n": 11738,
+              "predicted_n": 186
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 37,
+              "prompt_n": 34,
+              "cache_n": 11971,
+              "predicted_n": 73
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 39,
+              "prompt_n": 34,
+              "cache_n": 12077,
+              "predicted_n": 375
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 19,
+              "prompt_n": 5418,
+              "cache_n": 140569,
+              "predicted_n": 6941
+            }
+          }
+        },
+        "2": {
+          "n_events": 3886,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 12,
+            "message_start": 30,
+            "message_end": 30,
+            "message_update": 3744,
+            "tool_execution_start": 16,
+            "tool_execution_update": 22,
+            "tool_execution_end": 16,
+            "turn_end": 12,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 12,
+          "tool_calls": {
+            "bash": 8,
+            "read": 5,
+            "write": 2,
+            "edit": 1
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r1/step2.events.jsonl",
+          "events_size": 1803997,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 359,
+              "cache_n": 1313,
+              "predicted_n": 167
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 641,
+              "cache_n": 1838,
+              "predicted_n": 185
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 8,
+              "prompt_n": 131,
+              "cache_n": 2663,
+              "predicted_n": 133
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 591,
+              "cache_n": 2926,
+              "predicted_n": 118
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 628,
+              "cache_n": 3634,
+              "predicted_n": 176
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 15,
+              "prompt_n": 13553,
+              "cache_n": 4437,
+              "predicted_n": 270
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 868,
+              "cache_n": 18259,
+              "predicted_n": 463
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 527,
+              "cache_n": 19589,
+              "predicted_n": 482
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 27,
+              "cache_n": 20597,
+              "predicted_n": 1323
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 24,
+              "prompt_n": 28,
+              "cache_n": 21946,
+              "predicted_n": 392
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 27,
+              "prompt_n": 51,
+              "cache_n": 22365,
+              "predicted_n": 89
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 29,
+              "prompt_n": 49,
+              "cache_n": 22504,
+              "predicted_n": 452
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 12,
+              "prompt_n": 17453,
+              "cache_n": 142071,
+              "predicted_n": 4250
+            }
+          }
+        }
+      },
+      "mem0_dbs": {}
+    },
+    {
+      "run_id": "inventory-baseline-r2",
+      "steps": {
+        "0": {
+          "n_events": 8522,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 9,
+            "message_start": 21,
+            "message_end": 21,
+            "message_update": 8430,
+            "tool_execution_start": 10,
+            "tool_execution_update": 8,
+            "tool_execution_end": 10,
+            "turn_end": 9,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 9,
+          "tool_calls": {
+            "bash": 3,
+            "read": 3,
+            "write": 2,
+            "edit": 2
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r2/step0.events.jsonl",
+          "events_size": 2332663,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 1829,
+              "cache_n": 0,
+              "predicted_n": 71
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 698,
+              "cache_n": 1899,
+              "predicted_n": 197
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 8,
+              "prompt_n": 71,
+              "cache_n": 2793,
+              "predicted_n": 120
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 10,
+              "prompt_n": 96,
+              "cache_n": 2983,
+              "predicted_n": 6712
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 12,
+              "prompt_n": 29,
+              "cache_n": 9790,
+              "predicted_n": 585
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 14,
+              "prompt_n": 615,
+              "cache_n": 9815,
+              "predicted_n": 447
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 16,
+              "prompt_n": 34,
+              "cache_n": 10876,
+              "predicted_n": 66
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 34,
+              "cache_n": 10975,
+              "predicted_n": 128
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 34,
+              "cache_n": 11136,
+              "predicted_n": 484
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 9,
+              "prompt_n": 3440,
+              "cache_n": 60267,
+              "predicted_n": 8810
+            }
+          }
+        },
+        "1": {
+          "n_events": 6494,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 15,
+            "message_start": 34,
+            "message_end": 34,
+            "message_update": 6344,
+            "tool_execution_start": 17,
+            "tool_execution_update": 14,
+            "tool_execution_end": 17,
+            "turn_end": 15,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 15,
+          "tool_calls": {
+            "bash": 6,
+            "read": 6,
+            "edit": 4,
+            "write": 1
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r2/step1.events.jsonl",
+          "events_size": 1857920,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 404,
+              "cache_n": 1313,
+              "predicted_n": 72
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 266,
+              "cache_n": 1788,
+              "predicted_n": 91
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 118,
+              "cache_n": 2144,
+              "predicted_n": 154
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 917,
+              "cache_n": 2415,
+              "predicted_n": 2484
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 12,
+              "prompt_n": 63,
+              "cache_n": 5815,
+              "predicted_n": 82
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 14,
+              "prompt_n": 43,
+              "cache_n": 5959,
+              "predicted_n": 1541
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 16,
+              "prompt_n": 35,
+              "cache_n": 7542,
+              "predicted_n": 122
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 718,
+              "cache_n": 7698,
+              "predicted_n": 872
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 29,
+              "cache_n": 9287,
+              "predicted_n": 504
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 23,
+              "prompt_n": 57,
+              "cache_n": 9819,
+              "predicted_n": 88
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 25,
+              "prompt_n": 333,
+              "cache_n": 9963,
+              "predicted_n": 294
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 27,
+              "prompt_n": 34,
+              "cache_n": 10589,
+              "predicted_n": 71
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 29,
+              "prompt_n": 85,
+              "cache_n": 10693,
+              "predicted_n": 79
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 31,
+              "prompt_n": 34,
+              "cache_n": 10856,
+              "predicted_n": 232
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 33,
+              "prompt_n": 55,
+              "cache_n": 11121,
+              "predicted_n": 252
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 15,
+              "prompt_n": 3191,
+              "cache_n": 107002,
+              "predicted_n": 6938
+            }
+          }
+        },
+        "2": {
+          "n_events": 6518,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 14,
+            "message_start": 39,
+            "message_end": 39,
+            "message_update": 6326,
+            "tool_execution_start": 23,
+            "tool_execution_update": 36,
+            "tool_execution_end": 23,
+            "turn_end": 14,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 14,
+          "tool_calls": {
+            "bash": 15,
+            "read": 5,
+            "write": 2,
+            "edit": 1
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-baseline-r2/step2.events.jsonl",
+          "events_size": 1890175,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 359,
+              "cache_n": 1313,
+              "predicted_n": 104
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 4,
+              "prompt_n": 242,
+              "cache_n": 1775,
+              "predicted_n": 69
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 54,
+              "cache_n": 2085,
+              "predicted_n": 132
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 457,
+              "cache_n": 2270,
+              "predicted_n": 226
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 808,
+              "cache_n": 2952,
+              "predicted_n": 385
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 16,
+              "prompt_n": 53,
+              "cache_n": 4144,
+              "predicted_n": 139
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 19,
+              "prompt_n": 1513,
+              "cache_n": 4335,
+              "predicted_n": 269
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 595,
+              "cache_n": 6116,
+              "predicted_n": 435
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 25,
+              "prompt_n": 353,
+              "cache_n": 7145,
+              "predicted_n": 520
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 28,
+              "prompt_n": 588,
+              "cache_n": 8017,
+              "predicted_n": 474
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 30,
+              "prompt_n": 151,
+              "cache_n": 9078,
+              "predicted_n": 666
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 32,
+              "prompt_n": 385,
+              "cache_n": 9894,
+              "predicted_n": 3046
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 35,
+              "prompt_n": 45,
+              "cache_n": 13324,
+              "predicted_n": 248
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 38,
+              "prompt_n": 71,
+              "cache_n": 13616,
+              "predicted_n": 322
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 14,
+              "prompt_n": 5674,
+              "cache_n": 86064,
+              "predicted_n": 7035
+            }
+          }
+        }
+      },
+      "mem0_dbs": {}
+    },
+    {
+      "run_id": "inventory-mem0-r0",
+      "steps": {
+        "0": {
+          "n_events": 6264,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 10,
+            "message_start": 27,
+            "message_end": 27,
+            "message_update": 6151,
+            "tool_execution_start": 15,
+            "tool_execution_update": 5,
+            "tool_execution_end": 15,
+            "turn_end": 10,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 10,
+          "tool_calls": {
+            "read": 3,
+            "bash": 2,
+            "write": 2,
+            "edit": 1,
+            "mem0_memory": 7
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/step0.events.jsonl",
+          "events_size": 1733140,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 2153,
+              "cache_n": 0,
+              "predicted_n": 175
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 5,
+              "prompt_n": 85,
+              "cache_n": 2327,
+              "predicted_n": 1777
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 8,
+              "prompt_n": 85,
+              "cache_n": 4188,
+              "predicted_n": 3121
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 46,
+              "cache_n": 7393,
+              "predicted_n": 79
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8427,
+              "cache_n": 0,
+              "predicted_n": 383
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 34,
+              "cache_n": 7517,
+              "predicted_n": 354
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 507,
+              "cache_n": 8139,
+              "predicted_n": 6
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 500,
+              "cache_n": 8139,
+              "predicted_n": 6
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 17,
+              "prompt_n": 7966,
+              "cache_n": 0,
+              "predicted_n": 228
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8702,
+              "cache_n": 0,
+              "predicted_n": 6
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 538,
+              "cache_n": 8186,
+              "predicted_n": 6
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 8232,
+              "cache_n": 0,
+              "predicted_n": 113
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8744,
+              "cache_n": 0,
+              "predicted_n": 6
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 8369,
+              "cache_n": 0,
+              "predicted_n": 223
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8763,
+              "cache_n": 0,
+              "predicted_n": 6
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 24,
+              "prompt_n": 8616,
+              "cache_n": 0,
+              "predicted_n": 156
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 26,
+              "prompt_n": 541,
+              "cache_n": 8771,
+              "predicted_n": 428
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 10,
+              "prompt_n": 36127,
+              "cache_n": 30196,
+              "predicted_n": 6654
+            },
+            "mem": {
+              "requests": 7,
+              "prompt_n": 36181,
+              "cache_n": 24464,
+              "predicted_n": 419
+            }
+          }
+        },
+        "1": {
+          "n_events": 8209,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 11,
+            "message_start": 30,
+            "message_end": 30,
+            "message_update": 8081,
+            "tool_execution_start": 16,
+            "tool_execution_update": 10,
+            "tool_execution_end": 16,
+            "turn_end": 11,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 11,
+          "tool_calls": {
+            "read": 8,
+            "bash": 4,
+            "edit": 4
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/step1.events.jsonl",
+          "events_size": 2299934,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 3,
+              "prompt_n": 393,
+              "cache_n": 1947,
+              "predicted_n": 151
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 320,
+              "cache_n": 2490,
+              "predicted_n": 200
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 10,
+              "prompt_n": 568,
+              "cache_n": 3009,
+              "predicted_n": 4022
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 12,
+              "prompt_n": 69,
+              "cache_n": 7598,
+              "predicted_n": 1068
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8874,
+              "cache_n": 0,
+              "predicted_n": 289
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 14,
+              "prompt_n": 35,
+              "cache_n": 8734,
+              "predicted_n": 631
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 17,
+              "prompt_n": 704,
+              "cache_n": 8765,
+              "predicted_n": 194
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 320,
+              "cache_n": 9662,
+              "predicted_n": 1594
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 34,
+              "cache_n": 11575,
+              "predicted_n": 94
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 24,
+              "prompt_n": 235,
+              "cache_n": 11702,
+              "predicted_n": 150
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 27,
+              "prompt_n": 268,
+              "cache_n": 12086,
+              "predicted_n": 82
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 29,
+              "prompt_n": 75,
+              "cache_n": 12435,
+              "predicted_n": 441
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 11,
+              "prompt_n": 3021,
+              "cache_n": 90003,
+              "predicted_n": 8627
+            },
+            "mem": {
+              "requests": 1,
+              "prompt_n": 8874,
+              "cache_n": 0,
+              "predicted_n": 289
+            }
+          }
+        },
+        "2": {
+          "n_events": 3257,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 14,
+            "message_start": 35,
+            "message_end": 35,
+            "message_update": 3108,
+            "tool_execution_start": 18,
+            "tool_execution_update": 11,
+            "tool_execution_end": 18,
+            "turn_end": 14,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 14,
+          "tool_calls": {
+            "bash": 5,
+            "read": 7,
+            "write": 4,
+            "edit": 2
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/step2.events.jsonl",
+          "events_size": 969048,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 3,
+              "prompt_n": 352,
+              "cache_n": 1947,
+              "predicted_n": 168
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 5,
+              "prompt_n": 302,
+              "cache_n": 2466,
+              "predicted_n": 125
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 8,
+              "prompt_n": 157,
+              "cache_n": 2892,
+              "predicted_n": 193
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 12,
+              "prompt_n": 1161,
+              "cache_n": 3241,
+              "predicted_n": 230
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 14,
+              "prompt_n": 27,
+              "cache_n": 4631,
+              "predicted_n": 732
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 17,
+              "prompt_n": 45,
+              "cache_n": 5389,
+              "predicted_n": 501
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 19,
+              "prompt_n": 28,
+              "cache_n": 5934,
+              "predicted_n": 263
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 21,
+              "prompt_n": 28,
+              "cache_n": 6224,
+              "predicted_n": 137
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 23,
+              "prompt_n": 34,
+              "cache_n": 6388,
+              "predicted_n": 247
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 25,
+              "prompt_n": 75,
+              "cache_n": 6668,
+              "predicted_n": 366
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 27,
+              "prompt_n": 75,
+              "cache_n": 7108,
+              "predicted_n": 174
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 29,
+              "prompt_n": 34,
+              "cache_n": 7356,
+              "predicted_n": 141
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 32,
+              "prompt_n": 292,
+              "cache_n": 7530,
+              "predicted_n": 105
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 9183,
+              "cache_n": 0,
+              "predicted_n": 2048
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 34,
+              "prompt_n": 35,
+              "cache_n": 7926,
+              "predicted_n": 309
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 14,
+              "prompt_n": 2645,
+              "cache_n": 75700,
+              "predicted_n": 3691
+            },
+            "mem": {
+              "requests": 1,
+              "prompt_n": 9183,
+              "cache_n": 0,
+              "predicted_n": 2048
+            }
+          }
+        }
+      },
+      "mem0_dbs": {
+        "memory/mem0-history.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/memory/mem0-history.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_history",
+              "type": "table",
+              "rows": 9
+            },
+            {
+              "name": "messages",
+              "type": "table",
+              "rows": 10
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "sqlite_autoindex_messages_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        },
+        "memory/mem0-vectors.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/memory/mem0-vectors.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_migrations",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "vectors",
+              "type": "table",
+              "rows": 9
+            },
+            {
+              "name": "sqlite_autoindex_memory_migrations_1",
+              "type": "index",
+              "rows": -1
+            },
+            {
+              "name": "sqlite_autoindex_vectors_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        },
+        "memory/mem0-vectors_entities.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r0/memory/mem0-vectors_entities.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_migrations",
+              "type": "table",
+              "rows": 0
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 0
+            },
+            {
+              "name": "vectors",
+              "type": "table",
+              "rows": 59
+            },
+            {
+              "name": "sqlite_autoindex_memory_migrations_1",
+              "type": "index",
+              "rows": -1
+            },
+            {
+              "name": "sqlite_autoindex_vectors_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "run_id": "inventory-mem0-r1",
+      "steps": {
+        "0": {
+          "n_events": 5497,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 8,
+            "message_start": 20,
+            "message_end": 20,
+            "message_update": 5406,
+            "tool_execution_start": 10,
+            "tool_execution_update": 11,
+            "tool_execution_end": 10,
+            "turn_end": 8,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 8,
+          "tool_calls": {
+            "bash": 4,
+            "read": 2,
+            "write": 2,
+            "edit": 1,
+            "mem0_memory": 1
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r1/step0.events.jsonl",
+          "events_size": 1517045,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 2153,
+              "cache_n": 0,
+              "predicted_n": 147
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 5,
+              "prompt_n": 217,
+              "cache_n": 2299,
+              "predicted_n": 95
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 7,
+              "prompt_n": 38,
+              "cache_n": 2610,
+              "predicted_n": 100
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 27,
+              "cache_n": 2747,
+              "predicted_n": 2781
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 97,
+              "cache_n": 5554,
+              "predicted_n": 2102
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 14,
+              "prompt_n": 46,
+              "cache_n": 7752,
+              "predicted_n": 122
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 16,
+              "prompt_n": 34,
+              "cache_n": 7919,
+              "predicted_n": 139
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8231,
+              "cache_n": 0,
+              "predicted_n": 61
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 19,
+              "prompt_n": 8199,
+              "cache_n": 0,
+              "predicted_n": 258
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8650,
+              "cache_n": 0,
+              "predicted_n": 311
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 8,
+              "prompt_n": 10811,
+              "cache_n": 28881,
+              "predicted_n": 5744
+            },
+            "mem": {
+              "requests": 2,
+              "prompt_n": 16881,
+              "cache_n": 0,
+              "predicted_n": 372
+            }
+          }
+        },
+        "1": {
+          "n_events": 7080,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 5,
+            "message_start": 19,
+            "message_end": 19,
+            "message_update": 7000,
+            "tool_execution_start": 11,
+            "tool_execution_update": 6,
+            "tool_execution_end": 11,
+            "turn_end": 5,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 5,
+          "tool_calls": {
+            "bash": 2,
+            "read": 6,
+            "edit": 3
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r1/step1.events.jsonl",
+          "events_size": 1976092,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 3,
+              "prompt_n": 2420,
+              "cache_n": 0,
+              "predicted_n": 152
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 604,
+              "cache_n": 2571,
+              "predicted_n": 254
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 558,
+              "cache_n": 3428,
+              "predicted_n": 6394
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 15,
+              "prompt_n": 81,
+              "cache_n": 10379,
+              "predicted_n": 131
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 675,
+              "cache_n": 10590,
+              "predicted_n": 460
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 9133,
+              "cache_n": 0,
+              "predicted_n": 384
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 5,
+              "prompt_n": 4338,
+              "cache_n": 26968,
+              "predicted_n": 7391
+            },
+            "mem": {
+              "requests": 1,
+              "prompt_n": 9133,
+              "cache_n": 0,
+              "predicted_n": 384
+            }
+          }
+        },
+        "2": {
+          "n_events": 3755,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 11,
+            "message_start": 29,
+            "message_end": 29,
+            "message_update": 3633,
+            "tool_execution_start": 15,
+            "tool_execution_update": 8,
+            "tool_execution_end": 15,
+            "turn_end": 11,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 11,
+          "tool_calls": {
+            "bash": 3,
+            "read": 6,
+            "write": 3,
+            "edit": 3
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r1/step2.events.jsonl",
+          "events_size": 1098290,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 3,
+              "prompt_n": 2421,
+              "cache_n": 0,
+              "predicted_n": 398
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 338,
+              "cache_n": 2818,
+              "predicted_n": 205
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 10,
+              "prompt_n": 1282,
+              "cache_n": 3360,
+              "predicted_n": 256
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 56,
+              "cache_n": 4897,
+              "predicted_n": 1225
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 16,
+              "prompt_n": 45,
+              "cache_n": 6177,
+              "predicted_n": 371
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 9232,
+              "cache_n": 0,
+              "predicted_n": 124
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 28,
+              "cache_n": 6592,
+              "predicted_n": 491
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 46,
+              "cache_n": 7110,
+              "predicted_n": 81
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 193,
+              "cache_n": 7236,
+              "predicted_n": 374
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 24,
+              "prompt_n": 34,
+              "cache_n": 7802,
+              "predicted_n": 288
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 26,
+              "prompt_n": 34,
+              "cache_n": 8123,
+              "predicted_n": 91
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 28,
+              "prompt_n": 142,
+              "cache_n": 8247,
+              "predicted_n": 372
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 11,
+              "prompt_n": 4619,
+              "cache_n": 62362,
+              "predicted_n": 4152
+            },
+            "mem": {
+              "requests": 1,
+              "prompt_n": 9232,
+              "cache_n": 0,
+              "predicted_n": 124
+            }
+          }
+        }
+      },
+      "mem0_dbs": {
+        "memory/mem0-history.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r1/memory/mem0-history.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_history",
+              "type": "table",
+              "rows": 11
+            },
+            {
+              "name": "messages",
+              "type": "table",
+              "rows": 7
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "sqlite_autoindex_messages_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        },
+        "memory/mem0-vectors.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r1/memory/mem0-vectors.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_migrations",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "vectors",
+              "type": "table",
+              "rows": 11
+            },
+            {
+              "name": "sqlite_autoindex_memory_migrations_1",
+              "type": "index",
+              "rows": -1
+            },
+            {
+              "name": "sqlite_autoindex_vectors_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        },
+        "memory/mem0-vectors_entities.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r1/memory/mem0-vectors_entities.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_migrations",
+              "type": "table",
+              "rows": 0
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 0
+            },
+            {
+              "name": "vectors",
+              "type": "table",
+              "rows": 97
+            },
+            {
+              "name": "sqlite_autoindex_memory_migrations_1",
+              "type": "index",
+              "rows": -1
+            },
+            {
+              "name": "sqlite_autoindex_vectors_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        }
+      }
+    },
+    {
+      "run_id": "inventory-mem0-r2",
+      "steps": {
+        "0": {
+          "n_events": 7316,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 9,
+            "message_start": 26,
+            "message_end": 26,
+            "message_update": 7200,
+            "tool_execution_start": 15,
+            "tool_execution_update": 12,
+            "tool_execution_end": 15,
+            "turn_end": 9,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 9,
+          "tool_calls": {
+            "bash": 4,
+            "read": 4,
+            "write": 2,
+            "edit": 3,
+            "mem0_memory": 2
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r2/step0.events.jsonl",
+          "events_size": 2035120,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 206,
+              "cache_n": 1947,
+              "predicted_n": 141
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 5,
+              "prompt_n": 78,
+              "cache_n": 2293,
+              "predicted_n": 198
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 55,
+              "cache_n": 2568,
+              "predicted_n": 4854
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 48,
+              "cache_n": 7476,
+              "predicted_n": 962
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 15,
+              "prompt_n": 69,
+              "cache_n": 8485,
+              "predicted_n": 258
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8429,
+              "cache_n": 0,
+              "predicted_n": 245
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 674,
+              "cache_n": 8811,
+              "predicted_n": 506
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 544,
+              "cache_n": 9481,
+              "predicted_n": 210
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 264,
+              "cache_n": 10234,
+              "predicted_n": 323
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8627,
+              "cache_n": 0,
+              "predicted_n": 6
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 482,
+              "cache_n": 8139,
+              "predicted_n": 6
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 25,
+              "prompt_n": 10859,
+              "cache_n": 0,
+              "predicted_n": 251
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 9,
+              "prompt_n": 12797,
+              "cache_n": 51295,
+              "predicted_n": 7703
+            },
+            "mem": {
+              "requests": 3,
+              "prompt_n": 17538,
+              "cache_n": 8139,
+              "predicted_n": 257
+            }
+          }
+        },
+        "1": {
+          "n_events": 8942,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 12,
+            "message_start": 29,
+            "message_end": 29,
+            "message_update": 8817,
+            "tool_execution_start": 14,
+            "tool_execution_update": 11,
+            "tool_execution_end": 14,
+            "turn_end": 12,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 12,
+          "tool_calls": {
+            "read": 5,
+            "bash": 4,
+            "edit": 5
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r2/step1.events.jsonl",
+          "events_size": 2590219,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 3,
+              "prompt_n": 362,
+              "cache_n": 1947,
+              "predicted_n": 273
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 472,
+              "cache_n": 2581,
+              "predicted_n": 134
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 9,
+              "prompt_n": 459,
+              "cache_n": 3186,
+              "predicted_n": 1513
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 11,
+              "prompt_n": 27,
+              "cache_n": 5157,
+              "predicted_n": 5407
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8736,
+              "cache_n": 0,
+              "predicted_n": 192
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 35,
+              "cache_n": 10590,
+              "predicted_n": 740
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 16,
+              "prompt_n": 57,
+              "cache_n": 11364,
+              "predicted_n": 91
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 2600,
+              "cache_n": 11511,
+              "predicted_n": 272
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 35,
+              "cache_n": 14382,
+              "predicted_n": 69
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 543,
+              "cache_n": 14485,
+              "predicted_n": 185
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 24,
+              "prompt_n": 34,
+              "cache_n": 15212,
+              "predicted_n": 69
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 26,
+              "prompt_n": 381,
+              "cache_n": 15314,
+              "predicted_n": 120
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 28,
+              "prompt_n": 582,
+              "cache_n": 15814,
+              "predicted_n": 405
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 12,
+              "prompt_n": 5587,
+              "cache_n": 121543,
+              "predicted_n": 9278
+            },
+            "mem": {
+              "requests": 1,
+              "prompt_n": 8736,
+              "cache_n": 0,
+              "predicted_n": 192
+            }
+          }
+        },
+        "2": {
+          "n_events": 5684,
+          "event_types": {
+            "session": 1,
+            "agent_start": 1,
+            "turn_start": 8,
+            "message_start": 25,
+            "message_end": 25,
+            "message_update": 5576,
+            "tool_execution_start": 14,
+            "tool_execution_update": 10,
+            "tool_execution_end": 14,
+            "turn_end": 8,
+            "agent_end": 1,
+            "agent_settled": 1
+          },
+          "n_assistant_messages": 8,
+          "tool_calls": {
+            "mem0_memory": 1,
+            "bash": 3,
+            "read": 7,
+            "write": 2,
+            "edit": 1
+          },
+          "events_file": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r2/step2.events.jsonl",
+          "events_size": 1618891,
+          "tap_records": [
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 3,
+              "prompt_n": 317,
+              "cache_n": 1947,
+              "predicted_n": 786
+            },
+            {
+              "role": "mem",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-mem",
+              "status": 200,
+              "n_messages": 2,
+              "prompt_n": 8802,
+              "cache_n": 0,
+              "predicted_n": 399
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 6,
+              "prompt_n": 916,
+              "cache_n": 3049,
+              "predicted_n": 419
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 13,
+              "prompt_n": 1619,
+              "cache_n": 4383,
+              "predicted_n": 3613
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 15,
+              "prompt_n": 36,
+              "cache_n": 9614,
+              "predicted_n": 472
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 18,
+              "prompt_n": 45,
+              "cache_n": 10121,
+              "predicted_n": 188
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 20,
+              "prompt_n": 34,
+              "cache_n": 10353,
+              "predicted_n": 87
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 22,
+              "prompt_n": 35,
+              "cache_n": 10473,
+              "predicted_n": 123
+            },
+            {
+              "role": "agent",
+              "path": "/v1/chat/completions",
+              "model": "bonsai-agent",
+              "status": 200,
+              "n_messages": 24,
+              "prompt_n": 69,
+              "cache_n": 10630,
+              "predicted_n": 341
+            }
+          ],
+          "tap_role_totals": {
+            "agent": {
+              "requests": 8,
+              "prompt_n": 3071,
+              "cache_n": 60570,
+              "predicted_n": 6029
+            },
+            "mem": {
+              "requests": 1,
+              "prompt_n": 8802,
+              "cache_n": 0,
+              "predicted_n": 399
+            }
+          }
+        }
+      },
+      "mem0_dbs": {
+        "memory/mem0-history.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r2/memory/mem0-history.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_history",
+              "type": "table",
+              "rows": 3
+            },
+            {
+              "name": "messages",
+              "type": "table",
+              "rows": 8
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "sqlite_autoindex_messages_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        },
+        "memory/mem0-vectors.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r2/memory/mem0-vectors.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_migrations",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 1
+            },
+            {
+              "name": "vectors",
+              "type": "table",
+              "rows": 3
+            },
+            {
+              "name": "sqlite_autoindex_memory_migrations_1",
+              "type": "index",
+              "rows": -1
+            },
+            {
+              "name": "sqlite_autoindex_vectors_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        },
+        "memory/mem0-vectors_entities.db": {
+          "path": "/home/josiah/Projects/bonsai-garden/evals/results/2026-10-11-baseline-mem0/runs/inventory-mem0-r2/memory/mem0-vectors_entities.db",
+          "exists": true,
+          "tables": [
+            {
+              "name": "memory_migrations",
+              "type": "table",
+              "rows": 0
+            },
+            {
+              "name": "sqlite_sequence",
+              "type": "table",
+              "rows": 0
+            },
+            {
+              "name": "vectors",
+              "type": "table",
+              "rows": 38
+            },
+            {
+              "name": "sqlite_autoindex_memory_migrations_1",
+              "type": "index",
+              "rows": -1
+            },
+            {
+              "name": "sqlite_autoindex_vectors_1",
+              "type": "index",
+              "rows": -1
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "tap_record_total": 286
+}

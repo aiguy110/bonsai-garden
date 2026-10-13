@@ -1,0 +1,10 @@
+{
+  "name": "baseline",
+  "description": "Control: pi on bonsai-agent, no memory extension, pi default compaction.",
+  "model": "bonsai-agent",
+  "thinking": "low",
+  "packages": [],
+  "npm": [],
+  "settings": {},
+  "env": {}
+}

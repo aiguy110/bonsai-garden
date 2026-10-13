@@ -1,0 +1,4 @@
+2026-10-12 10:52:47,033 turnstile lease 51e31f3d16b70d4c2bcb768e0d954e59 granted after 0s
+2026-10-12 10:52:47,033 running: python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod
+result ok None
+2026-10-12 11:13:27,259 released lease 51e31f3d16b70d4c2bcb768e0d954e59

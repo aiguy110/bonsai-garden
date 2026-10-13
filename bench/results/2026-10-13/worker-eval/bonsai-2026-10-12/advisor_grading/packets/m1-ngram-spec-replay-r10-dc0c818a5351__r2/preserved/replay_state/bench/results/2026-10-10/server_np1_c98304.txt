@@ -1,0 +1,3 @@
+single 61.5 None None
+conc 61.5
+vram 9349 MiB
