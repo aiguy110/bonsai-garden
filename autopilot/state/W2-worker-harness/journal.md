@@ -341,3 +341,7 @@ w2-hashline: records 0/1
 w2-compaction: records 0/1
 
 ```
+
+### 2026-10-13T13:02:07-04:00 · orchestrator
+
+`openai-codex/gpt-5.6-terra` hit its subscription's usage limit; the worker uses `meridian/claude-sonnet-5-5` until 13:17. This session doesn't count as a round.
