@@ -1511,3 +1511,25 @@ Ran `python3 bench/worker_eval/summarize.py --check bench/results/2026-10-13/wor
 check passed: 44 attempts
 
 ```
+
+### 2026-10-13T08:21:29-04:00 · worker (gpt-5.6-terra), round 10
+
+Baseline N=2 replay, deterministic summary generation, and reproducibility check are complete.
+
+```json
+{
+  "request": "done",
+  "summary": "Acceptance met. `bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/results.jsonl` has 44 unique completed `(case_id, repeat)` records: exactly two for each of 22 cases. Its manifests name `bonsai-2026-10-12`, `local-llm-bench`, and the turnstile bench-key Bonsai route. `bench/worker_eval/summarize.py --check bench/results/2026-10-13/worker-eval/bonsai-2026-10-12` passed, recomputing `summary.json` and `summary.md` from the records. The summaries contain per-case and pooled required rates, both kind-match denominators, medians, tool/compaction/stop metrics, explicit overlapping-flag denominators, and the invalid/absent-request table. Pooled: 25/44 valid (56.8%), 21/44 kind matches (47.7%; 21/25 or 84.0% conditional on valid), median 903.5 s; flags timeout 17, context overflow 3, output limit 2. Existing provenance caveat: all five manifests record `repo_dirty=true`; failure-flag verification trusts result-record fields while preserving raw attempt artifacts."
+}
+```
+
+### 2026-10-13T08:22:54-04:00 · advisor (finished item)
+
+**approve**: Acceptance is met. results.jsonl contains 44 completed unique attempts covering all 22 cases twice. The five manifests consistently pin the arm hash and identify the local-llm-bench bench-key turnstile route. summary.json and summary.md report all required pooled/per-case metrics and the 19 invalid or absent requests. Context-overflow and output-limit flags trace to explicit raw events; timeout records consistently show the 1200-second runner limit. The reported pooled values recompute coherently: 25/44 valid, 21/44 kind matches, 21/25 conditional matches, and 903.5 s median wall time. Retain the disclosed caveats that every manifest has repo_dirty=true and --check trusts recorded failure flags rather than independently reparsing events.
+
+### 2026-10-13T08:22:54-04:00 · orchestrator
+
+Added to the standing facts:
+
+- The accepted Bonsai baseline in bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/summary.json is 25/44 valid requests (56.8%), 21/44 kind matches (47.7%; 84.0% conditional on valid), with median wall time 903.5 seconds.
+- Failure flags are event-level and overlapping: the three context-overflow flags include m1-ngram-replay-set-r10 repeat 1, which recovered and submitted a valid request, so flag totals must not be interpreted as counts of failed attempts.
