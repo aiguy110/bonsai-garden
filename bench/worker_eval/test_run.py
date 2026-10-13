@@ -297,6 +297,29 @@ def test_infra_failures_are_not_recorded(tmp_path):
     assert s["ran"] == 0 and s["remaining"] == 3 + 2 and not results.exists()
 
 
+def test_pinned_model_sha256_repairs_only_bad_cache(tmp_path):
+    model = tmp_path / "model.gguf"
+    model.write_bytes(b"model")
+    cache = tmp_path / "sha256-model.gguf.json"
+    cache.write_text("")
+
+    class Ev:
+        MODEL_FILE = model
+        CACHE = tmp_path
+        calls = 0
+
+        @classmethod
+        def file_sha256(cls, path):
+            cls.calls += 1
+            if cls.calls == 1:
+                raise json.JSONDecodeError("bad cache", "", 0)
+            assert not cache.exists()
+            return "a" * 64
+
+    assert w.pinned_model_sha256(Ev) == ("a" * 64, True)
+    assert Ev.calls == 2
+
+
 def test_real_cases_render():
     arm, _ = w.load_arm("bonsai-2026-10-12")
     cases = w.load_cases(HERE / "cases.jsonl")

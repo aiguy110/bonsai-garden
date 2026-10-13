@@ -1,2 +1,4 @@
  M autopilot/state/W1-worker-eval/journal.md
-?? bench/results/2026-10-12/autopilot/replay-harness-r8.log
+ M bench/worker_eval/run.py
+ M bench/worker_eval/test_run.py
+?? bench/results/2026-10-12/autopilot/replay-harness-r1.log

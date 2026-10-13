@@ -6,8 +6,8 @@
   "start_commit": "6e58f53652092b29d5fcdb6515a9d731bc51e206",
   "prompt_sha256": "4ba5ac82ea944369fa927a8ec701a27fdfa09e5f0a043da35efd2432912a7c73",
   "case_prompt_sha256": "4ba5ac82ea944369fa927a8ec701a27fdfa09e5f0a043da35efd2432912a7c73",
-  "checkout": "/tmp/w1-replay-qriyrvmi/garden",
-  "started": "2026-10-12T16:22:31-04:00",
+  "checkout": "/tmp/w1-replay-ugp5hnur/garden",
+  "started": "2026-10-12T20:07:46-04:00",
   "pi": [
     "pi",
     "-p",

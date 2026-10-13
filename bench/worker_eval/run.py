@@ -540,7 +540,26 @@ def safe(f, default=None):
         return default if default is not None else f"unavailable: {e}"
 
 
-def run_manifest(ev, arm, arm_hash, cases_path, cases_hash, args):
+def pinned_model_sha256(ev):
+    """Return evals/run.py's model pin, repairing only its malformed JSON cache.
+
+    A truncated cache must not turn a reproducible manifest into ``unavailable``.
+    The retry recomputes the hash through the existing helper, which atomically
+    replaces the cache's content for future runs. Other failures are deliberate:
+    do not launch an unpinned replay.
+    """
+    try:
+        return ev.file_sha256(ev.MODEL_FILE), False
+    except (json.JSONDecodeError, KeyError, TypeError):
+        cache = pathlib.Path(ev.CACHE) / f"sha256-{pathlib.Path(ev.MODEL_FILE).name}.json"
+        try:
+            cache.unlink()
+        except FileNotFoundError:
+            pass
+        return ev.file_sha256(ev.MODEL_FILE), True
+
+
+def run_manifest(ev, arm, arm_hash, cases_path, cases_hash, args, model_hash, hash_cache_repaired):
     return {
         "started": now_iso(),
         "repo_commit": safe(lambda: git("rev-parse", "HEAD", cwd=ROOT)),
@@ -554,7 +573,8 @@ def run_manifest(ev, arm, arm_hash, cases_path, cases_hash, args):
         "sandbox_venv_python": safe(lambda: ev.sh(str(ev.VENV / "bin" / "python"), "--version")),
         "model_registration": model_registration(arm),
         "model_file": str(ev.MODEL_FILE),
-        "model_sha256": safe(lambda: ev.file_sha256(ev.MODEL_FILE)),
+        "model_sha256": model_hash,
+        "model_sha256_cache_repaired": hash_cache_repaired,
         "llama_swap_entry": safe(lambda: ev.swap_entry("bonsai-2-27b")),
         "turnstile_routing": safe(lambda: ev.turnstile_routing()),
         "turnstile_commit": safe(lambda: ev.sh("git", "-C", str(ev.TURNSTILE_CONFIG.parent), "rev-parse", "HEAD")),
@@ -664,10 +684,14 @@ def main(argv=None):
 
     ev = load_ev()
     resolve_venv(ev)
+    try:
+        model_hash, hash_cache_repaired = pinned_model_sha256(ev)
+    except Exception as e:  # noqa: BLE001
+        sys.exit(f"cannot pin model sha256; refusing to launch: {e}")
     ev.preflight([])
     check = orchestrator_check()
     out.mkdir(parents=True, exist_ok=True)
-    man = run_manifest(ev, arm, arm_hash, args.cases, cases_hash, args)
+    man = run_manifest(ev, arm, arm_hash, args.cases, cases_hash, args, model_hash, hash_cache_repaired)
     stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     (out / f"manifest-{stamp}.json").write_text(json.dumps(man, indent=2) + "\n")
     signal.signal(signal.SIGTERM, lambda *_: sys.exit(143))

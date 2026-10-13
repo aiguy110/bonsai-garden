@@ -716,3 +716,145 @@ Unblocked by the user.
 ### 2026-10-12T20:08:00-04:00 · orchestrator
 
 Host fix by the user: the RTX 3080 is now capped at 250 W with SM clocks locked at ≤1700 MHz (`serving/gpu-power-cap.service`, persistent across boots). The resets matched power transients tripping the PSU. Under the cap the host held 15 minutes of 68k-token prefills on both slots (`bench/results/2026-10-12/power-cap-250w/`). One smoke retry is approved; still fix the model_sha256 hash cache before claiming acceptance.
+
+### 2026-10-12T20:06:24-04:00 · worker (gpt-5.6-terra), round 1
+
+Added malformed model-hash-cache repair before launch; manifests now require a real model SHA-256. Added a unit test; 24 fixture tests, Python compilation, and shell syntax checks pass locally. Next: post-power-cap host smoke replay and resume validation.
+
+```json
+{
+  "request": "run",
+  "command": "bash bench/worker_eval/smoke.sh",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Run the approved post-power-cap one-case live bench-route replay and resume smoke test. The harness repairs the observed malformed model SHA-256 cache before launch and refuses an unpinned run; smoke.sh is fail-fast and checks fixture tests, artifacts, resume, worktree status, and /tmp checkout cleanup."
+}
+```
+
+### 2026-10-12T20:07:41-04:00 · advisor (run request)
+
+**approve**: Run the one-case smoke retry only; do not start the full N=2 baseline yet. Afterward report: 24-test summary; first invocation ran=1 with exactly one results.jsonl record; second invocation skipped=1/ran=0 with unchanged line count; a 64-hex-character model_sha256 and cache-repair status; nonempty routing/model metadata; all attempt artifacts; nonempty tap log with HTTP 200; unchanged status outside the result directory; no /tmp/w1-replay-* leftovers; and any infra-errors.jsonl entries. Caveat: smoke.sh prints record counts and resume stats but does not itself assert their expected values, so verify them explicitly before claiming acceptance.
+
+### 2026-10-12T20:24:56-04:00 · orchestrator
+
+Ran `bash bench/worker_eval/smoke.sh` (gpu=False) in 1034s, exit 0. Full output: `bench/results/2026-10-12/autopilot/replay-harness-r1.log`. Last lines:
+
+```
+on
+manifest-20261012-162231.json
+manifest-20261012-200746.json
+manifest-20261012-202455.json
+results.jsonl
+status-before.txt
+
+bench/results/2026-10-12/worker_eval/smoke/m1-ngram-replay-set-r6-9cf273aef422:
+r1
+
+bench/results/2026-10-12/worker_eval/smoke/m1-ngram-replay-set-r6-9cf273aef422/r1:
+events.jsonl
+final.txt
+manifest.json
+record.json
+request.json
+stderr.txt
+tap.jsonl
+workspace.diff
+{
+ "advisor_verdict": "revise",
+ "arm": "bonsai-2026-10-12",
+ "arm_sha256": "a0c613618620d2815e94ed1307f28a670de83b347266090d02aabea3c66399cb",
+ "attempt_dir": "bench/results/2026-10-12/worker_eval/smoke/m1-ngram-replay-set-r6-9cf273aef422/r1",
+ "case_id": "m1-ngram-replay-set-r6-9cf273aef422",
+ "cases_sha256": "c88f03d223b3ebec8b689d903ca0fbc076c7b746bfb408c6f0bd3ca4cbabec57",
+ "cloud_kind": "run",
+ "compaction_end": 1,
+ "compaction_start": 1,
+ "complete": true,
+ "context_overflow": false,
+ "errors": [],
+ "finished": "2026-10-12T20:24:55-04:00",
+ "flag_triggers": {},
+ "item": "replay-set",
+ "kind_match": true,
+ "last_stop": "toolUse",
+ "manifest": "manifest-20261012-200746.json",
+ "output_limit": false,
+ "pi_exit_code": 0,
+ "pi_exit_nonzero": false,
+ "rate_limit": false,
+ "repeat": 1,
+ "replay_kind": "run",
+ "repo_commit": "14c7e69dafe67f1c5f931aef15aa4357ea4bb4e5",
+ "request": {
+  "command": "python3 bench/.diagnostic_host.py",
+  "gpu": false,
+  "report": "Wrote self-contained host diagnostic to bench/.diagnostic_host.py. It discovers the real event files + SQLite DBs on the host via glob, verifies that agent message indices match recorded n_messages across all 6 run-steps, dumps DB schema/rows, lists mem0 tool-call actions, and searches for a tap.jsonl. Running it now to validate the reconstruction approach before writing the full build_replay_set.py.",
+  "request": "run",
+  "timeout_min": 15,
+  "why": "Need ground-truth from the real host data (event message structure, DB schema, mem0 tool calls, tap record location) to write a correct build_replay_set.py. Sandbox cannot read host files."
+ },
+ "request_source": "tool",
+ "stop_reasons": [
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse",
+  "toolUse"
+ ],
+ "tap_log_bytes": 26411,
+ "timeout": false,
+ "tool_calls": 40,
+ "tool_errors": {
+  "bash": 1,
+  "submit_request": 1
+ },
+ "tools": {
+  "bash": 20,
+  "read": 16,
+  "submit_request": 2,
+  "write": 2
+ },
+ "turns": 36,
+ "valid_request": true,
+ "validation_errors": [],
+ "wall_s": 1028.9
+}
+== worktree diff outside results (empty = unchanged)
+unchanged
+== worktree venv dir
+ls: cannot access 'evals/.cache/venv-sandbox': No such file or directory
+== leftover checkouts
+none
+
+```
