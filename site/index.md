@@ -1,31 +1,25 @@
 ---
 layer: project
 title: bonsai-garden
-updated: 2026-10-12
-tldr: A coding agent with long-term memory, running entirely on one 10 GB consumer GPU.
+updated: 2026-10-13
+tldr: A coding agent with long-term memory on one 10 GB GPU; its local-worker baseline now measures where the research harness fails.
 summary: |
   **Question:** can a small local coding agent get measurably better at multi-session
-  work if it has a memory layer, when everything (agent, memory, and embeddings) runs on
-  a single RTX 3080?
+  work—and eventually perform its own guarded research—when everything runs on one
+  RTX 3080?
 
-  **Setup:** the [pi](https://github.com/badlogic/pi-mono) coding agent runs on
-  Ternary-Bonsai-2-27B (a 2-bit, 27B model that fits in 6.7 GB). A mem0 memory layer
-  uses the *same* weights through a second server slot, plus a small CPU embedder.
+  **Setup:** [pi](https://github.com/badlogic/pi-mono) runs on Ternary-Bonsai-2-27B;
+  mem0 uses the same weights through a second server slot plus a CPU embedder.
 
-  **So far:**
-  - Serving both roles from one copy of the weights works. Two parallel slots cost
-    +150 MiB of VRAM and give about +45% aggregate throughput. A GPU scheduler change
-    lets agent and memory requests run side by side.
-  - First memory benchmark (1 task, 3 repeats): **mem0 finished the full 3-session
-    sequence 2/3 times; no-memory baseline 0/3.** Memory carried facts and rules that
-    were only ever *said*, never written into the repo.
-  - N-gram self-speculation did **not** speed recorded agent or mem0 traffic
-    with both slots busy (26.7 vs 31.3 tok/s for agent; 23.4 vs 25.4 for mem0),
-    and changed outputs. It was not deployed.
+  **So far:** two roles share one model copy; the first memory task favored mem0
+  (2/3 full sequences vs 0/3); and n-gram speculation slowed busy two-slot traffic.
+  The new [local-worker baseline](series/local-worker/worker-eval.md) replayed 22
+  real cloud-worker rounds twice: Bonsai made valid requests in **25/44 (56.8%)**
+  and matched kind in **21/44 (47.7%)**. A 10-request advisor sample approved 7.
 
-  **Next ([roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md)):**
-  more tasks and repeats, a guard that memory doesn't hurt unrelated tasks, and
-  two other memory layers (agent-managed blocks, Graphiti) to compare with mem0.
+  **Next:** W2 tests worker-harness changes for context, tools, editing, session
+  discipline, and compaction; memory and broader continuity evaluation continue
+  separately.
 ---
 
 Live progress from the autopilot (Bonsai doing the research, with a cloud model
@@ -72,6 +66,9 @@ mem0 ──────► CPU embedder (Qwen3-Embedding-0.6B)
    two-slot production traffic (agent 26.7 vs 31.3 tok/s; mem0 23.4 vs 25.4),
    and a shorter-draft variant also lost under greedy sampling. The live server
    stays non-speculative.
+6. **Local-worker replay (2026-10-13).** On 22 real cloud-worker rounds replayed
+   twice, Bonsai made 25/44 deterministically valid requests and 21/44 kind
+   matches. W2 now tests harness changes against that baseline.
 
 ## Open questions
 

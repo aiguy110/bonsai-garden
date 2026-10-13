@@ -1831,3 +1831,30 @@ Finalized grading artifacts and validated 10 grade records.
 Added to the standing facts:
 
 - The accepted deterministic advisor sample in `bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/` is 7/10 approve, 3/10 revise, and 0/10 reject from `openai-codex/gpt-5.6-sol`; this is a small judged sample, not a deterministic performance rate.
+
+### 2026-10-13T09:04:34-04:00 · worker (gpt-5.6-terra), round 1
+
+Created the local-worker series and W1 experiment pages, updated project/site/README/roadmap summaries, and checked summary word counts. Local sandbox lacks PyYAML, so the required site checker needs host validation next.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/check_site.py",
+  "gpu": false,
+  "timeout_min": 30,
+  "why": "Validate the new local-worker series and W1 experiment front matter, summary limits, parent dates, and site structure with the required repository checker. It performs no GPU or live-stack work."
+}
+```
+
+### 2026-10-13T09:04:59-04:00 · advisor (run request)
+
+**approve**: Safe and appropriate to run. It invokes the repository's required site checker and performs read-only validation. Passing it will validate site structure and metadata, but numerical claims must still be checked separately against summary.json and advisor_grades.jsonl.
+
+### 2026-10-13T09:04:59-04:00 · orchestrator
+
+Ran `python3 bench/check_site.py` (gpu=False) in 0s, exit 0. Full output: `bench/results/2026-10-13/autopilot/worker-eval-writeup-r1.log`. Last lines:
+
+```
+12 pages checked, 0 errors
+
+```

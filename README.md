@@ -9,7 +9,9 @@ later to try memory and compaction variants.
 Status: **Phases A and B deployed** (2-slot `bonsai-2-27b`; turnstile co-admission and
 the `bonsai-agent` / `bonsai-mem` virtual models; pi defaults to `bonsai-agent`).
 M1 n-gram self-speculation replay is complete: it slowed busy two-slot traffic
-and was not deployed.
+and was not deployed. W1 local-worker replay is complete: on 22 real cloud-worker
+rounds run twice, Bonsai submitted valid requests in 25/44 attempts (56.8%) and
+matched request kind in 21/44 (47.7%); W2 will test worker-harness changes.
 
 ## Layout
 
@@ -47,5 +49,7 @@ never touch the live llama-swap service.
 5. ~~M1 n-gram self-speculation~~ done 2026-10-12: default `ngram-mod` was
    slower with both slots busy (agent 26.7 vs 31.3 tok/s; mem0 23.4 vs 25.4),
    changed outputs, and was not deployed.
-6. Next: expand the continuity suite to more tasks and repeats, then add the
-   unrelated-task regression guard.
+6. Next local-worker step: W2 tests thinking/history and output budget, tool-output
+   caps, editing, session discipline, and compaction against the W1 replay baseline.
+   In parallel, expand the continuity suite to more tasks and repeats, then add the
+   unrelated-task regression guard. See [the local-worker experiment](site/series/local-worker/worker-eval.md).
