@@ -873,3 +873,37 @@ Validated the completed replay harness locally and reviewed the successful host 
 ### 2026-10-12T20:28:18-04:00 · advisor (finished item)
 
 **revise**: Core replay behavior and smoke metrics are traceable and credible. Complete the historical provenance in bench/worker_eval/README.md using exact historical commit/file references; the current text admits thinking/output settings are unproven. Make pinned_model_sha256() enforce a real 64-hex digest and test a syntactically valid but invalid cache value. Finally, either pass the loaded arm hash/path into run_session() or stop advertising arbitrary arm paths, since it currently re-hashes arms/<name>.json.
+
+### 2026-10-12T20:30:07-04:00 · worker (gpt-5.6-terra), round 3
+
+Fixed model pinning so a parseable but invalid digest cache is deleted and recomputed, with refusal if the recomputed value is not lowercase 64-hex. Passed 27 local fixture tests and compilation. Also passed the already-loaded arm hash into run_session, so custom arm paths no longer get silently re-hashed as arms/<name>.json. Added a host-only read-only provenance inspector because this sandbox cannot access its git object store; next session will cite its exact historical commit/file output in README and the arm.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/inspect_historical_arm.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Read-only host git inspection to obtain the exact pre-cloud Bonsai worker config and model-registration commit/file hashes required by the advisor before completing arm provenance. It writes one JSON diagnostic under bench/results/."
+}
+```
+
+### 2026-10-12T20:30:38-04:00 · advisor (run request)
+
+**approve**: Run the inspector. Then verify the selected candidate is on the operative M1 lineage and predates the worker switch; use its exact commit, config/model-registration paths, hashes, and values to update the arm and README provenance.
+
+### 2026-10-12T20:30:38-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/worker_eval/inspect_historical_arm.py ranks matching commits from `git log --all` by committer timestamp rather than restricting them to the operative M1 branch ancestry, so its top candidate requires a lineage check.
+
+### 2026-10-12T20:30:38-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/inspect_historical_arm.py` (gpu=False) in 0s, exit 1. Full output: `bench/results/2026-10-12/autopilot/replay-harness-r3.log`. Last lines:
+
+```
+/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T203038.json
+no historical garden/bonsai worker config found
+
+```

@@ -541,22 +541,26 @@ def safe(f, default=None):
 
 
 def pinned_model_sha256(ev):
-    """Return evals/run.py's model pin, repairing only its malformed JSON cache.
+    """Return a real SHA-256 model pin, repairing a bad hash-cache entry.
 
-    A truncated cache must not turn a reproducible manifest into ``unavailable``.
-    The retry recomputes the hash through the existing helper, which atomically
-    replaces the cache's content for future runs. Other failures are deliberate:
-    do not launch an unpinned replay.
+    ``evals.run.file_sha256`` trusts a matching size/mtime cache, including its
+    stored digest.  A parseable cache with a non-digest value is therefore as
+    harmful as a truncated cache.  Delete either kind and retry once; never
+    launch an attempt with anything other than a lowercase 64-hex digest.
     """
+    cache = pathlib.Path(ev.CACHE) / f"sha256-{pathlib.Path(ev.MODEL_FILE).name}.json"
+    repaired = False
     try:
-        return ev.file_sha256(ev.MODEL_FILE), False
+        digest = ev.file_sha256(ev.MODEL_FILE)
     except (json.JSONDecodeError, KeyError, TypeError):
-        cache = pathlib.Path(ev.CACHE) / f"sha256-{pathlib.Path(ev.MODEL_FILE).name}.json"
-        try:
-            cache.unlink()
-        except FileNotFoundError:
-            pass
-        return ev.file_sha256(ev.MODEL_FILE), True
+        digest = None
+    if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+        cache.unlink(missing_ok=True)
+        repaired = True
+        digest = ev.file_sha256(ev.MODEL_FILE)
+    if not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest):
+        raise ValueError(f"file_sha256 returned an invalid SHA-256 digest: {digest!r}")
+    return digest, repaired
 
 
 def run_manifest(ev, arm, arm_hash, cases_path, cases_hash, args, model_hash, hash_cache_repaired):
@@ -584,7 +588,7 @@ def run_manifest(ev, arm, arm_hash, cases_path, cases_hash, args, model_hash, ha
     }
 
 
-def run_session(ev, arm, case, repeat, adir, check):
+def run_session(ev, arm, arm_hash, case, repeat, adir, check):
     """One attempt. Returns its record. Everything transient lives under one /tmp dir."""
     adir = pathlib.Path(adir)
     shutil.rmtree(adir, ignore_errors=True)
@@ -600,7 +604,7 @@ def run_session(ev, arm, case, repeat, adir, check):
         checkout = make_checkout(case["start_commit"], base)
         agent = make_agent_dir(arm, base, ev.TAP)
         (adir / "manifest.json").write_text(json.dumps({
-            "arm": arm["name"], "arm_sha256": sha256_file(ARMS / f"{arm['name']}.json"),
+            "arm": arm["name"], "arm_sha256": arm_hash,
             "case_id": case["case_id"], "repeat": repeat, "start_commit": case["start_commit"],
             "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
             "case_prompt_sha256": case.get("prompt_sha256"), "checkout": str(checkout),
@@ -699,7 +703,7 @@ def main(argv=None):
     def attempt(case, rep):
         print(f"[{now_iso()}] {arm['name']} {case['case_id']} r{rep}", flush=True)
         try:
-            rec = run_session(ev, arm, case, rep, out / case["case_id"] / f"r{rep}", check)
+            rec = run_session(ev, arm, arm_hash, case, rep, out / case["case_id"] / f"r{rep}", check)
         except (Exception, SystemExit) as e:  # noqa: BLE001  (start_tap exits via SystemExit)
             if isinstance(e, SystemExit) and e.code == 143:  # SIGTERM: stop the chunk
                 raise

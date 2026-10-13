@@ -297,11 +297,13 @@ def test_infra_failures_are_not_recorded(tmp_path):
     assert s["ran"] == 0 and s["remaining"] == 3 + 2 and not results.exists()
 
 
-def test_pinned_model_sha256_repairs_only_bad_cache(tmp_path):
+@pytest.mark.parametrize("first", ["", "not-a-digest", "A" * 64])
+def test_pinned_model_sha256_repairs_bad_cache_values(tmp_path, first):
+    """A JSON-readable cache can still carry a value that is not a SHA-256."""
     model = tmp_path / "model.gguf"
     model.write_bytes(b"model")
     cache = tmp_path / "sha256-model.gguf.json"
-    cache.write_text("")
+    cache.write_text(json.dumps({"size": 5, "mtime": 1, "sha256": first}))
 
     class Ev:
         MODEL_FILE = model
@@ -312,12 +314,26 @@ def test_pinned_model_sha256_repairs_only_bad_cache(tmp_path):
         def file_sha256(cls, path):
             cls.calls += 1
             if cls.calls == 1:
-                raise json.JSONDecodeError("bad cache", "", 0)
+                return first
             assert not cache.exists()
             return "a" * 64
 
     assert w.pinned_model_sha256(Ev) == ("a" * 64, True)
     assert Ev.calls == 2
+
+
+def test_pinned_model_sha256_refuses_invalid_recomputed_digest(tmp_path):
+    class Ev:
+        MODEL_FILE = tmp_path / "model.gguf"
+        CACHE = tmp_path
+
+        @classmethod
+        def file_sha256(cls, path):
+            return "z" * 64
+
+    Ev.MODEL_FILE.write_bytes(b"model")
+    with pytest.raises(ValueError, match="invalid SHA-256"):
+        w.pinned_model_sha256(Ev)
 
 
 def test_real_cases_render():
