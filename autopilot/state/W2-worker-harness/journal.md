@@ -375,3 +375,24 @@ Validated the completed harness-and-arms item; pytest passes all 52 tests.
 ### 2026-10-13T13:24:05-04:00 · advisor (finished item)
 
 **revise**: Fix these before approval; no GPU rerun is required unless extension source changes. (1) `bench/worker_eval/compare.py` compares two-repeat valid/kind count deltas and bootstrap CIs against a one-repeat count spread. These units differ, making `beyond_spread` too permissive. Compute valid and kind-match comparisons consistently as rates (including repeat spread and honest-vs-W1 widening), while still displaying raw `/44` counts. Add a test with unequal repeat counts and a second baseline that exposes the current scaling bug. (2) The `kind/valid` column currently emits only a numerator (`kind_match_of_valid`), not `kind_match/valid`; report numerator/denominator and preferably the conditional rate. (3) `vendor/REVIEW.md` is stale and materially contradicts `vendor/PATCH.diff`: it says the file-type replacement is the only change and that diff resolution remains to be checked, while the actual patch replaces `diff` with custom `diff-lite.ts`, changes TypeBox imports, and removes dependencies. Reconcile the review and record validation of both `diffLines` and `diffArrays`; add deterministic tests for representative diff/merge operations because this custom code affects edit correctness. (4) Make `run_queue.py` progress honor the current arm SHA, so a completed result directory from a changed arm cannot be silently accepted without invoking `run.py`'s hash guard. Test that case. Also update the stale `smoke_report.py` docstring. Verified positives: the W1 fixture was committed in round 1 before the run.py changes; protected W1 arm content matches main; all required real arms and gated omissions are correct; smoke records substantiate think-drop, reasoning-budget, session-budget, and hashline loading; the pytest cache records 52 tests with no failures.
+
+### 2026-10-13T13:29:20-04:00 · worker (gpt-5.6-terra), round 5
+
+Fixed all four advisor findings and validated the worker-eval suite locally; no GPU rerun is needed because extension source did not change.
+
+```json
+{
+  "request": "done",
+  "summary": "- `bench/worker_eval/compare.py`: valid/kind comparisons, bootstrap CIs, repeat spread, and W1 widening now consistently use rates; raw `/44` counts remain displayed. `kind/valid` reports numerator/denominator and conditional rate.\n- `bench/worker_eval/run_queue.py`: queue progress filters completed records by the current arm SHA resolved before launching, preventing a changed arm from being silently treated as complete.\n- `bench/worker_eval/vendor/REVIEW.md`: reconciled every PATCH.diff change, including `diff-lite`, TypeBox imports, removed dependencies/assets, and validation scope.\n- `bench/worker_eval/test_w2.py`: added unequal-repeat/second-baseline rate-spread coverage, stale-SHA queue coverage, and deterministic Node tests of `diffLines`, `diffArrays`, and `threeWayMerge`.\n- `bench/worker_eval/smoke_report.py`: corrected stale loader-error docstring.\n\nValidation: `python3 -m pytest bench/worker_eval/` passes: 55 passed."
+}
+```
+
+### 2026-10-13T13:32:00-04:00 · advisor (finished item)
+
+**approve**: Acceptance is met. The rate-based comparisons, bootstrap/spread logic, conditional kind-match reporting, arm-SHA queue guard, vendor review, and deterministic diff/merge tests are present. The root pytest cache records all 55 tests with no failures. Smoke evidence is traceable to record.json, ext.jsonl, events.jsonl, tap.jsonl, and empty stderr.txt files for all four smoke mechanisms.
+
+### 2026-10-13T13:32:00-04:00 · orchestrator
+
+Added to the standing facts:
+
+- The real-arm records under bench/results/2026-10-13/worker-eval-w2-smoke/ are one-case N=1 smoke artifacts and must not be used in W2 arm comparisons.

@@ -94,9 +94,12 @@ def summarize(run):
     km = sum(bool(r.get("kind_match")) for r in recs)
     edit_calls = sum(v for k, v in calls.items() if is_edit_like(k))
     edit_errs = sum(v for k, v in errs.items() if is_edit_like(k))
+    km_valid = sum(bool(r.get("kind_match")) for r in recs if r.get("valid_request"))
     return {
         "dir": run["dir"], "arm": recs[0]["arm"] if recs else None, "records": n,
-        "valid": valid, "kind_match": km, "kind_match_of_valid": sum(bool(r.get("kind_match")) for r in recs if r.get("valid_request")),
+        "valid": valid, "kind_match": km, "kind_match_of_valid": km_valid,
+        "valid_denominator": valid,
+        "kind_match_given_valid": km_valid / valid if valid else None,
         "median_wall_s": med([r["wall_s"] for r in recs]), "median_turns": med([r["turns"] for r in recs]),
         "replay_kind": {k: kinds.get(k, 0) for k in KINDS},
         "flags": {k: flags.get(k, 0) for k in ("timeout", "context_overflow", "output_limit", "no_request", "invalid")},
@@ -119,10 +122,17 @@ def by_case(run):
 
 
 def stat(recs, metric):
+    """Comparison statistic: valid/kind are rates, wall is seconds.
+
+    Summaries retain raw counts for the requested /44 display; comparisons use rates
+    so their delta, repeat spread, and optional W1 widening have identical units.
+    """
     if metric == "median_wall_s":
         return statistics.median([r["wall_s"] for r in recs]) if recs else None
+    if not recs:
+        return None
     key = "valid_request" if metric == "valid" else "kind_match"
-    return sum(bool(r.get(key)) for r in recs)
+    return sum(bool(r.get(key)) for r in recs) / len(recs)
 
 
 def per_repeat(run, metric):
@@ -141,11 +151,8 @@ def spread(baselines, metric):
         o = stat(baselines[1]["records"], metric)
         m = stat(baselines[0]["records"], metric)
         if o is not None and m is not None:
-            # counts are per both repeats; compare per-repeat means so the units match S
-            k0 = len({r["repeat"] for r in baselines[0]["records"]}) or 1
-            k1 = len({r["repeat"] for r in baselines[1]["records"]}) or 1
-            gap = abs(m / k0 - o / k1) if metric != "median_wall_s" else abs(m - o)
-            s = max(s, gap)
+            # stat() is a rate for valid/kind and seconds for wall in both runs.
+            s = max(s, abs(m - o))
     return s
 
 
@@ -174,8 +181,11 @@ def vs_baseline(base, arm, baselines):
         d = None if a is None or b is None else round(a - b, 3)
         s = spread(baselines, m)
         beyond = bool(ci and d is not None and s is not None and (ci[0] > 0 or ci[1] < 0) and abs(d) > s)
-        out[m] = {"arm": a, "baseline": b, "delta": d, "ci95": ci, "cases_in_bootstrap": ncases,
-                  "spread": None if s is None else round(s, 3), "beyond_spread": beyond}
+        out[m] = {"arm": round(a, 3) if a is not None else None,
+                  "baseline": round(b, 3) if b is not None else None,
+                  "delta": d, "ci95": ci, "cases_in_bootstrap": ncases,
+                  "spread": None if s is None else round(s, 3), "beyond_spread": beyond,
+                  "unit": "rate" if m in ("valid", "kind_match") else "seconds"}
     return out
 
 
@@ -206,7 +216,8 @@ def render(report):
           "|---|---|---|---|---|---|---|---|"]
     for name, s in report["arms"].items():
         k = s["replay_kind"]
-        L.append(f"| {name} | {s['records']} | {s['valid']} | {s['kind_match']} | {s['kind_match_of_valid']} | "
+        conditional = f"{s['kind_match_of_valid']}/{s['valid']} ({s['kind_match_given_valid']})"
+        L.append(f"| {name} | {s['records']} | {s['valid']} | {s['kind_match']} | {conditional} | "
                  f"{s['median_wall_s']} | {s['median_turns']} | {'/'.join(str(k[x]) for x in KINDS)} |")
     L += ["", "| arm | timeout | ctx overflow | output limit | no request | invalid | compactions | edit-like err rate |",
           "|---|---|---|---|---|---|---|---|"]
@@ -226,6 +237,7 @@ def render(report):
         L.append(f"- {name}: {s['ext_actions'] or 'none'}")
     L += ["", "## Against the baseline", "",
           "| arm | metric | arm | baseline | delta | 95% CI | spread S | beyond spread |", "|---|---|---|---|---|---|---|---|"]
+    L.append("(valid and kind-match comparisons are rates; median wall is seconds.)")
     for name, v in report["vs_baseline"].items():
         for m, x in v.items():
             L.append(f"| {name} | {m} | {x['arm']} | {x['baseline']} | {x['delta']} | {x['ci95']} | {x['spread']} | {x['beyond_spread']} |")

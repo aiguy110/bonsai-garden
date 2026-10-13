@@ -5,6 +5,9 @@
 import importlib.util
 import json
 import pathlib
+import re
+import shutil
+import subprocess
 import sys
 
 import pytest
@@ -147,6 +150,17 @@ def test_queue_never_starts_attempt_that_does_not_fit(tmp_path):
     assert st["x"] == (0, 1)
 
 
+def test_queue_progress_rejects_completed_records_from_old_arm_sha(tmp_path):
+    entry = {"arm": "x", "out": str(tmp_path / "x"), "_arm_sha256": "current"}
+    results = rq.out_dir(entry) / "results.jsonl"
+    results.parent.mkdir(parents=True)
+    results.write_text("\n".join(json.dumps(x) for x in [
+        {"complete": True, "arm": "x", "case_id": "a", "repeat": 1, "arm_sha256": "old"},
+        {"complete": True, "arm": "x", "case_id": "b", "repeat": 1, "arm_sha256": "current"},
+    ]) + "\n")
+    assert rq.progress(entry, [{"case_id": "a"}, {"case_id": "b"}], 1) == (1, 2)
+
+
 # ---- compare ----
 
 def write_run(d, arm, rows):
@@ -185,12 +199,32 @@ def test_compare_deterministic_and_correct(tmp_path):
     rep = json.loads(j1)
     assert rep["arms"]["base"]["valid"] == 6 and rep["arms"]["arm"]["valid"] == 12
     v = rep["vs_baseline"]["arm"]["valid"]
-    assert v["delta"] == 6 and v["spread"] == 0  # repeats of the baseline are identical
+    assert v["delta"] == 0.5 and v["spread"] == 0  # rate; baseline repeats are identical
     assert v["ci95"][0] > 0 and v["beyond_spread"] is True
     assert rep["arms"]["arm"]["ext_actions"]["drop_old_thinking:removed_chars"] == 12 * 7
     assert rep["arms"]["base"]["edit_like_error_rate"] == 1.0
+    assert rep["arms"]["arm"]["kind_match_of_valid"] == 8
+    assert rep["arms"]["arm"]["valid_denominator"] == 12
+    assert rep["arms"]["arm"]["kind_match_given_valid"] == pytest.approx(8 / 12)
     assert rep["arms"]["base"]["tap_median"]["decode_s"] == 2.0
     assert (tmp_path / "out1.md").read_text().startswith("# W2 comparison")
+
+
+def test_compare_rates_keep_delta_and_spread_units_with_unequal_baselines(tmp_path):
+    # Primary repeat rates are 0/2 and 1/2 (spread .5); the W1-like one-repeat
+    # baseline is 3/4 (.75), widening S to .5.  Raw count arithmetic would yield
+    # an incomparable multi-repeat delta and a much larger S.
+    base = tmp_path / "base"
+    arm = tmp_path / "arm"
+    w1 = tmp_path / "w1"
+    write_run(base, "base", [("a", 1, False, False, 10), ("b", 1, False, False, 10),
+                               ("a", 2, True, True, 10), ("b", 2, False, False, 10)])
+    write_run(arm, "arm", [(c, r, True, True, 9) for c in ("a", "b") for r in (1, 2)])
+    write_run(w1, "bonsai-2026-10-12", [(str(i), 1, i < 3, i < 3, 11) for i in range(4)])
+    cmp_.main(["--baseline", str(base), "--baseline", str(w1), "--arm", str(arm), "--out", str(tmp_path / "o")])
+    valid = json.loads((tmp_path / "o.json").read_text())["vs_baseline"]["arm"]["valid"]
+    assert valid == {"arm": 1.0, "baseline": 0.25, "delta": 0.75, "ci95": valid["ci95"],
+                     "cases_in_bootstrap": 2, "spread": 0.5, "beyond_spread": True, "unit": "rate"}
 
 
 def test_compare_warns_on_model_mismatch(tmp_path):
@@ -200,3 +234,30 @@ def test_compare_warns_on_model_mismatch(tmp_path):
     write_run(w1, "bonsai-2026-10-12", [("c0", 1, True, True, 50)])
     cmp_.main(["--baseline", str(b), "--baseline", str(w1), "--arm", str(a), "--out", str(tmp_path / "o")])
     assert any("model_sha256" in x for x in json.loads((tmp_path / "o.json").read_text())["warnings"])
+
+
+# ---- vendored diff replacement ----
+
+def test_diff_lite_and_merge_are_deterministic(tmp_path):
+    # Stage the TS source with explicit local extensions solely for Node's native
+    # ESM loader; pi's extension loader accepts the package's extensionless imports.
+    src = HERE / "vendor" / "pi-hashline-context-edit@0.11.0" / "src"
+    staged = tmp_path / "src"
+    shutil.copytree(src, staged)
+    for p in staged.glob("*.ts"):
+        p.write_text(re.sub(r"(from ['\"]\./[^'\".]+)(['\"])", r"\1.ts\2", p.read_text()))
+    script = """import { diffLines, diffArrays } from './src/diff-lite.ts';
+import { threeWayMerge } from './src/merge.ts';
+console.log(JSON.stringify({
+ lines: diffLines('a\\nb\\n', 'a\\nc\\n'), arrays: diffArrays(['a','b'], ['a','c','d']),
+ merged: threeWayMerge('a\\nb\\nc', 'A\\nb\\nc', 'a\\nb\\nC'),
+ conflict: threeWayMerge('a\\nb\\nc', 'a\\nB\\nc', 'a\\nC\\nc')
+}));"""
+    got = json.loads(subprocess.check_output(
+        ["node", "--experimental-strip-types", "--input-type=module", "-e", script], cwd=tmp_path, text=True))
+    assert got["lines"] == [{"value": "a\n", "count": 1}, {"value": "b\n", "count": 1, "removed": True},
+                            {"value": "c\n", "count": 1, "added": True}]
+    assert got["arrays"][-2:] == [{"value": ["b"], "count": 1, "removed": True},
+                                   {"value": ["c", "d"], "count": 2, "added": True}]
+    assert got["merged"]["ok"] is True and got["merged"]["content"] == "A\nb\nC"
+    assert got["conflict"] == {"ok": False, "reason": "edited and current changes overlap in base coordinates"}

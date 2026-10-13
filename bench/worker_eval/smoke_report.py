@@ -3,9 +3,9 @@
 
   python3 bench/worker_eval/smoke_report.py DIR      (DIR = bench/results/<date>/worker-eval-w2-smoke)
 
-Per arm: record.json found, extension load errors (lines of stderr.txt / events.jsonl that mention an
-extension failing to load; the recon has no exact loader string, so the pattern is generic and the
-matching lines are quoted), and the mechanism evidence from ext.jsonl.
+Per arm: record.json found, stderr.txt lines containing pi's exact extension-loader failure
+string (`Failed to load extension`, loader.js:331), and mechanism evidence from ext.jsonl.
+events.jsonl is deliberately not searched because model text can contain that phrase.
 """
 import json
 import pathlib

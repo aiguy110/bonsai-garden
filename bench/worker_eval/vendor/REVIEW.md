@@ -1,46 +1,61 @@
 # Hashline package review (W2 candidate 3)
 
-Source: `bench/results/2026-10-13/worker-eval-w2/recon/packages/` (npm pack --ignore-scripts, never installed;
-sha256 and registry integrity in `manifest.json`). pi installed: 0.86.1. Review is by grep of the unpacked
-sources; it is not a line-by-line audit.
+Source: `bench/results/2026-10-13/worker-eval-w2/recon/packages/` (npm pack
+`--ignore-scripts`; sha256 and registry integrity are in `manifest.json`). pi installed:
+0.86.1. This is a source review, not a claim that the upstream package is safe in
+other hosts.
 
-## Gate rules (from the W2 spec)
-loads with the installed pi (imports resolve to `@earendil-works/*` or need only a documented rename); no network,
-child-process or outside-cwd file access beyond editing; no runtime deps outside pi; license allows vendoring.
+## Gate rules
 
-## pi-hashline-edit 0.8.3 — REJECTED
-- `src/grep.ts` imports `child_process` and spawns `rg` (spawn/spawnSync): fails the child-process rule.
-- Runtime deps `diff`, `file-type`, `xxhashjs`: `xxhashjs` and `file-type` are not in pi's tree.
-- Registers a grep tool as well as read/edit (more surface than the candidate needs).
-- MIT.
+The W2 gate requires imports that resolve from pi, no network/child process/outside-cwd
+access beyond the built-ins' edit surface, no runtime dependencies outside pi, and a
+license permitting vendoring.
 
-## pi-hashline-context-edit 0.11.0 — CHOSEN, as an advisor-approved exception to the gate (patch required)
-- MIT (`LICENSE` in the tarball) — vendoring allowed; LICENSE is copied next to the vendored source.
-- Imports: `@earendil-works/pi-coding-agent`, `@earendil-works/pi-tui`, `@sinclair/typebox` (all pi's), node `fs`,
-  `fs/promises`, `path`, `os`, `crypto`, `diff`, `file-type`. No `child_process`, no network call, no `fetch`.
-- File access: `path-utils.ts` expands `~` via `os.homedir()` and the tools read/write only the path the model
-  passes (the same as pi's built-in read/edit). Not restricted to cwd by the package itself, same as built-ins.
-  Env use: only `PI_HASHLINE_DEBUG` (a notify on session_start).
-- `diff`: pi bundles `diff` 8.0.4 (`pi-coding-agent/node_modules/diff`); the package asks for ^9. Only
-  `Diff.diffLines` (edit-diff.ts:52) and `Diff.diffArrays` (merge.ts:24) are used. To be checked in the smoke run
-  that both exist with the same behaviour in 8.0.4, and that the vendored dir resolves `diff` at all (extension
-  loaded from the repo, not from pi's tree).
-- `file-type`: NOT in pi's tree. Used once (`file-kind.ts:61`) to sniff image/binary MIME from the first 8 KiB.
-  The planned PATCH (vendor/PATCH.diff) replaces that call with a small magic-byte check for png/jpeg/gif/webp
-  plus the existing null-byte check, so no dependency remains. This is a code change, not a documented rename;
-  it is the only change and is stated here. If the patched package fails to load in smoke, there is no hashline arm.
-- Tools: registers `read` and `edit` (index.ts), replacing the built-ins by name. pi allows this (`docs/extensions.md:2121`, in recon/pi.txt); the prompt
-  snippet/guidelines are not inherited (`:2138`), so the package's own prompt text is the added token cost.
+## pi-hashline-edit 0.8.3 — rejected
 
-## Does it change read output, and what does that cost?
-Yes. By default every line is returned as `NNN#HH:content` (`hashline.ts:304-308`: right-aligned line number,
-`#`, a two-character hash, `:`). That is about 4-8 extra characters per line, roughly 1-3 extra tokens per line
-(estimate from the format, not measured). For a 400-line read that is on the order of 400-1000 tokens extra.
-`raw: true` returns plain text but then the result can't be used to anchor edits. The read limit stays at pi's
-DEFAULT_MAX_LINES / DEFAULT_MAX_BYTES (`read.ts:5-6`), and truncated reads tell the model the `offset` to continue
-from (`read.ts:119`). The edit prompt text (`prompts/edit.md`, 2.5 KB) plus read prompt (0.8 KB) are added to the
-system prompt: about 4.2 KB of prompt files in total, ~1k tokens. Measured cost belongs to the smoke run.
+- `src/grep.ts` imports `child_process` and starts `rg`.
+- It needs `diff`, `file-type`, and `xxhashjs`; the latter two are not in pi's tree.
+- It adds a grep tool as well as read/edit.
+- MIT license is not enough to overcome those failures.
+
+## pi-hashline-context-edit 0.11.0 — chosen exception, patched
+
+The original is MIT (vendored `LICENSE`). It has no `child_process`, network, or fetch
+calls; it reads/writes the model-provided path like pi's built-in tools, and expands `~`
+through `os.homedir()`. It originally imports pi packages, `@sinclair/typebox`, `diff`,
+and `file-type`. Consequently it does **not** pass the dependency gate unmodified.
+The advisor approved this particular patched exception. `vendor/PATCH.diff` is the
+complete reproducible change record, and must be read with the vendored copy.
+
+The patch makes all of these changes:
+
+1. replaces `file-type` with a local PNG/JPEG/GIF/WebP magic-byte check while retaining
+   the null-byte binary check;
+2. adds `src/diff-lite.ts` and changes `edit-diff.ts` and `merge.ts` from `diff` to it;
+3. changes `@sinclair/typebox` imports to `typebox`, which pi 0.86.1's own
+   `submit_request.ts` imports;
+4. removes runtime dependencies and package banner/image metadata, and omits the binary
+   `assets/banner.png` from the vendored tree.
+
+`diff-lite.ts` is custom correctness-sensitive code, not a documented import rename.
+It implements only the required `diffLines` and `diffArrays` API shape: ordered common,
+removed, then added parts. It uses LCS below 4,000,000 cells and conservatively treats a
+larger middle as one removal plus one addition. Deterministic tests in
+`bench/worker_eval/test_w2.py` exercise representative line replacement/insertion and
+array replacement operations, plus `threeWayMerge` for disjoint merge and overlap
+rejection. They execute the vendored TypeScript with Node's
+`--experimental-strip-types`. The smoke run also loaded the patched extension under pi
+0.86.1 and tool audit identified its `read` and `edit` source paths.
+
+The extension registers `read` and `edit`, overriding pi's built-ins by name. Pi permits
+that, but does not inherit the built-ins' prompt snippets/guidelines. Default reads add
+`NNN#HH:` anchors, approximately 4–8 characters (about 1–3 estimated tokens) per line;
+`raw: true` is plain text. Its prompt files total about 4.2 KB (~1k estimated tokens).
+Those are estimates from source, not performance measurements.
 
 ## Verdict
-No package passes the gate as written (`file-type` is a runtime dep outside pi; the fix is a code patch). The advisor approved an exception for **pi-hashline-context-edit 0.11.0**. The arm exists
-only if `vendor/PATCH.diff` (not yet written; commit it with the vendored copy and LICENSE before the smoke run) is applied and the patched copy loads under pi 0.86.1 in the smoke run.
+
+No reviewed package passes the gate unchanged. `pi-hashline-context-edit@0.11.0` is the
+advisor-approved exception only while the vendored patch, LICENSE, deterministic tests,
+and smoke-load evidence remain present. If it stops loading under pi 0.86.1, omit the
+hashline arm.

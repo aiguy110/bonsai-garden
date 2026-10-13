@@ -28,8 +28,18 @@ def out_dir(entry):
 
 
 def progress(entry, cases, repeats):
-    """Attempts recorded for the selected cases and repeats, and how many there should be."""
-    done = run.completed(run.load_records(out_dir(entry) / "results.jsonl"))
+    """Attempts for the current arm SHA, and how many selected attempts are required.
+
+    A queue prepared by main carries `_arm_sha256`.  Records from an older arm file
+    must not make an edited arm look complete; run.py will then raise its usual hash
+    guard when it is invoked.  The optional field keeps this helper usable in unit
+    tests with synthetic arm names.
+    """
+    recs = run.load_records(out_dir(entry) / "results.jsonl")
+    arm_sha = entry.get("_arm_sha256")
+    if arm_sha is not None:
+        recs = [r for r in recs if r.get("arm_sha256") == arm_sha]
+    done = run.completed(recs)
     want = {run.attempt_key(entry["arm"], c["case_id"], r) for c in cases for r in range(1, repeats + 1)}
     return len(want & set(done)), len(want)
 
@@ -74,8 +84,9 @@ def main(argv=None):
         if missing:
             sys.exit(f"unknown case ids: {sorted(missing)}")
         cases = [c for c in cases if c["case_id"] in args.only]
-    for e in queue:
-        run.load_arm(e["arm"])  # fail before launching anything
+    # Resolve once before launching anything.  progress() uses this digest rather
+    # than accepting completed records from a prior version of an arm.
+    queue = [dict(e, _arm_sha256=run.load_arm(e["arm"])[1]) for e in queue]
 
     def run_arm(entry, left):
         argv = [entry["arm"], "--cases", args.cases, "--repeat", str(args.repeat),
