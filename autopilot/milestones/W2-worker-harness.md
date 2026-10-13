@@ -14,10 +14,10 @@ doesn't.
   and `bench/worker_eval/arms/bonsai-2026-10-12.json` hold the benchmark, the baseline
   numbers and the failure-mode breakdown. Read the failure modes first: they say which
   candidates to try first.
-- W1 caveats to respect: the digests in `bench/worker_eval/README.md` and the arm file
-  hash stripped text, not blob bytes (`inspect_historical_arm.py` was fixed but not
-  rerun); replay checkouts expose Git history the original worker could not see; the
-  replay prompt still says 45 minutes while the arm enforces 20.
+- W1 caveats to respect: the arm file's digests hash stripped text, not blob bytes (the
+  correct ones are in `bench/worker_eval/README.md`); replay checkouts expose Git
+  history the original worker could not see; the replay prompt says 45 minutes while
+  the arm enforces 20 (candidate 0 fixes this).
 - Within one worker session there is only one user message, so every earlier turn's
   thinking appears to stay in the prompt (`bench/m1-notes.md`): prompt growth matched
   tokens generated. Inferred from token counts, not confirmed in pi's source.
@@ -33,6 +33,15 @@ doesn't.
 Work in this order unless W1's failure modes say otherwise. Each is an arm in
 `bench/worker_eval/arms/`; new arms never edit old ones. Run each at N=2 on all cases.
 
+0. **Corrected baseline (first; every later arm is compared with this one, not with
+   `bonsai-2026-10-12`).** W1 replays each recorded prompt verbatim, and it says
+   sessions are killed after 45 minutes, while the arm enforces 20. Add a replay
+   option (an arm field, e.g. `prompt_timeout_min`) that rewrites that sentence to the
+   arm's real limit, and run a `bonsai-2026-10-12-honest` arm identical to the W1 arm
+   but with it. Keep the 20-minute limit. Report the difference from the W1 run: that
+   shows how much the false 45 minutes cost, within the run-to-run spread. Do not
+   change `bonsai-2026-10-12` or its recorded results. If the rewrite changes anything
+   else in the prompt, say so.
 1. **Thinking.** Drop thinking older than the last few turns before each request; a
    larger output limit (16k now) paid for by the freed context; a reasoning budget.
 2. **Tool output.** A smaller result cap that tells the model where the rest is.
@@ -58,7 +67,8 @@ Work in this order unless W1's failure modes say otherwise. Each is an arm in
 
 1. Arm files for the candidates above, each with a stated hypothesis.
 2. Every arm run on every W1 case at N=2, with valid-request rate, kind-match rate,
-   median time and failure-mode breakdown against `bonsai-2026-10-12`. Note which
+   median time and failure-mode breakdown against the corrected baseline (and the
+   W1 arm, for the first comparison). Note which
    differences exceed the run-to-run spread; don't claim wins inside it.
 3. Advisor grading of at most 10 passing requests from the best arm, as in W1.
 4. A recommended worker configuration (arm + any extension or setting), with the
