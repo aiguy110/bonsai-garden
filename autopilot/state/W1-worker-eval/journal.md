@@ -1057,3 +1057,65 @@ Ran `python3 bench/worker_eval/inspect_historical_arm.py` (gpu=False) in 2s, exi
 no Bonsai worker config found before first cloud case; inspect pre_cloud_json_paths
 
 ```
+
+### 2026-10-12T22:09:06-04:00 · worker (gpt-5.6-terra), round 10
+
+Revised the read-only provenance inspector to emit exact historical config and role-worker state transitions on the operative first-parent M1 line, so legacy config layouts cannot produce an opaque no-match. Local compile and the 27 replay-harness fixture tests pass.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/inspect_historical_arm.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "The prior host report showed no exact Bonsai match but not historical config contents. This host-only inspection records the pre-switch configuration, transition evidence, and any model-registration hashes needed to replace provisional arm provenance with exact citations."
+}
+```
+
+### 2026-10-12T22:10:00-04:00 · advisor (run request)
+
+**approve**: Safe read-only Git inspection; it writes only a timestamped JSON report under bench/results. Run it. Interpret the output cautiously: worker/config transition scans exclude the first cloud start commit (`examined = line[:cloud_index]`), so they cannot themselves demonstrate the actual Bonsai-to-cloud switch. Use the report to inspect the nearest pre-cloud raw config and registration hashes, and do not claim it proves out-of-tree live state.
+
+### 2026-10-12T22:10:02-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/inspect_historical_arm.py` (gpu=False) in 2s, exit 0. Full output: `bench/results/2026-10-12/autopilot/replay-harness-r10.log`. Last lines:
+
+```
+/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T221002.json
+{
+  "commit": "c9c86b7338aa23ddcf0edd58493e1954d7eb7179",
+  "commit_time": "2026-10-12T08:32:41-04:00",
+  "config_path": "autopilot/config.json",
+  "config_sha256": "27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334",
+  "worker": {
+    "model": "bonsai-agent",
+    "thinking": "low",
+    "where": "sandbox"
+  },
+  "worker_timeout_min": 45,
+  "worker_memory": null,
+  "model_registrations": [
+    {
+      "path": "agent/models.bonsai-agent.json",
+      "sha256": "949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4",
+      "value": {
+        "id": "bonsai-agent",
+        "name": "Bonsai 2 27B agent slot (turnstile virtual, 80k ctx)",
+        "reasoning": true,
+        "input": [
+          "text"
+        ],
+        "contextWindow": 81920,
+        "maxTokens": 16384,
+        "cost": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0
+        }
+      }
+    }
+  ]
+}
+
+```

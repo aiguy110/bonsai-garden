@@ -1,0 +1,141 @@
+{
+  "selection": "nearest first-parent Bonsai configuration before first cloud case start",
+  "branch": "auto/M1-ngram",
+  "branch_tip": "c2de283b40c0e937e410ea1101eae5e7c963f0d6",
+  "first_cloud_case": "m1-ngram-replay-set-r6-9cf273aef422",
+  "first_cloud_timestamp": "2026-10-12T08:32:46-04:00",
+  "first_cloud_start_commit": "6e58f53652092b29d5fcdb6515a9d731bc51e206",
+  "pre_cloud_first_parent_commit": "c9c86b7338aa23ddcf0edd58493e1954d7eb7179",
+  "first_parent_commits_examined": 68,
+  "candidates": [
+    {
+      "commit": "c9c86b7338aa23ddcf0edd58493e1954d7eb7179",
+      "commit_time": "2026-10-12T08:32:41-04:00",
+      "config_path": "autopilot/config.json",
+      "config_sha256": "27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334",
+      "worker": {
+        "model": "bonsai-agent",
+        "thinking": "low",
+        "where": "sandbox"
+      },
+      "worker_timeout_min": 45,
+      "worker_memory": null,
+      "model_registrations": [
+        {
+          "path": "agent/models.bonsai-agent.json",
+          "sha256": "949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4",
+          "value": {
+            "id": "bonsai-agent",
+            "name": "Bonsai 2 27B agent slot (turnstile virtual, 80k ctx)",
+            "reasoning": true,
+            "input": [
+              "text"
+            ],
+            "contextWindow": 81920,
+            "maxTokens": 16384,
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "worker_state_transitions": [
+    {
+      "commit": "09b28c5692fdc79db74a77fe00c0e7c05fec4919",
+      "commit_time": "2026-10-11T09:48:05-04:00",
+      "workers": []
+    },
+    {
+      "commit": "222c36ba39ab51f4370a472264094e7a3a7d1045",
+      "commit_time": "2026-10-11T23:07:30-04:00",
+      "workers": [
+        {
+          "path": "autopilot/config.json",
+          "value": {
+            "model": "bonsai-agent",
+            "thinking": "low",
+            "where": "sandbox"
+          }
+        }
+      ]
+    }
+  ],
+  "autopilot_config_transitions": [
+    {
+      "commit": "222c36ba39ab51f4370a472264094e7a3a7d1045",
+      "commit_time": "2026-10-11T23:07:30-04:00",
+      "path": "autopilot/config.json",
+      "sha256": "27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334",
+      "value": {
+        "roles": {
+          "worker": {
+            "model": "bonsai-agent",
+            "thinking": "low",
+            "where": "sandbox"
+          },
+          "advisor": {
+            "model": "meridian/claude-opus-5-5",
+            "thinking": "high",
+            "where": "host",
+            "tools": "read,grep,find,ls"
+          },
+          "fixer": {
+            "model": "meridian/claude-opus-5-5",
+            "thinking": "high",
+            "where": "host",
+            "tools": "read,bash,edit,write,grep,find,ls"
+          }
+        },
+        "cloud_calls_per_day": 25,
+        "worker_rounds_per_item": 8,
+        "review_rounds_per_item": 3,
+        "worker_timeout_min": 45,
+        "publisher": "/home/josiah/Projects/bonsai-garden-pub",
+        "remote": "origin",
+        "status_push_min_interval_min": 60,
+        "protected_paths": [
+          "autopilot/",
+          ".github/",
+          "tools/check_site.py",
+          "evals/run.py",
+          "evals/tap.py",
+          "evals/relay.py",
+          "evals/arms/baseline.json",
+          "evals/arms/mem0.json",
+          "serving/llama-swap.bonsai-2-27b.yaml",
+          "site/autopilot.md"
+        ],
+        "infra": {
+          "tok_s_floor_ratio": 0.8,
+          "soak_worker_calls": 3
+        },
+        "milestones": [
+          "M1-ngram"
+        ],
+        "worktree_root": "/home/josiah/Projects/bonsai-garden-auto",
+        "cloud_extension": "npm:pi-meridian-extension@0.2.5"
+      }
+    }
+  ],
+  "pre_cloud_json_paths": [
+    "agent/models.bonsai-2-27b.json",
+    "agent/models.bonsai-agent.json",
+    "autopilot/config.json",
+    "autopilot/state/M1-ngram/plan.json",
+    "autopilot/state/M1-ngram/status.json",
+    "bench/results/2026-10-11/conc_np1_c98304.1.json",
+    "bench/results/2026-10-11/conc_np2_c98304.1.json",
+    "bench/results/2026-10-11/conc_np2_c98304.2.json",
+    "bench/results/2026-10-11/evals-baseline-mem0/manifest.json",
+    "bench/results/2026-10-12/m1-ngram/recon/event_samples.json",
+    "bench/results/2026-10-12/m1-ngram/recon/inventory.json",
+    "evals/arms/baseline.json",
+    "evals/arms/mem0.json",
+    "evals/tasks/inventory/task.json"
+  ]
+}

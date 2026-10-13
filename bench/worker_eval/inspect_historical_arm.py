@@ -56,21 +56,27 @@ def json_paths(commit):
             if p.endswith(".json")]
 
 
-def bonsai_worker_config(commit):
-    """Return every JSON object that explicitly selects garden/bonsai-agent."""
+def worker_configs(commit):
+    """Return JSON role configs, including non-Bonsai ones to expose a switch."""
     found = []
     for path in json_paths(commit):
         text = show(commit, path)
-        if not text or "garden/bonsai-agent" not in text:
+        if not text:
             continue
         try:
             value = json.loads(text)
         except json.JSONDecodeError:
             continue
         worker = value.get("roles", {}).get("worker") if isinstance(value, dict) else None
-        if isinstance(worker, dict) and worker.get("model") == "garden/bonsai-agent":
+        if isinstance(worker, dict) and isinstance(worker.get("model"), str):
             found.append((path, text, value, worker))
     return found
+
+
+def is_bonsai(worker):
+    # Historical configs used a provider/model string, but retain the broad test
+    # so the report remains useful if an older spelling is discovered.
+    return "bonsai" in worker.get("model", "").lower()
 
 
 def model_registrations(commit):
@@ -101,8 +107,44 @@ def main():
     pre_cloud = line[max(0, cloud_index - 1)]
     examined = line[:cloud_index]
     candidates = []
+    # Record every role-config state transition on the operative line.  The prior
+    # implementation searched only for an exact Bonsai literal, which made a
+    # failed search opaque: this trail proves both the selected snapshot and the
+    # switch immediately following it.
+    worker_states = []
+    config_snapshots = []
+    previous = None
+    previous_config = None
+    for commit in examined:
+        # Keep raw historical autopilot config transitions too.  Older revisions
+        # may predate the current roles.worker layout; their exact JSON is the
+        # evidence needed to interpret a legacy worker spelling.
+        raw_config = show(commit, "autopilot/config.json")
+        if raw_config and raw_config != previous_config:
+            try:
+                config_value = json.loads(raw_config)
+            except json.JSONDecodeError:
+                config_value = {"unparseable": True}
+            config_snapshots.append({
+                "commit": commit,
+                "commit_time": git("show", "-s", "--format=%cI", commit),
+                "path": "autopilot/config.json",
+                "sha256": sha(raw_config),
+                "value": config_value,
+            })
+            previous_config = raw_config
+        configs = worker_configs(commit)
+        state = [(path, worker) for path, _text, _config, worker in configs]
+        fingerprint = json.dumps(state, sort_keys=True)
+        if fingerprint != previous:
+            worker_states.append({
+                "commit": commit,
+                "commit_time": git("show", "-s", "--format=%cI", commit),
+                "workers": [{"path": path, "value": worker} for path, worker in state],
+            })
+            previous = fingerprint
     for commit in reversed(examined):
-        configs = bonsai_worker_config(commit)
+        configs = [(x) for x in worker_configs(commit) if is_bonsai(x[3])]
         if not configs:
             continue
         registrations = model_registrations(commit)
@@ -118,8 +160,8 @@ def main():
                 "model_registrations": [{"path": path, "sha256": sha(text), "value": value}
                                         for path, text, value in registrations],
             })
-        # The nearest such snapshot is the provenance source; keep it plus no
-        # older duplicates, avoiding timestamp-based selection.
+        # The nearest Bonsai state is the provenance source; preserve the
+        # transition trail separately instead of timestamp-ranking ancestors.
         break
     report = {
         "selection": "nearest first-parent Bonsai configuration before first cloud case start",
@@ -129,6 +171,8 @@ def main():
         "pre_cloud_first_parent_commit": pre_cloud,
         "first_parent_commits_examined": len(examined),
         "candidates": candidates,
+        "worker_state_transitions": worker_states,
+        "autopilot_config_transitions": config_snapshots,
         "pre_cloud_json_paths": json_paths(pre_cloud),
     }
     OUT.mkdir(parents=True, exist_ok=True)

@@ -1,1 +1,36 @@
-bench/worker_eval/diagnose_reboots.sh wrote bench/results/2026-10-12/worker_eval/reboot-diagnostic-20261012T203153Z
+/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T221002.json
+{
+  "commit": "c9c86b7338aa23ddcf0edd58493e1954d7eb7179",
+  "commit_time": "2026-10-12T08:32:41-04:00",
+  "config_path": "autopilot/config.json",
+  "config_sha256": "27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334",
+  "worker": {
+    "model": "bonsai-agent",
+    "thinking": "low",
+    "where": "sandbox"
+  },
+  "worker_timeout_min": 45,
+  "worker_memory": null,
+  "model_registrations": [
+    {
+      "path": "agent/models.bonsai-agent.json",
+      "sha256": "949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4",
+      "value": {
+        "id": "bonsai-agent",
+        "name": "Bonsai 2 27B agent slot (turnstile virtual, 80k ctx)",
+        "reasoning": true,
+        "input": [
+          "text"
+        ],
+        "contextWindow": 81920,
+        "maxTokens": 16384,
+        "cost": {
+          "input": 0,
+          "output": 0,
+          "cacheRead": 0,
+          "cacheWrite": 0
+        }
+      }
+    }
+  ]
+}
