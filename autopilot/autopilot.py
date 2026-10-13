@@ -993,8 +993,7 @@ def main():
             plan = m.plan()
             st["phase"] = "plan" if not plan else "publish" if st["item"] >= len(plan) else "work"
             st.pop("blocked", None)
-            if st["round"] >= CFG["worker_rounds_per_item"] or st["reviews"] >= CFG["review_rounds_per_item"]:
-                st.update(round=0, reviews=0)  # blocked by triage: the user's go-ahead buys fresh rounds
+            st.update(round=0, reviews=0)  # the user's go-ahead buys fresh rounds
             m.save(st)
             m.journal("orchestrator", "Unblocked by the user.")
             commit(f"autopilot({m.name}): unblocked")
