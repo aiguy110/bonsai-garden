@@ -943,3 +943,21 @@ Confirmed the fixture suite remains green locally (27 passed). The only availabl
 ### 2026-10-12T21:03:01-04:00 · orchestrator
 
 Cloud call budget for today is spent; pausing until tomorrow.
+
+### 2026-10-12T21:33:14-04:00 · worker (gpt-5.6-terra), round 6
+
+Reviewed the lineage-aware provenance inspector and current provisional citations. Fixture tests pass (27 passed); exact historical citations still require the approved host-only git inspection.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/inspect_historical_arm.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Read-only host git inspection of the operative auto/M1-ngram lineage before the cloud cutoff. It will capture exact historical worker config/model-registration commit, paths, hashes, and values needed to replace provisional arm provenance in README and the arm."
+}
+```
+
+### 2026-10-12T21:33:14-04:00 · orchestrator
+
+Cloud call budget for today is spent; pausing until tomorrow.
