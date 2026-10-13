@@ -1,0 +1,2 @@
+I have enough state to submit. off-prod is complete (184 lines across all phases, logs + vram.txt present), §9b is fixed, and A is the prod pick (dual-agent greedy 25.5 vs B 23.0, same without length rows). Submitting the A/prod run now.
+

@@ -1,0 +1,2 @@
+Confirmed: spec turned two normally-finished agent turns (`mem0-r0/0/2`, `mem0-r2/0/2`) into `fin=length` loops in A. Now I'll run the final required `A-prod` (best-prod per the dual-agent greedy rule).
+

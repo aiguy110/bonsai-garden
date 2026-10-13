@@ -1,0 +1,26 @@
+[
+  {
+    "arm": "bonsai-2026-10-12-honest",
+    "out": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12-honest"
+  },
+  {
+    "arm": "w2-think-drop",
+    "out": "bench/results/2026-10-13/worker-eval/w2-think-drop"
+  },
+  {
+    "arm": "w2-reasoning-budget",
+    "out": "bench/results/2026-10-13/worker-eval/w2-reasoning-budget"
+  },
+  {
+    "arm": "w2-session-budget",
+    "out": "bench/results/2026-10-13/worker-eval/w2-session-budget"
+  },
+  {
+    "arm": "w2-hashline",
+    "out": "bench/results/2026-10-13/worker-eval/w2-hashline"
+  },
+  {
+    "arm": "w2-compaction",
+    "out": "bench/results/2026-10-13/worker-eval/w2-compaction"
+  }
+]

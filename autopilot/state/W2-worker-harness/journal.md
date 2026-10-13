@@ -272,3 +272,72 @@ Next session:
   "note": "Edit run.py (prompt_timeout_min rewrite, dir extensions, w2-config.json, settings_overrides, ext.jsonl copy), then write w2_queue.json, run_queue.py, compare.py, test_w2.py, w2_smoke_queue.json and smoke.md generator, then submit the smoke run (gpu:false, tap route)."
 }
 ```
+
+### 2026-10-13T12:23:24-04:00 · worker (gpt-5.6-terra), round 2
+
+Round 2. run.py now has the prompt_timeout_min rewrite (fails unless the 45-minute sentence appears exactly once, and logs the change in the manifest). It also copies directory extensions, writes w2-config.json, deep-merges settings_overrides, and copies w2-ext.jsonl to ext.jsonl. The W1 arm builds files identical to the fixture. Written: run_queue.py, compare.py, smoke_report.py, test_w2.py, w2_queue.json (honest, think-drop, reasoning-budget, session-budget, hashline, compaction), w2_smoke_queue.json and four w2-smoke-* arms. I ran `python3 -m pytest bench/worker_eval/` and all 52 tests pass. I ran compare.py on the W1 dir against itself, and it gives 25 valid, 21 kind-match and a median wall of 903.5 s, the same as the W1 numbers. Nothing has been run on the GPU or with pi yet. I added no w2-tool-cap arm because its gate failed, and no request_body_extra field because pi has the before_provider_request hook. The compaction arm is named w2-compaction, matching W2-decisions.md. Next: run smoke_report.py on the smoke dir to write smoke.md, and fix any extension load errors.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_smoke_queue.json --repeat 1 --only m1-ngram-spec-replay-r5-144acae8e198 --budget-min 55",
+  "gpu": false,
+  "timeout_min": 60,
+  "why": "Smoke run of the W2 extensions and arms on one short case. gpu:false because it goes through the tap/turnstile route (standing fact: gpu:true would deadlock). Smoke arms use an 8-minute session limit so four fit in the 55-minute budget; real arms follow if time remains."
+}
+```
+
+### 2026-10-13T12:25:31-04:00 · advisor (run request)
+
+**approve**: Safe: sandboxed with no network, tap->turnstile with the bench key, no :8080/:11435, no llama-server, writes only under /tmp/w1-replay-* and bench/results/2026-10-13/worker-eval-w2-smoke/. The case took 96-262 s in W1, so each 8-minute smoke arm fits. Before trusting smoke.md, fix smoke_report.py: (1) the hashline check needs a tool name containing 'hash', but the package overrides read/edit under the built-in names, so base it on tool_audit's source/description_head for read and edit; (2) take the exact loader error string from pi's dist (extension loader/runner.js load-failure path, cite file:line) instead of the generic regex, and check by hand any events.jsonl hit, since the generic pattern can match the model's own text; (3) for the reasoning-budget rows, check in tap.jsonl that reasoning_budget_tokens reached the server, if it keeps request bodies. The smoke arm descriptions and sources are wrong (think-drop says 'last 2' but keep_last is 1; session-budget says 12/16 min; hashline says 'same as w2-hashline'; sources say 20 min; the prompt says 20 while the limit is 8). Say so in smoke.md, and say the arm hashes change if you correct the files. The real-arm records in the smoke dir are N=1 on one case and must not be used in any comparison. If an attempt fails to run, the queue stops at that arm: rerun the same command to resume.
+
+### 2026-10-13T12:25:31-04:00 · orchestrator
+
+Added to the standing facts:
+
+- pi-hashline-context-edit registers its tools under the built-in names read and edit (vendor/pi-hashline-context-edit@0.11.0/src/read.ts, src/edit.ts), so a hashline load cannot be confirmed by tool name; check the tool's source or description (tool_audit.ts).
+
+### 2026-10-13T13:01:57-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_smoke_queue.json --repeat 1 --only m1-ngram-spec-replay-r5-144acae8e198 --budget-min 55` (gpu=False) in 2186s, exit 0. Full output: `bench/results/2026-10-13/autopilot/harness-and-arms-r2.log`. Last lines:
+
+```
+== w2-smoke-think-drop (55.0 min of budget left)
+[2026-10-13T12:25:31-04:00] w2-smoke-think-drop m1-ngram-spec-replay-r5-144acae8e198 r1
+  valid=True kind=run match=True 478.5s turns=13 tools=15
+{"skipped": 0, "ran": 1, "remaining": 0}
+== w2-smoke-reasoning-budget (47.0 min of budget left)
+[2026-10-13T12:33:30-04:00] w2-smoke-reasoning-budget m1-ngram-spec-replay-r5-144acae8e198 r1
+  valid=True kind=run match=True 69.3s turns=6 tools=10
+{"skipped": 0, "ran": 1, "remaining": 0}
+== w2-smoke-session-budget (45.9 min of budget left)
+[2026-10-13T12:34:40-04:00] w2-smoke-session-budget m1-ngram-spec-replay-r5-144acae8e198 r1
+  valid=True kind=run match=True 112.8s turns=6 tools=10
+{"skipped": 0, "ran": 1, "remaining": 0}
+== w2-smoke-hashline (44.0 min of budget left)
+[2026-10-13T12:36:33-04:00] w2-smoke-hashline m1-ngram-spec-replay-r5-144acae8e198 r1
+  valid=True kind=run match=True 403.7s turns=9 tools=10
+{"skipped": 0, "ran": 1, "remaining": 0}
+== bonsai-2026-10-12-honest (37.2 min of budget left)
+[2026-10-13T12:43:17-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r5-144acae8e198 r1
+  valid=True kind=run match=True 341.9s turns=6 tools=10
+{"skipped": 0, "ran": 1, "remaining": 0}
+== w2-think-drop (31.5 min of budget left)
+[2026-10-13T12:48:59-04:00] w2-think-drop m1-ngram-spec-replay-r5-144acae8e198 r1
+  valid=True kind=run match=True 777.0s turns=19 tools=25
+{"skipped": 0, "ran": 1, "remaining": 0}
+== w2-reasoning-budget (18.6 min of budget left)
+budget: 18.6 min left, a session may take 20; stopping
+{"skipped": 0, "ran": 0, "remaining": 1}
+w2-smoke-think-drop: records 1/1
+w2-smoke-reasoning-budget: records 1/1
+w2-smoke-session-budget: records 1/1
+w2-smoke-hashline: records 1/1
+bonsai-2026-10-12-honest: records 1/1
+w2-think-drop: records 1/1
+w2-reasoning-budget: records 0/1
+w2-session-budget: records 0/1
+w2-hashline: records 0/1
+w2-compaction: records 0/1
+
+```

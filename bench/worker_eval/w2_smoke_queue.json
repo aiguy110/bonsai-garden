@@ -1,0 +1,42 @@
+[
+  {
+    "arm": "w2-smoke-think-drop",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-smoke-think-drop"
+  },
+  {
+    "arm": "w2-smoke-reasoning-budget",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-smoke-reasoning-budget"
+  },
+  {
+    "arm": "w2-smoke-session-budget",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-smoke-session-budget"
+  },
+  {
+    "arm": "w2-smoke-hashline",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-smoke-hashline"
+  },
+  {
+    "arm": "bonsai-2026-10-12-honest",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/bonsai-2026-10-12-honest"
+  },
+  {
+    "arm": "w2-think-drop",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-think-drop"
+  },
+  {
+    "arm": "w2-reasoning-budget",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-reasoning-budget"
+  },
+  {
+    "arm": "w2-session-budget",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-session-budget"
+  },
+  {
+    "arm": "w2-hashline",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-hashline"
+  },
+  {
+    "arm": "w2-compaction",
+    "out": "bench/results/2026-10-13/worker-eval-w2-smoke/w2-compaction"
+  }
+]

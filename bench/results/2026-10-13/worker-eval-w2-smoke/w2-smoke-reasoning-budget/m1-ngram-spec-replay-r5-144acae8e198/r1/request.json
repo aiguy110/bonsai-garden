@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "New worker (GPT-5.6). Round 4 of spec-replay. State: off/A/B greedy all done, off-prod done (184 rows, 4 phases, r4.log). bench/m1-notes.md \u00a79b corrected (single \u00a79b at L362, no dup; length rows fixed to the two spec-induced loops; 'restore checkpoint' grep reported = 0 in A/B logs; prod pick = A). bench/spec_replay.py records per-row t_end and phase windows (t0/t_fg_end/t_join_end); spec_analyze.py prints combined fg+bg tok/s per phase. bench/.replay/m1/outputs/ is gitignored/host-side. Next: A/prod (the run below), then analyze off-prod vs A-prod, decide (expect no-deploy: no gains with both slots busy, spec changes greedy outputs even at 0 drafts, spec-induced max_tokens loops), and write the serving/series experiment page + site/series + project summaries.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Prod-sampling replay for arm A (ngram-mod defaults), 4 phases on fresh servers. A was picked by the item rule (highest dual-agent greedy fg tok/s, 25.5 vs B 23.0), for comparison against off-prod already completed."
+}

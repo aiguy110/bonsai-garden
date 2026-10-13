@@ -1,0 +1,4 @@
+The current `spec_replay.py` already logs `fg wall_s` and the phase `window t0/t_fg_end/t_join_end`, and `spec_analyze.py` has the `combined()` two-slot throughput table. Notes §9b already has the advisor's corrections in (two length rows, checkpoint counts=0, A chosen). `off-prod` completed but ran on the *older* script (no window lines), so combined-throughput for off-prod's dual phase will need recovering at decision time — that's fine, A-prod will carry the window data.
+
+The one remaining run per the plan is **A-prod** (ngram-mod defaults). Submitting it now.
+

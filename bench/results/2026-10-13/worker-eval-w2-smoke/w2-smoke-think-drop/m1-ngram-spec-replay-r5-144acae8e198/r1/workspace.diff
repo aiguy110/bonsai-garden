@@ -1,0 +1,67 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 83d6b51..08c7951 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -381,3 +381,62 @@ The earlier §9 reading of A's single-agent 86.0 tok/s as a gain is wrong.
+   length rows excluded (26.1 vs 23.0). Prod runs: off, then A.
+ - Combined two-slot throughput over wall time was not recorded for off/A/B greedy;
+   spec_replay.py now notes `fg wall_s` per phase, so prod runs have it.
++
++### 9c. off/prod results (round 5)
++
++off/prod = `--spec-type` off, production sampling (agent temp 1.0, top_p 0.95,
++top_k 20, seed 0; mem temp 0.2, seed 0). fg decode tok/s =
++sum(predicted_n)/sum(predicted_ms):
++
++| phase | off-greedy | off-prod | off-prod no-length |
++|---|---|---|---|
++| single-agent | 55.1 | 55.6 | 55.6 |
++| single-mem | 55.6 | 55.4 | 55.4 |
++| dual-agent | 26.3 | 31.2 | 32.6 |
++| dual-mem | 25.0 | 25.5 | 25.5 |
++
++off-greedy vs off-prod are not comparable to each other (different sampling);
++off-prod is the base for the A/prod run. No error rows. off-prod dual-agent
++has 10 rows with tool_call_json_valid=false (stochastic temp-1.0 output);
++all other rows are valid.
++
++### 9d. Decision — no speculation on the live entry (pending A/prod)
++
++Rule: deploy only if speculation improves real traffic with both slots busy.
++
++- Greedy dual-agent fg: off 26.3, A 25.5 (26.1 without length rows), B 23.0
++  tok/s. Greedy dual-mem fg: off 25.0, A 23.8, B 22.4. Neither ngram setting
++  is faster than off with both slots busy; A is the only spec arm not fully
++  dominated, but it is slower.
++- A's single-agent "86.0 tok/s" is an artifact: two rows hit max_tokens under
++  spec-induced greedy loops (mem0-r0/0/2, mem0-r2/0/2) while off finished both
++  normally with tool_calls (1020 and 3701 tokens). Excluding length rows A is
++  54.3 tok/s vs off 56.2. Loops are a quality regression, not a speedup.
++- Spec is the worse arm on normally-finishing turns in every phase (greedy,
++  no-length rows): single-agent 55.0 (B) / 54.3 (A) vs off 56.2; dual-mem 22.4 /
++  23.8 vs 25.0; mem 50.7 / 53.1 vs 55.6.
++- Quality: spec changes temperature-0 outputs even with draft_n = 0
++  (baseline-r0/0/0: 530c... off vs cdad... A vs f20f... B, all 71 tok).
++  Same-sha share vs off (fg): single-agent A 3/30 B 2/30; single-mem 10/12 both;
++  dual-agent 0/30 both; dual-mem 11/12 both.
++- MMproj outcome: no refusal on text-only traffic with --mmproj/--no-mmproj-offload
++  — A and B servers run fine and produce drafts (A fg draft_n>0 in
++  single-agent 3/30 rows, single-mem, dual-agent; B 1/30 in single-agent, 1/12
++  in single-mem, 1/30 dual-agent). Per server-context.cpp:3550-3553, image input
++  with spec on is untested/risky (`unsupported batch.has_embd + spec`), so even
++  if spec helped text-only, the production entry serves vision-traffic-prone
++  agent turns; untested with --mmproj.
++- Checkpoint evidence: 0 'restore checkpoint' / 'will use checkpoints' lines in
++  any A/B server log. 'will use checkpoints' is logged at SRV_TRC (server-context.cpp:1172),
++  so its absence from the replay logs (default verbosity) is expected, not a
++  signal that speculation was off — drafts were produced instead.
++- VRAM: 9507 MiB / 10240 MiB used after the first fg request for off and A
++  (all four phases), no observable increase from ngram-mod drafting in this setup.
++- prod base (off-prod) dual-agent fg 31.2 (32.6 no-length) tok/s is the number
++  A/prod must beat for a change of heart; the rule itself is set on dual-agent
++  greedy and A does not beat off there.
++
++Provisional decision: leave the live `bonsai-2-27b` entry unchanged (no infra
++request). A/prod runs for completeness per the plan; it cannot change a rule
++decided on dual-agent greedy, and the only spec-induced regression (greedy loops
++on length rows) already argues against it. Finalize here once A/prod lands.

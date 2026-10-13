@@ -1,0 +1,8 @@
+{
+  "report": "Analyzed all greedy data. Key findings: ngram-mod (A) does NOT beat spec-off (off) on the decision metric (dual-agent = both slots busy): off 26.3 vs A 25.5 (26.1 no-length) vs B 23.0. A's headline single-agent 86.0 is a spec-induced regression: off finished mem0-r0/0/2 (1020 tok, tool_calls) and mem0-r2/0/2 (3701 tok, tool_calls) normally, but A ran both to fin=length (3121, 4854 tok). Without length rows A is 54.3 vs off 56.2. B is slower everywhere. Spec also changes temp-0 outputs even with zero drafts, and 'restore checkpoint' count is 0 in all A/B logs. mmproj did NOT refuse spec (draft_n>0 confirmed on :8089). Prod runs: off-prod done, A-prod (best arm) is next to confirm under sampling whether A still loops and to get the precise combined two-slot window.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "A-prod (best arm per dual-agent greedy rule) prod-sampling replay, 4 phases on fresh servers, to confirm whether A loops under sampling and to get the combined two-slot window."
+}

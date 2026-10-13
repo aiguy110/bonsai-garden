@@ -1,0 +1,39 @@
+diff --git a/bench/spec_analyze.py b/bench/spec_analyze.py
+index 4b4ec5f..1ac4b7a 100644
+--- a/bench/spec_analyze.py
++++ b/bench/spec_analyze.py
+@@ -22,6 +22,23 @@ def rate(rs):
+ def windows(d, arm):
+     import re
+     w = {}
++    try:
++        # Row-derived windows: t1 = last fg t_end, t0 = first fg t_end - its
++    # predicted_ms (request start, == loop start). Only a fallback; exact
++    # 'window t0=... t_fg_end=...' lines from notes.txt override when present.
++        by_ph = {}
++        for l in open(f"{d}/{arm}/requests.jsonl"):
++            r = json.loads(l)
++            by_ph.setdefault(r["phase"], []).append(r)
++        for ph, rs in by_ph.items():
++            fg = [r for r in rs if r["fg_bg"] == "fg" and "t_end" in r]
++            if not fg:
++                continue
++            t1 = max(r["t_end"] for r in fg)
++            t0 = min(r["t_end"] for r in fg) - (min((r.get("predicted_ms") or 0) for r in fg) / 1000.0)
++            w[ph] = (t0, t1)
++    except OSError:
++        pass
+     try:
+         for l in open(f"{d}/{arm}/notes.txt"):
+             m = re.search(r"\[(\S+)\] window t0=([\d.]+) t_fg_end=([\d.]+)", l)
+@@ -35,8 +52,8 @@ def windows(d, arm):
+ def combined(d, arm, data):
+     """Tokens of fg plus bg rows that ended inside the fg window, over fg wall time."""
+     w = windows(d, arm)
+-    print("\nCombined two-slot throughput (fg + bg rows ending before fg ended) / fg wall time:\n")
+-    print("| phase | arm | fg wall s | fg tok | bg tok (in window) | combined tok/s |")
++    print("\nCombined two-slot throughput (fg + bg rows ending before fg ended) / fg window:\n")
++    print("| phase | arm | window s | fg tok | bg tok (in window) | combined tok/s |")
+     print("|---|---|---|---|---|---|")
+     for ph in PHASES:
+         if ph not in w:

@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Verified state before running: off-greedy, A-greedy, B-greedy, off-prod all present with all 4 phases; advisor's m1-notes \u00a79b fixes already in place (single \u00a79b, \"two length rows\" corrected); spec_replay.py records window (t0/t_fg_end/t_join_end), spec_analyze.py has the combined two-slot tok/s. Subtlety found: off-prod ran with an older script version (has fg_wall_s, no window lines), so its combined two-slot metric is currently missing from spec_analyze. Running A/prod now (current script -> captures window data). Next session: re-run off-prod to get matching window data for apples-to-apples combined comparison, then decide.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "why": "A-prod (best-spec-arm, ngram-mod defaults) prod-sampling replay, 4 phases on fresh servers; completes the spec off-vs-A prod comparison. A chosen per item (highest dual-agent greedy 25.5 vs B 23.0, length rows excluded 26.1 vs 23.0).",
+  "timeout_min": 120,
+  "gpu": true
+}

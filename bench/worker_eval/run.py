@@ -153,7 +153,23 @@ def render_prompt(case, arm):
         raise ValueError(f"{case['case_id']}: replay-model line not rendered")
     if out.replace(new, old, 1) != prompt:
         raise ValueError(f"{case['case_id']}: prompt changed outside the model line")
-    return out
+    return rewrite_timeout(out, case["case_id"], arm.get("prompt_timeout_min"))
+
+
+TIMEOUT_SENTENCE = "killed after 45 minutes"
+
+
+def rewrite_timeout(prompt, case_id, minutes):
+    """W2 candidate 0: when the arm sets prompt_timeout_min, the one sentence 'killed after
+    45 minutes' becomes 'killed after <n> minutes'; nothing else in the prompt changes.
+    Fails if the sentence is not there exactly once."""
+    if minutes is None:
+        return prompt
+    if prompt.count(TIMEOUT_SENTENCE) != 1:
+        raise ValueError(f"{case_id}: expected exactly one {TIMEOUT_SENTENCE!r} in the prompt, "
+                         f"found {prompt.count(TIMEOUT_SENTENCE)}")
+    n = int(minutes) if float(minutes).is_integer() else minutes
+    return prompt.replace(TIMEOUT_SENTENCE, f"killed after {n} minutes", 1)
 
 
 # ---- events ----
@@ -478,12 +494,22 @@ def model_registration(arm):
     return entry
 
 
+def deep_merge(dst, src):
+    for k, v in src.items():
+        if isinstance(v, dict) and isinstance(dst.get(k), dict):
+            deep_merge(dst[k], v)
+        else:
+            dst[k] = json.loads(json.dumps(v))
+    return dst
+
+
 def agent_files(arm, ev_tap):
     """settings.json and models.json for a worker session (autopilot.py
     worker_agent_dir() for provider garden, memory off)."""
     provider, model = arm["model"].split("/", 1)
     settings = {"defaultProvider": provider, "defaultModel": model, "defaultThinkingLevel": arm["thinking"],
                 "compaction": {"reserveTokens": arm["compaction_reserve_tokens"]}}
+    deep_merge(settings, arm.get("settings_overrides") or {})
     models = {"providers": {provider: {
         "baseUrl": f"{ev_tap}/agent/v1", "api": "openai-completions", "apiKey": "tap",
         "compat": {"supportsStore": False, "supportsDeveloperRole": False,
@@ -499,7 +525,14 @@ def make_agent_dir(arm, base, ev_tap):
     (agent / "settings.json").write_text(json.dumps(settings, indent=2) + "\n")
     (agent / "models.json").write_text(json.dumps(models, indent=2) + "\n")
     for rel in arm["extensions"]:
-        shutil.copy(ROOT / rel, agent / "extensions" / pathlib.Path(rel).name)
+        src = ROOT / rel
+        dst = agent / "extensions" / pathlib.Path(rel).name
+        if src.is_dir():
+            shutil.copytree(src, dst, ignore=shutil.ignore_patterns("node_modules", ".git"))
+        else:
+            shutil.copy(src, dst)
+    if "extension_config" in arm:
+        (agent / "w2-config.json").write_text(json.dumps(arm["extension_config"], indent=2) + "\n")
     return agent
 
 
@@ -607,6 +640,9 @@ def run_session(ev, arm, arm_hash, case, repeat, adir, check):
             "arm": arm["name"], "arm_sha256": arm_hash,
             "case_id": case["case_id"], "repeat": repeat, "start_commit": case["start_commit"],
             "prompt_sha256": hashlib.sha256(prompt.encode()).hexdigest(),
+            "prompt_timeout_min": arm.get("prompt_timeout_min"),
+            "prompt_rewrite": (f"'{TIMEOUT_SENTENCE}' -> 'killed after {arm['prompt_timeout_min']} minutes' (1 occurrence)"
+                               if arm.get("prompt_timeout_min") is not None else None),
             "case_prompt_sha256": case.get("prompt_sha256"), "checkout": str(checkout),
             "started": now_iso(), "pi": ["pi", "-p", "--mode", "json", "--no-session", *ev.PI_FLAGS,
                                          "--model", arm["model"], "--thinking", arm["thinking"], "<prompt>"],
@@ -640,6 +676,8 @@ def run_session(ev, arm, arm_hash, case, repeat, adir, check):
         if req is not None:
             (adir / "request.json").write_text(json.dumps(req, indent=2) + "\n")
         (adir / "workspace.diff").write_text(workspace_diff(checkout))
+        if (agent / "w2-ext.jsonl").exists():
+            shutil.copy(agent / "w2-ext.jsonl", adir / "ext.jsonl")
         tap_bytes = safe(lambda: (base / "tap.jsonl").stat().st_size, 0)
         safe(lambda: shutil.copy(base / "tap.jsonl", adir / "tap.jsonl"), None)
         rec = build_record(arm, case, repeat, source, req, errs, events, classify(events, timed_out, rc), wall,

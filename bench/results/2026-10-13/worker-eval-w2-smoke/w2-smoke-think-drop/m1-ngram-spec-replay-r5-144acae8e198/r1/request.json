@@ -1,0 +1,8 @@
+{
+  "report": "Round 5 (round 4 of 12 on spec-replay). Checked the state after the previous run: off-greedy, A-greedy, B-greedy, and off-prod all have complete results (4 phases each, requests.jsonl, vram.txt, server logs; draft_n/draft_n_accepted present on all A/B fg rows). Key numbers: dual-agent fg decode off 26.3 vs A 25.5 (26.1 excluding length rows) vs B 23.0; dual-mem fg off 25.0 vs A 23.8 vs B 22.4. A's single-agent 86.0 is an artifact of spec-induced greedy loops hitting max_tokens (mem0-r0/0/2, mem0-r2/0/2), while off finished those normally; without length rows, A is 54.3 tok/s, off is 56.2. Therefore, no spec setting beats off on dual. Added sections 9c/9d to bench/m1-notes.md (off-prod table: dual-agent fg 31.2, no length 32.6; decision: no infra change, provisionally). MMproj result: no rejection on text-only traffic; 0 'restore checkpoint' lines (SRV_TRC-level logging, expected). Next run: A/prod, per the plan's best-of-A/B rule (25.5 > 23.0).",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 180,
+  "why": "A (ngram-mod defaults) prod-sampling replay, 4 phases on a fresh private server. A was picked as best-of-A/B per the item's dual-agent greedy rule (A 25.5 vs B 23.0 fg tok/s, both worse than off's 26.3)."
+}

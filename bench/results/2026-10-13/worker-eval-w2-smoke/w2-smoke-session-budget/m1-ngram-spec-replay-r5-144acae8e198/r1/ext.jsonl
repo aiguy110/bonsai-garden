@@ -1,0 +1,3 @@
+{"ext":"session_budget","t":1791909317322,"event":"warn","kind":"time","threshold":0.5,"elapsed_min":0.6,"turn":2}
+{"ext":"session_budget","t":1791909346360,"event":"warn","kind":"time","threshold":1,"elapsed_min":1.08,"turn":5}
+{"ext":"session_budget","t":1791909371855,"event":"block","tool":"bash","elapsed_min":1.51,"turn":5}

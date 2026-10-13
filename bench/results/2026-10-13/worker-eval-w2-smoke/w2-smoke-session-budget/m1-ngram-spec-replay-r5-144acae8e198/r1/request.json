@@ -1,0 +1,8 @@
+{
+  "report": "State check before running A/prod:\n- off-greedy, A-greedy, B-greedy, off-prod all complete under bench/results/2026-10-12/m1-ngram/replay/ with requests.jsonl, vram.txt, 4 server logs, notes.txt per phase.\n- spec_replay.py already logs per-phase `window t0 t_fg_end t_join_end` (bg-join fix applied); spec_analyze.py prints combined fg+bg tok/s over fg wall per phase and with/without length rows.\n- bench/m1-notes.md \u00a79b already corrected: duplicate deleted, 'two length rows' wording fixed (baseline-r1/2/8 noted as length-but-draft_n=0), restore-checkpoint count 0 reported, prod pick = A stated (25.5 dual-agent vs B 23.0; 26.1 vs 22.4 no-length).\n- prod arm per item rule: highest dual-agent greedy = A (ngram-mod defaults); A may have caused greedy loops in single-agent but those don't appear in the dual-agent metric, and prod sampling (temp 1.0) should be checked for loops post-run.\nNext: run A/prod, then analyze all 5 arms and make the deploy decision (rule: spec helps with both slots busy).",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "A-prod replay (prod sampling, ngram-mod defaults), 4 phases on fresh private :8089 server, completes the 5 required arms (off/A/B greedy + off/A prod)."
+}
