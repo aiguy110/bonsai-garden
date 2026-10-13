@@ -1023,3 +1023,37 @@ autopilot/state/W1-worker-eval/journal.md   |   4 +
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
+
+### 2026-10-12T22:05:38-04:00 · worker (gpt-5.6-terra), round 9
+
+Briefly checked the revised first-parent/path-discovery inspector. It compiles, and the local replay-harness fixture suite passes (27 passed). Host output is needed to cite the actual historical snapshot.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/inspect_historical_arm.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Read-only host inspection of the operative auto/M1-ngram first-parent lineage before the cloud worker cases. The revised inspector discovers historical JSON paths and emits the nearest pre-cloud Bonsai worker config plus exact file hashes/values required to complete arm provenance."
+}
+```
+
+### 2026-10-12T22:06:35-04:00 · advisor (run request)
+
+**approve**: Safe, read-only git inspection; it writes only a timestamped report under bench/results and starts no services. Run it. Before using the result, verify the candidate has a nonempty model_registrations list, predates the cloud switch, and was still operative for the final Bonsai round rather than merely being the nearest older commit containing Bonsai configuration.
+
+### 2026-10-12T22:06:35-04:00 · orchestrator
+
+Added to the standing facts:
+
+- bench/worker_eval/inspect_historical_arm.py examines commits strictly before the first cloud start commit; its selected candidate proves the nearest earlier first-parent Bonsai configuration, but not by itself that no out-of-tree or later configuration change affected the final Bonsai round.
+
+### 2026-10-12T22:06:37-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/inspect_historical_arm.py` (gpu=False) in 2s, exit 1. Full output: `bench/results/2026-10-12/autopilot/replay-harness-r9.log`. Last lines:
+
+```
+/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T220637.json
+no Bonsai worker config found before first cloud case; inspect pre_cloud_json_paths
+
+```
