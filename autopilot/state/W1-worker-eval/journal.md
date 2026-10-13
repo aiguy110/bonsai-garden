@@ -1921,3 +1921,30 @@ Validated the revised W1 publication with the site checker; it now addresses the
 ### 2026-10-13T09:14:14-04:00 · advisor (write-up)
 
 **revise**: The site structure, summaries, pooled/per-case metrics, failure counts, tool counts, compaction counts, and 7/10 advisor sample all match the committed artifacts; the checker also passes. One provenance claim remains inaccurate: `site/series/local-worker/worker-eval.md` says the linked arm contains the exact arm “and provenance,” but `bench/worker_eval/arms/bonsai-2026-10-12.json` embeds SHA-256 values produced by the old stripped-text hashing code, and its `worker_memory` source says the historical config explicitly contained null when the key was actually absent and disabled memory through `CFG.get()`. Do not modify the executed arm, since that would break its recorded hash. Instead, call it the exact executed arm and add this provenance limitation to the experiment caveats (and preferably correct the same claims in `bench/worker_eval/README.md`). Re-run the site checker afterward.
+
+### 2026-10-13T09:15:28-04:00 · worker (gpt-5.6-terra), round 5
+
+Corrected the W1 page to call the linked file the exact executed arm, added the stripped-hash and absent-memory-key provenance caveat, and aligned the worker-eval README without modifying the executed arm. Next: run the required site checker.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/check_site.py",
+  "gpu": false,
+  "timeout_min": 30,
+  "why": "Revalidate the W1 experiment and parent site metadata after correcting the executed-arm provenance wording and adding its explicit limitation. This required checker is read-only and uses neither GPU nor live services."
+}
+```
+
+### 2026-10-13T09:15:45-04:00 · advisor (run request)
+
+**approve**: Safe and appropriate to run. It executes the required read-only site checker after the provenance wording changes. Final review should still verify numerical and provenance claims against committed artifacts.
+
+### 2026-10-13T09:15:45-04:00 · orchestrator
+
+Ran `python3 bench/check_site.py` (gpu=False) in 0s, exit 0. Full output: `bench/results/2026-10-13/autopilot/worker-eval-writeup-r5.log`. Last lines:
+
+```
+12 pages checked, 0 errors
+
+```

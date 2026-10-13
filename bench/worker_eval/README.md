@@ -144,16 +144,17 @@ ranges. Fields: `name` (= file name), `description`, `model`, `worker_descriptio
 | context window | 81920 | `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json`, `contextWindow` |
 | compaction reserve | 28672 | `autopilot.py` `worker_agent_dir()` (provider `garden`) |
 | session timeout | 20 min | Intentional W1 change from historical `worker_timeout_min: 45` in `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json` |
-| worker memory | off | Historical `worker_memory: null` in `c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json`; memory remains disabled for W3 isolation |
+| worker memory | off | The historical config omitted `worker_memory`; `CFG.get()` therefore disabled it. The executed arm records `null` for the W3-isolation replay setting. |
 | extensions | `autopilot/extensions/submit_request.ts` | `autopilot.py` `worker_agent_dir()` |
 
 The host-only report `bench/results/2026-10-12/worker_eval/historical-arm-provenance-20261012T221002.json`
 selected `c9c86b7338aa23ddcf0edd58493e1954d7eb7179` as the nearest Bonsai worker state on
-the operative `auto/M1-ngram` first-parent line before the first cloud case. It records
-that commit at 2026-10-12 08:32:41 -04:00, config SHA-256
-`27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334`, and registration
-SHA-256 `949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4`. This
-establishes the committed pre-switch worker configuration; it does not claim to prove
-uncommitted or out-of-tree live state.
+the operative `auto/M1-ngram` first-parent line before the first cloud case, at
+2026-10-12 08:32:41 -04:00. Its displayed config and registration SHA-256 values are
+not byte hashes: the then-current inspector hashed stripped `git show` text. Likewise,
+the report represents the absent historical `worker_memory` key as null. Do not use
+those digests or that null representation as exact provenance. The executed arm is
+preserved for reproducibility; the corrected raw-blob inspector has not been rerun.
+The snapshot still does not claim to prove uncommitted or out-of-tree live state.
 
 Note: the replay checkout is a real git repo with working history (ancestors of the start commit only). The original worker's sandbox mounted a worktree whose `.git` pointed outside the container, so git was unusable there.

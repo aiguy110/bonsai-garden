@@ -59,8 +59,7 @@ thinking, 16,384 maximum output tokens, 81,920-token context, 28,672-token
 compaction reserve, worker memory off, and only
 `autopilot/extensions/submit_request.ts`; it enforced a 20-minute session timeout.
 The historical worker had a 45-minute setting, so the retained prompt wording says
-45 minutes even though the replay timeout is 20. The exact arm and provenance are
-committed in
+45 minutes even though the replay timeout is 20. The exact executed arm is committed in
 [`arms/bonsai-2026-10-12.json`](https://github.com/aiguy110/bonsai-garden/blob/main/bench/worker_eval/arms/bonsai-2026-10-12.json).
 
 ## Deterministic results
@@ -195,8 +194,14 @@ Measured evidence motivates, but does not prove causes for, five priorities:
 This is a replay, not an online replacement trial. Its real Git checkout exposes
 history that the original autopilot sandbox could not use; this can only change
 behavior relative to the source round. All five run manifests record `repo_dirty:
-true`, a provenance caveat. The corpus is M1-only and contains 22 selected rounds,
-not the full future workload. The summary recomputes result-level metrics but does
-not independently reparse every event file for failure flags. Finally, deterministic
-request acceptance and the 10-request advisor sample measure different things;
-neither supports a blanket claim that Bonsai can or cannot replace the cloud worker.
+true`, a provenance caveat. The executed arm's embedded historical SHA-256 values
+came from an earlier inspector that hashed stripped `git show` text rather than raw
+blobs, so they must not be treated as byte hashes; its memory source also says the
+historical config explicitly set `worker_memory: null`, whereas the key was absent
+and memory was disabled through `CFG.get()`. The arm is preserved because it is the
+one executed; raw-byte provenance has not yet been rerun. The corpus is M1-only and
+contains 22 selected rounds, not the full future workload. The summary recomputes
+result-level metrics but does not independently reparse every event file for failure
+flags. Finally, deterministic request acceptance and the 10-request advisor sample
+measure different things; neither supports a blanket claim that Bonsai can or cannot
+replace the cloud worker.
