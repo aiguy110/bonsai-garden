@@ -41,8 +41,10 @@ implementation, Python mem0 behind a server, is a separate arm.
 - `evals/tasks/inventory/`: the template for a task (`task.json`, `repo/`,
   `check.py`).
 - The task sanity gate in `docs/roadmap.md` ("Terms").
-- Arms: `evals/arms/baseline.json`, `mem0.json`, `mem0-server.json`. New arms go in
-  new files, and existing ones are never edited.
+- Arms: `evals/arms/baseline.json`, `mem0.json`, `mem0-server.json`, and (from N1,
+  `autopilot/milestones/N1-mnemopi.md`) `mnemopi-none.json` and `mnemopi-bonsai.json`.
+  New arms go in new files, and existing ones are never edited. If N1 did not produce
+  working Mnemopi arms, say so in the journal and run the three mem0-family arms only.
 
 ## Done when
 
@@ -52,11 +54,14 @@ implementation, Python mem0 behind a server, is a separate arm.
    Every task passes the sanity gate: the checker fails on the untouched `repo/` and
    passes on a known-good workspace, which is kept outside anything an eval agent
    can see.
-2. `baseline`, `mem0` and `mem0-server` are run on all six tasks at N=5. Arms are
+2. `baseline`, `mem0`, `mem0-server`, `mnemopi-none` and `mnemopi-bonsai` are run on
+   all six tasks at N=5 (about 20 GPU-hours; if the budget is tight, finish the
+   other four arms first and run `mem0-server` last). Arms are
    interleaved, as `run.py` already does. Infrastructure failures (pi request
    timeouts, a mem0 server that won't start) are rerun, not scored.
-3. Per-task and pooled pass rates with spread, per arm. A pairwise comparison
-   `mem0` vs `mem0-server` on the knowledge-update tasks. Memory-LLM tokens per step
+3. Per-task and pooled pass rates with spread, per arm. Pairwise comparisons
+   `mem0` vs `mem0-server`, and the best mem0 arm vs the best Mnemopi arm, on the
+   knowledge-update tasks. Name the layer W3 should use. Memory-LLM tokens per step
    per arm.
 4. An experiment page in the memory-layers series, plus updated series and project
    summaries (`site/AUTHORING.md`).

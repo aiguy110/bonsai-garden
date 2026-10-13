@@ -44,6 +44,19 @@ Work in this order unless W1's failure modes say otherwise. Each is an arm in
    else in the prompt, say so.
 1. **Thinking.** Drop thinking older than the last few turns before each request; a
    larger output limit (16k now) paid for by the freed context; a reasoning budget.
+1b. **Stock oh-my-pi as a whole harness (moved up: run it right after the first
+   single-factor batch, before session discipline and the combinations).** It
+   brings hashline edits natively, so it also stands in for candidate 3. Steps: pack
+   the npm package into a new empty directory with `--ignore-scripts` (no install
+   scripts; record version, license, tarball sha256 and what runtime it needs), and
+   put any runtime it needs (for example Bun) in a pinned, hash-checked user-space
+   directory under the milestone worktree, never system-wide. Add a harness field
+   to the arm format (`pi` by default) and run `omp` in the same sandbox, tap and
+   model entry, with the honest prompt and the 20-minute limit. Try `submit_request`
+   under it; if it doesn't load, rely on the JSON fallback and say so. Record the
+   first request's prompt tokens under both harnesses, so the context-cost question
+   is answered with a number. Do not tune omp beyond stock defaults except to make
+   it talk to our model. Compare with the honest baseline like any other arm.
 2. **Tool output.** A smaller result cap that tells the model where the rest is.
 3. **Editing.** Hash-anchored line edits ("hashline", from oh-my-pi) as a plain pi
    extension (ports exist: `pi-hashline-edit`, `pi-hashline-context-edit`). Install
@@ -53,8 +66,7 @@ Work in this order unless W1's failure modes say otherwise. Each is an arm in
 5. **Compaction (M6 alongside).** The reserve, and what the summary keeps. Only the
    settings that matter to worker arms; the memory-backed compaction suite is M6 and
    is not part of this milestone.
-6. **Combinations** of whatever helped. oh-my-pi as a whole harness only if the
-   above leave a gap, and only after checking that `submit_request` runs under it.
+6. **Combinations** of whatever helped.
 
 ## Constraints
 

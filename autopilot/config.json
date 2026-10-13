@@ -50,7 +50,9 @@
   "milestones": [
     "M1-ngram",
     "W1-worker-eval",
-    "W2-worker-harness"
+    "W2-worker-harness",
+    "N1-mnemopi",
+    "M2-continuity"
   ],
   "worktree_root": "/home/josiah/Projects/bonsai-garden-auto",
   "cloud_extension": "npm:pi-meridian-extension@0.2.5"

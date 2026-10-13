@@ -13,8 +13,10 @@ Bonsai couldn't keep up as the autopilot's worker (11 of 21 rounds sent no reque
 so since 2026-10-12 the worker is a cloud model (Claude Sonnet 5.5, then GPT-5.6
 Terra through Codex). The priority now is the
 [local worker track](#local-worker-track): making the stack good enough that Bonsai
-can do this research itself. M1 and W1 are done; next: W2 (with M6 alongside),
-W3, W4, then M2 onward.
+can do this research itself. M1 and W1 are done. Order from here: W2 (worker harness,
+running; stock oh-my-pi is a whole-harness arm right after the first single-factor
+batch), then N1 (oh-my-pi's Mnemopi memory layer as a pi extension), then M2 with
+Mnemopi arms added, then W3 (using whichever layer wins M2), W4, and the rest.
 
 ## Terms
 
@@ -49,7 +51,8 @@ grow. Each step is measured on W1.
 |---|---|---|---|
 | W1 | **Worker eval — done** | Could Bonsai do the autopilot's own rounds? | 22 real cloud-worker rounds replayed at N=2: 25/44 valid requests (56.8%), 21/44 kind matches (47.7%), median 903.5 s. [Experiment](../site/series/local-worker/worker-eval.md); spec: [`autopilot/milestones/W1-worker-eval.md`](../autopilot/milestones/W1-worker-eval.md) |
 | W2 | **Worker harness** | Which pi and server settings close the gap? | [Candidates](#w2-candidates) each run as a worker arm on W1 against the 2026-10-12 Bonsai arm; keep what helps |
-| W3 | **Passive worker memory** | Does memory let the worker survive compaction and fresh sessions? | Auto-recall and capture keyed on the item and the round report, not the whole prompt; measured on W1 cases that span several rounds of one item |
+| N1 | **Mnemopi adapter** | Can oh-my-pi's Mnemopi memory engine run inside our pi harness, and what does it cost? | Spec: [`autopilot/milestones/N1-mnemopi.md`](../autopilot/milestones/N1-mnemopi.md). A pi extension over the `@oh-my-pi/pi-mnemopi` library, two arms (`mnemopi-none`: no LLM, FTS-only; `mnemopi-bonsai`: Bonsai extracts and consolidates), smoke-tested on `inventory`. Runs after W2 |
+| W3 | **Passive worker memory** | Does memory let the worker survive compaction and fresh sessions? Uses the layer that wins M2 (mem0 or Mnemopi) | Auto-recall and capture keyed on the item and the round report, not the whole prompt; measured on W1 cases that span several rounds of one item |
 | W4 | **Routing** | How much real work can go local? | The planner marks local-capable items; Bonsai tries them first and hands an item to the cloud worker after N failed rounds. The status page tracks the local share |
 
 ### W2 candidates
@@ -74,17 +77,19 @@ grow. Each step is measured on W1.
 - **Session discipline.** Turn and time budgets in the `submit_request` extension:
   warnings first, then only that tool allowed. Smaller items when the worker is local.
 - **Compaction** (M6): the reserve, and what the summary keeps.
-- **Harness:** oh-my-pi as a whole-harness arm, only after the hashline extension and
-  the other candidates above, and only if they leave a gap. Check first that our
-  extensions (`submit_request`, pi-memory-mem0) run under it.
-  Its larger tool set and system prompt cost context the 80k window doesn't have.
+- **Harness:** stock oh-my-pi (`omp`) as a whole-harness arm, run right after the first
+  single-factor batch rather than last. It brings hashline edits natively. The earlier
+  worry that its tool set and system prompt cost too much of the 80k window looks
+  smaller than assumed, so the arm records the first request's prompt size for both
+  harnesses and settles it. If `submit_request` doesn't run under it, the arm uses
+  the JSON-fallback path.
 
 ## Milestones
 
 | # | Milestone | Question | Done when |
 |---|---|---|---|
 | M1 | **N-gram speculation — done, not deployed** | Does llama-server's n-gram self-speculation speed up real agent and memory traffic, including when both slots are busy? | Replayed recorded agent and rebuilt mem0 traces on :8089, one and two slots busy. Default `ngram-mod` was slower at production sampling with two slots (agent 26.7 vs 31.3 tok/s; mem 23.4 vs 25.4), changed outputs, and was not deployed. |
-| M2 | **Continuity suite** | Does mem0's win hold beyond one hand-built task, and does it depend on which mem0? | 6 cross-session tasks, `baseline` vs `mem0` vs `mem0-server`, N=5; per-task and pooled pass rates with spread. Include ≥2 *knowledge-update* tasks, where a step 1 fact is changed in step 2. Spec: [`autopilot/milestones/M2-continuity.md`](../autopilot/milestones/M2-continuity.md) |
+| M2 | **Continuity suite** | Does mem0's win hold beyond one hand-built task, does it depend on which mem0, and does Mnemopi do as well? | 6 cross-session tasks, `baseline` vs `mem0` vs `mem0-server` vs `mnemopi-none` vs `mnemopi-bonsai`, N=5; per-task and pooled pass rates with spread. Include ≥2 *knowledge-update* tasks, where a step 1 fact is changed in step 2. Spec: [`autopilot/milestones/M2-continuity.md`](../autopilot/milestones/M2-continuity.md) |
 | M3 | **Regression guard** | Does memory hurt tasks that don't need it? | 12 single-session tasks run with a pre-filled, *irrelevant* memory store vs baseline; no significant drop |
 | M4 | **Other memory layers** | Is mem0 the right design for a small local model? | Arms below, run on the M2 suite and M3 guard; pass rate vs memory-LLM tokens per step |
 | M5 | **Cheaper memory writes** | Can the ~8k-token prefill per mem0 write be cut? | Variants of capture (per turn vs end of session), a shorter extraction prompt, recall top-k; cost vs pass-rate curve |
