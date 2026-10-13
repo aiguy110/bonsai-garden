@@ -708,3 +708,7 @@ Inspected the approved diagnostic at bench/results/2026-10-12/worker_eval/reboot
 ### 2026-10-12T16:35:20-04:00 · orchestrator
 
 BLOCKED: triage of `replay-harness` (the worker is stuck: The acceptance smoke test cannot safely be retried until the repeated abrupt host resets correlated with launching the replay are diagnosed or a host-level mitigation is applied.): Human host-level action is required before more inference. Four smoke invocations launched real bench-route requests and were followed by abrupt host resets; none completed. The retained journals show no orderly shutdown, OOM, NVIDIA Xid, panic, watchdog, or thermal event. Please diagnose/stabilize bifrost—especially PSU/GPU power delivery, cabling, BIOS/firmware, and root-only crash evidence—or approve a reversible mitigation such as a conservative RTX 3080 power cap and validate it under controlled load. Then unblock W1 and permit one smoke retry. Do not launch the full N=2 baseline meanwhile.
+
+### 2026-10-12T20:04:59-04:00 · orchestrator
+
+Unblocked by the user.

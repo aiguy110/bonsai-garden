@@ -1,11 +1,10 @@
 {
-  "phase": "blocked",
+  "phase": "work",
   "item": 1,
   "round": 11,
   "reviews": 0,
   "base": "4d8b3d15167ab43c45f33d8dd2252f527964e80d",
   "dropped": [],
   "caveats": {},
-  "replans": 0,
-  "blocked": "triage of `replay-harness` (the worker is stuck: The acceptance smoke test cannot safely be retried until the repeated abrupt host resets correlated with launching the replay are diagnosed or a host-level mitigation is applied.): Human host-level action is required before more inference. Four smoke invocations launched real bench-route requests and were followed by abrupt host resets; none completed. The retained journals show no orderly shutdown, OOM, NVIDIA Xid, panic, watchdog, or thermal event. Please diagnose/stabilize bifrost\u2014especially PSU/GPU power delivery, cabling, BIOS/firmware, and root-only crash evidence\u2014or approve a reversible mitigation such as a conservative RTX 3080 power cap and validate it under controlled load. Then unblock W1 and permit one smoke retry. Do not launch the full N=2 baseline meanwhile."
+  "replans": 0
 }
