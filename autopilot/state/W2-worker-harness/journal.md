@@ -360,3 +360,18 @@ Smoke run finished, and smoke.md is written. 52 tests pass.
 ### 2026-10-13T13:06:57-04:00 · orchestrator
 
 `meridian/claude-opus-5-5` hit its subscription's usage limit, and the advisor's other model is capped too; pausing 10.0 min. This session doesn't count as a round.
+
+### 2026-10-13T13:17:58-04:00 · worker (gpt-5.6-terra), round 4
+
+Validated the completed harness-and-arms item; pytest passes all 52 tests.
+
+```json
+{
+  "request": "done",
+  "summary": "`bench/worker_eval/` contains the W2 fixture, schema/arms, run harness support, extensions, vendored patched hashline package with LICENSE/PATCH.diff, queue runner, comparison tool, tests, and real/smoke queues. `bench/results/2026-10-13/worker-eval-w2-smoke/smoke.md` records successful load/mechanism evidence for each smoke extension; the N=1 real-arm smoke records are explicitly non-comparative."
+}
+```
+
+### 2026-10-13T13:24:05-04:00 · advisor (finished item)
+
+**revise**: Fix these before approval; no GPU rerun is required unless extension source changes. (1) `bench/worker_eval/compare.py` compares two-repeat valid/kind count deltas and bootstrap CIs against a one-repeat count spread. These units differ, making `beyond_spread` too permissive. Compute valid and kind-match comparisons consistently as rates (including repeat spread and honest-vs-W1 widening), while still displaying raw `/44` counts. Add a test with unequal repeat counts and a second baseline that exposes the current scaling bug. (2) The `kind/valid` column currently emits only a numerator (`kind_match_of_valid`), not `kind_match/valid`; report numerator/denominator and preferably the conditional rate. (3) `vendor/REVIEW.md` is stale and materially contradicts `vendor/PATCH.diff`: it says the file-type replacement is the only change and that diff resolution remains to be checked, while the actual patch replaces `diff` with custom `diff-lite.ts`, changes TypeBox imports, and removes dependencies. Reconcile the review and record validation of both `diffLines` and `diffArrays`; add deterministic tests for representative diff/merge operations because this custom code affects edit correctness. (4) Make `run_queue.py` progress honor the current arm SHA, so a completed result directory from a changed arm cannot be silently accepted without invoking `run.py`'s hash guard. Test that case. Also update the stale `smoke_report.py` docstring. Verified positives: the W1 fixture was committed in round 1 before the run.py changes; protected W1 arm content matches main; all required real arms and gated omissions are correct; smoke records substantiate think-drop, reasoning-budget, session-budget, and hashline loading; the pytest cache records 52 tests with no failures.
