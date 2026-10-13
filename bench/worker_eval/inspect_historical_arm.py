@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Read historical worker-arm provenance from git without changing the checkout.
+"""Read historical Bonsai worker provenance from the operative M1 lineage.
 
-Writes the last garden/bonsai worker config at or before the cloud-worker cutoff,
-plus the model registration from that same commit.  This is a host-only diagnostic:
-the sandbox intentionally has no git object store.
+This is host-only and read-only: the sandbox worktree deliberately has no git
+object store.  It examines every commit reachable from auto/M1-ngram before the
+cloud-worker cutoff, rather than only commits which changed config.json (the
+old inspector missed a still-in-force config).  It writes candidates and the
+exact source file hashes for citation in the worker arm README.
 """
 import datetime as dt
 import hashlib
@@ -14,49 +16,91 @@ import subprocess
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 CUTOFF = dt.datetime.fromisoformat("2026-10-12T08:33:00-04:00")
 OUT = ROOT / "bench" / "results" / dt.date.today().isoformat() / "worker_eval"
+BRANCHES = ("auto/M1-ngram", "refs/heads/auto/M1-ngram", "origin/auto/M1-ngram")
+CONFIG = "autopilot/config.json"
+MODEL = "agent/models.bonsai-agent.json"
 
 
 def git(*args):
     return subprocess.check_output(["git", *args], cwd=ROOT, text=True).strip()
 
 
-def main():
-    rows = []
-    commits = git("log", "--all", "--format=%H%x00%cI", "--", "autopilot/config.json").splitlines()
-    for line in commits:
-        commit, when = line.split("\x00")
-        at = dt.datetime.fromisoformat(when)
-        if at > CUTOFF:
-            continue
+def show(commit, path):
+    try:
+        return git("show", f"{commit}:{path}")
+    except subprocess.CalledProcessError:
+        return None
+
+
+def branch_tip():
+    for branch in BRANCHES:
         try:
-            config_text = git("show", f"{commit}:autopilot/config.json")
+            return branch, git("rev-parse", "--verify", branch)
+        except subprocess.CalledProcessError:
+            pass
+    raise SystemExit("operative M1 branch is not available")
+
+
+def main():
+    branch, tip = branch_tip()
+    commits = git("rev-list", "--topo-order", "--date-order", tip).splitlines()
+    rows = []
+    seen_configs = set()
+    for commit in commits:
+        when = git("show", "-s", "--format=%cI", commit)
+        if dt.datetime.fromisoformat(when) > CUTOFF:
+            continue
+        config_text = show(commit, CONFIG)
+        if config_text is None:
+            continue
+        # Many commits retain the same configuration.  Cite the oldest relevant
+        # commit once, so the report is compact but still on the M1 lineage.
+        config_sha = hashlib.sha256(config_text.encode()).hexdigest()
+        if config_sha in seen_configs:
+            continue
+        seen_configs.add(config_sha)
+        try:
             config = json.loads(config_text)
             worker = config["roles"]["worker"]
-        except (subprocess.CalledProcessError, json.JSONDecodeError, KeyError):
+        except (json.JSONDecodeError, KeyError, TypeError):
             continue
         if worker.get("model") != "garden/bonsai-agent":
             continue
-        model_text = git("show", f"{commit}:agent/models.bonsai-agent.json")
+        model_text = show(commit, MODEL)
+        if model_text is None:
+            continue
+        try:
+            registration = json.loads(model_text)
+        except json.JSONDecodeError:
+            continue
         rows.append({
             "commit": commit,
             "commit_time": when,
-            "config_path": "autopilot/config.json",
-            "config_sha256": hashlib.sha256(config_text.encode()).hexdigest(),
+            "lineage_branch": branch,
+            "lineage_tip": tip,
+            "config_path": CONFIG,
+            "config_sha256": config_sha,
             "worker": worker,
             "worker_timeout_min": config.get("worker_timeout_min"),
             "worker_memory": config.get("worker_memory"),
-            "model_registration_path": "agent/models.bonsai-agent.json",
+            "model_registration_path": MODEL,
             "model_registration_sha256": hashlib.sha256(model_text.encode()).hexdigest(),
-            "model_registration": json.loads(model_text),
+            "model_registration": registration,
         })
-    rows.sort(key=lambda r: r["commit_time"], reverse=True)
+    # rev-list order is graph order, not timestamp order; make selection explicit.
+    rows.sort(key=lambda row: row["commit_time"], reverse=True)
     stamp = dt.datetime.now().strftime("historical-arm-provenance-%Y%m%dT%H%M%S.json")
     OUT.mkdir(parents=True, exist_ok=True)
     target = OUT / stamp
-    target.write_text(json.dumps({"cutoff": CUTOFF.isoformat(), "candidates": rows}, indent=2) + "\n")
+    target.write_text(json.dumps({
+        "cutoff": CUTOFF.isoformat(),
+        "branch": branch,
+        "branch_tip": tip,
+        "candidates": rows,
+    }, indent=2) + "\n")
     print(target)
     if not rows:
-        raise SystemExit("no historical garden/bonsai worker config found")
+        raise SystemExit("no Bonsai worker config found on operative M1 lineage")
     print(json.dumps(rows[0], indent=2))
 
 

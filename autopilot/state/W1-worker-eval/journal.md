@@ -907,3 +907,21 @@ Ran `python3 bench/worker_eval/inspect_historical_arm.py` (gpu=False) in 0s, exi
 no historical garden/bonsai worker config found
 
 ```
+
+### 2026-10-12T20:32:22-04:00 · worker (gpt-5.6-terra), round 4
+
+Reworked the host-only historical provenance inspector to walk the operative M1 branch ancestry rather than only commits changing config.json. It now records branch lineage plus exact config/model file hashes. Local compilation and 27 fixture tests pass. Next, use the host output to cite the historical commit/files in the arm and README.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/inspect_historical_arm.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Read-only host git inspection revised to walk the operative auto/M1-ngram lineage at the cloud cutoff rather than only config-changing commits. It will produce exact historical config/model-registration commit, paths, hashes, and values needed to replace the arm README's provisional provenance."
+}
+```
+
+### 2026-10-12T20:32:23-04:00 · orchestrator
+
+Cloud call budget for today is spent; pausing until tomorrow.
