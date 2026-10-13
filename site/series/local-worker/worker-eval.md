@@ -123,6 +123,35 @@ valid request. They are not a partition of failed attempts.
 | unclassified no-request failure | 1 | 44 |
 | unclassified invalid-request failure | 1 | 44 |
 
+Per-case flags have the same overlapping semantics and a denominator of two
+attempts per row. Full IDs and all other per-case measures are in the linked
+summary.
+
+| case | timeout | context overflow | output limit |
+|---|---:|---:|---:|
+| replay-set r6 | 2 | 1 | 0 |
+| replay-set r7 | 2 | 0 | 0 |
+| replay-set r8 | 2 | 0 | 0 |
+| replay-set r9 | 1 | 0 | 0 |
+| replay-set r10 | 1 | 2 | 0 |
+| replay-set r11 | 1 | 0 | 0 |
+| replay-set r12 | 0 | 0 | 0 |
+| spec-replay r1 | 2 | 0 | 1 |
+| spec-replay r2 | 0 | 0 | 0 |
+| spec-replay r3 | 0 | 0 | 0 |
+| spec-replay r4 | 1 | 0 | 0 |
+| spec-replay r5 (144aca) | 0 | 0 | 0 |
+| spec-replay r5 (5c5d98) | 0 | 0 | 0 |
+| spec-replay r6 | 0 | 0 | 0 |
+| spec-replay r7 | 0 | 0 | 0 |
+| spec-replay r10 | 0 | 0 | 0 |
+| spec-replay r11 | 0 | 0 | 0 |
+| decide r1 | 2 | 0 | 1 |
+| decide r2 | 1 | 0 | 0 |
+| decide r3 | 0 | 0 | 0 |
+| write-up r2 | 2 | 0 | 0 |
+| write-up r3 | 0 | 0 | 0 |
+
 The 44 attempts made 1,121 tool calls: 712 `bash`, 309 `read`, 59 `edit`, 30
 `submit_request`, and 11 `write`; 99 tool errors were recorded (74 bash, 18 edit,
 one read, four submit-request, two write). There were 32 compactions at attempt

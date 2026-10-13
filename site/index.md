@@ -22,8 +22,8 @@ summary: |
   separately.
 ---
 
-Live progress from the autopilot (Bonsai doing the research, with a cloud model
-reviewing): [autopilot status]({{ '/autopilot.html' | relative_url }}).
+Live progress from the autopilot (its current worker is a cloud model):
+[autopilot status]({{ '/autopilot.html' | relative_url }}).
 
 ## Why this exists
 

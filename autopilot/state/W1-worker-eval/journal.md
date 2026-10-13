@@ -1879,3 +1879,30 @@ Validated the published W1 pages against summary and advisor-grade artifacts; si
 Added to the standing facts:
 
 - `bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/summary.json` records 59 edit calls with 18 errors and 712 bash calls with 74 errors across the accepted 44-attempt W1 baseline.
+
+### 2026-10-13T09:10:22-04:00 · worker (gpt-5.6-terra), round 3
+
+Corrected docs/roadmap.md to the artifact-backed 18/59 edit and 74/712 bash error counts, updated site/index.md to state that the current autopilot worker is cloud, and added the 22-row per-case timeout/context-overflow/output-limit table to site/series/local-worker/worker-eval.md. Next: confirm the site checker passes, then submit the revised write-up for review.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/check_site.py",
+  "gpu": false,
+  "timeout_min": 30,
+  "why": "Revalidate the revised W1 experiment and parent pages after adding the per-case failure-flag table and correcting stale worker/tool-error wording. This is the required read-only site-structure and metadata check; it does not use GPU or live services."
+}
+```
+
+### 2026-10-13T09:10:36-04:00 · advisor (run request)
+
+**approve**: Safe and appropriate to run. It executes the required read-only site checker; numerical claims still require separate artifact verification during final review.
+
+### 2026-10-13T09:10:36-04:00 · orchestrator
+
+Ran `python3 bench/check_site.py` (gpu=False) in 0s, exit 0. Full output: `bench/results/2026-10-13/autopilot/worker-eval-writeup-r3.log`. Last lines:
+
+```
+12 pages checked, 0 errors
+
+```

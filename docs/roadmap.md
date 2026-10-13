@@ -67,9 +67,9 @@ grow. Each step is measured on W1.
 - **Tool output.** pi caps a tool result at 50 KB / 2000 lines, about 12k tokens, which
   is large for an 80k window. Try a smaller cap that tells the model where the rest
   is.
-- **Editing.** pi's `edit` is exact-text replacement; 9 of Bonsai's 42 edits failed,
-  and it did most work through bash (17% of 728 calls failed). Try hash-anchored
-  line edits ("hashline", from oh-my-pi) first as a plain pi extension: several
+- **Editing.** pi's `edit` is exact-text replacement; 18 of Bonsai's 59 edits
+  failed, and it did most work through bash (74 of 712 calls failed, 10.4%). Try
+  hash-anchored line edits ("hashline", from oh-my-pi) first as a plain pi extension: several
   ports exist (e.g. `pi-hashline-edit`, `pi-hashline-context-edit`).
 - **Session discipline.** Turn and time budgets in the `submit_request` extension:
   warnings first, then only that tool allowed. Smaller items when the worker is local.
