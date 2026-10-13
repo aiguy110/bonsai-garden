@@ -1,0 +1,58 @@
+{
+  "advisor_verdict": "revise",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-replay-set-r11-fe779856b52c/r2",
+  "case_id": "m1-ngram-replay-set-r11-fe779856b52c",
+  "cloud_kind": "done",
+  "compaction_end": 1,
+  "compaction_start": 1,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T05:06:11-04:00",
+  "flag_triggers": {},
+  "item": "replay-set",
+  "kind_match": false,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": null,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": null,
+  "request": null,
+  "request_source": "none",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 10736,
+  "timeout": true,
+  "tool_calls": 20,
+  "tool_errors": {
+    "edit": 1
+  },
+  "tools": {
+    "bash": 6,
+    "edit": 2,
+    "read": 12
+  },
+  "turns": 14,
+  "valid_request": false,
+  "validation_errors": [
+    "no request"
+  ],
+  "wall_s": 1200.3
+}

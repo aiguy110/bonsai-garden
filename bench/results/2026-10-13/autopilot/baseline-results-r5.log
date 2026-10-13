@@ -1,0 +1,16 @@
+[2026-10-13T02:58:10-04:00] bonsai-2026-10-12 m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=True kind=run match=False 477.7s turns=11 tools=17
+[2026-10-13T03:06:08-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r6-9cf273aef422 r2
+  valid=False kind=None match=False 1200.3s turns=26 tools=32
+[2026-10-13T03:26:09-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r7-52b0d2b42358 r2
+  valid=False kind=None match=False 1200.4s turns=22 tools=35
+[2026-10-13T03:46:09-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r8-4324817a7216 r2
+  valid=False kind=None match=False 1200.4s turns=39 tools=41
+[2026-10-13T04:06:10-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r9-870367a83103 r2
+  valid=False kind=None match=False 1200.3s turns=35 tools=41
+[2026-10-13T04:26:10-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r10-0046c6599fd4 r2
+  valid=False kind=None match=False 1200.4s turns=19 tools=21
+[2026-10-13T04:46:11-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r11-fe779856b52c r2
+  valid=False kind=None match=False 1200.3s turns=14 tools=20
+budget: 17.0 min left, a session may take 20; stopping
+{"skipped": 21, "ran": 7, "remaining": 16}

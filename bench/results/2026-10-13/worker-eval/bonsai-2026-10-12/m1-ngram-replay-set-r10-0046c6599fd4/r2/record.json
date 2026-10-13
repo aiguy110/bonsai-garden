@@ -1,0 +1,69 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12",
+  "attempt_dir": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-replay-set-r10-0046c6599fd4/r2",
+  "case_id": "m1-ngram-replay-set-r10-0046c6599fd4",
+  "cloud_kind": "run",
+  "compaction_end": 1,
+  "compaction_start": 1,
+  "complete": true,
+  "context_overflow": true,
+  "errors": [
+    "400: {\"code\":\"context_length_exceeded\",\"message\":\"estimated 66932 prompt tokens + 16384 max_tokens exceeds bonsai-agent's context of 81920 tokens\",\"param\":\"messages\",\"type\":\"invalid_request_error\"}"
+  ],
+  "finished": "2026-10-13T04:46:11-04:00",
+  "flag_triggers": {
+    "context_overflow": [
+      "400: {\"code\":\"context_length_exceeded\",\"message\":\"estimated 66932 prompt tokens + 16384 max_tokens exceeds bonsai-agent's context of 81920 tokens\",\"param\":\"messages\",\"type\":\"invalid_request_error\"}"
+    ]
+  },
+  "item": "replay-set",
+  "kind_match": false,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": null,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": null,
+  "request": null,
+  "request_source": "none",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "error",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 13925,
+  "timeout": true,
+  "tool_calls": 21,
+  "tool_errors": {
+    "edit": 1
+  },
+  "tools": {
+    "bash": 12,
+    "edit": 2,
+    "read": 7
+  },
+  "turns": 19,
+  "valid_request": false,
+  "validation_errors": [
+    "no request"
+  ],
+  "wall_s": 1200.4
+}

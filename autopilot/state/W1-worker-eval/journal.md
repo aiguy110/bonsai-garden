@@ -1316,3 +1316,45 @@ budget: 8.1 min left, a session may take 20; stopping
 {"skipped": 9, "ran": 12, "remaining": 23}
 
 ```
+
+### 2026-10-13T02:57:28-04:00 · worker (gpt-5.6-terra), round 5
+
+Verified the fixed baseline directory has 21 unique completed (case_id, repeat) records and the replay/summarizer scripts compile. Continuing the resumable N=2 baseline without edits; 23 attempts remained after the last host chunk.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Continue the required N=2 replay in the same fixed dated directory. The resumable harness skips completed keys and uses its configured live turnstile bench route/key; the 145-minute budget fits the 150-minute request limit."
+}
+```
+
+### 2026-10-13T02:58:10-04:00 · advisor (run request)
+
+**approve**: Safe resumable continuation. The harness skips the 21 completed keys, writes only beneath the fixed result directory and /tmp (aside from its repo-local hash cache), isolates each worker in a network-disabled container, and forwards only /v1 inference through the bench-key turnstile route. It neither starts a server nor modifies live configuration/services. Continue using this exact output directory.
+
+### 2026-10-13T05:06:12-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run.py bonsai-2026-10-12 --repeat 2 --out bench/results/2026-10-13/worker-eval/bonsai-2026-10-12 --budget-min 145` (gpu=False) in 7682s, exit 0. Full output: `bench/results/2026-10-13/autopilot/baseline-results-r5.log`. Last lines:
+
+```
+[2026-10-13T02:58:10-04:00] bonsai-2026-10-12 m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=True kind=run match=False 477.7s turns=11 tools=17
+[2026-10-13T03:06:08-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r6-9cf273aef422 r2
+  valid=False kind=None match=False 1200.3s turns=26 tools=32
+[2026-10-13T03:26:09-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r7-52b0d2b42358 r2
+  valid=False kind=None match=False 1200.4s turns=22 tools=35
+[2026-10-13T03:46:09-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r8-4324817a7216 r2
+  valid=False kind=None match=False 1200.4s turns=39 tools=41
+[2026-10-13T04:06:10-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r9-870367a83103 r2
+  valid=False kind=None match=False 1200.3s turns=35 tools=41
+[2026-10-13T04:26:10-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r10-0046c6599fd4 r2
+  valid=False kind=None match=False 1200.4s turns=19 tools=21
+[2026-10-13T04:46:11-04:00] bonsai-2026-10-12 m1-ngram-replay-set-r11-fe779856b52c r2
+  valid=False kind=None match=False 1200.3s turns=14 tools=20
+budget: 17.0 min left, a session may take 20; stopping
+{"skipped": 21, "ran": 7, "remaining": 16}
+
+```
