@@ -1533,3 +1533,21 @@ Added to the standing facts:
 
 - The accepted Bonsai baseline in bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/summary.json is 25/44 valid requests (56.8%), 21/44 kind matches (47.7%; 84.0% conditional on valid), with median wall time 903.5 seconds.
 - Failure flags are event-level and overlapping: the three context-overflow flags include m1-ngram-replay-set-r10 repeat 1, which recovered and submitted a valid request, so flag totals must not be interpreted as counts of failed attempts.
+
+### 2026-10-13T08:28:10-04:00 · worker (gpt-5.6-terra), round 1
+
+Implemented and locally validated `bench/worker_eval/grade.py`. It deterministically selected 10 valid attempts (five run, five done; no valid infra), generated provenance packets and manifest under `bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/`, and provides two-stage advisor review plus final transcription/summary actions. Next: obtain the first batch review response.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/grade.py grade",
+  "gpu": false,
+  "timeout_min": 30,
+  "why": "Obtain the first independent batch advisor grading of the prepared deterministic W1 sample. The script only reads replay artifacts and invokes autopilot.py's existing cloud advisor role; it writes the verbatim response and parsed event metadata beneath bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/advisor_grading/. It does not make inference calls to the live local stack or change services."
+}
+```
+
+### 2026-10-13T08:33:04-04:00 · advisor (run request)
+
+**revise**: The command is operationally safe, but it would not produce acceptable grades. Fix these before invoking an advisor: (1) `grade.py grade` calls `autopilot.call_cloud()` directly, bypassing `autopilot/prompts/review.md` and `review()`, so no advisor journal response is created. Use the normal finished-item review gate for the first grading response, persist that response verbatim, then use a second finished-item review for transcription verification. (2) Packet paths supplied to the advisor are relative to the result directory (`advisor_grading/...`) and do not exist from the repo-root cwd; provide full repo-relative paths. Likewise, each packet's `preserved/` reference does not name its actual sibling evidence directory. (3) No requested files were preserved: the raw regex uses `\\s` instead of `\s`. Parse run commands with `shlex`, preserve the exact replay-state script, reject `..` traversal, and record its hash/path in the manifest. Make patch application fatal rather than `check=False`, or evidence may silently represent the start commit instead of the replay state. Preserve sufficient replay-state evidence for `done` claims too. (4) `finalize()` repeats the escaping bug: `r"```json\\s*..."` will not parse ordinary fenced JSON, and `"\\n"` writes literal backslash-n sequences rather than JSONL/Markdown newlines. (5) Record the advisor model used by the first grading call at call time; reading current `autopilot/config.json` during finalization does not prove which model produced the grades. Regenerate the packet set and manifest after these corrections.

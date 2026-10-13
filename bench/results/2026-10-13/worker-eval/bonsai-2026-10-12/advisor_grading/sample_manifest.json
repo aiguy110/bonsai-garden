@@ -1,0 +1,114 @@
+{
+  "selection_version": 1,
+  "rule": "Filter valid_request=true; stratify by replay_kind in [run, infra, done]; sort each stratum by SHA-256(case_id + '/r' + repeat), then run_id; retain first five from each nonempty stratum. Exclude continue and stuck because the real orchestrator does not send them to advisor review.",
+  "source_results": "/home/dev/garden/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/results.jsonl",
+  "source_results_sha256": "71c1cf6076ad6299c6c984f4b622c06e9619e837b49fcc684fd2099653d357cc",
+  "sample_size": 10,
+  "strata": {
+    "run": 5,
+    "infra": 0,
+    "done": 5
+  },
+  "attempts": [
+    {
+      "run_id": "m1-ngram-spec-replay-r3-b72fe4dade49/r2",
+      "case_id": "m1-ngram-spec-replay-r3-b72fe4dade49",
+      "repeat": 2,
+      "kind": "run",
+      "ordering_sha256": "06c08043376e4f3a5c5b527ca433c56cc935810f670728c69302c7647322b9c1",
+      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r3-b72fe4dade49__r2.md",
+      "packet_sha256": "5407ff63d2764d704cb6623fb103a7e4ceea549b2f992790a8ca95419eef8059",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r3-b72fe4dade49/r2"
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r4-1147202353a6/r1",
+      "case_id": "m1-ngram-spec-replay-r4-1147202353a6",
+      "repeat": 1,
+      "kind": "run",
+      "ordering_sha256": "09ccd68e2535c0a9c65136287e90c6cbfdf3391334b2cd0a76abf0d864b26be7",
+      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r4-1147202353a6__r1.md",
+      "packet_sha256": "0ab464927ed5faa80d3e2aba2d254aef58c248de4bde7667d797543f222e36f2",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r4-1147202353a6/r1"
+    },
+    {
+      "run_id": "m1-ngram-write-up-r3-aee7d1507663/r1",
+      "case_id": "m1-ngram-write-up-r3-aee7d1507663",
+      "repeat": 1,
+      "kind": "run",
+      "ordering_sha256": "0d9b97f0bbcae8a3ead81d87794cf32f1f941d26b8f40b7663734b6bcaede0ba",
+      "packet": "advisor_grading/packets/m1-ngram-write-up-r3-aee7d1507663__r1.md",
+      "packet_sha256": "e34fb07752683ae67f3b9e8075c13a636e36571b58e2e30ea5a829df3973a832",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-write-up-r3-aee7d1507663/r1"
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r6-ee9150033cd8/r1",
+      "case_id": "m1-ngram-spec-replay-r6-ee9150033cd8",
+      "repeat": 1,
+      "kind": "run",
+      "ordering_sha256": "2a7eb17ea2d810ded70f10f96101e3b91f7a72fb5e837eb15fcaa0b121b99838",
+      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r6-ee9150033cd8__r1.md",
+      "packet_sha256": "99e8fc174d6196672aabfa7ef5020b98c8e31a331ed44487b69b2e374d258539",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r6-ee9150033cd8/r1"
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r5-144acae8e198/r1",
+      "case_id": "m1-ngram-spec-replay-r5-144acae8e198",
+      "repeat": 1,
+      "kind": "run",
+      "ordering_sha256": "50fcb460793d7f1793f8a49855a5d3b13e13a9444e7eac8812f3b3afccaadd83",
+      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r5-144acae8e198__r1.md",
+      "packet_sha256": "81787ea0132c39b69feb8265786656c1fbb3232de7f938c1c89ac84bd5c54f0f",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r5-144acae8e198/r1"
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r10-dc0c818a5351/r1",
+      "case_id": "m1-ngram-spec-replay-r10-dc0c818a5351",
+      "repeat": 1,
+      "kind": "done",
+      "ordering_sha256": "2abbea3f3b76716155295aa2741e535ca5e17cb71cd5258e3fea2964256157bb",
+      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r1.md",
+      "packet_sha256": "0de8747d95ee410dc77158be4cf14dc7fa07ed0db57e9b2e6f8ca9452d480be4",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r10-dc0c818a5351/r1"
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r11-f096b0e52769/r1",
+      "case_id": "m1-ngram-spec-replay-r11-f096b0e52769",
+      "repeat": 1,
+      "kind": "done",
+      "ordering_sha256": "4831c557938197260d5ca885a6ad4986b2138b611478d0c8506a7e6addfae673",
+      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r11-f096b0e52769__r1.md",
+      "packet_sha256": "7f3c1eba7514ee053172465b1f070744549d195fcd0329d526c07d3a96c0c2a9",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r11-f096b0e52769/r1"
+    },
+    {
+      "run_id": "m1-ngram-replay-set-r12-e62a974c8e88/r2",
+      "case_id": "m1-ngram-replay-set-r12-e62a974c8e88",
+      "repeat": 2,
+      "kind": "done",
+      "ordering_sha256": "74d3bad21a752768b1a7cef56f90db3fa81089429efde50f03bd1fad0c3c6116",
+      "packet": "advisor_grading/packets/m1-ngram-replay-set-r12-e62a974c8e88__r2.md",
+      "packet_sha256": "3478c2f35c1c3bd0a973585eeeb4189a0868e369998e2a6c75c824ce099922c9",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-replay-set-r12-e62a974c8e88/r2"
+    },
+    {
+      "run_id": "m1-ngram-spec-replay-r10-dc0c818a5351/r2",
+      "case_id": "m1-ngram-spec-replay-r10-dc0c818a5351",
+      "repeat": 2,
+      "kind": "done",
+      "ordering_sha256": "7cafcf58d0c1ced43247db1ed135cbe3d0a6b908a98981dd043e89f1e6ec8fd0",
+      "packet": "advisor_grading/packets/m1-ngram-spec-replay-r10-dc0c818a5351__r2.md",
+      "packet_sha256": "e69516d2fc86fb7495efd1d67a97a161613b1fe4f8c11f4f5f045dea152da81e",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-spec-replay-r10-dc0c818a5351/r2"
+    },
+    {
+      "run_id": "m1-ngram-decide-r3-85bb90579f2f/r1",
+      "case_id": "m1-ngram-decide-r3-85bb90579f2f",
+      "repeat": 1,
+      "kind": "done",
+      "ordering_sha256": "8d438cb4d8bedc7b8babe40087796d50debb7d83f0c0fd07ef384cd18ed16c6a",
+      "packet": "advisor_grading/packets/m1-ngram-decide-r3-85bb90579f2f__r1.md",
+      "packet_sha256": "92973951d0c86e26ac57d31819de67be9225668e25d26b3554704afb5c8720cb",
+      "artifact": "bench/results/2026-10-13/worker-eval/bonsai-2026-10-12/m1-ngram-decide-r3-85bb90579f2f/r1"
+    }
+  ]
+}
