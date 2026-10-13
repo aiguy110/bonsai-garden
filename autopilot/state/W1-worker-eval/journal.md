@@ -925,3 +925,21 @@ Reworked the host-only historical provenance inspector to walk the operative M1 
 ### 2026-10-12T20:32:23-04:00 · orchestrator
 
 Cloud call budget for today is spent; pausing until tomorrow.
+
+### 2026-10-12T21:03:01-04:00 · worker (gpt-5.6-terra), round 5
+
+Confirmed the fixture suite remains green locally (27 passed). The only available prior provenance report is the known failed pre-lineage version; the revised lineage-aware inspector now needs its approved host run to obtain exact citations.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/inspect_historical_arm.py",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Read-only host git inspection of the operative auto/M1-ngram lineage before the cloud cutoff. It will capture exact historical worker config/model-registration commit, paths, hashes, and values needed to replace provisional arm provenance in README and the arm."
+}
+```
+
+### 2026-10-12T21:03:01-04:00 · orchestrator
+
+Cloud call budget for today is spent; pausing until tomorrow.
