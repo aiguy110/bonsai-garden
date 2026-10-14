@@ -1,0 +1,155 @@
+diff --git a/tools/check_site_noyaml.py b/tools/check_site_noyaml.py
+new file mode 100644
+index 0000000..b2ae953
+--- /dev/null
++++ b/tools/check_site_noyaml.py
+@@ -0,0 +1,149 @@
++#!/usr/bin/env python3
++"""Pure-Python clone of tools/check_site.py for environments without PyYAML.
++
++Only supports the YAML subset used in this site's front matter:
++  - key: value (plain/quoted scalar)
++  - key: | or key: > (block scalar, literal or folded)
++"""
++import pathlib
++import re
++import sys
++
++MAX_WORDS = 200
++REQUIRED = {
++    "project": ["title", "updated", "tldr", "summary"],
++    "series": ["title", "series", "order", "status", "updated", "tldr", "summary"],
++    "experiment": ["title", "series", "status", "date", "updated", "tldr", "summary"],
++}
++
++
++def word_count(text):
++    return len(re.findall(r"\S+", str(text or "")))
++
++
++def _parse_block(lines):
++    out = {}
++    i = 0
++    n = len(lines)
++    while i < n:
++        raw = lines[i]
++        if not raw.strip():
++            i += 1
++            continue
++        if ":" not in raw:
++            raise ValueError(f"line not key: value: {raw!r}")
++        key, _, rest = raw.partition(":")
++        key = key.strip()
++        rest = rest.strip()
++        if rest.startswith("|") or rest.startswith(">"):
++            # block scalar; content indented more than the key
++            block_indent = None
++            k = i + 1
++            while k < n:
++                if lines[k].strip():
++                    block_indent = len(lines[k]) - len(lines[k].lstrip())
++                    break
++                k += 1
++            if block_indent is None:
++                block_indent = 0
++            content = []
++            k = i + 1
++            while k < n:
++                line = lines[k]
++                if line.strip() == "" or (len(line) - len(line.lstrip())) >= block_indent:
++                    content.append(line.rstrip("\n"))
++                    k += 1
++                else:
++                    break
++            value_lines = [line[block_indent:] if len(line) >= block_indent else line for line in content]
++            while value_lines and value_lines[-1] == "":
++                value_lines.pop()
++            if rest.startswith("|"):
++                out[key] = "\n".join(value_lines)
++            else:
++                out[key] = " ".join(ln for ln in value_lines if ln)
++            i = k
++            continue
++        val = rest
++        if len(val) >= 2 and val[0] == val[-1] and val[0] in ("'", '"'):
++            out[key] = val[1:-1]
++        else:
++            out[key] = val
++        i += 1
++    return out
++
++
++def _load_frontmatter(text):
++    """Return dict parsed from the leading '--- ... ---' block."""
++    lines = text.splitlines()
++    if not lines or lines[0].strip() != "---":
++        return None
++    body = []
++    for ln in lines[1:]:
++        if ln.strip() == "---":
++            break
++        body.append(ln)
++    return _parse_block(body)
++
++
++def stale(parent, child):
++    (pf, pfm), (cf, cfm) = parent, child
++    return bool(pfm.get("updated") and cfm.get("updated") and pfm["updated"] < cfm["updated"])
++
++
++def main():
++    root = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "site")
++    pages = []
++    for f in sorted(root.rglob("*.md")):
++        if any(part.startswith("_") for part in f.relative_to(root).parts) or f.name == "AUTHORING.md":
++            continue
++        text = f.read_text()
++        m = re.match(r"---\n(.*?)\n---\n", text, re.S)
++        if not m:
++            continue
++        try:
++            fm = _load_frontmatter(text)
++        except Exception as e:
++            print(f"ERROR {f}: frontmatter parse error: {e}")
++            sys.exit(1)
++        if fm is None:
++            continue
++        if "layer" in fm:
++            pages.append((f.relative_to(root), fm))
++    errors = []
++    for f, fm in pages:
++        layer = fm["layer"]
++        if layer not in REQUIRED:
++            errors.append(f"{f}: unknown layer {layer!r}")
++            continue
++        for k in REQUIRED[layer]:
++            if fm.get(k) in (None, ""):
++                errors.append(f"{f}: missing {k}")
++        words = word_count(fm.get("summary", ""))
++        if words > MAX_WORDS:
++            errors.append(f"{f}: summary is {words} words (max {MAX_WORDS}, ~1 min)")
++    projects = [p for p in pages if p[1]["layer"] == "project"]
++    series = {fm.get("series"): (f, fm) for f, fm in pages if fm["layer"] == "series"}
++    experiments = [p for p in pages if p[1]["layer"] == "experiment"]
++    if len(projects) != 1:
++        errors.append(f"expected exactly one project page, found {len(projects)}")
++    if experiments:
++        for e in experiments:
++            s = series.get(e[1].get("series"))
++            if s is None:
++                errors.append(f"{e[0]}: series {e[1].get('series')!r} has no series page")
++            elif stale(s, e):
++                (sf, sfm), (cf, cfm) = s, e
++                errors.append(f"{sf}: updated {sfm['updated']} is older than child {cf} ({cfm['updated']}); revisit its summary and bump `updated`")
++    for s in series.values():
++        for p in projects:
++            if stale(p, s):
++                errors.append(f"{p[0]}: updated {p[1]['updated']} is older than series {s[0]} ({s[1]['updated']}); revisit its summary and bump `updated`")
++    for e in errors:
++        print("ERROR", e)
++    print(f"{len(pages)} pages checked, {len(errors)} errors")
++    sys.exit(1 if errors else 0)
++
++
++if __name__ == "__main__":
++    main()

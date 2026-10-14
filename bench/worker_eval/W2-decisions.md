@@ -117,3 +117,18 @@ is: the reserve must be >= max output (set it to 32768, or choose one of the two
 7. `w2-compaction` (gate passed)
 8. Combination of whatever helped (may include output 32768)
 (`w2-tool-cap`: gate failed, not queued.)
+
+## Signal cases and N=1 (user decision, 2026-10-14)
+The honest baseline and the W1 run give 4 attempts per case. 13 of the 22 cases had the same outcome in all
+4 (valid request and kind match): 7 always pass (replay-set r12, spec-replay r2, r5 (both), r6, r7, r11) and
+6 always fail (decide r1, replay-set r6, r7, r8, spec-replay r1, write-up r2). They cannot separate arms, so
+new single-factor arms run once (N=1) on the other 9, `cases-signal.jsonl` (byte-identical rows from
+`cases.jsonl`): decide r2, r3; replay-set r9, r10, r11; spec-replay r3, r4, r10; write-up r3. That is 9
+attempts per arm instead of 44, roughly 2 GPU-hours instead of 10.
+- The honest baseline keeps its 44 records; compare.py restricts it (and the W1 run) to the arm's cases, so
+  S is the baseline's repeat-1 vs repeat-2 gap on those 9 cases, the right noise bar for a single run.
+- w2-think-drop was at 38/44 when this changed; it finishes at N=2 on all 22.
+- Cost: an arm that breaks an always-pass case or fixes an always-fail case is not seen in the screen. The
+  combination (or the best arm) is therefore run at N=2 on all 22 before it is recommended.
+- An N=1 result within about twice S is a screen, not a finding; up to two promising arms get repeat 2 on
+  the 9 cases in runs-single-b.

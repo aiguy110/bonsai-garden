@@ -227,6 +227,20 @@ def test_compare_rates_keep_delta_and_spread_units_with_unequal_baselines(tmp_pa
                      "cases_in_bootstrap": 2, "spread": 0.5, "beyond_spread": True, "unit": "rate"}
 
 
+def test_compare_subset_arm_at_one_repeat_uses_baseline_on_same_cases(tmp_path):
+    # Baseline: c0, c1 always valid; c2 valid in repeat 1 only; c3 never.  The arm ran
+    # c2 and c3 once (the signal subset), valid on c3 only.
+    base, arm = tmp_path / "base", tmp_path / "arm"
+    write_run(base, "base", [("c0", r, True, True, 10) for r in (1, 2)] + [("c1", r, True, True, 10) for r in (1, 2)]
+              + [("c2", 1, True, True, 10), ("c2", 2, False, False, 10), ("c3", 1, False, False, 10), ("c3", 2, False, False, 10)])
+    write_run(arm, "arm", [("c2", 1, False, False, 9), ("c3", 1, True, True, 9)])
+    cmp_.main(["--baseline", str(base), "--arm", str(arm), "--out", str(tmp_path / "o")])
+    v = json.loads((tmp_path / "o.json").read_text())["vs_baseline"]["arm"]
+    assert v["cases_compared"] == 2
+    assert v["valid"]["baseline"] == 0.25 and v["valid"]["arm"] == 0.5 and v["valid"]["delta"] == 0.25
+    assert v["valid"]["cases_in_bootstrap"] == 2 and v["valid"]["spread"] == 0.5
+
+
 def test_compare_warns_on_model_mismatch(tmp_path):
     b, a = fixture_runs(tmp_path)
     (a / "manifest-1.json").write_text(json.dumps({"model_sha256": "other", "llama_swap_entry": "e"}))

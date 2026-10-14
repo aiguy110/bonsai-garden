@@ -1,0 +1,2 @@
+off-prod is complete: all 4 phases, 140 rows, every row has `t_end`, no errors. The only missing dir is **best-prod** = A-prod (A = ngram-mod defaults, chosen because A's dual-agent fg-agent tok/s 25.5 > B's 23.0). Let me submit the run for it.
+

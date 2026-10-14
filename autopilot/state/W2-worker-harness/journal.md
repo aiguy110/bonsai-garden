@@ -864,3 +864,25 @@ w2-hashline: records 0/44
 w2-compaction: records 0/44
 
 ```
+
+### 2026-10-14T09:22:52-04:00 · worker (gpt-5.6-terra), round 11
+
+No repository changes. The corrected honest baseline remains complete (44/44); w2-think-drop has 36/44 and w2-reasoning-budget 0/44. Resume the unchanged ordered queue, preserving arm files, extensions, output directories, and existing records.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Inference routes through the benchmark tap/turnstile, so gpu:false is required: acquiring a turnstile GPU lease would block those requests. Current-arm-SHA filtering preserves completed records and resumes think-drop before reasoning-budget."
+}
+```
+
+### 2026-10-14T09:23:40-04:00 · advisor (run request)
+
+**approve**: Run as submitted. It resumes w2-think-drop from current-SHA records, then advances to w2-reasoning-budget and only to w2-session-budget if time remains, as permitted. The harness writes to configured repository result directories and unique /tmp workspaces, uses a networkless container, and does not alter live services or start llama-server. gpu:false is correct because inference routes through tap/turnstile; a GPU lease would deadlock it. Preserve all records and report any stop after three consecutive infrastructure failures.
+
+### 2026-10-14T10:20:00-04:00 · user (via Claude Code)
+
+The plan for runs-single-a onward has changed (user decision; details in bench/worker_eval/W2-decisions.md, "Signal cases and N=1"). New single-factor arms now run once (N=1) on the 9 signal cases in `bench/worker_eval/cases-signal.jsonl`, not twice on all 22. Finish w2-think-drop at N=2 first (it was at 38/44; the service was stopped mid-attempt, which may leave an incomplete attempt that run.py redoes). compare.py now compares an arm with the baselines restricted to the arm's own cases and accepts one repeat. The item's round counter was reset to 0 because the item was redefined.

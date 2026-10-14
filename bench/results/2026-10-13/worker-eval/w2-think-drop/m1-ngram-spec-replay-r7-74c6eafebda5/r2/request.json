@@ -1,0 +1,8 @@
+{
+  "report": "Oriented on existing results: off-greedy, A-greedy, B-greedy, off-prod are all complete (4 phases, server logs, vram.txt, notes.txt, t_end on all rows, no errors). Speculation works (A single-agent drafted 8229/6212 accepted; B drafted 2757/1194 accepted) \u2014 no mmproj refusal in any of them. But the decision metric \"both slots busy\" (dual-agent) shows speculation is SLOWER: off fg-agent 26.3 tok/s vs A 25.5, B 23.0. Best config for prod = A (ngram-mod defaults, higher dual-agent). Missing dir is best-prod = A-prod. Submitting that run now; next session: summarize + decision + write experiment page.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay best prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Run the corrected prod-sampling probe with the spec config chosen as best (A = --spec-type ngram-mod defaults; A had higher dual-agent greedy decode tok/s than B). Produces bench/results/2026-10-12/m1-ngram/replay/best-prod/ with all 4 fresh-server phases, completing the required set (off-greedy, A-greedy, B-greedy, off-prod, best-prod)."
+}

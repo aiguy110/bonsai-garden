@@ -6,7 +6,11 @@
 DIR is a run output directory (results.jsonl, <case>/r<n>/{record.json,tap.jsonl,ext.jsonl},
 manifest-*.json). The first --baseline is the one every arm is compared with (the honest
 baseline); an optional second is the W1 run. Writes PREFIX.json and PREFIX.md. Deterministic:
-bootstrap seed 20261013, 10000 draws, resampling cases (both repeats of a case move together).
+bootstrap seed 20261013, 10000 draws, resampling cases (all repeats of a case move together).
+
+An arm may cover a subset of the cases (cases-signal.jsonl) and may have one repeat per case.
+Each arm is compared with the baselines restricted to the arm's own cases, so deltas, CIs and S
+all use the same cases; the baseline keeps both of its repeats.
 
 spread S for a metric = the baseline's |repeat-1 - repeat-2| value; with a second baseline,
 max(S, |baseline - second baseline|). beyond_spread = the 95% CI excludes 0 AND |delta| > S.
@@ -158,8 +162,7 @@ def spread(baselines, metric):
 
 def bootstrap(base, arm, metric):
     bc, ac = by_case(base), by_case(arm)
-    cases = sorted(c for c in bc if c in ac and len(bc[c]) >= 1 and len(ac[c]) >= 1
-                   and len(bc[c]) == len(ac[c]) == 2)
+    cases = sorted(c for c in bc if c in ac and len(bc[c]) >= 1 and len(ac[c]) >= 1)
     if not cases:
         return None, 0
 
@@ -173,8 +176,14 @@ def bootstrap(base, arm, metric):
     return [round(ds[int(0.025 * DRAWS)], 3), round(ds[int(0.975 * DRAWS) - 1], 3)], len(cases)
 
 
+def restrict(run, ids):
+    return {**run, "records": [r for r in run["records"] if r["case_id"] in ids]}
+
+
 def vs_baseline(base, arm, baselines):
-    out = {}
+    ids = {r["case_id"] for r in arm["records"]}
+    base, baselines = restrict(base, ids), [restrict(b, ids) for b in baselines]
+    out = {"cases_compared": len(ids)}
     for m in METRICS:
         a, b = stat(arm["records"], m), stat(base["records"], m)
         ci, ncases = bootstrap(base, arm, m)
@@ -212,7 +221,7 @@ def render(report):
         L.append(f"WARNING: {w}")
     if report["warnings"]:
         L.append("")
-    L += ["| arm | records | valid/44 | kind/44 | kind/valid | median wall s | median turns | run/infra/continue/done/stuck/none |",
+    L += ["| arm | records | valid | kind | kind/valid | median wall s | median turns | run/infra/continue/done/stuck/none |",
           "|---|---|---|---|---|---|---|---|"]
     for name, s in report["arms"].items():
         k = s["replay_kind"]
@@ -236,10 +245,13 @@ def render(report):
     for name, s in report["arms"].items():
         L.append(f"- {name}: {s['ext_actions'] or 'none'}")
     L += ["", "## Against the baseline", "",
+          "(valid and kind-match comparisons are rates; median wall is seconds. Each arm is compared on its own"
+          " cases: " + ", ".join(f"{n} {v['cases_compared']}" for n, v in report["vs_baseline"].items()) + ".)", "",
           "| arm | metric | arm | baseline | delta | 95% CI | spread S | beyond spread |", "|---|---|---|---|---|---|---|---|"]
-    L.append("(valid and kind-match comparisons are rates; median wall is seconds.)")
     for name, v in report["vs_baseline"].items():
         for m, x in v.items():
+            if m == "cases_compared":
+                continue
             L.append(f"| {name} | {m} | {x['arm']} | {x['baseline']} | {x['delta']} | {x['ci95']} | {x['spread']} | {x['beyond_spread']} |")
     return "\n".join(L) + "\n"
 

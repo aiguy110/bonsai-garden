@@ -1,0 +1,6 @@
+== w2-think-drop (145.0 min of budget left)
+[2026-10-14T09:23:40-04:00] w2-think-drop m1-ngram-spec-replay-r7-74c6eafebda5 r2
+  valid=True kind=run match=True 476.8s turns=12 tools=13
+[2026-10-14T09:31:37-04:00] w2-think-drop m1-ngram-spec-replay-r10-dc0c818a5351 r2
+  valid=True kind=done match=True 714.4s turns=21 tools=22
+[2026-10-14T09:43:32-04:00] w2-think-drop m1-ngram-spec-replay-r11-f096b0e52769 r2
