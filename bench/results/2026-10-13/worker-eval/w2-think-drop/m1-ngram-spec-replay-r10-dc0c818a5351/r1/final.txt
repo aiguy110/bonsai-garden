@@ -1,0 +1,4 @@
+The docs are accurate and match the raw data: dual-agent agent-foreground decode is **31.2 tok/s off vs 26.6 tok/s with ngram-mod (A)** with both slots busy (page rounds to 31.3/26.7). The no-deploy decision is confirmed by the actual results.
+
+All acceptance criteria are met and validated. The item is complete.
+

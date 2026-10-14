@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Fixed spec_analyze.py: added per-row t_end-aware fallback + window-notes source for the combined two-slot throughput table (in-fg-window and full-window tok/s), fixed a ws[a] vs ws[a][ph] unpack bug. Verified on synthetic + real data. Confirmed \u00a79b in m1-notes.md already covers the advisor's 4 points (corrected A=86.0 analysis, zero-draft output-identity note, dual-agent greedy prod pick = A 25.5 vs B 23.0, 0 \"restore checkpoint\" lines across all A/B logs \u2014 grep-verified). Gap: all 4 existing replay dirs (off-greedy/A-greedy/B-greedy/off-prod) predate the t_end+window instrumentation, so off-prod's combined \"both slots busy\" throughput is missing. Re-running off-prod on the current build so the off-vs-A prod comparison is fully instrumented and comparable. Next: read its new data, then run A-prod, then write \u00a79c + experiment page and decide.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Re-run off-prod baseline on the fixed spec_replay.py so it carries per-row t_end + window notes, making the off-vs-A combined two-slot throughput (the both-slots-busy decision metric) directly comparable."
+}

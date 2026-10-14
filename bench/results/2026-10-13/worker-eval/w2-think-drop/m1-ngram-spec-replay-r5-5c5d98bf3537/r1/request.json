@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Verified all of the advisor's required fixes are in the corrected probe before resubmitting off/prod. bench/spec_replay.py: per-row t_end (L198), 'window t0/t_fg_end/t_join_end' logged after the bg join (L247) so in-flight bg tokens can be excluded; bench/spec_analyze.py computes combined fg+bg completed-output throughput over the fg window per phase. Both compile. The yaml cmd block resolves to the exact production flags (port 8089, --parallel 2 --kv-unified, q4_0 KV, --mmproj, --n-gpu-layers 99, --flash-attn on, jinja, LLAMA_ATTN_ROT_DISABLE=1 in env). Prod sampling matches the item (agent temp 1.0/top_p 0.95/top_k 20; mem temp 0.2; seed 0). \u00a79b is deduped and corrected (two length rows, not three; 0 'restore checkpoint' lines in A/B logs). Prod arm pick = A (dual-agent greedy fg tok/s 25.5 vs B 23.0). Restored off-prod result lacks t_end, so it must be re-run with the corrected probe. Running off/prod now; A/prod next.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Re-run off/prod (prod sampling) on a fresh private :8089 server using the corrected probe, which timestamps each response (t_end) and logs per-phase t0/t_fg_end/t_join_end so the combined two-slot dual-phase throughput is a valid completed-output measure (not just fg wall_s). Prior off/prod result has no t_end."
+}

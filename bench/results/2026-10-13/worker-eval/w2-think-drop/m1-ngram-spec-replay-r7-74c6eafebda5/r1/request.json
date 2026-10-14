@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Round for spec-replay. Verified state: off-greedy, A-greedy, B-greedy, off-prod all present with 4 phases each. Greedy shows n-gram spec does NOT help with both slots busy (dual-agent off 26.3 vs A 25.5/26.1 vs B 23.0; dual-mem off 25.0 vs A 23.8 vs B 22.4); A also introduces looping length-finishes. Corrected spec_replay.py confirmed (window lines + t_end in off-prod; t0 set before bg thread start). Next: run A-prod (A = higher dual-agent greedy) to complete the corrected prod measurement and get combined two-slot throughput for the off vs A decision. No infra/deploy yet.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 150,
+  "why": "Complete the prod arm set. off-prod already ran with the corrected probe (window lines, per-row t_end); A-prod uses the same corrected script with --spec-type ngram-mod so its dual-phase combined fg+bg throughput can be compared to off-prod as the 'both slots busy' decision metric."
+}

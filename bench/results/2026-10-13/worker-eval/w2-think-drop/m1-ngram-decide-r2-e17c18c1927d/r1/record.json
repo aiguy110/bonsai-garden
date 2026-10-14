@@ -1,0 +1,63 @@
+{
+  "advisor_verdict": "revise",
+  "arm": "w2-think-drop",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/w2-think-drop/m1-ngram-decide-r2-e17c18c1927d/r1",
+  "case_id": "m1-ngram-decide-r2-e17c18c1927d",
+  "cloud_kind": "done",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-14T04:12:44-04:00",
+  "flag_triggers": {},
+  "item": "decide",
+  "kind_match": false,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_summarize.py",
+    "gpu": false,
+    "report": "Rewrote bench/spec_summarize.py with both advisor fixes: (1) per-phase VRAM deltas from vram.txt (A-prod now shows +1/+1/+1/-1 MiB, not one arm-wide median), (2) first-divergence character indices for the off dual-vs-single control mismatches in both summary.md and summary.json. Added explicit per-phase VRAM label and threshold values to the rule rows, and full infra deploy path (serving/candidates/bonsai-2-27b.ngram.yaml + infra request) that only fires if all 6 rules pass. Sandbox test: rules 2/3/5 FAIL, 1/4/6 PASS \u2192 no-deploy; all numbers recompute from requests.jsonl.",
+    "request": "run",
+    "timeout_min": 15,
+    "why": "Regenerate bench/results/2026-10-12/m1-ngram/{summary.md,summary.json,deploy.json} on the host where the gitignored replay outputs exist, so first-divergence indices for control and arm mismatches are resolved and the summary tables are final for the no-deploy decision."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 9221,
+  "timeout": false,
+  "tool_calls": 20,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 12,
+    "read": 6,
+    "submit_request": 1,
+    "write": 1
+  },
+  "turns": 13,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 696.1
+}

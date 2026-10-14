@@ -1,0 +1,134 @@
+diff --git a/bench/spec_analyze.py b/bench/spec_analyze.py
+index 4b4ec5f..361c277 100644
+--- a/bench/spec_analyze.py
++++ b/bench/spec_analyze.py
+@@ -2,9 +2,15 @@
+ 
+ Per phase and arm: fg tok/s (sum predicted_n / sum predicted_ms) with and without
+ finish_reason=length rows, bg tokens, draft counts, length rows, and the share of
+-out_sha256 equal to the first arm's (same phase, same id). Prints markdown.
++out_sha256 equal to the first arm's (same phase, same id). Combined two-slot
++throughput uses the phase window from notes.txt when present (spec_replay.py
++`window` lines: exact). Otherwise it is estimated from per-row t_end: phase start
++= first row completion (slightly after true start, so a small uniform upward bias
++for every arm in the same phase), t_fg_end = last fg completion, join = last row
++completion.
+ """
+ import json
++import re
+ import sys
+ 
+ PHASES = ["single-agent", "single-mem", "dual-agent", "dual-mem"]
+@@ -19,40 +25,67 @@ def rate(rs):
+     return 1000 * sum((r.get("predicted_n") or 0) for r in rs) / ms if ms else float("nan")
+ 
+ 
+-def windows(d, arm):
+-    import re
+-    w = {}
++def phase_windows(d, arm):
++    """phase -> (t0, t_fg_end, t_join, src), src in ('notes','est')."""
++    out = {}
+     try:
+         for l in open(f"{d}/{arm}/notes.txt"):
+-            m = re.search(r"\[(\S+)\] window t0=([\d.]+) t_fg_end=([\d.]+)", l)
++            m = re.search(r"\[(\S+)\] window t0=([\d.]+) t_fg_end=([\d.]+) "
++                          r"t_join_end=([\d.]+)", l)
+             if m:
+-                w[m.group(1)] = (float(m.group(2)), float(m.group(3)))
++                out[m.group(1)] = (float(m.group(2)), float(m.group(3)),
++                                   float(m.group(4)), "notes")
+     except OSError:
+         pass
+-    return w
+-
+-
+-def combined(d, arm, data):
+-    """Tokens of fg plus bg rows that ended inside the fg window, over fg wall time."""
+-    w = windows(d, arm)
+-    print("\nCombined two-slot throughput (fg + bg rows ending before fg ended) / fg wall time:\n")
+-    print("| phase | arm | fg wall s | fg tok | bg tok (in window) | combined tok/s |")
+-    print("|---|---|---|---|---|---|")
++    rs_all = rows(d, arm)
+     for ph in PHASES:
+-        if ph not in w:
++        if ph in out:
++            continue
++        rs = [r for r in rs_all if r.get("phase") == ph
++             and isinstance(r.get("t_end"), (int, float))]
++        if not rs:
+             continue
+-        t0, t1 = w[ph]
+-        fg = sum((r.get("predicted_n") or 0) for r in data[arm] if r["phase"] == ph and r["fg_bg"] == "fg")
+-        bg = sum((r.get("predicted_n") or 0) for r in data[arm] if r["phase"] == ph and r["fg_bg"] == "bg"
+-                 and r.get("t_end", 1e18) <= t1)
+-        print(f"| {ph} | {arm} | {t1 - t0:.0f} | {fg} | {bg} | {(fg + bg) / (t1 - t0):.1f} |")
++        t0 = min(r["t_end"] for r in rs)
++        t_join = max(r["t_end"] for r in rs)
++        fg_t = [r["t_end"] for r in rs if r.get("fg_bg") == "fg"]
++        out[ph] = (t0, max(fg_t) if fg_t else t_join, t_join, "est")
++    return out
++
++
++def combined(d, arms, data):
++    """Combined two-slot throughput over the phase wall window, per arm."""
++    print("\nCombined two-slot throughput / phase window:\n"
++          "in-fg-window = fg tok + bg rows that finished before fg finished; "
++          "full-window = all fg+bg tokens; src: notes=exact, est=from row t_end "
++          "(window start ~ first completion, slight upward bias, equal across "
++          "arms in a phase):\n")
++    print("| phase | arm | window s | in-fg-window tok/s | full-window tok/s | src |")
++    print("|---|---|---|---|---|---|")
++    ws = {a: phase_windows(d, a) for a in arms}
++    for ph in PHASES:
++        for a in arms:
++            if ph not in ws[a]:
++                continue
++            t0, t1, t2, src = ws[a][ph]
++            rs = [r for r in data[a] if r.get("phase") == ph]
++            fg_tok = sum((r.get("predicted_n") or 0) for r in rs
++                         if r.get("fg_bg") == "fg")
++            inw = sum((r.get("predicted_n") or 0) for r in rs
++                      if r.get("fg_bg") == "bg"
++                      and isinstance(r.get("t_end"), (int, float))
++                      and r["t_end"] <= t1)
++            alltok = sum((r.get("predicted_n") or 0) for r in rs)
++            print(f"| {ph} | {a} | {t1 - t0:.0f} | {(fg_tok + inw)/(t1 - t0):.1f} "
++                  f"| {alltok/(t2 - t0):.1f} | {src} |")
+ 
+ 
+ def main():
+     d, arms = sys.argv[1], sys.argv[2:]
+     data = {a: rows(d, a) for a in arms}
+-    ref = {(r["phase"], r["id"]): r.get("out_sha256") for r in data[arms[0]] if r["fg_bg"] == "fg"}
+-    print("| phase | arm | fg tok/s | fg tok/s no-length | n fg | length rows (ids) | draft_n | accepted | bg tok | same sha as", arms[0], "|")
++    ref = {(r["phase"], r["id"]): r.get("out_sha256")
++           for r in data[arms[0]] if r["fg_bg"] == "fg"}
++    print("| phase | arm | fg tok/s | fg tok/s no-length | n fg | length rows (ids) "
++          f"| draft_n | accepted | bg tok | same sha as {arms[0]} |")
+     print("|---|---|---|---|---|---|---|---|---|---|")
+     for ph in PHASES:
+         for a in arms:
+@@ -63,17 +96,17 @@ def main():
+             same = sum(1 for r in fg if ref.get((ph, r["id"])) == r.get("out_sha256"))
+             print(f"| {ph} | {a} | {rate(fg):.1f} | {rate(nl):.1f} | {len(fg)} | "
+                   f"{len(ln)} ({', '.join(r['id'].split('inventory-')[-1] for r in ln)}) | "
+-                  f"{sum((r.get('draft_n') or 0) for r in fg)} | {sum((r.get('draft_n_accepted') or 0) for r in fg)} | "
+-                  f"{sum((r.get('predicted_n') or 0) for r in bg)} | {same}/{len(fg)} |")
+-
++                  f"{sum((r.get('draft_n') or 0) for r in fg)} | "
++                  f"{sum((r.get('draft_n_accepted') or 0) for r in fg)} | "
++                  f"{sum((r.get('predicted_n') or 0) for r in bg)} | "
++                  f"{same}/{len(fg)} |")
+ 
+ 
+ def run():
+     main()
+     d, arms = sys.argv[1], sys.argv[2:]
+     data = {a: rows(d, a) for a in arms}
+-    for a in arms:
+-        combined(d, a, data)
++    combined(d, arms, data)
+ 
+ 
+ run()

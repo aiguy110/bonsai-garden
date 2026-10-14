@@ -1,0 +1,2 @@
+Both greedy runs (off and A) are complete and I've analyzed them. Key findings: **ngram-mod does NOT improve dual-slot throughput** — it's slower than off in every dual phase, and on single-slot agent it's faster only because it *changes* the greedy output (different shas, longer/different-length outputs), which disqualifies it for the live agent slot. I've written these results and the Config-B justification into `bench/m1-notes.md` §9–§11. Now I need to run B (ngram-simple) to complete the ≥2-setting sweep.
+

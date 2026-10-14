@@ -1,0 +1,6 @@
+The current `spec_replay.py` (post-round-4 fix) now emits `t_end` per row (line 198) plus the full `window t0/t_fg_end/t_join_end` note (line 247). But all four existing replay dirs predate that instrumentation — off-prod has only `wall_s`, no per-row `t_end` and no `t_join_end`. So the "both slots busy" combined throughput (the decision metric the advisor asked for) isn't comparable between the old off-prod and the new-build A-prod I'll run.
+
+To make the off-vs-A comparison rigorous on the realistic (prod) config, I should re-run off-prod on the current build so both arms have the full instrumentation. The fixed analyzer already handles both sources (window notes, or row `t_end` fallback) and was verified on synthetic data.
+
+Let me submit the off-prod re-run now (clean baseline), then A-prod next session.
+

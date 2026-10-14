@@ -1,0 +1,2 @@
+Output row keys match my reader. The script is ready — submitting a host `run` to regenerate the artifacts where the gitignored output files exist (this fills in the control first-divergence indices and the real greedy divergences):
+

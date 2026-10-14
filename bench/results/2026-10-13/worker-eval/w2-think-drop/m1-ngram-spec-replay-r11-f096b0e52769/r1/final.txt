@@ -1,0 +1,8 @@
+All of the advisor's three requested doc corrections are now applied and verified:
+
+1. **§7 step0 agent reqs 11→10** — `bench/m1-notes.md:321` now reads `(10 reqs, ...)`. Confirmed against `recon/inventory.json` (step0 agent = 10, step1 = 11, step2 = 14). The only remaining "11" (step1) is correct.
+2. **§1 ngram descriptions** — no longer attributed to `help.txt`; now explicitly noted that `help.txt` enumerates names only and the one-line glosses are this note's own reading.
+3. **B warning disclosed** — every B server log emits `ngram_mod n_match=12 is too small - poor quality is possible`; added next to B's justification in `bench/m1-notes.md` §9 and to the experiment page (`site/series/serving/ngram-self-speculation.md`).
+
+The no-deploy decision remains supported and unchanged. The series index, project index, and engine-review already reflect the no-deploy outcome, so no further edits needed there. The milestone's acceptance artifacts are all in place.
+

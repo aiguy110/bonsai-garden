@@ -1,0 +1,1520 @@
+diff --git a/bench/results/2026-10-12/m1-ngram/deploy.json b/bench/results/2026-10-12/m1-ngram/deploy.json
+index 120cd53..ffd4d8b 100644
+--- a/bench/results/2026-10-12/m1-ngram/deploy.json
++++ b/bench/results/2026-10-12/m1-ngram/deploy.json
+@@ -1,8 +1,8 @@
+ {
+   "deployed": false,
+   "why": [
+-    "rule 2: dual-agent 26.7 tok/s, 0.853x off",
+-    "rule 3: dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x",
+-    "rule 5: candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%"
++    "rule 2: dual-agent 26.7 tok/s = 0.853x off (need >= 1.100x)",
++    "rule 3: dual-mem 0.920x / single-agent 1.001x / single-mem 0.962x (need each >= 0.970x)",
++    "rule 5: tool_call_json_valid rate (off / candidate): dual-agent 100.0%/100.0%; dual-mem 100.0%/91.7%; single-agent 100.0%/100.0%; single-mem 100.0%/100.0% (need candidate >= off)"
+   ]
+ }
+diff --git a/bench/results/2026-10-12/m1-ngram/summary.json b/bench/results/2026-10-12/m1-ngram/summary.json
+index b8fe7a5..d1a2057 100644
+--- a/bench/results/2026-10-12/m1-ngram/summary.json
++++ b/bench/results/2026-10-12/m1-ngram/summary.json
+@@ -16,8 +16,8 @@
+       "draft_tokens_per_generated_token": 0.5859441754485901,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 1.5601483420650577,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "A-greedy",
+@@ -33,8 +33,8 @@
+       "draft_tokens_per_generated_token": 0.5530642750373692,
+       "tool_call_json_valid_rate": 0.9166666666666666,
+       "speedup_vs_off": 0.9560915018645486,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "A-greedy",
+@@ -50,8 +50,8 @@
+       "draft_tokens_per_generated_token": 0.231797177469714,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 0.9690241304755464,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "A-greedy",
+@@ -67,8 +67,8 @@
+       "draft_tokens_per_generated_token": 0.5572289156626506,
+       "tool_call_json_valid_rate": 0.8333333333333334,
+       "speedup_vs_off": 0.9525023457824847,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "A-prod",
+@@ -84,8 +84,8 @@
+       "draft_tokens_per_generated_token": 0.2228736980064841,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 1.001275473482931,
+-      "vram_mib": 9508.0,
+-      "vram_vs_off_mib": 1.0
++      "vram_mib": 9508,
++      "vram_vs_off_mib": 1
+     },
+     {
+       "arm": "A-prod",
+@@ -101,8 +101,8 @@
+       "draft_tokens_per_generated_token": 0.6573998364677024,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 0.9618340409152707,
+-      "vram_mib": 9508.0,
+-      "vram_vs_off_mib": 1.0
++      "vram_mib": 9508,
++      "vram_vs_off_mib": 1
+     },
+     {
+       "arm": "A-prod",
+@@ -118,8 +118,8 @@
+       "draft_tokens_per_generated_token": 0.13212330740420627,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 0.8531714510039895,
+-      "vram_mib": 9508.0,
+-      "vram_vs_off_mib": 1.0
++      "vram_mib": 9508,
++      "vram_vs_off_mib": 1
+     },
+     {
+       "arm": "A-prod",
+@@ -135,8 +135,8 @@
+       "draft_tokens_per_generated_token": 0.6798634812286689,
+       "tool_call_json_valid_rate": 0.9166666666666666,
+       "speedup_vs_off": 0.920253289017245,
+-      "vram_mib": 9508.0,
+-      "vram_vs_off_mib": 1.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": -1
+     },
+     {
+       "arm": "B-greedy",
+@@ -152,8 +152,8 @@
+       "draft_tokens_per_generated_token": 0.3713131313131313,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 0.967627781005772,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "B-greedy",
+@@ -169,8 +169,8 @@
+       "draft_tokens_per_generated_token": 0.45019011406844106,
+       "tool_call_json_valid_rate": 0.9166666666666666,
+       "speedup_vs_off": 0.9116025161245578,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "B-greedy",
+@@ -186,8 +186,8 @@
+       "draft_tokens_per_generated_token": 0.20617740232312565,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 0.8760661321121939,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "B-greedy",
+@@ -203,8 +203,8 @@
+       "draft_tokens_per_generated_token": 0.47380410022779046,
+       "tool_call_json_valid_rate": 0.8333333333333334,
+       "speedup_vs_off": 0.8972595589183918,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "off-greedy",
+@@ -220,8 +220,8 @@
+       "draft_tokens_per_generated_token": 0.0,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 1.0,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "off-greedy",
+@@ -237,8 +237,8 @@
+       "draft_tokens_per_generated_token": 0.0,
+       "tool_call_json_valid_rate": 0.8333333333333334,
+       "speedup_vs_off": 1.0,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "off-greedy",
+@@ -254,8 +254,8 @@
+       "draft_tokens_per_generated_token": 0.0,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 1.0,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "off-greedy",
+@@ -271,8 +271,8 @@
+       "draft_tokens_per_generated_token": 0.0,
+       "tool_call_json_valid_rate": 0.9166666666666666,
+       "speedup_vs_off": 1.0,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "off-prod",
+@@ -288,8 +288,8 @@
+       "draft_tokens_per_generated_token": 0.0,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 1.0,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "off-prod",
+@@ -305,8 +305,8 @@
+       "draft_tokens_per_generated_token": 0.0,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 1.0,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "off-prod",
+@@ -322,8 +322,8 @@
+       "draft_tokens_per_generated_token": 0.0,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 1.0,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9507,
++      "vram_vs_off_mib": 0
+     },
+     {
+       "arm": "off-prod",
+@@ -339,8 +339,8 @@
+       "draft_tokens_per_generated_token": 0.0,
+       "tool_call_json_valid_rate": 1.0,
+       "speedup_vs_off": 1.0,
+-      "vram_mib": 9507.0,
+-      "vram_vs_off_mib": 0.0
++      "vram_mib": 9508,
++      "vram_vs_off_mib": 0
+     }
+   ],
+   "identity": [
+@@ -353,111 +353,111 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 225
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 1006
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 449
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 815
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 213
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 504
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 485
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 472
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 1270
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 282
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 466
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 866
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 1018
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 311
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 231
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 3327
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 280
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 380
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 495
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -470,11 +470,11 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r0/1/0",
+-          "first_divergence_char": 419
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1244
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -487,123 +487,123 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 226
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 1005
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 275
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 820
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 25
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 31
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 109
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/7",
+-          "first_divergence_char": 449
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 412
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 39
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/8",
+-          "first_divergence_char": 161
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/11",
+-          "first_divergence_char": 852
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 322
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 400
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 210
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 186
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 130
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 75
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 231
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 255
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 591
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 382
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 496
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -616,7 +616,7 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1306
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -629,115 +629,115 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 225
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 1006
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 449
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 224
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 49
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 504
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 485
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 412
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 39
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/8",
+-          "first_divergence_char": 282
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 594
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 466
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 866
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 1018
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 311
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 231
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 18
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 280
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 380
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 258
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -750,11 +750,11 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 698
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1244
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -767,123 +767,123 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 62
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 329
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 275
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 550
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 49
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 31
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 485
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/7",
+-          "first_divergence_char": 629
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 472
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 310
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/8",
+-          "first_divergence_char": 294
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/11",
+-          "first_divergence_char": 66
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 282
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 249
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 513
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 242
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 245
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 21
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 255
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 591
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 164
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 79
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -896,7 +896,7 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1098
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -938,13 +938,145 @@
+       "role": "agent",
+       "compared": 30,
+       "identical": 0,
+-      "identical_rate": 0.0
++      "identical_rate": 0.0,
++      "mismatches": [
++        {
++          "id": "inventory-baseline-r0/0/0",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r0/0/2",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r0/0/5",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r0/0/8",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r0/0/10",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/0/0",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/0/2",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/0/4",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/0/5",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/0/7",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/2/0",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/2/3",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/2/6",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/2/8",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-baseline-r1/2/11",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r0/0/0",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r0/0/2",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r0/0/4",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r0/0/7",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r0/0/9",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r1/0/0",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r1/0/2",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r1/0/4",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r1/0/5",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r1/0/7",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r2/0/0",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r2/0/2",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r2/0/4",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r2/0/6",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r2/0/8",
++          "first_divergence_char": null
++        }
++      ]
+     },
+     {
+       "role": "mem",
+       "compared": 12,
+       "identical": 10,
+-      "identical_rate": 0.8333333333333334
++      "identical_rate": 0.8333333333333334,
++      "mismatches": [
++        {
++          "id": "inventory-mem0-r0/0/0",
++          "first_divergence_char": null
++        },
++        {
++          "id": "inventory-mem0-r1/1/0",
++          "first_divergence_char": null
++        }
++      ]
+     }
+   ],
+   "decision_candidate": "A-prod",
+@@ -957,27 +1089,27 @@
+     {
+       "rule": 2,
+       "pass": false,
+-      "value": "dual-agent 26.7 tok/s, 0.853x off"
++      "value": "dual-agent 26.7 tok/s = 0.853x off (need >= 1.100x)"
+     },
+     {
+       "rule": 3,
+       "pass": false,
+-      "value": "dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x"
++      "value": "dual-mem 0.920x / single-agent 1.001x / single-mem 0.962x (need each >= 0.970x)"
+     },
+     {
+       "rule": 4,
+       "pass": true,
+-      "value": "max delta +1 MiB"
++      "value": "per-phase VRAM vs off: single-agent +1 / single-mem +1 / dual-agent +1 / dual-mem -1; max +1 MiB (need <= +64 MiB)"
+     },
+     {
+       "rule": 5,
+       "pass": false,
+-      "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%"
++      "value": "tool_call_json_valid rate (off / candidate): dual-agent 100.0%/100.0%; dual-mem 100.0%/91.7%; single-agent 100.0%/100.0%; single-mem 100.0%/100.0% (need candidate >= off)"
+     },
+     {
+       "rule": 6,
+       "pass": true,
+-      "value": "A dual 26.2%; off dual-vs-single control 23.8%"
++      "value": "A dual-phase greedy identical 11/42 = 26.2%; off dual-vs-single control 10/42 = 23.8% (need >= 13.8%)"
+     }
+   ]
+ }
+diff --git a/bench/results/2026-10-12/m1-ngram/summary.md b/bench/results/2026-10-12/m1-ngram/summary.md
+index fa31c49..0f63fe9 100644
+--- a/bench/results/2026-10-12/m1-ngram/summary.md
++++ b/bench/results/2026-10-12/m1-ngram/summary.md
+@@ -1,57 +1,57 @@
+ # M1 n-gram self-speculation summary
+ 
+-Foreground replay requests only. Decode rate is `sum(predicted_n) / sum(predicted_ms) * 1000`; background traffic is load, not a measured row.
++Foreground replay requests only. Decode rate is `sum(predicted_n) / sum(predicted_ms) * 1000`; background traffic is load, not a measured row. Per-phase VRAM is the first 'MiB,' sample after the first foreground request, off minus candidate shown as delta.
+ 
+ ## Foreground performance
+ 
+ | config | sampling | phase | role | n | decode tok/s | median req tok/s | acceptance | draft/gen | speedup vs off | tool JSON valid | VRAM vs off |
+ |---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
+-| A | greedy | single-agent | agent | 30 | 86.0 | 53.6 | 75.5% | 0.586 | 1.560x | 100.0% | 0.0 MiB |
+-| A | greedy | single-mem | mem | 12 | 53.1 | 35.9 | 9.3% | 0.553 | 0.956x | 91.7% | 0.0 MiB |
+-| A | greedy | dual-agent | agent | 30 | 25.5 | 30.0 | 14.0% | 0.232 | 0.969x | 100.0% | 0.0 MiB |
+-| A | greedy | dual-mem | mem | 12 | 23.8 | 17.0 | 9.3% | 0.557 | 0.953x | 83.3% | 0.0 MiB |
+-| A | prod | single-agent | agent | 30 | 56.0 | 54.3 | 20.7% | 0.223 | 1.001x | 100.0% | 1.0 MiB |
+-| A | prod | single-mem | mem | 12 | 53.5 | 35.9 | 11.2% | 0.657 | 0.962x | 100.0% | 1.0 MiB |
+-| A | prod | dual-agent | agent | 30 | 26.7 | 27.6 | 15.3% | 0.132 | 0.853x | 100.0% | 1.0 MiB |
+-| A | prod | dual-mem | mem | 12 | 23.4 | 17.0 | 11.5% | 0.680 | 0.920x | 91.7% | 1.0 MiB |
+-| B | greedy | single-agent | agent | 30 | 53.4 | 54.8 | 43.3% | 0.371 | 0.968x | 100.0% | 0.0 MiB |
+-| B | greedy | single-mem | mem | 12 | 50.7 | 38.3 | 24.0% | 0.450 | 0.912x | 91.7% | 0.0 MiB |
+-| B | greedy | dual-agent | agent | 30 | 23.0 | 24.8 | 43.5% | 0.206 | 0.876x | 100.0% | 0.0 MiB |
+-| B | greedy | dual-mem | mem | 12 | 22.4 | 20.3 | 23.2% | 0.474 | 0.897x | 83.3% | 0.0 MiB |
+-| off | greedy | single-agent | agent | 30 | 55.1 | 55.7 | — | 0.000 | 1.000x | 100.0% | 0.0 MiB |
+-| off | greedy | single-mem | mem | 12 | 55.6 | 48.9 | — | 0.000 | 1.000x | 83.3% | 0.0 MiB |
+-| off | greedy | dual-agent | agent | 30 | 26.3 | 30.7 | — | 0.000 | 1.000x | 100.0% | 0.0 MiB |
+-| off | greedy | dual-mem | mem | 12 | 25.0 | 31.6 | — | 0.000 | 1.000x | 91.7% | 0.0 MiB |
+-| off | prod | single-agent | agent | 30 | 56.0 | 55.9 | — | 0.000 | 1.000x | 100.0% | 0.0 MiB |
+-| off | prod | single-mem | mem | 12 | 55.6 | 48.8 | — | 0.000 | 1.000x | 100.0% | 0.0 MiB |
+-| off | prod | dual-agent | agent | 30 | 31.3 | 33.8 | — | 0.000 | 1.000x | 100.0% | 0.0 MiB |
+-| off | prod | dual-mem | mem | 12 | 25.4 | 31.4 | — | 0.000 | 1.000x | 100.0% | 0.0 MiB |
++| A | greedy | single-agent | agent | 30 | 86.0 | 53.6 | 75.5% | 0.586 | 1.560x | 100.0% | +0 MiB |
++| A | greedy | single-mem | mem | 12 | 53.1 | 35.9 | 9.3% | 0.553 | 0.956x | 91.7% | +0 MiB |
++| A | greedy | dual-agent | agent | 30 | 25.5 | 30.0 | 14.0% | 0.232 | 0.969x | 100.0% | +0 MiB |
++| A | greedy | dual-mem | mem | 12 | 23.8 | 17.0 | 9.3% | 0.557 | 0.953x | 83.3% | +0 MiB |
++| A | prod | single-agent | agent | 30 | 56.0 | 54.3 | 20.7% | 0.223 | 1.001x | 100.0% | +1 MiB |
++| A | prod | single-mem | mem | 12 | 53.5 | 35.9 | 11.2% | 0.657 | 0.962x | 100.0% | +1 MiB |
++| A | prod | dual-agent | agent | 30 | 26.7 | 27.6 | 15.3% | 0.132 | 0.853x | 100.0% | +1 MiB |
++| A | prod | dual-mem | mem | 12 | 23.4 | 17.0 | 11.5% | 0.680 | 0.920x | 91.7% | -1 MiB |
++| B | greedy | single-agent | agent | 30 | 53.4 | 54.8 | 43.3% | 0.371 | 0.968x | 100.0% | +0 MiB |
++| B | greedy | single-mem | mem | 12 | 50.7 | 38.3 | 24.0% | 0.450 | 0.912x | 91.7% | +0 MiB |
++| B | greedy | dual-agent | agent | 30 | 23.0 | 24.8 | 43.5% | 0.206 | 0.876x | 100.0% | +0 MiB |
++| B | greedy | dual-mem | mem | 12 | 22.4 | 20.3 | 23.2% | 0.474 | 0.897x | 83.3% | +0 MiB |
++| off | greedy | single-agent | agent | 30 | 55.1 | 55.7 | — | 0.000 | 1.000x | 100.0% | +0 MiB |
++| off | greedy | single-mem | mem | 12 | 55.6 | 48.9 | — | 0.000 | 1.000x | 83.3% | +0 MiB |
++| off | greedy | dual-agent | agent | 30 | 26.3 | 30.7 | — | 0.000 | 1.000x | 100.0% | +0 MiB |
++| off | greedy | dual-mem | mem | 12 | 25.0 | 31.6 | — | 0.000 | 1.000x | 91.7% | +0 MiB |
++| off | prod | single-agent | agent | 30 | 56.0 | 55.9 | — | 0.000 | 1.000x | 100.0% | +0 MiB |
++| off | prod | single-mem | mem | 12 | 55.6 | 48.8 | — | 0.000 | 1.000x | 100.0% | +0 MiB |
++| off | prod | dual-agent | agent | 30 | 31.3 | 33.8 | — | 0.000 | 1.000x | 100.0% | +0 MiB |
++| off | prod | dual-mem | mem | 12 | 25.4 | 31.4 | — | 0.000 | 1.000x | 100.0% | +0 MiB |
+ 
+ ## Greedy output identity
+ 
+-Compared against off at the same phase and request id. First divergence is a character index in the hashed response representation (reasoning + content + canonical tool calls).
++Compared against off at the same phase and request id (foreground, temp 0). First divergence is a character index in the hashed response representation (reasoning + content + canonical tool calls); 'unresolved' means the gitignored output file for the arm is missing. Per-phase comparison is mandatory because temp-0 output depends on the batch mix.
+ 
+ | config | phase | identical/compared | rate | first-divergence indices for mismatches |
+ |---|---|---:|---:|---|
+-| A | single-agent | 3/30 | 10.0% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:225, inventory-baseline-r0/0/5:1006, inventory-baseline-r0/0/8:449, inventory-baseline-r0/0/10:815, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:213, inventory-baseline-r1/0/4:504, inventory-baseline-r1/0/5:485, inventory-baseline-r1/2/0:472, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:1270, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:282, inventory-mem0-r0/0/4:466, inventory-mem0-r0/0/7:866, inventory-mem0-r0/0/9:1018, inventory-mem0-r1/0/0:253, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:311, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:231, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:3327, inventory-mem0-r2/0/4:280, inventory-mem0-r2/0/6:380, inventory-mem0-r2/0/8:495 |
+-| A | single-mem | 10/12 | 83.3% | inventory-mem0-r0/1/0:419, inventory-mem0-r1/1/0:1244 |
+-| A | dual-agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:226, inventory-baseline-r0/0/5:1005, inventory-baseline-r0/0/8:275, inventory-baseline-r0/0/10:820, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:25, inventory-baseline-r1/0/4:31, inventory-baseline-r1/0/5:109, inventory-baseline-r1/0/7:449, inventory-baseline-r1/2/0:412, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:39, inventory-baseline-r1/2/8:161, inventory-baseline-r1/2/11:852, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:322, inventory-mem0-r0/0/4:400, inventory-mem0-r0/0/7:210, inventory-mem0-r0/0/9:186, inventory-mem0-r1/0/0:130, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:75, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:231, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:255, inventory-mem0-r2/0/4:591, inventory-mem0-r2/0/6:382, inventory-mem0-r2/0/8:496 |
+-| A | dual-mem | 11/12 | 91.7% | inventory-mem0-r1/1/0:1306 |
+-| B | single-agent | 2/30 | 6.7% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:225, inventory-baseline-r0/0/5:1006, inventory-baseline-r0/0/8:449, inventory-baseline-r0/0/10:224, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:49, inventory-baseline-r1/0/4:504, inventory-baseline-r1/0/5:485, inventory-baseline-r1/2/0:412, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:39, inventory-baseline-r1/2/8:282, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:594, inventory-mem0-r0/0/4:466, inventory-mem0-r0/0/7:866, inventory-mem0-r0/0/9:1018, inventory-mem0-r1/0/0:253, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:311, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:231, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:18, inventory-mem0-r2/0/4:280, inventory-mem0-r2/0/6:380, inventory-mem0-r2/0/8:258 |
+-| B | single-mem | 10/12 | 83.3% | inventory-mem0-r0/0/0:698, inventory-mem0-r1/1/0:1244 |
+-| B | dual-agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:62, inventory-baseline-r0/0/5:329, inventory-baseline-r0/0/8:275, inventory-baseline-r0/0/10:550, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:49, inventory-baseline-r1/0/4:31, inventory-baseline-r1/0/5:485, inventory-baseline-r1/0/7:629, inventory-baseline-r1/2/0:472, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:310, inventory-baseline-r1/2/8:294, inventory-baseline-r1/2/11:66, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:282, inventory-mem0-r0/0/4:249, inventory-mem0-r0/0/7:513, inventory-mem0-r0/0/9:242, inventory-mem0-r1/0/0:253, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:245, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:21, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:255, inventory-mem0-r2/0/4:591, inventory-mem0-r2/0/6:164, inventory-mem0-r2/0/8:79 |
+-| B | dual-mem | 11/12 | 91.7% | inventory-mem0-r1/1/0:1098 |
++| A | single-agent | 3/30 | 10.0% | inventory-baseline-r0/0/0:unresolved, inventory-baseline-r0/0/2:unresolved, inventory-baseline-r0/0/5:unresolved, inventory-baseline-r0/0/8:unresolved, inventory-baseline-r0/0/10:unresolved, inventory-baseline-r1/0/0:unresolved, inventory-baseline-r1/0/2:unresolved, inventory-baseline-r1/0/4:unresolved, inventory-baseline-r1/0/5:unresolved, inventory-baseline-r1/2/0:unresolved, inventory-baseline-r1/2/3:unresolved, inventory-baseline-r1/2/6:unresolved, inventory-mem0-r0/0/0:unresolved, inventory-mem0-r0/0/2:unresolved, inventory-mem0-r0/0/4:unresolved, inventory-mem0-r0/0/7:unresolved, inventory-mem0-r0/0/9:unresolved, inventory-mem0-r1/0/0:unresolved, inventory-mem0-r1/0/2:unresolved, inventory-mem0-r1/0/4:unresolved, inventory-mem0-r1/0/5:unresolved, inventory-mem0-r1/0/7:unresolved, inventory-mem0-r2/0/0:unresolved, inventory-mem0-r2/0/2:unresolved, inventory-mem0-r2/0/4:unresolved, inventory-mem0-r2/0/6:unresolved, inventory-mem0-r2/0/8:unresolved |
++| A | single-mem | 10/12 | 83.3% | inventory-mem0-r0/1/0:unresolved, inventory-mem0-r1/1/0:unresolved |
++| A | dual-agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:unresolved, inventory-baseline-r0/0/2:unresolved, inventory-baseline-r0/0/5:unresolved, inventory-baseline-r0/0/8:unresolved, inventory-baseline-r0/0/10:unresolved, inventory-baseline-r1/0/0:unresolved, inventory-baseline-r1/0/2:unresolved, inventory-baseline-r1/0/4:unresolved, inventory-baseline-r1/0/5:unresolved, inventory-baseline-r1/0/7:unresolved, inventory-baseline-r1/2/0:unresolved, inventory-baseline-r1/2/3:unresolved, inventory-baseline-r1/2/6:unresolved, inventory-baseline-r1/2/8:unresolved, inventory-baseline-r1/2/11:unresolved, inventory-mem0-r0/0/0:unresolved, inventory-mem0-r0/0/2:unresolved, inventory-mem0-r0/0/4:unresolved, inventory-mem0-r0/0/7:unresolved, inventory-mem0-r0/0/9:unresolved, inventory-mem0-r1/0/0:unresolved, inventory-mem0-r1/0/2:unresolved, inventory-mem0-r1/0/4:unresolved, inventory-mem0-r1/0/5:unresolved, inventory-mem0-r1/0/7:unresolved, inventory-mem0-r2/0/0:unresolved, inventory-mem0-r2/0/2:unresolved, inventory-mem0-r2/0/4:unresolved, inventory-mem0-r2/0/6:unresolved, inventory-mem0-r2/0/8:unresolved |
++| A | dual-mem | 11/12 | 91.7% | inventory-mem0-r1/1/0:unresolved |
++| B | single-agent | 2/30 | 6.7% | inventory-baseline-r0/0/0:unresolved, inventory-baseline-r0/0/2:unresolved, inventory-baseline-r0/0/5:unresolved, inventory-baseline-r0/0/8:unresolved, inventory-baseline-r0/0/10:unresolved, inventory-baseline-r1/0/0:unresolved, inventory-baseline-r1/0/2:unresolved, inventory-baseline-r1/0/4:unresolved, inventory-baseline-r1/0/5:unresolved, inventory-baseline-r1/2/0:unresolved, inventory-baseline-r1/2/3:unresolved, inventory-baseline-r1/2/6:unresolved, inventory-baseline-r1/2/8:unresolved, inventory-mem0-r0/0/0:unresolved, inventory-mem0-r0/0/2:unresolved, inventory-mem0-r0/0/4:unresolved, inventory-mem0-r0/0/7:unresolved, inventory-mem0-r0/0/9:unresolved, inventory-mem0-r1/0/0:unresolved, inventory-mem0-r1/0/2:unresolved, inventory-mem0-r1/0/4:unresolved, inventory-mem0-r1/0/5:unresolved, inventory-mem0-r1/0/7:unresolved, inventory-mem0-r2/0/0:unresolved, inventory-mem0-r2/0/2:unresolved, inventory-mem0-r2/0/4:unresolved, inventory-mem0-r2/0/6:unresolved, inventory-mem0-r2/0/8:unresolved |
++| B | single-mem | 10/12 | 83.3% | inventory-mem0-r0/0/0:unresolved, inventory-mem0-r1/1/0:unresolved |
++| B | dual-agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:unresolved, inventory-baseline-r0/0/2:unresolved, inventory-baseline-r0/0/5:unresolved, inventory-baseline-r0/0/8:unresolved, inventory-baseline-r0/0/10:unresolved, inventory-baseline-r1/0/0:unresolved, inventory-baseline-r1/0/2:unresolved, inventory-baseline-r1/0/4:unresolved, inventory-baseline-r1/0/5:unresolved, inventory-baseline-r1/0/7:unresolved, inventory-baseline-r1/2/0:unresolved, inventory-baseline-r1/2/3:unresolved, inventory-baseline-r1/2/6:unresolved, inventory-baseline-r1/2/8:unresolved, inventory-baseline-r1/2/11:unresolved, inventory-mem0-r0/0/0:unresolved, inventory-mem0-r0/0/2:unresolved, inventory-mem0-r0/0/4:unresolved, inventory-mem0-r0/0/7:unresolved, inventory-mem0-r0/0/9:unresolved, inventory-mem0-r1/0/0:unresolved, inventory-mem0-r1/0/2:unresolved, inventory-mem0-r1/0/4:unresolved, inventory-mem0-r1/0/5:unresolved, inventory-mem0-r1/0/7:unresolved, inventory-mem0-r2/0/0:unresolved, inventory-mem0-r2/0/2:unresolved, inventory-mem0-r2/0/4:unresolved, inventory-mem0-r2/0/6:unresolved, inventory-mem0-r2/0/8:unresolved |
++| B | dual-mem | 11/12 | 91.7% | inventory-mem0-r1/1/0:unresolved |
+ | off | single-agent | 30/30 | 100.0% | — |
+ | off | single-mem | 12/12 | 100.0% | — |
+ | off | dual-agent | 30/30 | 100.0% | — |
+ | off | dual-mem | 12/12 | 100.0% | — |
+ 
+-Off dual-vs-single batch-numerics control:
++Off dual-vs-single batch-numerics control (off arm, no spec; shows how much the dual-phase batch mix itself moves temp-0 output):
+ 
+-| role | identical/compared | rate |
+-|---|---:|---:|
+-| agent | 0/30 | 0.0% |
+-| mem | 10/12 | 83.3% |
++| role | identical/compared | rate | first-divergence indices for mismatches |
++|---|---:|---:|---|
++| agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:unresolved, inventory-baseline-r0/0/2:unresolved, inventory-baseline-r0/0/5:unresolved, inventory-baseline-r0/0/8:unresolved, inventory-baseline-r0/0/10:unresolved, inventory-baseline-r1/0/0:unresolved, inventory-baseline-r1/0/2:unresolved, inventory-baseline-r1/0/4:unresolved, inventory-baseline-r1/0/5:unresolved, inventory-baseline-r1/0/7:unresolved, inventory-baseline-r1/2/0:unresolved, inventory-baseline-r1/2/3:unresolved, inventory-baseline-r1/2/6:unresolved, inventory-baseline-r1/2/8:unresolved, inventory-baseline-r1/2/11:unresolved, inventory-mem0-r0/0/0:unresolved, inventory-mem0-r0/0/2:unresolved, inventory-mem0-r0/0/4:unresolved, inventory-mem0-r0/0/7:unresolved, inventory-mem0-r0/0/9:unresolved, inventory-mem0-r1/0/0:unresolved, inventory-mem0-r1/0/2:unresolved, inventory-mem0-r1/0/4:unresolved, inventory-mem0-r1/0/5:unresolved, inventory-mem0-r1/0/7:unresolved, inventory-mem0-r2/0/0:unresolved, inventory-mem0-r2/0/2:unresolved, inventory-mem0-r2/0/4:unresolved, inventory-mem0-r2/0/6:unresolved, inventory-mem0-r2/0/8:unresolved |
++| mem | 10/12 | 83.3% | inventory-mem0-r0/0/0:unresolved, inventory-mem0-r1/1/0:unresolved |
+ 
+ ## Deployment decision
+ 
+@@ -60,10 +60,10 @@ Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.
+ | rule | result | value |
+ |---:|---|---|
+ | 1 | PASS | --mmproj loaded; no refusal recorded |
+-| 2 | FAIL | dual-agent 26.7 tok/s, 0.853x off |
+-| 3 | FAIL | dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x |
+-| 4 | PASS | max delta +1 MiB |
+-| 5 | FAIL | candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0% |
+-| 6 | PASS | A dual 26.2%; off dual-vs-single control 23.8% |
++| 2 | FAIL | dual-agent 26.7 tok/s = 0.853x off (need >= 1.100x) |
++| 3 | FAIL | dual-mem 0.920x / single-agent 1.001x / single-mem 0.962x (need each >= 0.970x) |
++| 4 | PASS | per-phase VRAM vs off: single-agent +1 / single-mem +1 / dual-agent +1 / dual-mem -1; max +1 MiB (need <= +64 MiB) |
++| 5 | FAIL | tool_call_json_valid rate (off / candidate): dual-agent 100.0%/100.0%; dual-mem 100.0%/91.7%; single-agent 100.0%/100.0%; single-mem 100.0%/100.0% (need candidate >= off) |
++| 6 | PASS | A dual-phase greedy identical 11/42 = 26.2%; off dual-vs-single control 10/42 = 23.8% (need >= 13.8%) |
+ 
+-**Decision: do not deploy.** rule 2: dual-agent 26.7 tok/s, 0.853x off; rule 3: dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x; rule 5: candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%.
++**Decision: do not deploy.** rule 2: dual-agent 26.7 tok/s = 0.853x off (need >= 1.100x); rule 3: dual-mem 0.920x / single-agent 1.001x / single-mem 0.962x (need each >= 0.970x); rule 5: tool_call_json_valid rate (off / candidate): dual-agent 100.0%/100.0%; dual-mem 100.0%/91.7%; single-agent 100.0%/100.0%; single-mem 100.0%/100.0% (need candidate >= off).
+diff --git a/bench/spec_summarize.py b/bench/spec_summarize.py
+index 9e6f251..9d89c86 100644
+--- a/bench/spec_summarize.py
++++ b/bench/spec_summarize.py
+@@ -1,13 +1,26 @@
+ #!/usr/bin/env python3
+-"""Summarize M1 self-speculation replay artifacts.
++"""Summarize M1 n-gram self-speculation replay artifacts.
+ 
+ Usage: python3 bench/spec_summarize.py [REPLAY_DIR]
+ 
+-Writes summary.md, summary.json, and the no-deploy decision deploy.json beside
+-REPLAY_DIR.  It deliberately uses only foreground rows: background loops are a
+-load generator, rather than independently comparable replay requests.
++Writes summary.md, summary.json and the decision deploy.json next to REPLAY_DIR
++(bench/results/<date>/m1-ngram/). Uses foreground rows only; background loops are
++load, not measured replay requests.
++
++Decision rules (deploy the candidate A-prod only if ALL pass):
++  1. candidate ran with --mmproj loaded (live entry's pinned line), no refusal;
++  2. prod sampling: dual-agent decode tok/s >= 1.10x off;
++  3. prod sampling: dual-mem and both single phases >= 0.97x off;
++  4. VRAM per phase <= off + 64 MiB;
++  5. per-phase tool_call_json_valid rate >= off's;
++  6. greedy identical-output rate (dual phases, candidate vs off) is not below
++     the off dual-vs-single control rate by more than 10 points.
++
++On deploy: writes serving/candidates/bonsai-2-27b.ngram.yaml (a copy of the live
++entry with --spec-type ngram-mod added to cmd) and deploy.json as a placeholder
++waiting for the infra request result. On no-deploy: deploy.json is
++{"deployed": false, "why": ["rule N: <value>", ...]}.
+ """
+-import hashlib
+ import json
+ import re
+ import statistics
+@@ -16,6 +29,8 @@ from collections import defaultdict
+ from pathlib import Path
+ 
+ PHASES = ("single-agent", "single-mem", "dual-agent", "dual-mem")
++CANDIDATE = "A-prod"
++SPEC_FLAG = "--spec-type ngram-mod"
+ 
+ 
+ def read_jsonl(path):
+@@ -24,27 +39,35 @@ def read_jsonl(path):
+ 
+ 
+ def message_blob(message):
+-    return ((message.get("reasoning_content") or "") + (message.get("content") or "") +
+-            json.dumps(message.get("tool_calls") or [], sort_keys=True))
++    return ((message.get("reasoning_content") or "") + (message.get("content") or "")
++            + json.dumps(message.get("tool_calls") or [], sort_keys=True))
+ 
+ 
+ def output_texts(replay, arm):
+-    """Recover the exact hashed response representation from gitignored output."""
++    """Recover the hashed response representation from gitignored outputs."""
+     result = {}
+     path = Path(__file__).resolve().parent / ".replay" / "m1" / "outputs" / f"{arm}.jsonl"
+     if not path.exists():
+         return result
+     for row in read_jsonl(path):
+         if "message" in row:
+-            result[(row["phase"], row["id"], row["fg_bg"])] = message_blob(row["message"])
++            result[(row["phase"], row["id"], row.get("fg_bg", "fg"))] = message_blob(row["message"])
+     return result
+ 
+ 
+-def vram_mib(path):
++def read_vram(path):
++    """First 'N MiB,' sample per phase header in vram.txt."""
+     if not path.exists():
+-        return None
+-    values = [int(x) for x in re.findall(r"\b(\d+) MiB,", path.read_text())]
+-    return statistics.median(values) if values else None
++        return {}
++    out, phase = {}, None
++    for line in path.read_text().splitlines():
++        m = re.match(r"\s*==\s*([a-z-]+)", line)
++        if m:
++            phase = m.group(1)
++            continue
++        if phase and phase not in out and "MiB," in line:
++            out[phase] = int(re.search(r"(\d+)\s*MiB,", line).group(1))
++    return out
+ 
+ 
+ def first_divergence(a, b):
+@@ -60,13 +83,15 @@ def metric(rows):
+     draft = sum(r.get("draft_n") or 0 for r in rows)
+     accepted = sum(r.get("draft_n_accepted") or 0 for r in rows)
+     valid = [r for r in rows if r.get("tool_call_json_valid") is not None]
+-    rates = [r.get("predicted_per_second") for r in rows if r.get("predicted_per_second") is not None]
+-    return {"n": len(rows), "tokens": n, "decode_tok_s": 1000 * n / ms if ms else None,
++    rates = [r["predicted_per_second"] for r in rows if r.get("predicted_per_second") is not None]
++    return {"n": len(rows), "tokens": n,
++            "decode_tok_s": 1000 * n / ms if ms else None,
+             "median_request_tok_s": statistics.median(rates) if rates else None,
+             "draft_acceptance": accepted / draft if draft else None,
+             "draft_n": draft, "draft_n_accepted": accepted,
+             "draft_tokens_per_generated_token": draft / n if n else None,
+-            "tool_call_json_valid_rate": sum(bool(r["tool_call_json_valid"]) for r in valid) / len(valid) if valid else None}
++            "tool_call_json_valid_rate": (sum(bool(r["tool_call_json_valid"]) for r in valid) / len(valid)
++                                          if valid else None)}
+ 
+ 
+ def fnum(x, digits=1):
+@@ -74,7 +99,17 @@ def fnum(x, digits=1):
+ 
+ 
+ def fpct(x):
+-    return "—" if x is None else f"{100*x:.1f}%"
++    return "—" if x is None else f"{100 * x:.1f}%"
++
++
++def vram_str(x):
++    return "—" if x is None else (f"{x:+.0f}" if x == int(x) else f"{x:+.1f}")
++
++
++def index_list(items):
++    return ", ".join(
++        f"{m['id']}:{'unresolved' if m['first_divergence_char'] is None else m['first_divergence_char']}"
++        for m in items) or "—"
+ 
+ 
+ def main():
+@@ -84,21 +119,22 @@ def main():
+     data = {a: [r for r in read_jsonl(replay / a / "requests.jsonl")
+                 if r.get("fg_bg") == "fg" and not r.get("error")] for a in arms}
+     texts = {a: output_texts(replay, a) for a in arms}
+-    metrics, vrams = {}, {}
+-    for arm in arms:
+-        vrams[arm] = vram_mib(replay / arm / "vram.txt")
++    vram_by_phase = {a: read_vram(replay / a / "vram.txt") for a in arms}
++    metrics = {}
++    for a in arms:
+         for phase in PHASES:
+             role = phase.split("-", 1)[1]
+-            metrics[(arm, phase, role)] = metric([r for r in data[arm] if r["phase"] == phase and r["role"] == role])
++            metrics[(a, phase, role)] = metric([r for r in data[a] if r["phase"] == phase and r["role"] == role])
+ 
+-    # Same sampling/phase/role off arm is the performance and VRAM control.
++    # Same sampling/phase/role off arm is the performance and per-phase VRAM control.
+     for (arm, phase, role), m in metrics.items():
+         sampling = arm.rsplit("-", 1)[1]
+         off = f"off-{sampling}"
+         ref = metrics.get((off, phase, role))
+         m["speedup_vs_off"] = m["decode_tok_s"] / ref["decode_tok_s"] if ref and ref["decode_tok_s"] else None
+-        m["vram_mib"] = vrams[arm]
+-        m["vram_vs_off_mib"] = vrams[arm] - vrams[off] if vrams[arm] is not None and vrams.get(off) is not None else None
++        off_vram = vram_by_phase.get(off, {}).get(phase)
++        m["vram_mib"] = vram_by_phase[arm].get(phase)
++        m["vram_vs_off_mib"] = m["vram_mib"] - off_vram if m["vram_mib"] is not None and off_vram is not None else None
+ 
+     identity = []
+     for arm in arms:
+@@ -119,53 +155,157 @@ def main():
+                         texts[arm].get((phase, ident, "fg"), ""),
+                         texts["off-greedy"].get((phase, ident, "fg"), ""))})
+             identity.append({"arm": arm, "phase": phase, "compared": compared, "identical": same,
+-                             "identical_rate": same / compared if compared else None, "mismatches": mismatches})
++                             "identical_rate": same / compared if compared else None,
++                             "mismatches": mismatches})
+ 
+-    # Batch-numerics control: off dual foreground output versus off single output.
++    # Batch-numerics control: off dual foreground output vs off single output,
++    # same request id per phase. Mismatches carry first-divergence indices too.
+     control = []
+     for role in ("agent", "mem"):
+         single = {r["id"]: r for r in data["off-greedy"] if r["phase"] == "single-" + role}
+         dual = {r["id"]: r for r in data["off-greedy"] if r["phase"] == "dual-" + role}
+-        same = sum(r.get("out_sha256") == single.get(i, {}).get("out_sha256") for i, r in dual.items())
+-        control.append({"role": role, "compared": len(dual), "identical": same,
+-                        "identical_rate": same / len(dual) if dual else None})
+-
+-    # The only complete production speculative candidate is A-prod.
+-    candidate = "A-prod"
+-    ca = metrics[(candidate, "dual-agent", "agent")]
+-    cm = metrics[(candidate, "dual-mem", "mem")]
+-    cs_a = metrics[(candidate, "single-agent", "agent")]
+-    cs_m = metrics[(candidate, "single-mem", "mem")]
++        mismatches = []
++        for ident, r in dual.items():
++            if r.get("out_sha256") != single.get(ident, {}).get("out_sha256"):
++                mismatches.append({"id": ident, "first_divergence_char": first_divergence(
++                    texts["off-greedy"].get((f"dual-{role}", ident, "fg"), ""),
++                    texts["off-greedy"].get((f"single-{role}", ident, "fg"), ""))})
++        compared = len(dual)
++        control.append({"role": role, "compared": compared, "identical": compared - len(mismatches),
++                        "identical_rate": (compared - len(mismatches)) / compared if compared else None,
++                        "mismatches": mismatches})
++
++    # Only complete production speculative candidate is A-prod.
++    ca = metrics[(CANDIDATE, "dual-agent", "agent")]
++    cm = metrics[(CANDIDATE, "dual-mem", "mem")]
++    cs_a = metrics[(CANDIDATE, "single-agent", "agent")]
++    cs_m = metrics[(CANDIDATE, "single-mem", "mem")]
++    off_d = {k: metrics[("off-prod", k[0], k[1])] for k in
++             (("dual-agent", "agent"), ("dual-mem", "mem"), ("single-agent", "agent"), ("single-mem", "mem"))}
++
+     candidate_id = [x for x in identity if x["arm"] == "A-greedy" and x["phase"].startswith("dual-")]
+-    control_rate = sum(x["identical"] for x in control) / sum(x["compared"] for x in control)
+-    identity_rate = sum(x["identical"] for x in candidate_id) / sum(x["compared"] for x in candidate_id)
++    identity_rate = (sum(x["identical"] for x in candidate_id) / sum(x["compared"] for x in candidate_id)) if candidate_id else None
++    control_rate = (sum(x["identical"] for x in control) / sum(x["compared"] for x in control)) if control else None
++
++    vram_deltas = [metrics[(CANDIDATE, p, role)]["vram_vs_off_mib"]
++                   for p, role in (("single-agent", "agent"), ("single-mem", "mem"),
++                                   ("dual-agent", "agent"), ("dual-mem", "mem"))]
++    vram_max = max(v for v in vram_deltas if v is not None) if any(v is not None for v in vram_deltas) else None
++    vram_label = " / ".join(f"{p} {vram_str(d)}" for (p, _), d in zip(((p, role) for p, role in
++                                                                       (("single-agent", "agent"), ("single-mem", "mem"),
++                                                                        ("dual-agent", "agent"), ("dual-mem", "mem"))),
++                                                                      vram_deltas))
++
++    notes = (replay / CANDIDATE / "notes.txt").read_text()
++    rule1_pass = "--mmproj" in notes and all(x not in notes for x in (
++        "not supported by this context", "unsupported batch.has_embd"))
+     rules = [
+-        {"rule": 1, "pass": "--mmproj" in (replay / candidate / "notes.txt").read_text() and "refused" not in (replay / candidate / "notes.txt").read_text(), "value": "--mmproj loaded; no refusal recorded"},
+-        {"rule": 2, "pass": ca["speedup_vs_off"] >= 1.10, "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
+-        {"rule": 3, "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)), "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
+-        {"rule": 4, "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)), "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
+-        {"rule": 5, "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem"))), "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): " + "/".join(f"{fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem")))},
+-        {"rule": 6, "pass": identity_rate >= control_rate - .10, "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
++        {"rule": 1, "pass": rule1_pass,
++         "value": ("--mmproj loaded; no refusal recorded" if rule1_pass else "mmproj not loaded or refusal recorded in A-prod notes")},
++        {"rule": 2, "pass": ca["speedup_vs_off"] is not None and ca["speedup_vs_off"] >= 1.10,
++         "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s = {fnum(ca['speedup_vs_off'],3)}x off (need >= 1.100x)"},
++        {"rule": 3, "pass": all(x["speedup_vs_off"] is not None and x["speedup_vs_off"] >= 0.97
++                                for x in (cm, cs_a, cs_m)),
++         "value": f"dual-mem {fnum(cm['speedup_vs_off'],3)}x / single-agent {fnum(cs_a['speedup_vs_off'],3)}x / "
++                  f"single-mem {fnum(cs_m['speedup_vs_off'],3)}x (need each >= 0.970x)"},
++        {"rule": 4, "pass": vram_max is not None and vram_max <= 64,
++         "value": f"per-phase VRAM vs off: {vram_label}; max {vram_max:+.0f} MiB (need <= +64 MiB)"},
++        {"rule": 5,
++         "pass": all(c["tool_call_json_valid_rate"] is None or o["tool_call_json_valid_rate"] is None
++                     or c["tool_call_json_valid_rate"] >= o["tool_call_json_valid_rate"]
++                     for c, o in ((ca, off_d[("dual-agent", "agent")]), (cm, off_d[("dual-mem", "mem")]),
++                                  (cs_a, off_d[("single-agent", "agent")]), (cs_m, off_d[("single-mem", "mem")]))) and
++            all(o["tool_call_json_valid_rate"] is not None for o in off_d.values()),
++         "value": "tool_call_json_valid rate (off / candidate): dual-agent "
++                  + f"{fpct(off_d[('dual-agent','agent')]['tool_call_json_valid_rate'])}/{fpct(ca['tool_call_json_valid_rate'])}"
++                  + f"; dual-mem {fpct(off_d[('dual-mem','mem')]['tool_call_json_valid_rate'])}/{fpct(cm['tool_call_json_valid_rate'])}"
++                  + f"; single-agent {fpct(off_d[('single-agent','agent')]['tool_call_json_valid_rate'])}/{fpct(cs_a['tool_call_json_valid_rate'])}"
++                  + f"; single-mem {fpct(off_d[('single-mem','mem')]['tool_call_json_valid_rate'])}/{fpct(cs_m['tool_call_json_valid_rate'])}"
++                  + " (need candidate >= off)"},
++        {"rule": 6, "pass": identity_rate is not None and control_rate is not None
++                             and identity_rate >= control_rate - 0.10,
++         "value": f"A dual-phase greedy identical {sum(x['identical'] for x in candidate_id)}/"
++                  f"{sum(x['compared'] for x in candidate_id)} = {fpct(identity_rate)}; off dual-vs-single control "
++                  f"{sum(x['identical'] for x in control)}/{sum(x['compared'] for x in control)} = {fpct(control_rate)} "
++                  f"(need >= {fpct(control_rate - 0.10 if control_rate is not None else 0)})"},
+     ]
+-    result = {"replay_dir": str(replay), "foreground_only": True, "metrics": [dict(arm=a, phase=p, role=r, **m) for (a,p,r),m in metrics.items()], "identity": identity, "off_dual_vs_single_control": control, "decision_candidate": candidate, "rules": rules}
++
+     outdir.mkdir(parents=True, exist_ok=True)
+-    (outdir / "summary.json").write_text(json.dumps(result, indent=2) + "\n")
+-    lines = ["# M1 n-gram self-speculation summary", "", "Foreground replay requests only. Decode rate is `sum(predicted_n) / sum(predicted_ms) * 1000`; background traffic is load, not a measured row.", "", "## Foreground performance", "", "| config | sampling | phase | role | n | decode tok/s | median req tok/s | acceptance | draft/gen | speedup vs off | tool JSON valid | VRAM vs off |", "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
++    (outdir / "summary.json").write_text(json.dumps({
++        "replay_dir": str(replay), "foreground_only": True,
++        "metrics": [dict(arm=a, phase=p, role=r, **m) for (a, p, r), m in metrics.items()],
++        "identity": identity, "off_dual_vs_single_control": control,
++        "decision_candidate": CANDIDATE, "rules": rules,
++    }, indent=2) + "\n")
++
++    lines = ["# M1 n-gram self-speculation summary", "",
++             "Foreground replay requests only. Decode rate is `sum(predicted_n) / sum(predicted_ms) * 1000`; "
++             "background traffic is load, not a measured row. Per-phase VRAM is the first 'MiB,' sample after "
++             "the first foreground request, off minus candidate shown as delta.", "",
++             "## Foreground performance", "",
++             "| config | sampling | phase | role | n | decode tok/s | median req tok/s | acceptance | draft/gen | speedup vs off | tool JSON valid | VRAM vs off |",
++             "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+     for (arm, phase, role), m in metrics.items():
+         config, sampling = arm.rsplit("-", 1)
+-        lines.append(f"| {config} | {sampling} | {phase} | {role} | {m['n']} | {fnum(m['decode_tok_s'])} | {fnum(m['median_request_tok_s'])} | {fpct(m['draft_acceptance'])} | {fnum(m['draft_tokens_per_generated_token'],3)} | {fnum(m['speedup_vs_off'],3)}x | {fpct(m['tool_call_json_valid_rate'])} | {fnum(m['vram_vs_off_mib']):s} MiB |")
+-    lines += ["", "## Greedy output identity", "", "Compared against off at the same phase and request id. First divergence is a character index in the hashed response representation (reasoning + content + canonical tool calls).", "", "| config | phase | identical/compared | rate | first-divergence indices for mismatches |", "|---|---|---:|---:|---|"]
++        lines.append(f"| {config} | {sampling} | {phase} | {role} | {m['n']} | {fnum(m['decode_tok_s'])} | "
++                     f"{fnum(m['median_request_tok_s'])} | {fpct(m['draft_acceptance'])} | "
++                     f"{fnum(m['draft_tokens_per_generated_token'],3)} | {fnum(m['speedup_vs_off'],3)}x | "
++                     f"{fpct(m['tool_call_json_valid_rate'])} | {vram_str(m['vram_vs_off_mib'])} MiB |")
++
++    lines += ["", "## Greedy output identity", "",
++              "Compared against off at the same phase and request id (foreground, temp 0). "
++              "First divergence is a character index in the hashed response representation "
++              "(reasoning + content + canonical tool calls); 'unresolved' means the gitignored "
++              "output file for the arm is missing. Per-phase comparison is mandatory because "
++              "temp-0 output depends on the batch mix.", "",
++              "| config | phase | identical/compared | rate | first-divergence indices for mismatches |",
++              "|---|---|---:|---:|---|"]
+     for x in identity:
+-        ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
+-        lines.append(f"| {x['arm'].rsplit('-',1)[0]} | {x['phase']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
+-    lines += ["", "Off dual-vs-single batch-numerics control:", "", "| role | identical/compared | rate |", "|---|---:|---:|"]
+-    lines += [f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} |" for x in control]
+-    lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.", "", "| rule | result | value |", "|---:|---|---|"]
+-    lines += [f"| {x['rule']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
++        lines.append(f"| {x['arm'].rsplit('-',1)[0]} | {x['phase']} | {x['identical']}/{x['compared']} | "
++                     f"{fpct(x['identical_rate'])} | {index_list(x['mismatches'])} |")
++    lines += ["", "Off dual-vs-single batch-numerics control (off arm, no spec; shows how much the "
++                "dual-phase batch mix itself moves temp-0 output):", "",
++             "| role | identical/compared | rate | first-divergence indices for mismatches |",
++             "|---|---:|---:|---|"]
++    for x in control:
++        lines.append(f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | "
++                     f"{index_list(x['mismatches'])} |")
++
++    lines += ["", "## Deployment decision", "",
++              f"Candidate: `{CANDIDATE}` (`{SPEC_FLAG}`). Deploy only if every rule passes.", "",
++              "| rule | result | value |", "|---:|---|---|"]
++    for x in rules:
++        lines.append(f"| {x['rule']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |")
+     failed = [f"rule {x['rule']}: {x['value']}" for x in rules if not x["pass"]]
+-    lines += ["", "**Decision: do not deploy.** " + "; ".join(failed) + "."]
++    if failed:
++        lines += ["", "**Decision: do not deploy.** " + "; ".join(failed) + "."]
++        (outdir / "deploy.json").write_text(
++            json.dumps({"deployed": False, "why": failed}, indent=2) + "\n")
++    else:
++        date = replay.parent.parent.name
++        root = Path(__file__).resolve().parent.parent
++        live = (root / "serving" / "llama-swap.bonsai-2-27b.yaml").read_text()
++        lines_live = live.splitlines(keepends=True)
++        idx = next(i for i, l in enumerate(lines_live) if l.strip().startswith("--temp"))
++        header = (f"# CANDIDATE {date}: adds {SPEC_FLAG} to the live "
++                  f"bonsai-2-27b entry. Decision: all 6 rules PASS in "
++                  f"bench/results/{date}/m1-ngram/summary.md — send an `infra` request for this file.\n\n")
++        cand = root / "serving" / "candidates"
++        cand.mkdir(parents=True, exist_ok=True)
++        (cand / "bonsai-2-27b.ngram.yaml").write_text(
++            header + "".join(lines_live[:idx]) + "    " + SPEC_FLAG + "\n" + "".join(lines_live[idx:]))
++        lines += ["", f"**Decision: deploy.** Wrote `{cand / 'bonsai-2-27b.ngram.yaml'}` "
++                      f"(copy of the live entry with only `{SPEC_FLAG}` added to cmd and a header citing "
++                      f"bench/results/{date}/m1-ngram/summary.md). Submit an `infra` request for it, "
++                      f"save the returned JSON as bench/results/{date}/m1-ngram/deploy.json, and on "
++                      f"result='applied' copy the entry into serving/llama-swap.bonsai-2-27b.yaml with an "
++                      "APPLIED header like the existing one."]
++        (outdir / "deploy.json").write_text(json.dumps({
++            "deployed": None, "status": "pending_infra_request",
++            "candidate": f"serving/candidates/bonsai-2-27b.ngram.yaml",
++            "note": "infra request pending; overwrite this file with the returned JSON.",
++        }, indent=2) + "\n")
+     (outdir / "summary.md").write_text("\n".join(lines) + "\n")
+-    (outdir / "deploy.json").write_text(json.dumps({"deployed": False, "why": failed}, indent=2) + "\n")
+ 
+ if __name__ == "__main__":
+     main()

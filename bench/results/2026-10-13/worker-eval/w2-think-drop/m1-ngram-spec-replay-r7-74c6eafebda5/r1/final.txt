@@ -1,0 +1,4 @@
+Everything is understood and prepared. The greedy results are clear: **speculation does not help when both slots are busy** (dual-agent: off 26.3, A 25.5/26.1, B 23.0; dual-mem: off 25.0, A 23.8, B 22.4), and A causes looping (length-finishes) on some agent turns. The corrected `spec_replay.py` (t0 before `th.start()`, window lines recorded) is in place — confirmed by off-prod's window metadata.
+
+The next required run is **A-prod** (A had the higher dual-agent greedy fg tok/s, 25.5 vs B 23.0, per §9b). Let me submit it under a GPU lease.
+

@@ -1,0 +1,8 @@
+{
+  "report": "Applied the advisor's one-line ordering fix to bench/spec_replay.py: in phase(), t0 = time.time() now precedes th.start() (previously th.start() came first, so the first bg row could include tokens produced before the window). Both spec_replay.py and spec_analyze.py parse. Verified the window note line format \"[name] window t0=... t_fg_end=...\" matches spec_analyze's regex. This rerun overwrites the earlier off/prod baseline (which lacks corrected dual-phase windows) so the conservative combined two-slot throughput is valid. Next: A/prod.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Repeat off/prod on the corrected probe. It starts only the private production-equivalent server on :8089 and captures all four fresh-server phases with window boundaries (t0 before bg start) so every counted bg row finishes inside the fg window, giving a conservative completed-output two-slot throughput."
+}

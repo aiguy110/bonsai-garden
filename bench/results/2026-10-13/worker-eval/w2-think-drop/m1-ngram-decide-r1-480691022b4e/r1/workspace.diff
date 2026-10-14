@@ -1,0 +1,464 @@
+diff --git a/bench/results/2026-10-12/m1-ngram/m1-ngram/summary.json b/bench/results/2026-10-12/m1-ngram/m1-ngram/summary.json
+new file mode 100644
+index 0000000..1dc1491
+--- /dev/null
++++ b/bench/results/2026-10-12/m1-ngram/m1-ngram/summary.json
+@@ -0,0 +1,39 @@
++{
++  "date": "bench/results/2026-10-12/m1-ngram",
++  "arms": {},
++  "results": {},
++  "speedup_vs_off": {},
++  "identity_greedy": {},
++  "control_off_dual_vs_single_greedy": {},
++  "best": {
++    "config": null,
++    "sampling": null
++  },
++  "rules": {
++    "1": {
++      "pass": false,
++      "value": "no prod-sampling spec arm available"
++    },
++    "2": {
++      "pass": false,
++      "value": "no prod-sampling spec arm available"
++    },
++    "3": {
++      "pass": false,
++      "value": "no prod-sampling spec arm available"
++    },
++    "4": {
++      "pass": false,
++      "value": "no prod-sampling spec arm available"
++    },
++    "5": {
++      "pass": false,
++      "value": "no prod-sampling spec arm available"
++    },
++    "6": {
++      "pass": false,
++      "value": "no prod-sampling spec arm available"
++    }
++  },
++  "deploy": false
++}
+\ No newline at end of file
+diff --git a/bench/results/2026-10-12/m1-ngram/m1-ngram/summary.md b/bench/results/2026-10-12/m1-ngram/m1-ngram/summary.md
+new file mode 100644
+index 0000000..bffc33b
+--- /dev/null
++++ b/bench/results/2026-10-12/m1-ngram/m1-ngram/summary.md
+@@ -0,0 +1,24 @@
++# M1 decision summary
++*date:* `bench/results/2026-10-12/m1-ngram`  
++*best config:* **None** (sampling `None`)  
++*deployment:* **NO**  
++Replay: `bench/results/bench/results/2026-10-12/m1-ngram/m1-ngram/replay/`. All figures aggregate **foreground** rows only.
++## Main results (per config, sampling, phase, role)
++| config | sampling | phase (role) | n | decode tok/s | median tok/s | acceptance | draft/gen | speedup vs off | tool_call_json_valid | VRAM (MiB) | VRAM vs off |
++|---|---|---|---|---|---|---|---|---|---|---|---|
++## Greedy (temperature 0) output identity
++
++Same/diff counts of `out_sha256` vs the matching off row (same phase, same id); first-divergence character index on mismatches, from the gitignored full outputs (`bench/.replay/m1/outputs`); `None` = index unavailable.
++| arm | phase | same | diff | same rate | div idx min | med | max |
++|---|---|---|---|---|---|---|---|
++## Decision rules
++
++Best config = spec config with the highest dual-agent fg tok/s under production sampling (None). Rules:
++1. **Rule 1**: **FAIL** — no prod-sampling spec arm available
++1. **Rule 2**: **FAIL** — no prod-sampling spec arm available
++1. **Rule 3**: **FAIL** — no prod-sampling spec arm available
++1. **Rule 4**: **FAIL** — no prod-sampling spec arm available
++1. **Rule 5**: **FAIL** — no prod-sampling spec arm available
++1. **Rule 6**: **FAIL** — no prod-sampling spec arm available
++
++Rule set not applicable: no prod-sampling spec arm.
+diff --git a/bench/spec_summarize.py b/bench/spec_summarize.py
+new file mode 100644
+index 0000000..8052bde
+--- /dev/null
++++ b/bench/spec_summarize.py
+@@ -0,0 +1,382 @@
++#!/usr/bin/env python3
++"""M1 decision summary (milestone M1, plan item 4).
++
++Reads the replay artifacts from bench/results/<date>/m1-ngram/replay/<arm>/
++(requests.jsonl, vram.txt, notes.txt) and the gitignored full outputs from
++bench/.replay/m1/outputs/<arm>-<sampling>.jsonl (needed only for first-divergence
++character indices on greedy identity mismatches). Aggregates foreground rows only,
++per the decision rule.
++
++Writes:
++  bench/results/<date>/m1-ngram/summary.md
++  bench/results/<date>/m1-ngram/summary.json
++
++Usage: python3 bench/spec_summarize.py [replay-dir] [summary-dir]
++
++Done when the summary contains, for each (config, sampling, phase, role):
++  n, token-weighted decode tok/s, median per-request tok/s, acceptance,
++  draft tokens per generated token, speedup vs off at same sampling/phase,
++  tool_call_json_valid rate, VRAM vs off; plus a greedy identity table
++  (same/diff vs off, first-divergence char index on mismatch) including the
++  off dual-vs-single control; plus each of the 6 decision rules as pass/fail.
++"""
++from __future__ import annotations
++
++import glob
++import hashlib
++import json
++import os
++import re
++import statistics
++
++PHASES = ["single-agent", "single-mem", "dual-agent", "dual-mem"]
++PHASE_ROLE = {"single-agent": "agent", "single-mem": "mem",
++              "dual-agent": "agent", "dual-mem": "mem"}
++SPEC_ARM_RE = re.compile(r"^(.+)-(greedy|prod)$")
++
++
++def find_replay_dir():
++    for d in sorted(glob.glob("bench/results/*/m1-ngram/replay"), reverse=True):
++        if os.path.isdir(d):
++            return os.path.dirname(d), d
++    raise SystemExit("no bench/results/<date>/m1-ngram/replay found")
++
++
++def load_rows(path):
++    rows = []
++    for line in open(path, errors="replace"):
++        line = line.strip()
++        if not line:
++            continue
++        try:
++            rows.append(json.loads(line))
++        except json.JSONDecodeError:
++            continue
++    return rows
++
++
++def load_arm(arm_dir):
++    r = {"rows": load_rows(os.path.join(arm_dir, "requests.jsonl")), "cmd": None, "vram": {}}
++    if os.path.exists(os.path.join(arm_dir, "notes.txt")):
++        for line in open(os.path.join(arm_dir, "notes.txt"), errors="replace"):
++            if line.startswith("cmd: "):
++                r["cmd"] = line[5:]
++                break
++    if os.path.exists(os.path.join(arm_dir, "vram.txt")):
++        txt = open(os.path.join(arm_dir, "vram.txt"), errors="replace").read()
++        for ph in PHASES:
++            try:
++                blk = txt.split(f"== {ph}")[1].split("==")[0]
++                m = re.search(r"(\d+) MiB", blk)
++                r["vram"][ph] = int(m.group(1))
++            except (IndexError, AttributeError):
++                r["vram"][ph] = None
++    return r
++
++
++def aggregate(rows, phase):
++    fgs = [x for x in rows if x.get("fg_bg") == "fg" and x.get("phase") == phase]
++    ms = sum((x.get("predicted_ms") or 0) for x in fgs)
++    nt = sum((x.get("predicted_n") or 0) for x in fgs)
++    per = [(x.get("predicted_n") or 0) * 1000.0 / x["predicted_ms"]
++           for x in fgs if (x.get("predicted_ms") or 0) > 0]
++    dn = sum((x.get("draft_n") or 0) for x in fgs)
++    da = sum((x.get("draft_n_accepted") or 0) for x in fgs)
++    jv = sum(1 for x in fgs if x.get("tool_call_json_valid") is True)
++    return {
++        "n": len(fgs),
++        "tok_s": 1000.0 * nt / ms if ms else None,
++        "med_tok_s": statistics.median(per) if per else None,
++        "predicted_n": int(nt),
++        "draft_n": dn,
++        "draft_n_accepted": da,
++        "acceptance": (da / dn if dn else None),
++        "draft_per_gen": (dn / nt if nt else None),
++        "json_ok": jv,
++        "json_ok_rate": jv / len(fgs) if fgs else None,
++        "out": {(x.get("id"), x.get("fg_bg")): x.get("out_sha256") for x in fgs},
++    }
++
++
++def blob(msg):
++    """Exactly as spec_replay.py hashes (reasoning + content + tool_calls)."""
++    tcs = msg.get("tool_calls") or []
++    return ((msg.get("reasoning_content") or "")
++            + (msg.get("content") or "")
++            + json.dumps(tcs, sort_keys=True))
++
++
++def load_outputs(arm_label):
++    """Map (phase, id) -> message for fg rows from the gitignored outputs dir."""
++    base = os.path.join("bench/.replay", "m1", "outputs")
++    out = {}
++    if not os.path.isdir(base):
++        return out
++    for fn in sorted(glob.glob(os.path.join(base, "*.jsonl"))):
++        stem = os.path.basename(fn).rsplit(".jsonl", 1)[0]
++        if arm_label not in stem:
++            continue
++        for line in open(fn, errors="replace"):
++            line = line.strip()
++            if not line:
++                continue
++            try:
++                rec = json.loads(line)
++            except json.JSONDecodeError:
++                continue
++            if rec.get("fg_bg") != "fg":
++                continue
++            out.setdefault((rec.get("phase"), rec.get("id")), rec.get("message"))
++        break
++    return out
++
++
++def first_div(a, b):
++    for i, (ca, cb) in enumerate(zip(a, b)):
++        if ca != cb:
++            return i
++    return min(len(a), len(b))
++
++
++def identity_stats(off_agg, cfg_rows, phase, outs_cfg, outs_off):
++    """Rows of cfg whose out_sha256 equals off's (same phase, id); on mismatch
++    record first-divergence character index (None if outputs unavailable or the
++    reconstructed blob does not rehash to the recorded out_sha256)."""
++    fgs = [x for x in cfg_rows if x.get("fg_bg") == "fg" and x.get("phase") == phase]
++    same = diff = 0
++    idxs = []
++    for x in fgs:
++        h = x.get("out_sha256")
++        if off_agg["out"].get((phase, x.get("id"))) == h:
++            same += 1
++        else:
++            diff += 1
++            m, rm = outs_cfg.get((phase, x.get("id"))), outs_off.get((phase, x.get("id")))
++            if m is None or rm is None:
++                idxs.append(None)
++                continue
++            ca, cb = blob(m), blob(rm)
++            if hashlib.sha256(ca.encode()).hexdigest() != h:
++                idxs.append(None)
++                continue
++            idxs.append(first_div(ca, cb))
++    known = [i for i in idxs if i is not None]
++    return {
++        "n": len(fgs), "same": same, "diff": diff,
++        "same_rate": same / len(fgs) if fgs else None,
++        "div_min": min(idxs) if idxs else None,
++        "div_med": statistics.median(known) if known else None,
++        "div_max": max(idxs) if idxs else None,
++    }
++
++
++def main():
++    date_dir, replay_dir = find_replay_dir()
++    summary_dir = os.path.join(date_dir, "m1-ngram")
++    out_root = os.path.join(replay_dir, "replay")
++    os.makedirs(summary_dir, exist_ok=True)
++
++    arm_dirs = sorted(glob.glob(os.path.join(out_root, "*")))
++    arms = {}
++    for d in arm_dirs:
++        m = SPEC_ARM_RE.match(os.path.basename(d))
++        if not m:
++            continue
++        arms[(m.group(1), m.group(2))] = load_arm(d)
++
++    agg = {}
++    for (label, sampling) in sorted(arms):
++        for ph in PHASES:
++            agg[(label, sampling, ph)] = aggregate(arms[(label, sampling)]["rows"], ph)
++
++    def key(l, s, ph):
++        return (l, s, ph)
++
++    def ratio(l, s, ph):
++        a, o = agg[key(l, s, ph)], agg[key("off", s, ph)]
++        return (a["tok_s"] / o["tok_s"]) if (a["tok_s"] and o["tok_s"]) else None
++
++    # Best spec config under production sampling, ranked by dual-agent fg tok/s
++    best = None
++    for l, s in sorted(arms):
++        if l == "off" or s != "prod":
++            continue
++        v = agg[key(l, s, "dual-agent")]["tok_s"]
++        if v is None:
++            continue
++        if best is None or v > agg[key(best[0], best[1], "dual-agent")]["tok_s"]:
++            best = (l, s)
++
++    # Greedy identity tables: spec arm vs off-greedy (same phase); off dual vs
++    # off single per dual phase (the control).
++    ident = {}
++    controls = {}
++    outs = {l: load_outputs(l) for l in sorted({a for a, _ in arms})}
++    for (label, sampling), rows in sorted(arms.items()):
++        if sampling != "greedy":
++            continue
++        off_agg = agg[key("off", "greedy", "single-agent")] if False else None
++        for ph in PHASES:
++            off_ref = agg.get(key("off", "greedy", ph))
++            if off_ref is None:
++                continue
++            ident[(label, ph)] = identity_stats(off_ref, rows, ph, outs[label], outs["off"])
++    for ph_dual, ph_single in [("dual-agent", "single-agent"),
++                               ("dual-mem", "single-mem")]:
++        d_agg = agg.get(key("off", "greedy", ph_dual))
++        s_agg = agg.get(key("off", "greedy", ph_single))
++        if d_agg is None or s_agg is None:
++            continue
++        controls[ph_dual] = identity_stats(s_agg, d_agg["rows"], ph_dual,
++                                          outs["off"], outs["off"])
++
++    # ---- decision rules (6) ----
++    if best is None:
++        rules = {i: {"pass": False, "value": "no prod-sampling spec arm available"}
++                 for i in range(1, 7)}
++        deployed, best_cfg, best_s = False, None, None
++    else:
++        bl, bs = best
++        off = lambda ph: agg[key("off", "prod", ph)]
++        r1 = "--mmproj" in (arms[(bl, bs)].get("cmd") or "")
++        r2_v = ratio(bl, bs, "dual-agent")
++        r2 = r2_v is not None and r2_v >= 1.10
++        r3_phases = ["dual-mem", "single-agent", "single-mem"]
++        r3_ratios = {ph: ratio(bl, bs, ph) for ph in r3_phases if off(ph)["tok_s"]}
++        r3 = all(v is not None and v >= 0.97 for v in r3_ratios.values())
++        r3_min = min(r3_ratios.values()) if r3_ratios else None
++        r4 = all(arms[(bl, bs)]["vram"][ph] is not None and off(ph)["vram"] is not None
++                 and arms[(bl, bs)]["vram"][ph] <= off(ph)["vram"] + 64 for ph in PHASES)
++        r4_max = max(arms[(bl, bs)]["vram"][ph] - off(ph)["vram"] for ph in PHASES
++                     if arms[(bl, bs)]["vram"][ph] is not None and off(ph)["vram"] is not None)
++        r5_best = sum(agg[key(bl, bs, ph)]["json_ok"] for ph in PHASES) / \
++                  sum(agg[key(bl, bs, ph)]["n"] for ph in PHASES)
++        r5_off = sum(agg[key("off", bs, ph)]["json_ok"] for ph in PHASES) / \
++                 sum(agg[key("off", bs, ph)]["n"] for ph in PHASES)
++        r5 = r5_best >= r5_off
++        r6_gaps = {}
++        r6 = True
++        for ph in ["dual-agent", "dual-mem"]:
++            rate, ctrl = ident[(bl, ph)]["same_rate"], controls[ph]["same_rate"]
++            r6_gaps[ph] = (rate - ctrl) if rate is not None and ctrl is not None else None
++            if r6_gaps[ph] is not None:
++                r6 = r6 and r6_gaps[ph] >= -0.10
++        rules = {
++            1: {"pass": r1, "value": f"best cmd {'has --mmproj' if r1 else 'lacks --mmproj'}"},
++            2: {"pass": r2,
++                "value": f"best dual-agent {agg[key(bl, bs, 'dual-agent')]['tok_s']:.2f} / "
++                         f"off {off('dual-agent')['tok_s']:.2f} = {r2_v:.3f} (need >= 1.10)"},
++            3: {"pass": r3,
++                "value": " | ".join(f"{ph}: {ratio(bl, bs, ph):.3f}" for ph in r3_phases
++                                    if ratio(bl, bs, ph) is not None) +
++                         f" (need each >= 0.97, min {r3_min:.3f})"},
++            4: {"pass": r4,
++                "value": f"max extra VRAM {r4_max:+.0f} MiB (need <= +64 MiB)"},
++            5: {"pass": r5,
++                "value": f"tool_call_json_valid {r5_best:.4f} vs off {r5_off:.4f} "
++                         f"(need best >= off)"},
++            6: {"pass": r6,
++                "value": f"gaps vs off dual/single control {r6_gaps} (need each >= -0.10)"},
++        }
++        deployed = all(rules[i]["pass"] for i in rules)
++        best_cfg, best_s = bl, bs
++
++    # ---- write summary.md ----
++    def vram_delta(a, b):
++        return f"{a - b:+.0f}" if (a is not None and b is not None) else "?"
++
++    md = []
++    md.append("# M1 decision summary\n")
++    md.append(f"*date:* `{date_dir}`  \n")
++    md.append(f"*best config:* **{best_cfg}** (sampling `{best_s}`)  \n")
++    md.append(f"*deployment:* **{'YES' if deployed else 'NO'}**  \n")
++    md.append(f"Replay: `bench/results/{date_dir}/m1-ngram/replay/`. All figures "
++              f"aggregate **foreground** rows only.\n")
++
++    md.append("## Main results (per config, sampling, phase, role)\n")
++    md.append("| config | sampling | phase (role) | n | decode tok/s | median tok/s | "
++              "acceptance | draft/gen | speedup vs off | tool_call_json_valid | VRAM (MiB) | VRAM vs off |\n")
++    md.append("|---|---|---|---|---|---|---|---|---|---|---|---|\n")
++    for (l, s) in sorted(arms):
++        for ph in PHASES:
++            a = agg[key(l, s, ph)]
++            o = agg.get(key("off", s, ph))
++            v = arms[(l, s)]["vram"].get(ph)
++            ov = arms.get(("off", s), {}).get("vram", {}).get(ph)
++            acc = (f"{a['acceptance']:.3f} "
++                   f"({a['draft_n_accepted']}/{a['draft_n']})" if a["acceptance"] is not None
++                   else "n/a (0 drafts)")
++            dpg = f"{a['draft_per_gen']:.4f}" if a["draft_per_gen"] is not None else "n/a"
++            sp = f"{ratio(l, s, ph):.3f}" if ratio(l, s, ph) is not None else "—"
++            jv = f"{a['json_ok_rate']*100:.1f}% ({a['json_ok']}/{a['n']})"
++            md.append(f"| {l} | {s} | {ph} ({PHASE_ROLE[ph]}) | {a['n']} | {a['tok_s']:.2f} | "
++                      f"{a['med_tok_s']:.2f} | {acc} | {dpg} | {sp} | {jv} | {v} | {vram_delta(v, ov)} |\n")
++
++    md.append("## Greedy (temperature 0) output identity\n\n"
++              "Same/diff counts of `out_sha256` vs the matching off row "
++              "(same phase, same id); first-divergence character index on "
++              "mismatches, from the gitignored full outputs "
++              "(`bench/.replay/m1/outputs`); `None` = index unavailable.\n")
++    md.append("| arm | phase | same | diff | same rate | div idx min | med | max |\n")
++    md.append("|---|---|---|---|---|---|---|---|\n")
++    for (l, ph) in sorted(ident):
++        st = ident[(l, ph)]
++        md.append(f"| {l} | {ph} | {st['same']} | {st['diff']} | "
++                  f"{st['same_rate']*100:.1f}% | {st['div_min']} | {st['div_med']} | {st['div_max']} |\n")
++    for ph, st in sorted(controls.items()):
++        md.append(f"| **off dual vs off single (control)** | {ph} | {st['same']} | {st['diff']} | "
++                  f"{st['same_rate']*100:.1f}% | {st['div_min']} | {st['div_med']} | {st['div_max']} |\n")
++
++    md.append("## Decision rules\n\n")
++    md.append("Best config = spec config with the highest dual-agent fg tok/s "
++              f"under production sampling ({best_cfg}). Rules:\n")
++    for i in [1, 2, 3, 4, 5, 6]:
++        md.append(f"1. **Rule {i}**: **{'PASS' if rules[i]['pass'] else 'FAIL'}** — {rules[i]['value']}\n")
++    if best is None:
++        md.append("\nRule set not applicable: no prod-sampling spec arm.\n")
++    else:
++        md.append("\nDeploy only if **all six rules pass**.\n")
++        md.append(f"Decision: **{'DEPLOY' if deployed else 'DO NOT DEPLOY'}** "
++                  f"({sum(rules[i]['pass'] for i in rules)}/6 rules pass).\n")
++
++    with open(os.path.join(summary_dir, "summary.md"), "w") as f:
++        f.write("".join(md))
++
++    # ---- write summary.json ----
++    def fmt(x):
++        return None if x is None else (float(x) if isinstance(x, float) else int(x)) if hasattr(x, "__float__") else x
++
++    j = {
++        "date": date_dir,
++        "arms": {f"{l}-{s}": {"cmd": arms[(l, s)].get("cmd"), "rows": len(arms[(l, s)]["rows"])}
++                 for (l, s) in sorted(arms)},
++        "results": {f"{l}-{s}-{ph}": {
++            "n": a["n"],
++            "decode_tok_s": a["tok_s"],
++            "median_tok_s": a["med_tok_s"],
++            "acceptance": a["acceptance"],
++            "draft_tokens_per_generated_token": a["draft_per_gen"],
++            "tool_call_json_valid_rate": a["json_ok_rate"],
++            "tool_call_json_valid": a["json_ok"],
++            "vram_mib": arms[(l, s)]["vram"].get(ph),
++        } for (l, s) in sorted(arms) for ph in PHASES if (l, s, ph) in agg},
++        "speedup_vs_off": {f"{l}-{s}-{ph}": ratio(l, s, ph)
++                            for (l, s) in sorted(arms) if l != "off"
++                            for ph in PHASES if ratio(l, s, ph) is not None or
++                            agg.get(key("off", s, ph), {}).get("tok_s")},
++        "identity_greedy": {f"{l}-{ph}": ident[(l, ph)] for l in sorted({a for a, _ in arms})
++                            for ph in PHASES if (l, ph) in ident},
++        "control_off_dual_vs_single_greedy": {ph: controls[ph] for ph in sorted(controls)},
++        "best": {"config": best_cfg, "sampling": best_s},
++        "rules": rules,
++        "deploy": deployed,
++    }
++    with open(os.path.join(summary_dir, "summary.json"), "w") as f:
++        json.dump(j, f, indent=2)
++
++    print(f"summary.md and summary.json written under {summary_dir}/")
++    print(f"deploy={deployed} best={best_cfg}/{best_s} rules={sum(rules[i]['pass'] for i in rules)}/6")
++
++
++if __name__ == "__main__":
++    main()

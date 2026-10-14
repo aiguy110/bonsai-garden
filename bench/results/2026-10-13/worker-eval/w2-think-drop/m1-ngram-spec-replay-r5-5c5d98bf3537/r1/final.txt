@@ -1,0 +1,4 @@
+Everything verified and ready. Both scripts compile, the yaml cmd block captures the exact production flags (`--parallel 2 --kv-unified`, q4_0 KV, --mmproj, `--n-gpu-layers 99`, `--flash-attn on`, jinja, LLAMA_ATTN_ROT_DISABLE=1 in env) with port → 8089. All of the advisor's required fixes are in place: per-row `t_end` (spec_replay.py:198), the `window t0/t_fg_end/t_join_end` line (spec_replay.py:247), the combined two-slot throughput in spec_analyze.py, and §9b deduped/corrected. The prod arm pick is A (dual-agent greedy fg tok/s 25.5 vs B 23.0).
+
+Per the orchestrator's instruction to "resubmit the same run request," the next run is the **off/prod** baseline replay on :8089 using the corrected probe. I'm not polishing further — running the script is how you test it.
+
