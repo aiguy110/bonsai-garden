@@ -1,0 +1,256 @@
+diff --git a/bench/spec_summarize.py b/bench/spec_summarize.py
+index 67ba1b8..88dad9f 100644
+--- a/bench/spec_summarize.py
++++ b/bench/spec_summarize.py
+@@ -6,6 +6,12 @@ Usage: python3 bench/spec_summarize.py [REPLAY_DIR]
+ Writes summary.md, summary.json, and the no-deploy decision deploy.json beside
+ REPLAY_DIR.  It deliberately uses only foreground rows: background loops are a
+ load generator, rather than independently comparable replay requests.
++
++The first-divergence character indices for greedy mismatches are recomputed from
++the full responses in bench/.replay/m1/outputs when present (gitignored on the
++host). When those outputs are not available in the sandbox, they are carried
++from the previously committed summary.json, which was produced from the same
++replay run, so the indices remain correct.
+ """
+ import hashlib
+ import json
+@@ -40,6 +46,34 @@ def output_texts(replay, arm):
+     return result
+ 
+ 
++def published_indices(summary_path):
++    """First-divergence character indices already published in a previously
++    committed summary.json, used when the gitignored full responses
++    (bench/.replay/outputs) are not available in this sandbox.
++
++    They come from the same replay run, so they are the correct values to
++    carry forward when the raw outputs cannot be re-read here."""
++    id_idx, ctl_idx = {}, {}
++    if summary_path.exists():
++        try:
++            d = json.loads(summary_path.read_text())
++        except (json.JSONDecodeError, OSError):
++            return id_idx, ctl_idx
++        for x in d.get("identity", []):
++            arm, phase = x.get("arm"), x.get("phase")
++            for m in x.get("mismatches", []):
++                ch = m.get("first_divergence_char")
++                if arm is not None and phase is not None and m.get("id") and ch is not None:
++                    id_idx[(arm, phase, m["id"])] = ch
++        for x in d.get("off_dual_vs_single_control", []):
++            role = x.get("role")
++            for m in x.get("mismatches", []):
++                ch = m.get("first_divergence_char")
++                if role is not None and m.get("id") and ch is not None:
++                    ctl_idx[(role, m["id"])] = ch
++    return id_idx, ctl_idx
++
++
+ def vram_mib(path):
+     """Read the per-phase first-foreground VRAM samples written by the probe."""
+     if not path.exists():
+@@ -71,7 +105,7 @@ def metric(rows):
+     accepted = sum(r.get("draft_n_accepted") or 0 for r in rows)
+     valid = [r for r in rows if r.get("tool_call_json_valid") is not None]
+     rates = [r.get("predicted_per_second") for r in rows if r.get("predicted_per_second") is not None]
+-    return {"n": len(rows), "tokens": n, "decode_tok_s": 1000 * n / ms if ms else None,
++    return {"n": len(rows), "tokens": n, "ms": ms, "decode_tok_s": 1000 * n / ms if ms else None,
+             "median_request_tok_s": statistics.median(rates) if rates else None,
+             "draft_acceptance": accepted / draft if draft else None,
+             "draft_n": draft, "draft_n_accepted": accepted,
+@@ -87,6 +121,16 @@ def fpct(x):
+     return "—" if x is None else f"{100*x:.1f}%"
+ 
+ 
++def load_mmproj_logs(replay, candidate):
++    """Check that the mmproj projector actually loaded in every candidate server log."""
++    logs = []
++    for phase in PHASES:
++        p = replay / candidate / f"server_{phase}.log"
++        logs.append((phase, p.read_text() if p.exists() else ""))
++    loaded = [phase for phase, txt in logs if "loaded multimodal model" in txt and "mmproj" in txt.lower()]
++    return logs, loaded
++
++
+ def main():
+     replay = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("bench/results/2026-10-12/m1-ngram/replay")
+     outdir = replay.parent
+@@ -94,6 +138,11 @@ def main():
+     data = {a: [r for r in read_jsonl(replay / a / "requests.jsonl")
+                 if r.get("fg_bg") == "fg" and not r.get("error")] for a in arms}
+     texts = {a: output_texts(replay, a) for a in arms}
++    have = {a: bool(texts.get(a, {})) for a in arms}
++    # Load previously published indices (same replay run) for use when raw
++    # outputs are absent. Must happen before summary.json is overwritten.
++    pub_id, pub_ctl = published_indices(outdir / "summary.json")
++
+     metrics, vrams = {}, {}
+     for arm in arms:
+         vrams[arm] = vram_mib(replay / arm / "vram.txt")
+@@ -119,6 +168,7 @@ def main():
+             mine = {r["id"]: r for r in data[arm] if r["phase"] == phase}
+             off = {r["id"]: r for r in data["off-greedy"] if r["phase"] == phase}
+             compared, same, mismatches = 0, 0, []
++            recompute = have.get(arm, False) and have.get("off-greedy", False)
+             for ident, r in mine.items():
+                 if ident not in off:
+                     continue
+@@ -126,14 +176,16 @@ def main():
+                 if r.get("out_sha256") == off[ident].get("out_sha256"):
+                     same += 1
+                 else:
+-                    mismatches.append({"id": ident, "first_divergence_char": first_divergence(
++                    ch = pub_id.get((arm, phase, ident)) if not recompute else first_divergence(
+                         texts[arm].get((phase, ident, "fg"), ""),
+-                        texts["off-greedy"].get((phase, ident, "fg"), ""))})
++                        texts["off-greedy"].get((phase, ident, "fg"), ""))
++                    mismatches.append({"id": ident, "first_divergence_char": ch})
+             identity.append({"arm": arm, "phase": phase, "compared": compared, "identical": same,
+                              "identical_rate": same / compared if compared else None, "mismatches": mismatches})
+ 
+     # Batch-numerics control: off dual foreground output versus off single output.
+     control = []
++    recompute_ctl = have.get("off-greedy", False)
+     for role in ("agent", "mem"):
+         single = {r["id"]: r for r in data["off-greedy"] if r["phase"] == "single-" + role}
+         dual = {r["id"]: r for r in data["off-greedy"] if r["phase"] == "dual-" + role}
+@@ -142,9 +194,10 @@ def main():
+             if row.get("out_sha256") == single.get(ident, {}).get("out_sha256"):
+                 same += 1
+             else:
+-                mismatches.append({"id": ident, "first_divergence_char": first_divergence(
++                ch = pub_ctl.get((role, ident)) if not recompute_ctl else first_divergence(
+                     texts["off-greedy"].get(("dual-" + role, ident, "fg"), ""),
+-                    texts["off-greedy"].get(("single-" + role, ident, "fg"), ""))})
++                    texts["off-greedy"].get(("single-" + role, ident, "fg"), ""))
++                mismatches.append({"id": ident, "first_divergence_char": ch})
+         control.append({"role": role, "compared": len(dual), "identical": same,
+                         "identical_rate": same / len(dual) if dual else None, "mismatches": mismatches})
+ 
+@@ -155,37 +208,104 @@ def main():
+     cs_a = metrics[(candidate, "single-agent", "agent")]
+     cs_m = metrics[(candidate, "single-mem", "mem")]
+     candidate_id = [x for x in identity if x["arm"] == "A-greedy" and x["phase"].startswith("dual-")]
+-    control_rate = sum(x["identical"] for x in control) / sum(x["compared"] for x in control)
+-    identity_rate = sum(x["identical"] for x in candidate_id) / sum(x["compared"] for x in candidate_id)
++    control_rate = sum(x["identical"] for x in control) / sum(x["compared"] for x in control) if sum(x["compared"] for x in control) else None
++    identity_rate = sum(x["identical"] for x in candidate_id) / sum(x["compared"] for x in candidate_id) if sum(x["compared"] for x in candidate_id) else None
++
++    logs, loaded = load_mmproj_logs(replay, candidate)
++    mmproj_ok = len(loaded) == len(PHASES)
++    missing = sorted(set(PHASES) - set(loaded))
++    mmproj_val = f"mmproj projector loaded in {len(loaded)}/{len(PHASES)} A-prod server logs"
++    if missing:
++        mmproj_val += f" (missing: {', '.join(missing)})"
++
++    c5 = (ca, cm, cs_a, cs_m)
++    o5 = (metrics[("off-prod", "dual-agent", "agent")], metrics[("off-prod", "dual-mem", "mem")],
++          metrics[("off-prod", "single-agent", "agent")], metrics[("off-prod", "single-mem", "mem")])
++    v5 = ("candidate/off tool_call_json_valid rate (dual-agent / dual-mem / "
++          "single-agent / single-mem): " +
++          " ; ".join(f"{fpct(x['tool_call_json_valid_rate'])} vs {fpct(y['tool_call_json_valid_rate'])}"
++                      for x, y in zip(c5, o5)))
++    rule5_pass = all(x["tool_call_json_valid_rate"] is not None and
++                     y["tool_call_json_valid_rate"] is not None and
++                     x["tool_call_json_valid_rate"] >= y["tool_call_json_valid_rate"]
++                     for x, y in zip(c5, o5))
++
+     rules = [
+-        {"rule": 1, "pass": "--mmproj" in (replay / candidate / "notes.txt").read_text() and "refused" not in (replay / candidate / "notes.txt").read_text(), "value": "--mmproj loaded; no refusal recorded"},
+-        {"rule": 2, "pass": ca["speedup_vs_off"] >= 1.10, "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
+-        {"rule": 3, "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)), "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
+-        {"rule": 4, "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)), "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
+-        {"rule": 5, "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem"))), "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): " + "/".join(f"{fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem")))},
+-        {"rule": 6, "pass": identity_rate >= control_rate - .10, "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
++        {"rule": 1, "pass": mmproj_ok,
++         "criteria": "runs with --mmproj loaded (the live entry's pinned projector), verified in all 4 A-prod server logs",
++         "value": mmproj_val},
++        {"rule": 2, "pass": ca["speedup_vs_off"] >= 1.10,
++         "criteria": "at prod sampling, dual-agent foreground tok/s >= 1.10x off",
++         "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s = {fnum(ca['speedup_vs_off'], 3)}x off"},
++        {"rule": 3, "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)),
++         "criteria": "dual-mem and both single phases >= 0.97x off (prod sampling)",
++         "value": "dual-mem / single-agent / single-mem = " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
++        {"rule": 4, "pass": all(x["vram_vs_off_mib"] is not None and x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)),
++         "criteria": "VRAM <= off + 64 MiB in each of the 4 phases (prod sampling)",
++         "value": f"max per-phase delta = {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB "
++                  + "(dual-agent/single-agent/single-mem/dual-mem: " +
++                  " ".join(f"{x['vram_vs_off_mib']:+.0f} MiB" for x in (ca, cs_a, cs_m, cm)) + ")"},
++        {"rule": 5, "pass": rule5_pass,
++         "criteria": "tool_call_json_valid rate >= off's rate in the same phase/role (all 4 phases, prod sampling)",
++         "value": v5},
++        {"rule": 6, "pass": identity_rate is not None and control_rate is not None and identity_rate >= control_rate - .10,
++         "criteria": "greedy identical-output rate (A dual phases) >= off dual-vs-single control rate - 10 percentage points",
++         "value": f"A dual greedy identical {fpct(identity_rate)} ({sum(x['identical'] for x in candidate_id)}/{sum(x['compared'] for x in candidate_id)}) vs off dual-vs-single control {fpct(control_rate)} ({sum(x['identical'] for x in control)}/{sum(x['compared'] for x in control)})"},
+     ]
+-    result = {"replay_dir": str(replay), "foreground_only": True, "metrics": [dict(arm=a, phase=p, role=r, **m) for (a,p,r),m in metrics.items()], "identity": identity, "off_dual_vs_single_control": control, "decision_candidate": candidate, "rules": rules}
++
++    result = {"replay_dir": str(replay), "foreground_only": True,
++              "indices_source": ("bench/.replay/m1/outputs" if have.get(candidate, False) and have.get("off-greedy", False)
++                                 else "previously committed summary.json (same run, raw outputs not present)"),
++              "metrics": [dict(arm=a, phase=p, role=r, **m) for (a, p, r), m in metrics.items()],
++              "identity": identity, "off_dual_vs_single_control": control,
++              "decision_candidate": candidate, "rules": rules}
+     outdir.mkdir(parents=True, exist_ok=True)
+     (outdir / "summary.json").write_text(json.dumps(result, indent=2) + "\n")
+-    lines = ["# M1 n-gram self-speculation summary", "", "Foreground replay requests only. Decode rate is `sum(predicted_n) / sum(predicted_ms) * 1000`; background traffic is load, not a measured row.", "", "## Foreground performance", "", "| config | sampling | phase | role | n | decode tok/s | median req tok/s | acceptance | draft/gen | speedup vs off | tool JSON valid | VRAM vs off |", "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
++
++    lines = ["# M1 n-gram self-speculation summary", "",
++             "Foreground replay requests only. Decode rate is `sum(predicted_n) / sum(predicted_ms) * 1000`; "
++             "background traffic is load, not a measured row.", ""]
++    if have.get("off-greedy", False) or have.get(candidate, False):
++        lines += ["**Outputs present.** First-divergence indices recompute from the full responses in `bench/.replay/m1/outputs`."]
++    else:
++        lines += ["**Raw outputs not present in this sandbox.** First-divergence indices are carried from the previously "
++                  "committed summary.json, produced from the same replay run (gitignored outputs).", ""]
++    lines += ["## Foreground performance", "",
++              "| config | sampling | phase | role | n | decode tok/s | median req tok/s | acceptance | draft/gen | speedup vs off | tool JSON valid | VRAM vs off |",
++              "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|"]
+     for (arm, phase, role), m in metrics.items():
+         config, sampling = arm.rsplit("-", 1)
+-        lines.append(f"| {config} | {sampling} | {phase} | {role} | {m['n']} | {fnum(m['decode_tok_s'])} | {fnum(m['median_request_tok_s'])} | {fpct(m['draft_acceptance'])} | {fnum(m['draft_tokens_per_generated_token'],3)} | {fnum(m['speedup_vs_off'],3)}x | {fpct(m['tool_call_json_valid_rate'])} | {fnum(m['vram_vs_off_mib']):s} MiB |")
+-    lines += ["", "## Greedy output identity", "", "Compared against off at the same phase and request id. First divergence is a character index in the hashed response representation (reasoning + content + canonical tool calls).", "", "| config | phase | identical/compared | rate | first-divergence indices for mismatches |", "|---|---|---:|---:|---|"]
++        lines.append(f"| {config} | {sampling} | {phase} | {role} | {m['n']} | {fnum(m['decode_tok_s'])} | {fnum(m['median_request_tok_s'])} | "
++                     f"{fpct(m['draft_acceptance'])} | {fnum(m['draft_tokens_per_generated_token'], 3)} | "
++                     f"{fnum(m['speedup_vs_off'], 3)}x | {fpct(m['tool_call_json_valid_rate'])} | "
++                     f"{fnum(m['vram_vs_off_mib']):.0f} MiB |")
++    lines += ["", "## Greedy output identity", "",
++              "Compared against off at the same phase and request id. First divergence is a character index in the "
++              "hashed response representation (reasoning + content + canonical tool calls).", "",
++              "| config | phase | identical/compared | rate | first-divergence indices for mismatches |",
++              "|---|---|---:|---:|---|"]
+     for x in identity:
+-        ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
+-        lines.append(f"| {x['arm'].rsplit('-',1)[0]} | {x['phase']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
+-    lines += ["", "Off dual-vs-single batch-numerics control:", "", "| role | identical/compared | rate | first-divergence indices for mismatches |", "|---|---:|---:|---|"]
++        ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"] if m.get("first_divergence_char") is not None)
++        ds = ds or ("—" if x["identical"] == x["compared"] else "(index unavailable)")
++        lines.append(f"| {x['arm'].rsplit('-', 1)[0]} | {x['phase']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds} |")
++    lines += ["", "Off dual-vs-single batch-numerics control (same off sampling, dual vs single phase):", "",
++              "| role | identical/compared | rate | first-divergence indices for mismatches |", "|---|---:|---:|---|"]
+     for x in control:
+-        ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
+-        lines.append(f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
+-    lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.", "", "| rule | result | value |", "|---:|---|---|"]
+-    lines += [f"| {x['rule']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
+-    failed = [f"rule {x['rule']}: {x['value']}" for x in rules if not x["pass"]]
++        ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"] if m.get("first_divergence_char") is not None)
++        ds = ds or ("—" if x["identical"] == x["compared"] else "(index unavailable)")
++        lines.append(f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds} |")
++    lines += ["", "## Deployment decision", "",
++              f"Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if **every** rule below passes. "
++              "The off dual-vs-single control quantifies the batch-numerics effect on temperature-0 output; rule 6 uses it "
++              "as the identity tolerance baseline.", "",
++              "| rule | criteria | result | value |", "|---:|---|---|---|"]
++    for x in rules:
++        lines.append(f"| {x['rule']} | {x['criteria']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |")
++    failed = [f"rule {x['rule']} ({x['value']})" for x in rules if not x["pass"]]
+     lines += ["", "**Decision: do not deploy.** " + "; ".join(failed) + "."]
+     (outdir / "summary.md").write_text("\n".join(lines) + "\n")
+-    (outdir / "deploy.json").write_text(json.dumps({"deployed": False, "why": failed}, indent=2) + "\n")
++    (outdir / "deploy.json").write_text(json.dumps({"deployed": False, "why": [x["value"] for x in failed] if failed else []}, indent=2) + "\n")
++
+ 
+ if __name__ == "__main__":
+     main()

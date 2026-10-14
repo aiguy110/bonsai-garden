@@ -8,8 +8,8 @@
   "prompt_timeout_min": 20,
   "prompt_rewrite": "'killed after 45 minutes' -> 'killed after 20 minutes' (1 occurrence)",
   "case_prompt_sha256": "db0935a85b32f33f24b05b11476dea764fbae3099d9d43564774a32c29531153",
-  "checkout": "/tmp/w1-replay-0_0ctp4m/garden",
-  "started": "2026-10-14T09:43:32-04:00",
+  "checkout": "/tmp/w1-replay-679yid4m/garden",
+  "started": "2026-10-14T10:14:09-04:00",
   "pi": [
     "pi",
     "-p",

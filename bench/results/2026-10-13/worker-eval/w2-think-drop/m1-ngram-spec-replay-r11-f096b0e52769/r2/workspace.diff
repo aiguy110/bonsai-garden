@@ -1,0 +1,57 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 1460f1f..ae12b19 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -28,7 +28,8 @@ Files: `help.txt` (57 KB), `spec_flags.txt` (8.6 KB),
+ 
+ The **default is `none`** (no speculation). The **ngram family** is what M1
+ targets (self-speculation over n-grams of the current prompt, no separate
+-draft weights):
++draft weights). `help.txt` lists the values only; the short descriptions below
++are inferred from the flag names, not sourced from `help.txt`:
+ 
+ - `ngram-simple` — self-speculation over simple n-gram matches.
+ - `ngram-map-k`, `ngram-map-k4v` — n-gram map variants (k=1 vs k=4v).
+@@ -316,7 +317,7 @@ are omitted; index row counts are `-1` and omitted.)
+   `timings.draft_n` / `timings.draft_n_accepted`; both are **absent** from
+   these recordings (the live entry has no `--spec-*` flags, §1).
+ - Example (mem0-r0):
+-  - step0 — agent: (11 reqs, prompt_n=36127, cache_n=30196, predicted_n=6654);
++  - step0 — agent: (10 reqs, prompt_n=36127, cache_n=30196, predicted_n=6654);
+     mem: (7 reqs, prompt_n=36181, cache_n=24464, predicted_n=419)
+   - step1 — agent: (11, 3021, 90003, 8627); mem: (1, 8874, 0, 289)
+   - step2 — agent: (14, 2645, 75700, 3691); mem: (1, 9183, 0, 2048)
+@@ -357,7 +358,13 @@ B = ngram-mod with `--spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ng
+ same algorithm, shorter lookup and much shorter drafts, to cut the cost of rejected drafts
+ when both slots share the GPU, and to start drafting on shorter repeats. I keep one type
+ so the difference from A is only the draft-size knobs. (ngram-map-k/simple were not
+-chosen: their 12/48 defaults have the same long-draft cost.) Not yet measured.
++chosen: their 12/48 defaults have the same long-draft cost.) Measured in the
++B-greedy run (see §9b). Every B server log, in all four phases, warns
++`ngram_mod n_match=12 is too small - poor quality is possible, see:
++https://github.com/ggml-org/llama.cpp/pull/19164` (e.g.
++`B-greedy/server_single-agent.log`). So n_match=12 is a low-quality setting:
++B was a cost comparison, not a recommended setting, and its slower rates
++should not be read as the best short-draft n-gram speed.
+ 
+ ### 9b. Corrected greedy summary, off vs A vs B (round 4)
+ 
+diff --git a/site/series/serving/ngram-self-speculation.md b/site/series/serving/ngram-self-speculation.md
+index 163830e..b6a6b9b 100644
+--- a/site/series/serving/ngram-self-speculation.md
++++ b/site/series/serving/ngram-self-speculation.md
+@@ -36,8 +36,12 @@ Agent requests use slot 0; memory requests use slot 1.
+ 
+ `ngram-mod` with its default 48--64-token drafts was candidate A. Candidate B
+ used 8--16-token drafts, to test whether shorter rejected drafts help when the
+-slots compete for the GPU. At greedy sampling, neither candidate beat the
+-no-speculation arm in the two-slot phases:
++slots compete for the GPU. Every B server log, in all four phases, emitted the
++upstream warning `ngram_mod n_match=12 is too small - poor quality is possible`
++(llama.cpp [PR #19164](https://github.com/ggml-org/llama.cpp/pull/19164)), so
++B was a cost comparison on a known-degraded setting, not a recommended one.
++At greedy sampling, neither candidate beat the no-speculation arm in the
++two-slot phases:
+ 
+ | foreground decode tok/s | off | A: default mod | B: short mod |
+ |---|---:|---:|---:|

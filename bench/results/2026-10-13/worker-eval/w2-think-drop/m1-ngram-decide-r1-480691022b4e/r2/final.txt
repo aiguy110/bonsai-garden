@@ -1,0 +1,2 @@
+VRAM confirmed. Now let me check whether the gitignored raw outputs (needed for first-divergence character index) are visible in the sandbox.
+

@@ -1,0 +1,17 @@
+diff --git a/docs/engine-review.md b/docs/engine-review.md
+index 913b4de..bd65a56 100644
+--- a/docs/engine-review.md
++++ b/docs/engine-review.md
+@@ -199,7 +199,8 @@ pi: `bonsai-agent` is the default model. pi's `llama-swap-discover.ts` extension
+ replaced the provider's model list with llama-swap's `/v1/models`, which hid
+ virtual names; it now appends models.json entries discovery doesn't return.
+ 
+-**Phase C (experiments):** ngram-mod on agent traces was completed and rejected
+-for deployment (see §3.2). Consider q8_0 KV for the agent at lower context, or a
+-two-context single-process server for per-role KV types, only if memory evals
+-call for it.
++**Phase C (experiments):** ngram-mod on 30 recorded agent turns and 12 rebuilt mem0
++extraction calls (one and two slots, greedy and production sampling) was completed
++and rejected for deployment (see §3.2). Consider q8_0 KV for the agent at lower
++context, or a two-context single-process server for per-role KV types, only if
++memory evals call for it.

@@ -1,0 +1,8 @@
+All three of the advisor's requested documentation corrections are now applied and verified:
+
+1. **§7 agent-request count** — `mem0-r0` step 0 now correctly reads **10** agent requests (was 11), matching `bench/results/2026-10-12/m1-ngram/recon/inventory.json` (`tap_role_totals.agent.requests = 10`).
+2. **§1 sourcing** — the `--spec-type` n-gram descriptions are now clearly marked as inferred from flag names, not sourced from `help.txt` (which only enumerates the values).
+3. **B warning disclosure** — the upstream warning `ngram_mod n_match=12 is too small - poor quality is possible` is now disclosed beside the B justification in `bench/m1-notes.md` §9 and on the experiment page `site/series/serving/ngram-self-speculation.md`, with the note that B was a cost comparison on a low-quality setting, not a recommendation.
+
+The no-deploy conclusion remains supported (live entry unchanged), and all measurements/artifacts were already complete.
+

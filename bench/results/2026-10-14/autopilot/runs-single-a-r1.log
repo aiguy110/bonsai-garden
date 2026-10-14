@@ -1,0 +1,13 @@
+[2026-10-14T10:14:09-04:00] w2-think-drop m1-ngram-spec-replay-r11-f096b0e52769 r2
+  valid=True kind=done match=True 637.0s turns=20 tools=25
+[2026-10-14T10:24:46-04:00] w2-think-drop m1-ngram-decide-r1-480691022b4e r2
+  valid=False kind=None match=False 1200.3s turns=21 tools=31
+[2026-10-14T10:44:47-04:00] w2-think-drop m1-ngram-decide-r2-e17c18c1927d r2
+  valid=False kind=None match=False 1200.3s turns=9 tools=13
+[2026-10-14T11:04:47-04:00] w2-think-drop m1-ngram-decide-r3-85bb90579f2f r2
+  valid=False kind=None match=False 1200.3s turns=21 tools=25
+[2026-10-14T11:24:48-04:00] w2-think-drop m1-ngram-write-up-r2-cebbd5fef63b r2
+  valid=False kind=None match=False 1200.3s turns=27 tools=27
+[2026-10-14T11:44:48-04:00] w2-think-drop m1-ngram-write-up-r3-aee7d1507663 r2
+  valid=True kind=run match=False 416.5s turns=11 tools=18
+{"skipped": 38, "ran": 6, "remaining": 0}

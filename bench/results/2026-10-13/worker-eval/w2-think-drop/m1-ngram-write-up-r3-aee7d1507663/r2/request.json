@@ -1,0 +1,8 @@
+{
+  "report": "Finalized the write-up round: verified all numbers in site/series/serving/ngram-speculation.md match summary.md/deploy.json (121-word summary, tables, identity/control, caveats, links); serving series index, site/index.md, docs/engine-review.md \u00a73.2, Phase C line (now also mentions the 12 rebuilt mem0 calls), docs/roadmap.md M1 row, and README next steps all reflect the no-deploy result. Only edit this round: Phase C line made accurate (agent traces \u2192 full replay scope). Re-running the site checker for the final journal output.",
+  "request": "run",
+  "command": "python3 bench/check_site.py",
+  "timeout_min": 10,
+  "gpu": false,
+  "why": "Final validation of site front matter, summary word limits, and parent updated dates after the engine-review Phase C wording fix."
+}

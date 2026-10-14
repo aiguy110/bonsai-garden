@@ -886,3 +886,46 @@ No repository changes. The corrected honest baseline remains complete (44/44); w
 ### 2026-10-14T10:20:00-04:00 · user (via Claude Code)
 
 The plan for runs-single-a onward has changed (user decision; details in bench/worker_eval/W2-decisions.md, "Signal cases and N=1"). New single-factor arms now run once (N=1) on the 9 signal cases in `bench/worker_eval/cases-signal.jsonl`, not twice on all 22. Finish w2-think-drop at N=2 first (it was at 38/44; the service was stopped mid-attempt, which may leave an incomplete attempt that run.py redoes). compare.py now compares an arm with the baselines restricted to the arm's own cases and accepts one repeat. The item's round counter was reset to 0 because the item was redefined.
+
+### 2026-10-14T10:13:20-04:00 · orchestrator
+
+Reverted edits to protected paths: autopilot/state/W2-worker-harness/journal.md
+
+### 2026-10-14T10:13:20-04:00 · worker (gpt-5.6-terra), round 1
+
+Inspected the preserved results: w2-think-drop currently has 38 unique records (the interrupted host run did not add a completed record after the change). Its arm and output directory remain untouched; w2-reasoning-budget has no records. Next, resume think-drop with the item-prescribed direct command so it reaches 22 cases x 2 repeats before the signal-case queue begins.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run.py w2-think-drop --out bench/results/2026-10-13/worker-eval/w2-think-drop --repeat 2 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "This replay routes model requests through the benchmark tap/turnstile, so gpu:false is required: acquiring a GPU lease would prevent turnstile from serving the requests. The runner resumes current-arm-SHA records and leaves completed records intact."
+}
+```
+
+### 2026-10-14T10:14:09-04:00 · advisor (run request)
+
+**approve**: Run as submitted. `run.py` safely resumes the existing current-arm-SHA output, skips the 38 completed attempts, and reruns any interrupted attempt directory before finishing the six missing records. It writes only under the specified repo result directory and unique `/tmp` workspaces, uses a networkless container, and routes inference through tap/turnstile without changing live configuration or starting a server. `gpu:false` is correct and avoids the turnstile lease deadlock.
+
+### 2026-10-14T11:51:45-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run.py w2-think-drop --out bench/results/2026-10-13/worker-eval/w2-think-drop --repeat 2 --budget-min 145` (gpu=False) in 5856s, exit 0. Full output: `bench/results/2026-10-14/autopilot/runs-single-a-r1.log`. Last lines:
+
+```
+[2026-10-14T10:14:09-04:00] w2-think-drop m1-ngram-spec-replay-r11-f096b0e52769 r2
+  valid=True kind=done match=True 637.0s turns=20 tools=25
+[2026-10-14T10:24:46-04:00] w2-think-drop m1-ngram-decide-r1-480691022b4e r2
+  valid=False kind=None match=False 1200.3s turns=21 tools=31
+[2026-10-14T10:44:47-04:00] w2-think-drop m1-ngram-decide-r2-e17c18c1927d r2
+  valid=False kind=None match=False 1200.3s turns=9 tools=13
+[2026-10-14T11:04:47-04:00] w2-think-drop m1-ngram-decide-r3-85bb90579f2f r2
+  valid=False kind=None match=False 1200.3s turns=21 tools=25
+[2026-10-14T11:24:48-04:00] w2-think-drop m1-ngram-write-up-r2-cebbd5fef63b r2
+  valid=False kind=None match=False 1200.3s turns=27 tools=27
+[2026-10-14T11:44:48-04:00] w2-think-drop m1-ngram-write-up-r3-aee7d1507663 r2
+  valid=True kind=run match=False 416.5s turns=11 tools=18
+{"skipped": 38, "ran": 6, "remaining": 0}
+
+```
