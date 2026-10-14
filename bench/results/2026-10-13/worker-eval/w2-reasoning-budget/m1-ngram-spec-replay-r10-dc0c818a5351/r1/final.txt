@@ -1,0 +1,10 @@
+PyYAML is missing in the sandbox (as round 9 found), but the host has it. All local acceptance checks pass:
+
+- **benches**: `spec_replay.py`/`spec_analyze.py` exist and compile
+- **5 configs** (off-greedy, A-greedy, B-greedy, off-prod, A-prod = best-prod): each has `requests.jsonl` (all 4 phases, no errors), `vram.txt`, 4 server logs, `notes.txt`
+- **A/B rows** all carry explicit `draft_n`/`draft_n_accepted` (84 fg rows, 0 missing)
+- **off-\*** notes now document all-zero drafts = spec-off by construction
+- **mmproj verdict** in `bench/m1-notes.md` §3; **decision: no deploy** recorded in notes + experiment page (`site/series/serving/ngram-self-speculation.md`) + serving series index + project index (`site/index.md`)
+
+Remaining: run the site metadata checker on the host (PyYAML available there), then close.
+

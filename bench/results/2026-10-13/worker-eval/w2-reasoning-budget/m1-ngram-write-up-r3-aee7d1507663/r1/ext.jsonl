@@ -1,0 +1,16 @@
+{"ext":"reasoning_budget","t":1792001227158,"event":"request","request":1,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":2}
+{"ext":"reasoning_budget","t":1792001239767,"event":"request","request":2,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":4}
+{"ext":"reasoning_budget","t":1792001255170,"event":"request","request":3,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":6}
+{"ext":"reasoning_budget","t":1792001259149,"event":"request","request":4,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":8}
+{"ext":"reasoning_budget","t":1792001263810,"event":"request","request":5,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":10}
+{"ext":"reasoning_budget","t":1792001282588,"event":"request","request":6,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":13}
+{"ext":"reasoning_budget","t":1792001287903,"event":"request","request":7,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":15}
+{"ext":"reasoning_budget","t":1792001295903,"event":"request","request":8,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":17}
+{"ext":"reasoning_budget","t":1792001298562,"event":"request","request":9,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":19}
+{"ext":"reasoning_budget","t":1792001303140,"event":"request","request":10,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":21}
+{"ext":"reasoning_budget","t":1792001333006,"event":"request","request":11,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":23}
+{"ext":"reasoning_budget","t":1792001340929,"event":"request","request":12,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":25}
+{"ext":"reasoning_budget","t":1792001351396,"event":"request","request":13,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":27}
+{"ext":"reasoning_budget","t":1792001382245,"event":"request","request":14,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":29}
+{"ext":"reasoning_budget","t":1792001415192,"event":"request","request":15,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":31}
+{"ext":"reasoning_budget","t":1792001418258,"event":"request","request":16,"fields":["reasoning_budget_tokens","reasoning_budget_message"],"tokens":1024,"max_tokens":16384,"messages":33}

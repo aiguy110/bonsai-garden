@@ -1,0 +1,167 @@
+diff --git a/bench/build_replay_set.py b/bench/build_replay_set.py
+index 7cae2c9..982fa48 100644
+--- a/bench/build_replay_set.py
++++ b/bench/build_replay_set.py
+@@ -253,16 +253,58 @@ def mem_user_prompt(existing, lastk, new_msgs, date):
+ # ---------- main ----------
+ 
+ def show_pi_ai_source():
++    """Best-effort: locate pi-ai's openai-completions converter and print the
++    line(s) around 'thinkingSignature' so the reasoning_content decision is
++    source-confirmed. Tries several candidate node_modules roots; a nested copy
++    under pi-coding-agent wins over a sibling. Falls back to a text grep if the
++    exact path isn't present. Purely diagnostic (stdout only)."""
+     import glob
+-    root = pathlib.Path("/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works")
+-    hits = glob.glob(str(root / "**" / "providers" / "openai-completions.js"), recursive=True)
+-    print("pi-ai openai-completions.js:", hits)
+-    for h in hits[:1]:
+-        lines = pathlib.Path(h).read_text(encoding="utf-8").splitlines()
+-        for i, l in enumerate(lines):
+-            if "thinkingSignature" in l:
+-                print(f"--- {h}:{i + 1}")
+-                print("\n".join(lines[max(0, i - 6): i + 8]))
++    fnm_base = pathlib.Path("/home/josiah/.local/share/fnm/node-versions")
++    roots = []
++    # (a) any fnm version's @earendil-works tree
++    if fnm_base.exists():
++        for vdir in sorted(fnm_base.glob("*")):
++            root = vdir / "installation" / "lib" / "node_modules" / "@earendil-works"
++            if root.is_dir():
++                roots.append(root)
++    # (b) explicit known install
++    roots.append(pathlib.Path(
++        "/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works"))
++    # (c) the repo's own node_modules, if the orchestrator ever puts one there
++    roots.append(ROOT / "node_modules" / "@earendil-works")
++    # de-duplicate, prefer the deepest (nested) match by preferring later/appending order is fine
++    roots = list(dict.fromkeys(roots))
++    hits = []
++    for root in roots:
++        if not root.exists():
++            continue
++        hits += glob.glob(str(root / "**" / "providers" / "openai-completions.js"), recursive=True)
++    hits = list(dict.fromkeys(hits))
++    print("pi-ai openai-completions.js candidates:", hits)
++    if hits:
++        for h in hits:
++            lines = pathlib.Path(h).read_text(encoding="utf-8").splitlines()
++            for i, l in enumerate(lines):
++                if "thinkingSignature" in l:
++                    print(f"--- {h}:{i + 1}")
++                    print("\n".join(lines[max(0, i - 6): i + 8]))
++        return
++    # (d) fallback: grep the @earendil-works trees for the signature
++    for root in roots:
++        if not root.exists():
++            continue
++        for js in glob.glob(str(root / "**" / "*.js"), recursive=True):
++            try:
++                txt = pathlib.Path(js).read_text(encoding="utf-8")
++            except OSError:
++                continue
++            for i, l in enumerate(txt.splitlines()):
++                if "thinkingSignature" in l:
++                    print(f"--- {js}:{i + 1}")
++                    print("\n".join(l.splitlines()[max(0, i - 6): i + 8]))
++    print("note: converter not located; reasoning_content decision still rests on the data"
++          " (0.833 with vs 0.457 without) and event_samples.json thinkingSignature="
++          "'reasoning_content'.")
+ 
+ 
+ def median(xs):
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 5b7ff37..a9aacab 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -323,3 +323,89 @@ are omitted; index row counts are `-1` and omitted.)
+ - Both `agent` and `mem` roles show non-zero `predicted_n` (generated tokens
+   only — no speculation, §1); `cache_n` grows across turns (prefix-cache
+   hits), consistent with the running context being reused.
++
++## 8. Replay set — build & ratio check (2026-10-12, round 10)
++
++`bench/build_replay_set.py` rebuilds the host-recorded traffic into two replay
++files (`bench/.replay/m1/agent.jsonl`, `mem.jsonl`, gitignored) and writes the
++committed manifest `bench/results/2026-10-12/m1-ngram/replay_manifest.json`. It
++re-uses the recon inputs only (`inventory.json` tap records, the per-step events
++streams, the mem0 SQLite stores, `mem0_extract_src.txt`, `pi_prompt_src.txt`).
++
++**Selection (meets the "prefer file reads/edits/test output" ask).** The script
++scores each `(run, step)` by `step_score`: `len({read,edit,write} & toolNames)*2`
++`+ 3 if any test-output line ("N passed|failed") +` distinct tool names, then
++picks the 3 highest-scoring steps per arm (baseline and mem0) and spreads 5
++agent turns across each, capped at 30 agent / 12 mem requests. All 6 chosen
++steps are long, file-heavy sessions (each carries 5 agent turns; the baseline
++`/1/2` step additionally has large tool outputs — see §8/`chars_by_role`).
++
++**Agent bodies keep reasoning.** Each assistant message with thinking blocks sets
++`reasoning_content = "\n".join(thinking texts)` under the block's own
++`thinkingSignature` (observed as `'reasoning_content'` in `event_samples.json:457`),
++mirroring pi-ai's openai-completions converter. Dropping it (the pre-round-10
++state) shrank the median from **0.833 → 0.457**, confirming the recorded prompts
++contained the prior reasoning and that it must be replayed for size fidelity. The
++probe server therefore needs `--jinja` (production has it) so the chat template
++renders `reasoning_content`; this is recorded as `server_requirement` in the
++manifest.
++
++**Ratio check (chars/4 estimator vs recorded `prompt_n + cache_n`).**
++
++| role | requests | distinct steps | median est/recorded | in 0.75–1.33 |
++|---|---:|---:|---:|:---:|
++| agent | 30 | 6 (3/ arm) | **0.833** | yes |
++| mem | 12 | 5 | **1.027** | yes |
++
++- `n_messages` mismatches between the rebuilt history length and the recorded
++  `n_messages`: **0** (both roles).
++- Every request carries `recorded_prompt_tokens` (yes, verified in the manifest).
++- The agent 'all-reasoning' and 'reasoning-after-last-user-only' ratios are equal
++  (0.833); expected, because every step is a fresh session with a single user
++  message before all assistant turns — **not** template evidence (see round-10
++  advisory note 1).
++
++**Outliers (est/recorded outside 0.75–1.33): 3 agent, 0 mem.** All three agent
++outliers are `inventory-baseline-r0/0` turns 5, 8 and 10 (ratios **0.740 / 0.743 /
++0.742**, just under the floor):
++
++| id | ratio | reasoning chars | assistant | tool | recorded tokens |
++|---|---:|---:|---:|---:|---:|
++| inventory-baseline-r0/0/5 | 0.740 | 25,717 | 4,475 | 2,154 | 13,032 |
++| inventory-baseline-r0/0/8 | 0.743 | 26,225 | 5,507 | 3,444 | 13,896 |
++| inventory-baseline-r0/0/10 | 0.742 | 26,591 | 5,918 | 3,753 | 13,815 |
++
++These are the long-reasoning turns of `baseline-r0/0`: the prompt is dominated by
++`reasoning` (≈25–27k chars, ~68% of the total) plus `assistant` and `tool` text.  
++The `chars/4` heuristic under-counts token count when the text tokenizes **denser
++than 4 chars/token**, which is exactly what Qwen-style reasoning and tool/JSON output
++do (short tokens for code, identifiers, paths, numbers, punctuation). Recorded
++tokens (≈13k) therefore exceed `chars/4` (≈9.6k), giving a ratio just below 0.75.
++This is the **expected** below-1 direction for tool-output/JSON/reasoning-heavy
++turns (per the round-8 advisory), not a reconstruction error. It also shows the
++estimator is conservative: dropping reasoning (the pre-round-10 bodies) would put
++these same three at 0.246 / 0.272 / 0.278 — far worse — so the retained
++reasoning is what keeps the whole set in range. No mem outlier; mem ratios all
++1.02–1.04.
++
++**Mem bodies.** System = `ADDITIVE_EXTRACTION_PROMPT` (unescaped, `mem0_extract_src.txt`):
++existing memories = latest-10 live `memory_history` rows (`ADD`/`UPDATE` only, `DELETE`
++dropped) with `created_at` < the **per-call** cutoff (not the 10 nearest by
++embedding); `last_k` from the `messages` table under the same cutoff; `newMessages`=
++`role: content` lines (mem0_extract_src.txt:838); `response_format={type:json_object}`
++and `chat_template_kwargs={enable_thinking:false}` included per mem0. Each of the 12
++requests is tied to one mem tap record (7 `tool_add` / 5 `capture`, kind in the
++manifest), matched to the step's mem events in cutoff order, so every mem replay
++carries its own new-message content and cutoff. `predicted_n==2048` (mem0-r0/2/0
++and mem0-r0/2) is a `max_tokens` cap, noted via `cap_hit_2048`.
++
++**Status for M1.** Replay set is built, committed, and within the ratio bounds
++(§8); ready for the :8089 n-gram probe (spec off vs ≥2 n-gram settings, 1 and 2
++slots busy). The probe must run with `--jinja` (agent bodies) and with mem bodies
++as-is (`enable_thinking:false`, `json_object`), since the spec-on/off comparison must
++share the exact prompt bytes.
++
++**Open / caveat.** The `pi-ai openai-completions.js` source-grep diagnostic returned
++empty in round 10 (the hardcoded node_modules path did not match on the host run);
++the reasoning-content decision is nonetheless validated by the data (0.833 with
++reasoning vs 0.457 without) and by the recorded `thinkingSignature='reasoning_content'`. The builder re-globs the source each run and prints hits, so a future run on the host can confirm the converter line-by-line.
+\ No newline at end of file

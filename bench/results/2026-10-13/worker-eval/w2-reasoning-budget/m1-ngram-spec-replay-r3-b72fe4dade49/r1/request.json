@@ -1,0 +1,8 @@
+{
+  "report": "A/greedy (ngram-mod) done and analyzed. Results: single-agent fg +56% (55.1\u219286.0 tok/s, draft acceptance 75%), but **dual phases show no gain and slight loss** (dual-agent 26.3\u219225.5, dual-mem 25.0\u219223.8 tok/s; acceptance only 9-14%). mmproj+spec confirmed working on text-only traffic (draft_n>0, 'accepted ... restore checkpoint' lines, no refusal); VRAM unchanged (9507/10240). Recorded A results and B justification in bench/m1-notes.md \u00a79 (appended after I accidentally overwrote the file and restored the original via git restore \u2014 final diff is only +48 lines, the new section).\n\nB chosen = `ngram-cache` (a second ngram type): it persists the n-gram pool across requests (vs per-context ngram-mod), the mechanism most likely to raise the low dual-phase acceptance and is listed in spec_flags.txt. Keeping all other production flags + per-request max_tokens identical to A.\n\nSubmitting B/greedy. Next: prod for off and whichever of A/B has higher dual-agent greedy tok/s (A currently 25.5), then decision + experiment page.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay B greedy --spec-type ngram-cache",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Config B (ngram-cache, a second ngram type), greedy replay, 4 phases on fresh servers at :8089 with production flags. off-greedy and A-greedy already finished; this is the third in the ordered sequence, before the prod runs."
+}

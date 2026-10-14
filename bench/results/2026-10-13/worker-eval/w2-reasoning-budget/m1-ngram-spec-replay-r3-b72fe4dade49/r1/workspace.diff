@@ -1,0 +1,56 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 4217e95..0c2b52a 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -335,3 +335,51 @@ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+ - Outliers below 0.75: baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742), 1% under the bound, all late turns of baseline-r0 step 0, which is dominated by one long reasoning output. Cause: over turns 2-5 the rebuilt body grows 8502->38559 chars (+30057), of which tool output is only +219 (baseline-r0/0/5 chars_by_role: tool=2154, reasoning=25717), while the recorded prompt grows +10271 tokens. So the model's own reasoning/assistant text tokenizes at ~2.96 chars/token and chars/4 under-counts it. Estimator not changed.
+ - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+ - Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
++
++## 9. Replay-probe results — off vs A (greedy), :8089, 4 phases, fresh server each
++
++Server cmd: production yaml cmd with `${PORT}->8089`, `LLAMA_ATTN_ROT_DISABLE=1`, plus
++`--spec-type ngram-mod` (A). mmproj loaded (`--mmproj --no-mmproj-offload`); **spec ran
++fine on text-only traffic, no mmproj refusal** (draft_n>0 and 24 "accepted N/M draft
++tokens (restore checkpoint)" lines in `server_single-agent.log`). `draft_n`/
++`draft_n_accepted` present only when n_draft_tokens>0 (server-common.cpp:82-85), else
++0.
++
++Foreground decode tok/s (sum predicted_n / sum predicted_ms), A vs off:
++
++| phase | off fg | A fg | A bg | A fg draft acceptance |
++|-------|-------:|-----:|-----:|:----------------------|
++| single-agent | 55.1 | **86.0** | — | 75% (8229/6212) |
++| single-mem | 55.6 | 53.1 | — | 9% (740/69) |
++| dual-agent | 26.3 | 25.5 | 26.8 | 14% (1856/259) |
++| dual-mem | 25.0 | 23.8 | 26.1 | 9% (740/69) |
++
++- **single-agent +56%** (55.1 -> 86.0): long agent contexts with repeated file/diff/
++  test text draft well.
++- **dual phases: no gain, slight loss** (26.3 -> 25.5; 25.0 -> 23.8). This is the
++  decision metric (both slots busy). Low fg acceptance (14% agent, 9% mem) means most
++  drafted tokens are rejected, so draft work is mostly overhead while the GPU is
++  batch-shared across the two slots.
++- `length` finishes (spec may emit more tokens than the off arm): off single-agent 1
++  / A single-agent 3; off dual-agent 0 / A dual-agent 2; single-mem/dual-mem 0.
++- Output identity at temp 0 (per phase, A vs off): single-agent 3/30, single-mem
++  10/12, dual-agent 0/30, dual-mem 11/12. Even `off` itself changes across phases
++  (baseline-r0/0/0 sha 530c single vs 4694 dual), so cross-phase comparison is
++  meaningless; spec also changes the decoding path (checkpointed ngram drafts), so
++  per-phase identity is the only valid comparison.
++- VRAM identical to off (9507 MiB used / 10240 total) in all 4 phases.
++
++### B choice: `ngram-cache` (a second ngram type)
++
++B = `--spec-type ngram-cache`. Justification:
++- A (ngram-mod) already answers the agent question positively in single-agent but
++  not in dual. The open question is whether **any** ngram type helps when both slots
++  are busy, which is the deployment rule.
++- `ngram-cache` is the most distinct mechanism: it **persists the n-gram pool across
++  requests** on the server (vs per-context in ngram-mod), which is exactly the
++  "agent re-emits file contents, diffs, test output" and "both slots constantly
++  generating" traffic. If per-context ngram-mod's low dual acceptance (9-14%) comes
++  from an under-populated per-request pool, a cross-request cache is the setting
++  most likely to move the dual-phase number.
++- It is listed in spec_flags.txt and is a clean single-flag swap, keeping all other
++  production flags and the per-request max_tokens identical to A.

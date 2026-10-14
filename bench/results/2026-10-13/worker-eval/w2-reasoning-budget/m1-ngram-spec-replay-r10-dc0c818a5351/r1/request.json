@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Verified all acceptance artifacts for spec-replay: 5 config dirs (off-greedy, A-greedy, B-greedy, off-prod, A-prod) with requests.jsonl/vram.txt/4 server logs/notes.txt, 4 phases each, no errors; A/B foreground rows all have draft_n/draft_n_accepted; off-* notes now explain all-zero drafts (spec off); mmproj verdict in bench/m1-notes.md \u00a73; no-deploy decision recorded in ngram-self-speculation.md, serving/index.md, site/index.md. PyYAML is missing here, so the protected tools/check_site.py must run on the host via the new bench/site_check.py wrapper. Next: read the check output; if 0 errors, submit done.",
+  "command": "python3 bench/site_check.py",
+  "gpu": false,
+  "timeout_min": 5,
+  "why": "Validate site metadata (front matter, word limits, parent/child updated dates) per the advisor's instruction to verify site metadata when PyYAML is available, before finishing the milestone. Wrapper stays under bench/ per run-request rules; tools/check_site.py stays untouched."
+}

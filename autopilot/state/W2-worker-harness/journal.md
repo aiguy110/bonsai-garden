@@ -929,3 +929,60 @@ Ran `python3 bench/worker_eval/run.py w2-think-drop --out bench/results/2026-10-
 {"skipped": 38, "ran": 6, "remaining": 0}
 
 ```
+
+### 2026-10-14T12:06:13-04:00 · worker (gpt-5.6-terra), round 2
+
+Verified the final think-drop completion chunk produced 44 manifests. W2 decisions confirm the next required step is the N=1 signal-case queue for w2-reasoning-budget; no arms, extensions, or result outputs were modified.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --cases bench/worker_eval/cases-signal.jsonl --repeat 1 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "w2-think-drop now has 44 manifests (22 cases \u00d7 two repeats); this prescribed signal-case queue will preserve those records and run the nine N=1 w2-reasoning-budget attempts next. Requests route through tap/turnstile, so gpu:false avoids the established lease deadlock."
+}
+```
+
+### 2026-10-14T12:07:01-04:00 · advisor (run request)
+
+**approve**: Run as submitted. Preserve all completed records. Report if execution stops after three consecutive infrastructure failures; if reasoning-budget completes, continuing into w2-session-budget within the remaining chunk is allowed.
+
+### 2026-10-14T14:30:57-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --cases bench/worker_eval/cases-signal.jsonl --repeat 1 --budget-min 145` (gpu=False) in 8637s, exit 0. Full output: `bench/results/2026-10-14/autopilot/runs-single-a-r2.log`. Last lines:
+
+```
+== w2-reasoning-budget (145.0 min of budget left)
+[2026-10-14T12:07:01-04:00] w2-reasoning-budget m1-ngram-replay-set-r9-870367a83103 r1
+  valid=False kind=None match=False 1200.3s turns=47 tools=58
+[2026-10-14T12:27:02-04:00] w2-reasoning-budget m1-ngram-replay-set-r10-0046c6599fd4 r1
+  valid=False kind=None match=False 1200.3s turns=51 tools=61
+[2026-10-14T12:47:02-04:00] w2-reasoning-budget m1-ngram-replay-set-r11-fe779856b52c r1
+  valid=True kind=continue match=False 512.4s turns=26 tools=26
+[2026-10-14T12:55:35-04:00] w2-reasoning-budget m1-ngram-spec-replay-r3-b72fe4dade49 r1
+  valid=True kind=run match=True 443.4s turns=25 tools=25
+[2026-10-14T13:02:58-04:00] w2-reasoning-budget m1-ngram-spec-replay-r4-1147202353a6 r1
+  valid=False kind=None match=False 1200.3s turns=51 tools=52
+[2026-10-14T13:22:59-04:00] w2-reasoning-budget m1-ngram-spec-replay-r10-dc0c818a5351 r1
+  valid=True kind=run match=False 316.3s turns=24 tools=24
+[2026-10-14T13:28:15-04:00] w2-reasoning-budget m1-ngram-decide-r2-e17c18c1927d r1
+  valid=False kind=None match=False 1200.3s turns=39 tools=45
+[2026-10-14T13:48:16-04:00] w2-reasoning-budget m1-ngram-decide-r3-85bb90579f2f r1
+  valid=True kind=done match=True 1129.2s turns=53 tools=56
+[2026-10-14T14:07:05-04:00] w2-reasoning-budget m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=True kind=run match=False 231.2s turns=16 tools=17
+{"skipped": 0, "ran": 9, "remaining": 0}
+== w2-session-budget (21.1 min of budget left)
+[2026-10-14T14:10:57-04:00] w2-session-budget m1-ngram-replay-set-r9-870367a83103 r1
+  valid=False kind=None match=False 1200.3s turns=21 tools=27
+budget: 1.1 min left, a session may take 20; stopping
+{"skipped": 0, "ran": 1, "remaining": 8}
+bonsai-2026-10-12-honest: records 9/9
+w2-think-drop: records 9/9
+w2-reasoning-budget: records 9/9
+w2-session-budget: records 1/9
+w2-hashline: records 0/9
+w2-compaction: records 0/9
+
+```

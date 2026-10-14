@@ -1,0 +1,15 @@
+All acceptance criteria are now met. Let me summarize the final state before deciding how to end this session.
+
+**Acceptance criteria — all satisfied:**
+1. ✅ `.gitignore` line 8: `bench/.replay/`
+2. ✅ `bench/results/2026-10-12/m1-ngram/replay_manifest.json` committed: **30 agent** requests from **6 distinct steps** (3/arm), **12 mem** requests (5 steps)
+3. ✅ Every entry has `recorded_prompt_tokens` (verified True)
+4. ✅ Median est/recorded in range: agent **0.833**, mem **1.027**; the 3 agent outliers (0.740/0.743/0.742) explained in `bench/m1-notes.md` §8 as dense reasoning/tool-JSON content tokenizing <4 chars/token
+5. ✅ Builder `bench/build_replay_set.py` compiles and is runnable
+
+**Also done this session:**
+- Added §8 to `bench/m1-notes.md` (selection logic, reasoning_content justification, ratio table, outlier explanation, mem-body assumptions, `--jinja` requirement, status/caveat)
+- Hardened `show_pi_ai_source()` to search multiple node_modules roots + grep fallback for `thinkingSignature`, so a host run can confirm the converter line-by-line (round 10's empty result was a path mismatch, now mitigated)
+
+The replay-set item is complete; the next plan item is the :8089 probe (item 3). Let me end with a `continue` noting the transition.
+

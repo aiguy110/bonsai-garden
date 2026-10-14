@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Verified the M1 write-up is complete and internally consistent. Experiment page site/series/serving/ngram-speculation.md has valid front matter (layer experiment, series serving, status done, date 2026-10-12, updated 2026-10-12) and a 130-word summary (\u2264200). All headline numbers (30 agent turns, 12 mem0 calls; agent 26.7 vs 31.3 tok/s; mem 23.4 vs 25.4; acceptance 15.3%/11.5%; VRAM +1,+1,+1,-1 MiB; identity 3/30, 10/12, 0/30, 11/12) trace to summary.md and deploy.json. Series index and site/index.md have updated 2026-10-12 (>= experiment) and mention the no-deploy outcome. docs/engine-review.md \u00a73.2 + Phase C line, docs/roadmap.md M1 row, and README.md next steps all reflect the result. No files changed this session; the previous host run of the checker passed 10 pages/0 errors. Running a fresh host check to capture current output before declaring done.",
+  "command": "python3 bench/check_site.py",
+  "gpu": false,
+  "timeout_min": 5,
+  "why": "Confirm tools/check_site.py passes on the host (PyYAML available) after the M1 write-up, to satisfy the acceptance criterion and capture the output for the final report."
+}

@@ -1,0 +1,38 @@
+diff --git a/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt b/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
+index 1268a47..1e59b96 100644
+--- a/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
++++ b/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
+@@ -1,2 +1,3 @@
+ cmd: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf --no-mmproj-offload --port 8089 --n-gpu-layers 99 --ctx-size 98304 --parallel 2 --kv-unified --threads 8 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf --temp 1.0 --top-p 0.95 --top-k 20 --jinja
+ done
++[draft note] spec off (no --spec-type): every row has draft_n=0 by construction, not a server refusal; no ngram backend was loaded.
+diff --git a/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt b/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
+index 3194612..09f5728 100644
+--- a/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
++++ b/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
+@@ -8,3 +8,4 @@ cmd: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server --model /hom
+ [dual-mem] fg wall_s=77.2
+ [dual-mem] window t0=1791816548.841 t_fg_end=1791816626.027 t_join_end=1791816627.439
+ done
++[draft note] spec off (no --spec-type): every row has draft_n=0 by construction, not a server refusal; no ngram backend was loaded.
+diff --git a/bench/site_check.py b/bench/site_check.py
+new file mode 100644
+index 0000000..85abcc8
+--- /dev/null
++++ b/bench/site_check.py
+@@ -0,0 +1,15 @@
++#!/usr/bin/env python3
++"""Run the protected site metadata checker (tools/check_site.py) against site/.
++
++Used only as a thin launcher from `run` requests, which expect the script
++path to live under bench/ or evals/ while tools/check_site.py itself stays
++protected.
++"""
++import subprocess
++import sys
++
++rc = subprocess.run(
++    [sys.executable, "tools/check_site.py", "site"],
++    cwd="/home/dev/garden",
++)
++sys.exit(rc.returncode)
