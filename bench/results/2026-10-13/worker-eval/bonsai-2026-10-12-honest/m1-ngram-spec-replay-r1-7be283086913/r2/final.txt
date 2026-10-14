@@ -1,0 +1,2 @@
+Let me read the tail of the builder to confirm mem body format, meta fields, and the exact replay file layout.
+

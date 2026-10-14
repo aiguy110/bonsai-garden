@@ -1,0 +1,231 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index ed47a8a..8a377d2 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -135,13 +135,18 @@ speculation when `--mmproj` is loaded. The complete set of spec gates is:
+ (a) `can_speculate() == !!spec` (424-426); (b) the init gate at 1185 on
+ `ctx_tgt_seq_rm_type != COMMON_CONTEXT_SEQ_RM_TYPE_NO` (no mctx/mmproj term);
+ and (c) the slot assignment `slot.spec = spec.get()` (1212). The mmproj block
+-disables only `ctx_shift` (1123) and `cache_reuse` (1128), never spec. This
+-static verdict is confirmed **empirically** on the live server only when the
+-replay probe reports **`draft_n > 0`** and **`draft_n_accepted > 0`** in the
+-tap records on :8089 (draft fields appear only when speculation is on;
+-`predicted_n` is just the generated-token count — §2, §7). If those are zero,
+-check the server log for the checkpoint-mode line (1168) before concluding spec
+-is disabled.
++disables only `ctx_shift` (1123) and `cache_reuse` (1128), never spec.
++This static verdict is confirmed **empirically** in the round-4 greedy replay:
++A and B ran on :8089 with the production `--mmproj`/`--no-mmproj-offload`
++loaded, hit no refusal, and drafted real tokens (A single-agent 6212 of 8229
++accepted; B 1194 of 2757; §9, §10). Draft fields appear only when speculation
++is on; if a spec config shows all-zero `draft_n`, check the server log for
++'`speculative decoding not supported by this context`' (1168, seq-removal type
++NO), 'failed to initialize speculative decoding context' (1188-1189) or an
++ngram warning before concluding spec is disabled, and grep for 'restore
++checkpoint' (3813) as evidence of checkpointed drafts. The 1171-1172
++checkpoint-mode notice is logged at SRV_TRC and does not appear at default
++verbosity.
+ 
+ ## 4. Message-reconstruction mapping (from `event_samples.json`)
+ 
+@@ -336,25 +341,107 @@ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+ - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+ - Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
+ 
+-## 9. Spec-replay results so far and choice of B (round 3)
+-
+-Fg decode tok/s (sum predicted_n / sum predicted_ms, greedy), from
+-results/2026-10-12/m1-ngram/replay/{off,A}-greedy/requests.jsonl:
+-
+-| phase | off | A (ngram-mod defaults) | A draft_n / accepted | fg length-finishes off/A |
+-|---|---|---|---|---|
+-| single-agent | 55.1 | 86.0 | 8229 / 6212 | 1 / 3 |
+-| single-mem | 55.6 | 53.1 | 740 / 69 | 0 / 0 |
+-| dual-agent | 26.3 | 25.5 | 1856 / 259 | 0 / 2 |
+-| dual-mem | 25.0 | 23.8 | 740 / 69 | 0 / 0 |
+-
+-A helps agent traffic with one slot busy (some of that may be looping outputs hitting
+-max_tokens: 3 length-finishes vs 1) but not with both busy, and it is slightly negative
+-on mem. Acceptance is low in the dual and mem phases (the default drafts 48-64 tokens per
+-step, so a miss wastes a large verification batch).
+-
+-B = ngram-mod with `--spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12`:
+-same algorithm, shorter lookup and much shorter drafts, to cut the cost of rejected drafts
+-when both slots share the GPU, and to start drafting on shorter repeats. I keep one type
+-so the difference from A is only the draft-size knobs. (ngram-map-k/simple were not
+-chosen: their 12/48 defaults have the same long-draft cost.) Not yet measured.
++## 9. Greedy replay results — off, A, B (round 4)
++
++Server: production cmd, private :8089, `LLAMA_ATTN_ROT_DISABLE=1`, fresh server per
++phase, `--mmproj`/`--no-mmproj-offload` loaded on every arm. `max_tokens` per
++request = max(recorded predicted_n, floor: 768 agent / 1024 mem), identical across
++arms. Numbers from `bench/results/2026-10-12/m1-ngram/replay/{off,A,B}-greedy/`. 
++
++### Fg decode tok/s (sum(predicted_n)/sum(predicted_ms))
++
++| phase          | off | A (48/64/24) | B (8/16/12) |
++| -------------- |-----|--------------|-------------|
++| single-agent   | 55.1 | 86.0*        | 53.4*       |
++| single-mem     | 55.6 | 53.1         | 50.7        |
++| dual-agent     | 26.3 | 25.5**       | 23.0        |
++| dual-mem       | 25.0 | 23.8         | 22.4        |
++
++\* A single-agent 86.0 tok/s is inflated by spec-induced loops that run to the cap
++(see length rows): w/o length rows, A = 54.3, B = 55.0, off = 56.2 — A is ~equal to off, not a win.
++\** A dual-agent 25.5 includes 2 length rows; w/o them A = 26.1. B has no dual-agent
++length rows.
++
++### Length-finish rows (foreground)
++
++- off: 1 — single-agent `baseline-r1/2/8` 1323 tok / 27.1 s (natural: max_tokens =
++  recorded 1323).
++- A single-agent: 3 — `r1/2/8` 1323 tok / 27.1 s (natural, off length too); `r0/0/2`
++  3121 tok / 21.7 s (off finished **tool_calls** at 1020 tok); `r2/0/2` 4854 tok / 27.0 s
++  (off tool_calls at 3701 tok). The latter two are spec-induced loops.
++- A dual-agent: 2 — `r1/2/6` 768 tok / 34.1 s (off dual tool_calls 331 tok), `r1/2/8`
++  1323 tok / 53.9 s (off dual tool_calls 435 tok). Both spec-induced.
++- B: 1 — `r1/2/8` 1323 tok / 28.3 s, the same natural cap as off.
++
++A induced **4** foreground rows where off finished normally via tool_calls — count these
++as quality regressions, not speedups (advisor note, round 3 follow-up).
++
++### Drafts (foreground, sum draft_n / accepted, % acceptance)
++
++| phase          | A (48/64/24)   | B (8/16/12)    |
++| -------------- |----------------|----------------|
++| single-agent   | 8229 / 6212 (75%) | 2757 / 1194 (43%) |
++| single-mem     | 740 / 69 (9%)  | 592 / 142 (24%)  |
++| dual-agent     | 1856 / 259 (14%) | 1562 / 679 (43%) |
++| dual-mem       | 740 / 69 (9%)  | 624 / 145 (23%)  |
++
++B also drafts in bg loops (dual-agent 4763, dual-mem 362; A: 5302 / 512). B's short
++ngram (min 8) gives ~half A's acceptance per phase in agent traffic, but cuts the cost
++of a rejected draft; neither A nor B beats off in any dual-phase combined throughput.
++
++### Combined both-slots throughput, (fg+bg) sum(predicted_n) / fg wall per phase
++
++| phase     | off | A   | B   |
++| ---------|-----|-----|-----|
++| dual-agent | 52.5 | 52.6 | 49.0 |
++| dual-mem   | 51.5 | 49.2 | 46.6 |
++
++A is flat with off on dual-agent combined; B is clearly worse. (Wall per fg request,
++fg predicted_ms; bg tail after the last fg request is subsumed.)
++
++### Output identity (fg rows, same phase + id vs off, greedy)
++
++| phase          | A   | B   |
++| -------------- |-----|-----|
++| single-agent   | 3/30 (10%)  | 2/30 (7%)  |
++| single-mem     | 10/12 (83%) | 10/12 (83%) |
++| dual-agent     | 0/30 (0%)   | 0/30 (0%)   |
++| dual-mem       | 11/12 (92%) | 11/12 (92%) |
++
++- Even with `draft_n == 0`, A/B change temp-0 output vs off: `baseline-r0/0/0`
++  single-agent, 71 tok, off `530c…`, A `cdad…` (draft_n 0), B `f20f1c…`. Enabling
++  `--spec-type ngram-mod` changes greedy numerics even with zero drafts — never assume
++  output identity across arms.
++- dual-agent fg identity is 0/30 for both A and B. This is consistent with the standing
++  fact that dual-phase output is itself batch-mix sensitive (off's own r0/0/0 sha differs
++  between single and dual phases); treat dual mismatches as mostly batch-mix, not spec.
++- single-mem / dual-mem (mem role) largely match off (83% / 92%): fixed additive prompt
++  dominates; mem0's JSON-mode answers are stable.
++
++### Log evidence (A/B server logs, all 4 phases each)
++
++- 'restore checkpoint' / 'will use checkpoints': **0** lines in all 8 A/B logs — no
++  checkpointed speculation was exercised at this log verbosity.
++- No 'not supported by this context' or mmproj-refusal lines: speculation ran with
++  `--mmproj` + `--no-mmproj-offload` loaded (empirical mmproj verdict, §10).
++- B logs (all 4 phases): `spec common_specu: ngram_mod n_match=12 is too small - poor
++  quality is possible` (llama.cpp PR 19164). A logs emit no spec lines at default
++  verbosity.
++- VRAM after first fg of each phase: 9507 MiB (all configs; no visible spec overhead
++  in these logs; engine-review expects ~+4 MiB).
++
++## 10. mmproj verdict (empirical, round 4)
++
++§3's static verdict (spec is not gated on mmproj) is confirmed on :8089 with the
++production `--mmproj`/`--no-mmproj-offload` loaded: A and B drafted real tokens in every
++phase (A: 6212/740/259/69 accepted in single-agent/single-mem/dual-agent/dual-mem fg;
++B: 1194/142/679/145), with no refusal. Text-only replay; image+spec remains untested.
++
++## 11. Prod arm selection (round 4)
++
++Per the item's rule (higher dual-agent greedy decode tok/s), **A** is chosen: 25.5 >
++23.0, and the same with length rows excluded (26.1 > 23.0). Caveats for the next
++decision: A is below off on dual-agent (25.5/26.1 vs 26.3), flat on combined (52.6 vs
++52.5), and induces 4 spec-driven loops; B is worse in every dual metric. Next runs: 
++`off/prod`, then `A/prod`. Deploy A to the live stack only if prod sampling shows a
++both-slots gain; otherwise leave the stack alone (milestone criterion, §1).
+diff --git a/bench/spec_replay.py b/bench/spec_replay.py
+index f2b6f04..c0ba424 100644
+--- a/bench/spec_replay.py
++++ b/bench/spec_replay.py
+@@ -116,6 +116,8 @@ class Run:
+         self.notes = open(f"{self.dir}/notes.txt", "w")
+         self.lock = threading.Lock()
+         self.rows = []
++        self.phase_walls = {}
++        self.run_start = time.monotonic()
+ 
+     def note(self, s):
+         self.notes.write(s + "\n")
+@@ -170,9 +172,10 @@ class Run:
+         slot = SLOT[role]
+         body = make_body(item, self.sampling, slot)
+         row = dict(phase=phase, role=role, fg_bg=fgbg, id=item["id"], slot=slot,
+-                   max_tokens=body["max_tokens"])
++                   max_tokens=body["max_tokens"], ts=time.monotonic() - self.run_start)
+         try:
+             r = post(body)
++            row["ts_end"] = time.monotonic() - self.run_start
+             t = r.get("timings", {})
+             m = r["choices"][0]["message"]
+             tcs = m.get("tool_calls") or []
+@@ -193,6 +196,7 @@ class Run:
+                        out_sha256=hashlib.sha256(blob.encode()).hexdigest())
+             out = dict(phase=phase, id=item["id"], fg_bg=fgbg, message=m)
+         except Exception as e:  # keep going; the row records the failure
++            row["ts_end"] = time.monotonic() - self.run_start
+             row["error"] = repr(e)[:300]
+             out = dict(phase=phase, id=item["id"], fg_bg=fgbg, error=row["error"])
+         with self.lock:
+@@ -210,6 +214,7 @@ class Run:
+ 
+     def phase(self, name, fg_role, bg_role):
+         logp, ok = self.start(name)
++        t0 = time.monotonic()
+         try:
+             if not ok:
+                 self.note(f"[{name}] server did not become healthy (exit={self.srv.poll()})")
+@@ -247,6 +252,7 @@ class Run:
+             self.log_hits(logp, name)
+             return "ok"
+         finally:
++            self.phase_walls[name] = time.monotonic() - t0
+             self.stop()
+ 
+     def run(self):
+@@ -254,14 +260,21 @@ class Run:
+                              ("dual-agent", "agent", "mem"), ("dual-mem", "mem", "agent")]:
+             st = self.phase(name, fg, bg)
+             if st != "ok":
++                self.write_phases()
+                 return st, name
+         spec = any(a.startswith("--spec-type") for a in self.extra)
+         fgs = [r for r in self.rows if r["fg_bg"] == "fg"]
+         if spec and all(not (r.get("draft_n") or 0) for r in fgs):
+             self.note("draft_n is 0 for every foreground request; see log lines above")
+         self.note("done")
++        self.write_phases()
+         return "ok", None
+ 
++    def write_phases(self):
++        with open(f"{self.dir}/phases.txt", "w") as f:
++            for n, w in self.phase_walls.items():
++                f.write(f"{n} {w:.2f}s\n")
++
+ 
+ def main():
+     outdir, label, sampling = sys.argv[1:4]

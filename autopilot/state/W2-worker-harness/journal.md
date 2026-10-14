@@ -540,3 +540,56 @@ No files changed. Sandbox cannot see host result directories; the prior host chu
 ### 2026-10-13T19:00:09-04:00 · advisor (run request)
 
 **approve**: Run as submitted. It resumes current-arm-SHA records from 23/44, preserves completed attempts, and proceeds in queue order. The 145-minute budget leaves shutdown margin. gpu:false is required because inference uses the benchmark-key tap through turnstile on :8080; it does not access :11435 or alter live configuration. Persistent writes stay in the configured repository result directories, with transient checkouts under /tmp and isolated Docker containers.
+
+### 2026-10-13T19:39:45-04:00 · worker (gpt-5.6-terra), round 5
+
+No files changed. Resume the ordered W2 queue from the host-reported 23/44 current-SHA honest records; think-drop and reasoning-budget have not started.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "The harness routes inference through tap/turnstile, so gpu:false is required; a GPU lease would deadlock those requests. This safely preserves existing current-SHA records and continues in queue order."
+}
+```
+
+### 2026-10-13T19:40:15-04:00 · advisor (run request)
+
+**approve**: Run as submitted. The queue recomputes current-arm-SHA progress, so the possibly stale 23/44 report does not affect resumption. Interrupted attempts without records rerun safely; completed records are preserved. The 145-minute budget leaves shutdown margin, and gpu:false is required because inference routes through the bench-key tap/turnstile. Writes are limited to repository result directories and transient /tmp checkouts/containers; no live configuration is modified.
+
+### 2026-10-13T21:46:54-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145` (gpu=False) in 7598s, exit 0. Full output: `bench/results/2026-10-13/autopilot/runs-single-a-r5.log`. Last lines:
+
+```
+== bonsai-2026-10-12-honest (145.0 min of budget left)
+[2026-10-13T19:40:16-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r8-4324817a7216 r2
+  valid=False kind=None match=False 1200.3s turns=49 tools=55
+[2026-10-13T20:00:16-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r9-870367a83103 r2
+  valid=False kind=None match=False 1200.4s turns=23 tools=27
+[2026-10-13T20:20:17-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r10-0046c6599fd4 r2
+  valid=False kind=None match=False 1200.3s turns=15 tools=20
+[2026-10-13T20:40:17-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r11-fe779856b52c r2
+  valid=True kind=run match=False 705.7s turns=12 tools=17
+[2026-10-13T20:52:03-04:00] bonsai-2026-10-12-honest m1-ngram-replay-set-r12-e62a974c8e88 r2
+  valid=True kind=done match=True 458.4s turns=13 tools=13
+[2026-10-13T20:59:42-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r1-7be283086913 r2
+  valid=False kind=None match=False 892.7s turns=9 tools=15
+[2026-10-13T21:14:35-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r2-aa8e7eef2474 r2
+  valid=True kind=run match=True 555.2s turns=16 tools=20
+[2026-10-13T21:23:50-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r3-b72fe4dade49 r2
+  valid=True kind=run match=True 509.8s turns=14 tools=17
+[2026-10-13T21:32:20-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r4-1147202353a6 r2
+  valid=True kind=run match=True 873.4s turns=18 tools=23
+budget: 18.4 min left, a session may take 20; stopping
+{"skipped": 24, "ran": 9, "remaining": 11}
+bonsai-2026-10-12-honest: records 33/44
+w2-think-drop: records 0/44
+w2-reasoning-budget: records 0/44
+w2-session-budget: records 0/44
+w2-hashline: records 0/44
+w2-compaction: records 0/44
+
+```

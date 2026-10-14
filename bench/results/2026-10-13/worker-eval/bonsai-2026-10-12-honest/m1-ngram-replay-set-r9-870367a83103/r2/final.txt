@@ -1,0 +1,2 @@
+Let me check the local pi install for how it serializes assistant messages (including thinking blocks) into the model request.
+

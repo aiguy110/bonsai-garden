@@ -1,0 +1,4 @@
+Found the crash: `mem0_extract_src.txt` has **two** `var ADDITIVE_EXTRACTION_PROMPT = ` blocks (lines 11 and 615), and the first block ends on a line with a bare backtick (line 489) — there is no `` `; `` at all. My `load_additive` uses `txt.index("`;", a)`, which never matches.
+
+Let me check the rest of the inventory structure and the mem0 source to fix all of the advisor's mem-set issues at once.
+

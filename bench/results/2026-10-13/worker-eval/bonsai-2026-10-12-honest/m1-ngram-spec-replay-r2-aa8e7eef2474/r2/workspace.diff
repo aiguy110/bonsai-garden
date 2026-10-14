@@ -1,0 +1,136 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 4217e95..1adc503 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -334,4 +334,63 @@ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+ - Not confirmed from source: the pi-ai `openai-completions.js` search found no file (empty list), so that pi sends `reasoning_content` back is inferred from the token counts only.
+ - Outliers below 0.75: baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742), 1% under the bound, all late turns of baseline-r0 step 0, which is dominated by one long reasoning output. Cause: over turns 2-5 the rebuilt body grows 8502->38559 chars (+30057), of which tool output is only +219 (baseline-r0/0/5 chars_by_role: tool=2154, reasoning=25717), while the recorded prompt grows +10271 tokens. So the model's own reasoning/assistant text tokenizes at ~2.96 chars/token and chars/4 under-counts it. Estimator not changed.
+ - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+-- Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
++## 9. Spec-replay probe (item "spec-replay")
++
++Setup — `bench/spec_replay.py OUTDIR LABEL SAMPLING [extra server args...]`:
++
++- OUTDIR = `bench/results/2026-10-12/m1-ngram/replay/`. Server cmd is the
++  production entry (`serving/llama-swap.bonsai-2-27b.yaml`) with `${PORT}` ->
++  8089 and `LLAMA_ATTN_ROT_DISABLE=1` (exact prod flags: -np 2, --kv-unified,
++  --mmproj, --no-mmproj-offload, q4_0 K/V, --jinja). Fresh server per phase
++  (the n-gram pool persists across requests, so reusing it would inflate
++  acceptance). max_tokens = max(recorded predicted_n, 768 agent / 1024 mem),
++  identical in every arm. Slots pinned: agent 0, mem 1. Non-streaming.
++- Phases: single-agent (agent fg slot 0), single-mem (mem fg slot 1),
++  dual-agent (agent fg slot 0, mem loop bg slot 1), dual-mem (mem fg slot 1,
++  agent loop bg slot 0).
++
++Configs tested in this item:
++
++| Label | Flags | Why |
++|---|---|---|
++| off | (none) | live baseline arm |
++| A | `--spec-type ngram-mod` | exact repeat of the documented `docs/engine-review.md` experiment (defaults: n-match 24, n-min 48, n-max 64) |
++| B | `--spec-type ngram-cache` | different ngram mechanism, chosen from `spec_flags.txt`: hash-based cached n-gram lookup rather than the fixed-window matching of ngram-mod, with no per-variant tuning flags. This is the "another ngram type" option from the item; it isolates mechanism change from threshold change (a second ngram-mod run with a different draft size would only test the same mechanism at a different parameter) |
++
++Script fixes applied for the spec runs (advisor review of the off/greedy run):
++
++- `timings.draft_n`/`draft_n_accepted` default to `0` when absent — the
++  fork only emits them when `n_draft_tokens > 0` (`tools/server/server-common.cpp`
++  82-85) — so every fg row in A/B carries integer fields.
++- The `--mmproj`/`--no-mmproj-offload` fallback re-run fires only on status
++  `refused` (log contains `unsupported batch.has_embd` / `not supported by
++  this context` / spec-disabled lines); any other failure (OOM, health timeout)
++  is noted and exits non-zero, not mislabelled as an mmproj refusal. On a
++  refusal it also auto-runs `off-{sampling}` without mmproj so the -nommproj
++  arms have a fair no-spec baseline in the same world.
++- Aborts before starting a server if `:8089/health` already answers (stale
++  server from a crashed run).
++
++Off/greedy baseline (2026-10-12, exit 0, 771 s total; `off-greedy/requests.jsonl`
++  committed, 151 rows, 0 errors):
++
++| Phase | fg | bg | median pps | weighted pps (all fg) | length rows | prompt_n / cache_n (median) |
++|---|---|---|---|---|---|---|
++| single-agent | 30 | 0 | 55.7 | 56.2 | 1 | 1040.5 / 3166 |
++| single-mem | 12 | 0 | 48.9 | 55.6 | 0 | 533.5 / 8198 |
++| dual-agent | 30 | 60 mem | 30.7 | 26.3 | 0 | 1040.5 / 3166 |
++| dual-mem | 12 | 7 agent | 31.6 | 25.0 | 0 | 533.5 / 8198 |
++
++- The single length-capped row is `inventory-baseline-r1/2/8` (max_tokens =
++  recorded predicted_n = 1323; the greedy/temperature-0 path looped until the
++  cap). Per the advisor's note for item 4, report speedups with and without
++  capped/looping outputs, since greedy looping inflates n-gram gains.
++- VRAM 9507/10240 MiB after the first request in all four phases.
++- Live-entry reference (2026-10-11 baseline): 61.9 tok/s single stream,
++  43.8/44.8 tok/s both slots busy — the off numbers above are lower for
++  this traffic mix (many short tool-call turns, long mem prompts) and are the
++  apples-to-apples baseline for A/B on this probe.
++
++Next: A/greedy, then B/greedy, then prod for off and the better dual-agent
++A/B config.
++
+diff --git a/bench/spec_replay.py b/bench/spec_replay.py
+index 5c1c893..d1eeb0e 100644
+--- a/bench/spec_replay.py
++++ b/bench/spec_replay.py
+@@ -30,6 +30,7 @@ import subprocess
+ import sys
+ import threading
+ import time
++import urllib.error
+ import urllib.request
+ 
+ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+@@ -182,7 +183,7 @@ class Run:
+             row.update(prompt_n=t.get("prompt_n"), cache_n=t.get("cache_n"),
+                        predicted_n=t.get("predicted_n"), predicted_ms=t.get("predicted_ms"),
+                        predicted_per_second=t.get("predicted_per_second"),
+-                       draft_n=t.get("draft_n"), draft_n_accepted=t.get("draft_n_accepted"),
++                       draft_n=t.get("draft_n", 0), draft_n_accepted=t.get("draft_n_accepted", 0),
+                        finish_reason=r["choices"][0].get("finish_reason"),
+                        tool_call_json_valid=valid,
+                        out_sha256=hashlib.sha256(blob.encode()).hexdigest())
+@@ -256,19 +257,41 @@ class Run:
+         return "ok", None
+ 
+ 
++def port_free():
++    try:
++        urllib.request.urlopen(f"http://127.0.0.1:{PORT}/health", timeout=2).read()
++        return False
++    except urllib.error.HTTPError:
++        return False  # something is serving on the port (just not /health)
++    except Exception:
++        return True
++
++
+ def main():
+     outdir, label, sampling = sys.argv[1:4]
+     extra = sys.argv[4:]
+     assert sampling in ("greedy", "prod")
+     nommproj = label.endswith("-nommproj")
++    if not port_free():
++        print(f"abort: something is already serving on :{PORT} (stale server?); nothing started",
++              file=sys.stderr)
++        sys.exit(2)
++    runs = []
+     run = Run(outdir, label, sampling, extra, nommproj)
+     st, ph = run.run()
+-    if st != "ok" and not nommproj and any(a.startswith("--spec-type") for a in extra):
+-        run.note(f"mmproj config {st} in phase {ph}; rerunning as {label}-nommproj")
++    runs.append((label, st, ph))
++    if st == "refused" and not nommproj and any(a.startswith("--spec-type") for a in extra):
++        run.note(f"speculation refused with mmproj; rerunning as {label}-nommproj "
++                 f"(and off-nommproj as a fair no-spec baseline)")
+         run = Run(outdir, f"{label}-nommproj", sampling, extra, True)
+         st, ph = run.run()
+-    print("result", st, ph, flush=True)
+-    sys.exit(0 if st == "ok" else 1)
++        runs.append((f"{label}-nommproj", st, ph))
++        run = Run(outdir, "off-nommproj", sampling, [], True)
++        st, ph = run.run()
++        runs.append(("off-nommproj", st, ph))
++    ok = all(s == "ok" for _, s, _ in runs)
++    print("result", "ok" if ok else [f"{l}-{s}" for l, s, _ in runs], flush=True)
++    sys.exit(0 if ok else 1)
+ 
+ 
+ if __name__ == "__main__":

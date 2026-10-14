@@ -1,0 +1,132 @@
+diff --git a/bench/build_replay_set.py b/bench/build_replay_set.py
+index 7cae2c9..2a3a08f 100644
+--- a/bench/build_replay_set.py
++++ b/bench/build_replay_set.py
+@@ -254,9 +254,23 @@ def mem_user_prompt(existing, lastk, new_msgs, date):
+ 
+ def show_pi_ai_source():
+     import glob
+-    root = pathlib.Path("/home/josiah/.local/share/fnm/node-versions/v22.20.0/installation/lib/node_modules/@earendil-works")
+-    hits = glob.glob(str(root / "**" / "providers" / "openai-completions.js"), recursive=True)
+-    print("pi-ai openai-completions.js:", hits)
++    cand_roots = [
++        # fnm installations (host); wildcard covers any node version.
++        "/home/josiah/.local/share/fnm/node-versions/*/installation/lib/node_modules/@earendil-works",
++        "/home/josiah/.local/share/fnm/node-versions/*/node_modules/@earendil-works",
++        # sandbox/test env where pi runs.
++        "/opt/node/lib/node_modules/@earendil-works",
++    ]
++    hits = set()
++    for root in cand_roots:
++        # pi-ai layout varies (dist/providers/ in older copies, dist/api/ in the
++        # current one), so match by file name and prefer the copy nested under
++        # pi-coding-agent's own node_modules (that is what pi resolves).
++        hits.update(glob.glob(str(pathlib.Path(root) / "**" / "openai-completions.js"),
++                              recursive=True))
++    hits = sorted(hits, key=lambda h: (0 if "/pi-coding-agent/node_modules/" in h else 1,
++                                        len(h.split("/")), h))
++    print("pi-ai openai-completions.js:", hits[:2])
+     for h in hits[:1]:
+         lines = pathlib.Path(h).read_text(encoding="utf-8").splitlines()
+         for i, l in enumerate(lines):
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 5b7ff37..882ed7e 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -323,3 +323,96 @@ are omitted; index row counts are `-1` and omitted.)
+ - Both `agent` and `mem` roles show non-zero `predicted_n` (generated tokens
+   only — no speculation, §1); `cache_n` grows across turns (prefix-cache
+   hits), consistent with the running context being reused.
++
++## 8. Replay set construction & validation (rounds 8–11, 2026-10-12)
++
++`bench/build_replay_set.py` (committed; run as `python3 bench/build_replay_set.py`)
++converts the recorded traffic into
++- `bench/.replay/m1/agent.jsonl`, `mem.jsonl` — gitignored, recorded content
++- `bench/results/2026-10-12/m1-ngram/replay_manifest.json` — committed, no recorded
++  content
++
++Final full host run log: `bench/results/2026-10-12/autopilot/replay-set-r10.log`.
++
++**Composition.** 30 agent requests: 3 top-scoring steps per arm (`step_score`
++weights file reads/edits/test output), 5 spread turns each — baseline-r0/0,
++baseline-r1/0, baseline-r1/2, mem0-r0/0, mem0-r1/0, mem0-r2/0 (6 distinct steps).
++12 mem requests from the mem0 arm, 5 distinct steps (mem0-r0/0, mem0-r0/1, mem0-r0/2,
++mem0-r1/0, mem0-r1/1). `n_messages mismatches: 0` on all 30 agent requests —
++rebuilt histories match the recorded tap record counts, so bodies are checked
++against real traffic.
++
++**Bodies.** Agent: messages = rebuilt system prompt + full history before the
++turn; assistant thinking kept as `reasoning_content` (§8.1); tools = the arm's
++pi tool schemas (mem0_memory in the mem0 arm). Mem: system =
++ADDITIVE_EXTRACTION_PROMPT verbatim (33,655 chars, single-pass `\\`/`\``/`\\uXXXX`
++unescape); user = the `generateAdditiveExtractionPrompt` template
++(`mem0_extract_src.txt:1137`): existing = latest 10 live ADD/UPDATE memories
++created before the per-call cutoff (DELETE rows removed via the `action` column;
++not the 10 nearest by embedding); newMessages = `role: content` lines
++(`mem0_extract_src.txt:838`), one new message + one cutoff per call (5 auto-captures
+++ 7 tool-adds). Plus `response_format: {type: json_object}` and
++`chat_template_kwargs: {enable_thinking: false}`. No sampling params in any body;
++the probe sets them.
++
++**System prompt.** `system_prompt_exact: true` — rebuilt from the `pi_prompt_src.txt`
++sections, joined by blank lines; the join is *inferred* (`getSystemMessageText`
++not in the dump). Exactness is supported by the n_messages<=3 ratios (6 two-message
++requests): 0.840–0.877.
++
++**Size check (est = prompt_chars/4 vs recorded prompt_n+cache_n).**
++
++| role  | n | prompt chars | recorded tokens | median est/recorded |
++|-------|---|--------------|-----------------|---------------------|
++| agent | 30 | 798,969 | 241,448 | **0.833** |
++| mem   | 12 | 431,077 | 104,716 | **1.027** |
++
++Both medians inside 0.75–1.33 (acceptance). Per-entry: mem entries all 1.02–1.04;
++agent entries 0.742–0.887 (outliers below).
++
++**Reasoning handling.** `chars_by_role["reasoning"]` is 0 on two-message turns and
++non-zero on every long-output turn (baseline-r0/0/5..10: 25,717–26,591 chars;
++mem0-r2/0/8: 19,456; mem0-r0/0/9: 15,440; …) — thinking is captured. On all 30
++agent entries "reasoning after last user only" == "all reasoning": each step is
++a fresh session with the user message before all assistant turns — expected, not
++template evidence. The 0.457 "no reasoning" median (rounds 8–9) confirms recorded
++prompts *did* include earlier reasoning, so pre-fix bodies undersized traffic.
++
++**§8.1 Source confirmation (pi-ai).** pi-ai's converter
++`dist/api/openai-completions.js` (nested under `pi-coding-agent`, i.e. the copy
++pi resolves) confirms the builder assumption at lines 971–999: when no
++`reasoning_details` is present,
++```js
++let signature = nonEmptyThinkingBlocks[0].thinkingSignature;
++if (signature && isOpenAICompletionsReasoningField(signature)) {
++    assistantMsg[signature] = nonEmptyThinkingBlocks
++        .map(block => block.thinking).join("\n");
++}
++```
++i.e. the assistant message goes back under the first thinking block's
++`thinkingSignature` (`reasoning_content` in the recordings) with texts
++newline-joined — exactly what `to_openai()` does. (The `opencode-go` provider
++special-cases `reasoning` → `reasoning_content`; irrelevant for the llama.cpp
++server.)
++
++**Outliers (est/recorded outside 0.75–1.33): 3, all baseline-r0/0.**
++- `inventory-baseline-r0/0/5` 0.740, `0/8` 0.743, `0/10` 0.742.
++
++All three are turns immediately after the longest reasoning outputs in the set
++(25.7k–26.6k chars of reasoning in the prompt). The chars/4 estimator
++*over-counts* tokens for code/JSON-heavy text (tokenizes at <4 chars/token), so
++these reasoning-heavy turns fall just below the 0.75 floor — within 0.3–1.5% of
++it. All other entries are ≥ 0.75 (mem set 1.02–1.04). No estimator change is
++warranted; the probe measures real tok/s regardless of the estimator.
++
++**max_tokens.** Tap records carry only `predicted_n`; `predicted_n == 2048` on
++`inventory-mem0-r0/2/0` indicates a cap was hit (manifest metadata
++`cap_hit_2048`). The replay should reproduce this: the probe should set
++`max_tokens=2048` on that one request (bodies intentionally carry no sampling
++params).
++
++**pi-ai check fix (round 11).** `show_pi_ai_source()` previously printed `[]`
++because it globbed `providers/openai-completions.js`; the resolved copy lives
++under `dist/api/`. It now matches `**/openai-completions.js` across the fnm and
++/opt roots and prefers the nested `pi-coding-agent/node_modules` copy (that's
++what pi resolves). The §8.1 confirmation comes from this check.

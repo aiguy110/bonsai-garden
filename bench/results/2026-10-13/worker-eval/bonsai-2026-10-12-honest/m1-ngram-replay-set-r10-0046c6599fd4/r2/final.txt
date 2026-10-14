@@ -1,0 +1,2 @@
+The current manifest (r8 run) confirms the pattern: the 2-message agent request has est/recorded = 0.846 (the ~0.85 anchor the advisor mentioned), and the recorded assistant thinking blocks use fields `thinking` + `thinkingSignature`. Now applying the 5 fixes from the round-9 review.
+

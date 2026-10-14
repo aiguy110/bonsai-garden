@@ -1,0 +1,59 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12-honest",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12-honest/m1-ngram-replay-set-r10-0046c6599fd4/r2",
+  "case_id": "m1-ngram-replay-set-r10-0046c6599fd4",
+  "cloud_kind": "run",
+  "compaction_end": 1,
+  "compaction_start": 1,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T20:40:17-04:00",
+  "flag_triggers": {},
+  "item": "replay-set",
+  "kind_match": false,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": null,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": null,
+  "request": null,
+  "request_source": "none",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 11553,
+  "timeout": true,
+  "tool_calls": 20,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 14,
+    "edit": 1,
+    "read": 5
+  },
+  "turns": 15,
+  "valid_request": false,
+  "validation_errors": [
+    "no request"
+  ],
+  "wall_s": 1200.3
+}

@@ -1,0 +1,8 @@
+{
+  "report": "Spec-replay round 3. off/greedy and A/greedy (ngram-mod defaults) are both complete. Key findings: A is a strong single-slot agent win (55.1\u219286.0 tok/s, +56%, 75.5% acceptance) but nearly NEUTRAL when both slots are busy (dual combined 25.6\u219226.1, +2% neutral; dual-mem 26.1\u219225.0, \u22124%). No -nommproj fallback fired \u2014 speculation runs fine with --mmproj on text-only traffic. Noted in m1-notes.md \u00a79 that off vs A produce different greedy outputs per request (65/99 shared rows differ in out_sha256) due to -np 2 batch-mix non-determinism, so aggregate both-slots throughput is the fairer decision metric. Chose B = --spec-type ngram-cache (a distinct n-gram family, not a parameter tweak): it persists the n-gram index across requests, which directly reduces the index-rebuild cost dominating the dual phase's repeated background mem requests (all reuse the same ~33.6k-char ADDITIVE prompt), and targets the weak 9.3% mem acceptance. It's safe on VRAM (index lives in host RAM, not GPU; both prior runs used 9507/10240 MiB). Requesting B/greedy now; next round I'll run off-prod + best(A,B)-prod and decide.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay B greedy --spec-type ngram-cache",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Config B (ngram-cache, a distinct n-gram type), greedy replay, 4 phases on fresh servers at :8089 with full production flags. Chosen to be maximally informative for the dual-slot decision (index-caching reduces repeated bg-mem cost; distinct from A). Justification in bench/m1-notes.md \u00a79."
+}

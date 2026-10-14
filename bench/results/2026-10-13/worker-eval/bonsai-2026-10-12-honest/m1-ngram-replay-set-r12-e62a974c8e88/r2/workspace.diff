@@ -1,0 +1,17 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index d0b0b44..6436097 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -329,9 +329,9 @@ are omitted; index row counts are `-1` and omitted.)
+ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+ 
+ - Agent: 30 requests, 6 steps, median est/recorded **0.833** (inside 0.75–1.33). Mem: 12 requests, 5 steps, median **1.027**.
+-- Agent bodies keep assistant thinking as `reasoning_content` (pi's thinkingSignature). Without it the median is 0.457, so recorded prompts clearly included earlier reasoning. The probe server needs `--jinja`.
++- Agent bodies keep assistant thinking as `reasoning_content` (pi's thinkingSignature). Without it the median is 0.457, so recorded prompts clearly included earlier reasoning. The probe server needs `--jinja`. This is no longer a median-only inference: in `inventory.json`, baseline-r0 step0 turns 2-4 generated 8565+576+1024=10165 tokens, while the recorded prompt grows 2761→13032 (+10271) from turn 2 to turn 5 — recorded prompt growth ≈ generated tokens, i.e. the model's own reasoning is sent back in full. The same arithmetic underpins the outlier note below.
+ - The "reasoning after last user only" ratio equals the "all reasoning" ratio. Every step is a fresh session with one user message, so this says nothing about the chat template.
+-- Not confirmed from source: the pi-ai `openai-completions.js` search found no file (empty list), so that pi sends `reasoning_content` back is inferred from the token counts only.
+-- Outliers below 0.75: baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742). They are 1% under the bound. They are late turns of baseline-r0 step 0. Likely cause (not measured): code/JSON tool output tokenizes at under 4 chars/token, so chars/4 under-counts. Not corrected.
++- Not confirmed from source: the pi-ai `openai-completions.js` search found no file (empty list), so that pi sends `reasoning_content` back is grounded in the measured token-growth arithmetic above (recorded prompt growth ≈ generated tokens), not in the source.
++- Outliers below 0.75 (measured cause, not a tool-output effect): baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742) — late turns of baseline-r0 step 0 dominated by one long reasoning output. `chars_by_role` refutes tool output as the cause (e.g. /0/5: `tool`=2154 vs `reasoning`=25717). Measured cause (numbers from `inventory.json` + `replay_manifest.json`): step0 turns 2-4 generated 8565+576+1024=10165 tokens; the recorded prompt grows 2761→13032 (+10271) from turn 2 to turn 5; the rebuilt body grows 8502→38559 chars (+30057) of which `tool` is only +219 (1935→2154) and `reasoning` is +25569 (148→25717). So the model's own reasoning/assistant text tokenizes at ~30057/10165 ≈ 2.96 chars/token, and chars/4 (assumed 4 chars/token) under-counts it; late turns of a step dominated by a single long reasoning output land just under 0.75.
+ - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+ - Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.

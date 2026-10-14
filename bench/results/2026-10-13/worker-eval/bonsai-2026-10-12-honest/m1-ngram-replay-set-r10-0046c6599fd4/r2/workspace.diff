@@ -1,0 +1,29 @@
+diff --git a/bench/build_replay_set.py b/bench/build_replay_set.py
+index c7d16de..3013b66 100644
+--- a/bench/build_replay_set.py
++++ b/bench/build_replay_set.py
+@@ -92,9 +92,21 @@ def to_openai(m):
+         return {"role": "user", "content": blocks_text(m["content"])}
+     if r == "toolResult":
+         return {"role": "tool", "tool_call_id": m["toolCallId"], "content": blocks_text(m["content"])}
+-    if r == "assistant":  # reasoning dropped, as pi does
+-        out = {"role": "assistant", "content": "".join(
+-            b.get("text", "") for b in m["content"] if b.get("type") == "text")}
++    if r == "assistant":
++        out = {"role": "assistant"}
++        # Thinking blocks: mirror pi-ai's convertMessages — the thinking text is sent
++        # under the block's thinkingSignature (recorded streams use
++        # "reasoning_content") so the replay prompt matches what production sent.
++        thinking = [t for t in (b.get("thinking", b.get("text", ""))
++                                for b in m["content"]
++                                if b.get("type") == "thinking") if t]
++        if thinking:
++            sig = next((b.get("thinkingSignature") for b in m["content"]
++                        if b.get("type") == "thinking"), "reasoning_content")
++            out[sig] = "\n".join(thinking)
++        text = "".join(b.get("text", "") for b in m["content"] if b.get("type") == "text")
++        if text:
++            out["content"] = text
+         calls = [b for b in m["content"] if b.get("type") == "toolCall"]
+         if calls:
+             out["tool_calls"] = [{"id": c["id"], "type": "function",

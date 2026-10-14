@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Round 2 of spec-replay. (1) Verified the off/greedy baseline completed clean: exit 0, 771 s, 151 rows, 0 errors, 4 phases; off-greedy pps medians 55.7 (single-agent), 48.9 (single-mem), 30.7 (dual-agent), 31.6 (dual-mem); 1 length-capped row (baseline-r1/2/8, greedy loop, max_tokens=predicted_n=1323); VRAM 9507/10240 MiB all phases. (2) Applied advisor's script fixes to bench/spec_replay.py: draft_n/draft_n_accepted default to 0 when absent; -nommproj fallback fires only on 'refused' (other failures exit non-zero); aborts before Popen if :8089/health answers; auto-runs off-nommproj on refusal as a fair no-spec baseline. Compiles clean. (3) Documented setup, configs, baseline numbers and the B choice in bench/m1-notes.md \u00a79: A = --spec-type ngram-mod (defaults n-match 24/n-min 48/n-max 64, exact repeat of the engine-review experiment); B = --spec-type ngram-cache (the hash-based cached n-gram mechanism, \"another ngram type\" from spec_flags.txt \u2014 isolates a mechanism change rather than tuning ngram-mod's threshold). Next: A/greedy run (this request), then B/greedy, then prod for off and the better dual-agent arm, then the decision + experiment page.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "A/greedy arm of the spec-replay probe: --spec-type ngram-mod (defaults) on the 4 phases at :8089, fresh server per phase, same production flags and per-request max_tokens as the completed off/greedy baseline, so dual-agent single-stream speedup is directly comparable."
+}

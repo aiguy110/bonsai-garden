@@ -1,0 +1,9 @@
+All verified. The notes-only revise is complete and the numbers in it match the repo files exactly. Acceptance summary:
+- `bench/.gitignore` line 8: `bench/.replay/`.
+- `bench/results/2026-10-12/m1-ngram/replay_manifest.json`: 30 agent requests (6 distinct steps) + 12 mem requests; every entry has `recorded_prompt_tokens`; `system_prompt_exact=true`.
+- Median est/recorded: agent **0.833**, mem **1.027** (both in 0.75–1.33).
+- Outliers (baseline-r0/0/5, /0/8, /0/10 ≈ 0.74) now explained in `bench/m1-notes.md` §8 with the measured reasoning-cause.
+- `bench/build_replay_set.py` present and runnable.
+
+I applied only the notes edit (no builder re-run, manifest untouched). Submitting done.
+

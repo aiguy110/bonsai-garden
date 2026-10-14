@@ -1,0 +1,2 @@
+All acceptance criteria are met in the sandbox. Last step: re-run the builder on the host so the final log captures the pi-ai source confirmation through the fixed check, then I'll close the item next round.
+

@@ -1,0 +1,8 @@
+{
+  "report": "Round 11 (replay-set). Verified the round-10 results: 30 agent requests (6 distinct steps) + 12 mem requests (5 steps), all 42 manifest entries carry recorded_prompt_tokens, medians est/recorded 0.833 (agent) and 1.027 (mem) \u2014 both inside 0.75\u20131.33. Only 3 outliers (baseline-r0/0/5,8,10 at 0.740\u20130.743), all post-long-reasoning turns where chars/4 over-counts <4-chars-per-token code/JSON text; documented. bench/.replay/ is in .gitignore. Wrote \u00a78 of bench/m1-notes.md with full validation (composition, body rules, system_prompt_exact=true, per-role char breakdowns, outlier explanations, max_tokens/2048 cap guidance for the probe). Fixed show_pi_ai_source: previous glob used dist/providers/ but the resolved pi-ai puts the file under dist/api/ \u2014 it now globs **/openai-completions.js across fnm+/opt roots and prefers the nested pi-coding-agent node_modules copy; confirmed in-sandbox, and the source (lines 971\u2013999) corroborates our reasoning_content reconstruction exactly. Requesting one host re-run so the official log includes the pi-ai confirmation lines and the final script runs end-to-end on the host; next round I'll read the log and submit done.",
+  "request": "run",
+  "timeout_min": 15,
+  "command": "python3 bench/build_replay_set.py",
+  "why": "Re-run the builder with the fixed pi-ai source check. Deterministic: regenerates bench/.replay/m1 + replay_manifest.json (identical content) and prints the pi-ai openai-completions.js lines on the host, closing the advisor's round-9 source-confirmation ask. Read-only, no GPU, no server.",
+  "gpu": false
+}

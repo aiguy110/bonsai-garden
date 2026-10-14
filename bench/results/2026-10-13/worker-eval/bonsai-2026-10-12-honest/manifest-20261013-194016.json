@@ -1,0 +1,72 @@
+{
+  "started": "2026-10-13T19:40:15-04:00",
+  "repo_commit": "70ec0ed52259b89c62cf972cabc61fc0774e69df",
+  "repo_dirty": true,
+  "arm": {
+    "name": "bonsai-2026-10-12-honest",
+    "description": "bonsai-2026-10-12 with the replayed prompt's session-limit sentence corrected to the arm's real 20 minutes. Baseline for every W2 arm.",
+    "model": "garden/bonsai-agent",
+    "worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+    "thinking": "low",
+    "max_output_tokens": 16384,
+    "context_window": 81920,
+    "compaction_reserve_tokens": 28672,
+    "session_timeout_min": 20,
+    "worker_memory": null,
+    "extensions": [
+      "autopilot/extensions/submit_request.ts"
+    ],
+    "sources": {
+      "model": "Historical operative snapshot c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json (SHA-256 27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334) sets roles.worker.model to bonsai-agent; replay registers that historical ID as garden/bonsai-agent, as autopilot.py worker_agent_dir() does.",
+      "worker_description": "autopilot.py worker_desc() for provider garden; the historical role model is c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json.",
+      "thinking": "Historical operative snapshot c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json (SHA-256 27c9e40f7e845059626304f8f19b22f4cb341ef92d24964b05db972881bd3334) sets roles.worker.thinking to low.",
+      "max_output_tokens": "Historical registration c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json (SHA-256 949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4) sets maxTokens to 16384.",
+      "context_window": "Historical registration c9c86b7338aa23ddcf0edd58493e1954d7eb7179:agent/models.bonsai-agent.json (SHA-256 949819bb445f55604848e81e7b86c6da8e9591271322d143f663f8f27b9aabd4) sets contextWindow to 81920.",
+      "compaction_reserve_tokens": "autopilot.py worker_agent_dir(): settings compaction.reserveTokens 28672 for provider garden; this is the historical garden worker harness setting.",
+      "session_timeout_min": "Historical c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json has worker_timeout_min 45; intentionally changed to 20 by the W1 milestone.",
+      "worker_memory": "Historical c9c86b7338aa23ddcf0edd58493e1954d7eb7179:autopilot/config.json has worker_memory null; retained disabled because memory is W3.",
+      "extensions": "autopilot.py worker_agent_dir() copies extensions/submit_request.ts into the agent dir",
+      "prompt_timeout_min": "bonsai-2026-10-12-honest: the arm enforces 20 minutes, so the replayed prompt says 20 (W2 candidate 0)."
+    },
+    "hypothesis": "Mechanism: the W1 replay told the worker it is killed after 45 minutes while the arm kills it at 20, so the worker may pace itself for a limit it does not have. Telling it the true 20 should leave valid rate and kind-match rate unchanged or slightly higher and lower the median wall time; timeout count (17 of 44 in W1) may drop a little. Any difference is judged against the run-to-run spread.",
+    "prompt_timeout_min": 20
+  },
+  "arm_sha256": "30cb848a4ab312caa4ea2db8d28b4a2bef9edb4d0a8a6aca07497152f8f5af77",
+  "cases_path": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/worker_eval/cases.jsonl",
+  "cases_sha256": "c88f03d223b3ebec8b689d903ca0fbc076c7b746bfb408c6f0bd3ca4cbabec57",
+  "repeat": 2,
+  "budget_min": 144.99997670856658,
+  "pi_version": "0.86.1",
+  "pi_flags": [
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-themes"
+  ],
+  "sandbox_venv": "/home/josiah/Projects/bonsai-garden/evals/.cache/venv-sandbox",
+  "sandbox_venv_python": "Python 3.12.3",
+  "model_registration": {
+    "id": "bonsai-agent",
+    "name": "Bonsai 2 27B agent slot (turnstile virtual, 80k ctx)",
+    "reasoning": true,
+    "input": [
+      "text"
+    ],
+    "contextWindow": 81920,
+    "maxTokens": 16384,
+    "cost": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+    }
+  },
+  "model_file": "/home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf",
+  "model_sha256": "3907dc1658db1f78a9826bf8d5bcb8dc65db0d466388937af57f2294fae62ec1",
+  "model_sha256_cache_repaired": false,
+  "llama_swap_entry": "    env:\n      - \"LLAMA_ATTN_ROT_DISABLE=1\"\n    cmd: |\n      /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server\n      --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf\n      --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf\n      --no-mmproj-offload\n      --port ${PORT}\n      --n-gpu-layers 99\n      --ctx-size 98304\n      --parallel 2\n      --kv-unified\n      --threads 8\n      --flash-attn on\n      --cache-type-k q4_0\n      --cache-type-v q4_0\n      --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf\n      --temp 1.0\n      --top-p 0.95\n      --top-k 20\n      --jinja\n    ttl: 0\n\n",
+  "turnstile_routing": "models:\n  bonsai-2-27b: { slots: 2, ctxPool: 98304 }\nvirtual:\n  bonsai-agent:\n    backend: bonsai-2-27b\n    maxCtx: 81920\n    inject: { id_slot: 0 }\n  bonsai-mem:\n    backend: bonsai-2-27b\n    maxCtx: 32768         # mem0 3.x extraction prompts estimate at ~11k tokens alone\n    defaultMaxTokens: 1024\n    inject:\n      id_slot: 1\n      chat_template_kwargs: { enable_thinking: false }\n      temperature: 0.2      # mem0 sends no sampling params; JSON extraction wants low temp\n      max_tokens: 2048      # nor a cap; this also sets its context budget\n",
+  "turnstile_commit": "336dcd6ef468c2558f5b8fab4e08c590248479fe",
+  "priority_key": "local-llm-bench",
+  "sandbox_image": "sha256:534baea6a22c03a63003dbc8dbe78fe34bc0d7e595d9a9dc9834884ff530eb55",
+  "route": "sandbox tap -> turnstile agent role (bench key) -> bonsai-agent; sandbox network none"
+}
