@@ -1,0 +1,9 @@
+Everything is in order:
+- **bench/spec_replay.py**: compiles; now records `t_end` per row and window lines (`window t0=... t_fg_end=... t_join_end=...`) so spec_analyze can compute a valid combined two-slot throughput without overcounting in-flight bg requests.
+- **bench/spec_analyze.py**: excludes the in-flight bg row at fg end (per standing fact, a conservative completed-output metric — I'll label it as such in the write-up).
+- **bench/m1-notes.md** §9b: fixed (one section only; "two length rows" wording; combined-throughput gap noted).
+- **summary-greedy.md**: A=86.0 tok/s explained as two spec-induced length loops (mem0-r0/0/2, mem0-r2/0/2); off is 56.2 tok/s no-length; A is the pick for prod (dual-agent 25.5 vs B 23.0).
+- `bench/.replay/m1/*.jsonl` is gitignored host-only (built by `bench/build_replay_set.py`); the previous four runs already consumed it on the host.
+
+The off/prod re-run (approved in round 5, then interrupted for a config restart with results restored) is the next thing to run:
+

@@ -1,0 +1,60 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "w2-think-drop",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/w2-think-drop/m1-ngram-spec-replay-r6-ee9150033cd8/r2",
+  "case_id": "m1-ngram-spec-replay-r6-ee9150033cd8",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-14T09:13:10-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+    "gpu": true,
+    "report": "Applied the advisor's t0 ordering fix to bench/spec_replay.py phase(): t0 = time.time() now precedes th.start(), so the first background row is counted from the true window start (was t0-after-th.start before). Compile-checked spec_replay.py and spec_analyze.py (OK). Verified the current off-prod dir is the pre-fix restore (0 t_end fields, only 'fg wall_s' notes, no window lines), so a rerun cleanly overwrites it with t_end + '[phase] window t0= t_fg_end= t_join_end=' lines. Greedy runs are complete (off-greedy/A-greedy/B-greedy, all 4 phases); A has 63/84 and B 77/84 non-zero-draft fg rows, so the all-draft-0 notes clause only applies to off (trivial: no --spec-type). Next: verify off-prod has window lines + t_end on all 4 phases, then run A/prod (best arm by dual-agent greedy per journal: A 25.5 vs B 23.0 tok/s).",
+    "request": "run",
+    "timeout_min": 120,
+    "why": "Resubmit off/prod with the corrected probe (t0-before-bg-start fix), so it starts only the private :8089 production-equivalent server, runs all 4 fresh-server phases, and records t_end plus window lines needed for valid conservative two-slot completed-output throughput. Overwrites the pre-fix off-prod restore."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 7130,
+  "timeout": false,
+  "tool_calls": 11,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 5,
+    "edit": 1,
+    "read": 4,
+    "submit_request": 1
+  },
+  "turns": 10,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 310.3
+}

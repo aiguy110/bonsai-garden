@@ -1,0 +1,29 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 4217e95..c67e947 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -335,3 +335,24 @@ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+ - Outliers below 0.75: baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742), 1% under the bound, all late turns of baseline-r0 step 0, which is dominated by one long reasoning output. Cause: over turns 2-5 the rebuilt body grows 8502->38559 chars (+30057), of which tool output is only +219 (baseline-r0/0/5 chars_by_role: tool=2154, reasoning=25717), while the recorded prompt grows +10271 tokens. So the model's own reasoning/assistant text tokenizes at ~2.96 chars/token and chars/4 under-counts it. Estimator not changed.
+ - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+ - Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
++
++## 9. spec-replay runs, results so far & B selection (round 3, 2026-10-12)
++**Runs so far on :8089** (private llama-server, production yaml `cmd` with `${PORT}`→8089, `LLAMA_ATTN_ROT_DISABLE=1`, fresh server per phase, non-streaming, greedy): off/greedy (done), A/greedy = `--spec-type ngram-mod` defaults (done), B/greedy (pending, submitted this session).
++
++**Foreground decode tok/s** (`sum(predicted_n)/sum(predicted_ms)` per phase):
++
++| phase | off | A (ngram-mod) | A draft_n | A acceptance | A ratio |
++|---|---|---|---|---|---|
++| single-agent | 55.1 | 86.0 | 8229 | 6212 | 0.755 |
++| single-mem | 55.6 | 53.1 | 740 | 69 | 0.093 |
++| dual-agent | 26.3 | 25.5 | 1856 | 259 | 0.140 |
++| dual-mem | 25.0 | 23.8 | 740 | 69 | 0.093 |
++
++**Interpretation so far.** ngram-mod (A) gives a large single-slot agent gain (~86 vs 55 tok/s, 75.5% draft acceptance), but it does **not** help when both slots are busy — dual-agent is slightly *worse* (25.5 vs 26.3) and dual-mem slightly worse (23.8 vs 25.0). This already argues against the deploy rule (“helps with both slots busy”).
++
++**Caveat for analysis.** Spec changes the sampling path and inflates capped outputs: `finish_reason=length` goes from 1 (off single-agent) to 3 (A single-agent), and 0→2 on dual-agent. Report dual speedups both including and excluding `length` finishes.
++
++### Why B = `--spec-type ngram-cache`
++
++B is a **different** ngram mechanism (cached ngram statistics), not a retuning of ngram-mod’s default `n-min/n-max/n-match`. This is chosen to isolate whether the dual-slot weakness seen with A is *specific to ngram-mod* or *intrinsic to ngram speculation in general*. It is also the most relevant alternative for this traffic: agent and mem requests carry large, growing prefix-cache hits (agent `cache_n` up to ~14k, mem up to ~24k in `replay/*/requests.jsonl`), i.e. the prefix-reuse regime ngram-cache targets. If B also shows no dual gain (or worse), the “does not help with both slots busy” conclusion is robust and we leave the stack alone; if B does improve dual, we reconsider before the prod runs.
++

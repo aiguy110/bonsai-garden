@@ -1,0 +1,2 @@
+§9 rewritten with the corrected full analysis (86 tok/s artifact, loop enumeration, output-identity breakdown, checkpoint evidence, B choice, best=A). Key conclusions: no gain with both slots busy, A causes spec-induced max-token loops on agent traffic, and spec breaks temp-0 output identity — so no deployment. Now I'll run off-prod (prod-probe 1 of 2).
+

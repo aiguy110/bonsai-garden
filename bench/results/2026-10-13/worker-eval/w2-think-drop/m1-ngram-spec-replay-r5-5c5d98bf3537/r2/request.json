@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Checked the amended probe/analyzer from round 5: spec_replay.py now records per-row t_end and per-phase window lines (t0, t_fg_end, t_join_end), fixing the in-flight-bg overcount; spec_analyze.py excludes the still-in-flight bg row at fg completion. m1-notes.md \u00a79b is de-duplicated and corrects A's 86.0 tok/s to two spec-induced length rows (mem0-r0/0/2, mem0-r2/0/2), with A picked for prod on dual-agent greedy (25.5 vs B 23.0; 26.1 vs 23.0 no-length). The off/prod run already approved in round 5 was interrupted for a config restart with results restored, so it still needs to run with the corrected probe to get a valid baseline with window data.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Repeat off/prod using the corrected probe, which timestamps responses and records dual-phase windows for valid combined two-slot throughput. The prior off/prod run lacks window lines/t_end."
+}

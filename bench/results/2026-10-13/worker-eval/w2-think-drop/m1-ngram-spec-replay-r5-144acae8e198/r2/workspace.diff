@@ -1,0 +1,68 @@
+diff --git a/bench/spec_analyze.py b/bench/spec_analyze.py
+index 4b4ec5f..a2fcda8 100644
+--- a/bench/spec_analyze.py
++++ b/bench/spec_analyze.py
+@@ -2,7 +2,11 @@
+ 
+ Per phase and arm: fg tok/s (sum predicted_n / sum predicted_ms) with and without
+ finish_reason=length rows, bg tokens, draft counts, length rows, and the share of
+-out_sha256 equal to the first arm's (same phase, same id). Prints markdown.
++out_sha256 equal to the first arm's (same phase, same id). Plus combined two-slot
++(fg+bg) throughput per phase: wall-based when `window t0/t_fg_end/t_join_end` notes
++exist (recorded by the current spec_replay.py), and an apples-to-apples per-request-ms
++rate that works even when window notes are absent (e.g. off-prod, off-greedy, etc.).
++Prints markdown.
+ """
+ import json
+ import sys
+@@ -24,28 +28,37 @@ def windows(d, arm):
+     w = {}
+     try:
+         for l in open(f"{d}/{arm}/notes.txt"):
+-            m = re.search(r"\[(\S+)\] window t0=([\d.]+) t_fg_end=([\d.]+)", l)
++            m = re.search(r"\[(\S+)\] window t0=([\d.]+) t_fg_end=([\d.]+) t_join_end=([\d.]+)", l)
+             if m:
+-                w[m.group(1)] = (float(m.group(2)), float(m.group(3)))
++                w[m.group(1)] = (float(m.group(2)), float(m.group(3)), float(m.group(4)))
+     except OSError:
+         pass
+     return w
+ 
+ 
+ def combined(d, arm, data):
+-    """Tokens of fg plus bg rows that ended inside the fg window, over fg wall time."""
++    """Two-slot (fg+bg) throughput per phase, two ways.
++    - wall: (fg+bg tokens)/(t_join_end-t0) when window notes exist, so it covers the
++            bg request in flight when fg ends (join window, per advisor).
++    - ms: 1000*(fg+bg tokens)/(fg+bg predicted_ms); apples-to-apples across arms and
++            usable when window notes are absent (old runs like off-greedy)."""
+     w = windows(d, arm)
+-    print("\nCombined two-slot throughput (fg + bg rows ending before fg ended) / fg wall time:\n")
+-    print("| phase | arm | fg wall s | fg tok | bg tok (in window) | combined tok/s |")
+-    print("|---|---|---|---|---|---|")
++    print("\nCombined two-slot throughput (fg+bg) per phase:\n")
++    print("| phase | arm | wall s | tok/s (wall) | tok/s (per-req ms) |")
++    print("|---|---|---|---|---|")
+     for ph in PHASES:
+-        if ph not in w:
+-            continue
+-        t0, t1 = w[ph]
+-        fg = sum((r.get("predicted_n") or 0) for r in data[arm] if r["phase"] == ph and r["fg_bg"] == "fg")
+-        bg = sum((r.get("predicted_n") or 0) for r in data[arm] if r["phase"] == ph and r["fg_bg"] == "bg"
+-                 and r.get("t_end", 1e18) <= t1)
+-        print(f"| {ph} | {arm} | {t1 - t0:.0f} | {fg} | {bg} | {(fg + bg) / (t1 - t0):.1f} |")
++        fg = [r for r in data[arm] if r["phase"] == ph and r["fg_bg"] == "fg"]
++        bg = [r for r in data[arm] if r["phase"] == ph and r["fg_bg"] == "bg"]
++        tok = sum((r.get("predicted_n") or 0) for r in fg + bg)
++        ms = sum((r.get("predicted_ms") or 0) for r in fg + bg)
++        r_ms = f"{(1000.0 * tok / ms):.1f}" if ms > 0 else "-"
++        wh = w.get(ph)
++        if wh:
++            wall_s = wh[2] - wh[0]
++            r_wall = f"{tok / wall_s:.1f}" if wall_s > 0 else "-"
++        else:
++            wall_s, r_wall = "-", "-"
++        print(f"| {ph} | {arm} | {wall_s} | {r_wall} | {r_ms} |")
+ 
+ 
+ def main():

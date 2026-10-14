@@ -1,0 +1,2 @@
+The cmd block matches production (mmproj + no-mmproj-offload, port 8089 via ${PORT}, -np 2, --kv-unified, q4_0 KV). `spec_replay.py` writes both `t_end` per row and `window t0/t_fg_end/t_join_end` notes. A-prod will have full two-slot data. Let me run A-prod now.
+

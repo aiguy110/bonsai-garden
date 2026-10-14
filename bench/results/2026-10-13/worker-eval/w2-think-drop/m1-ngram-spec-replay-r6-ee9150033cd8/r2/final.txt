@@ -1,0 +1,4 @@
+The draft_n picture is clear: off-greedy is all-zero (no `--spec-type`, expected), A-greedy has 63/84 non-zero draft rows and B-greedy 77/84, so the "all draft_n=0 → explain in notes" clause doesn't apply to the spec arms. The corrected probe will overwrite off-prod with `t_end` + window lines.
+
+I've done what the advisor asked this round: applied the one-line `t0` ordering fix, compile-checked both scripts, and verified the pre-fix off-prod restore. Now resubmitting off/prod with the corrected probe.
+

@@ -1,0 +1,60 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "w2-think-drop",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/w2-think-drop/m1-ngram-spec-replay-r4-1147202353a6/r2",
+  "case_id": "m1-ngram-spec-replay-r4-1147202353a6",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-14T08:49:11-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+    "gpu": true,
+    "report": "Finished B/greedy analysis and rewrote bench/m1-notes.md \u00a79 (full off/A/B table, combined busy tok/s, loop enumeration, out_sha256 identity per phase, checkpoint evidence, B justification, best-arm pick). Findings: A's single-agent 86 tok/s is a degenerate max-token loop artifact (off finished those 2 turns at 1020/3701 tok with tool_calls); excluding length rows A\u224854.3 vs off 55. Neither A nor B improves dual-slot decode tok/s (dual-agent 26.3/25.5/23.0, dual-mem 25.0/23.8/22.4 off/A/B). Spec also breaks temp-0 output identity (dual-agent 0/30 identical to off) and A induces spec-only max-token loops \u2014 quality regressions, not speedups. No 'restore checkpoint' at default verbosity but print_timing draft-acceptance lines confirm active speculation; mmproj needed no fallback (no refusal). Best arm = A by the dual-agent rule (with or without length rows). Next: run off-prod, then A-prod, then decide (expect: no deploy).",
+    "request": "run",
+    "timeout_min": 120,
+    "why": "Prod-sampling baseline (speculation off), 4 phases on fresh :8089 servers; first of the two remaining prod probes required by the item (off-prod, then A-prod)."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 7156,
+  "timeout": false,
+  "tool_calls": 13,
+  "tool_errors": {
+    "bash": 2
+  },
+  "tools": {
+    "bash": 8,
+    "edit": 1,
+    "read": 3,
+    "submit_request": 1
+  },
+  "turns": 10,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 578.7
+}

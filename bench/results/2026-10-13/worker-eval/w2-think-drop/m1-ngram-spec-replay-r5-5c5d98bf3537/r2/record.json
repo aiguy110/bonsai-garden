@@ -1,0 +1,60 @@
+{
+  "advisor_verdict": "revise",
+  "arm": "w2-think-drop",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/w2-think-drop/m1-ngram-spec-replay-r5-5c5d98bf3537/r2",
+  "case_id": "m1-ngram-spec-replay-r5-5c5d98bf3537",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-14T09:07:59-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+    "gpu": true,
+    "report": "Checked the amended probe/analyzer from round 5: spec_replay.py now records per-row t_end and per-phase window lines (t0, t_fg_end, t_join_end), fixing the in-flight-bg overcount; spec_analyze.py excludes the still-in-flight bg row at fg completion. m1-notes.md \u00a79b is de-duplicated and corrects A's 86.0 tok/s to two spec-induced length rows (mem0-r0/0/2, mem0-r2/0/2), with A picked for prod on dual-agent greedy (25.5 vs B 23.0; 26.1 vs 23.0 no-length). The off/prod run already approved in round 5 was interrupted for a config restart with results restored, so it still needs to run with the corrected probe to get a valid baseline with window data.",
+    "request": "run",
+    "timeout_min": 120,
+    "why": "Repeat off/prod using the corrected probe, which timestamps responses and records dual-phase windows for valid combined two-slot throughput. The prior off/prod run lacks window lines/t_end."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 7832,
+  "timeout": false,
+  "tool_calls": 13,
+  "tool_errors": {
+    "bash": 2
+  },
+  "tools": {
+    "bash": 9,
+    "read": 3,
+    "submit_request": 1
+  },
+  "turns": 11,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 185.9
+}

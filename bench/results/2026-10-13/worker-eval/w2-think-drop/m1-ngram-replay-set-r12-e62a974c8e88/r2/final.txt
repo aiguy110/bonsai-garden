@@ -1,0 +1,8 @@
+All acceptance criteria are now met, and my change this round is notes-only (only `bench/m1-notes.md` §8, plus the heading). I've verified:
+
+- **Outlier explanation fixed** — §8 now cites the *measured* cause: baseline-r0/0/5, /0/8, /0/10 are reasoning-dominated (reasoning = 25717/26225/26591 chars vs tool = 2154/3444/3753), so tool/JSON output is *not* the cause. The model's reasoning tokenizes at ~2.96 chars/token (30057/10165), so chars/4 under-counts. The arithmetic also serves as evidence reasoning is sent back in full (recorded prompt growth +10271 tokens ≈ 10165 generated).
+- **`.gitignore`** — line 8 has `bench/.replay/`
+- **Manifest** — 30 agent requests (6 distinct steps), 12 mem requests (5 distinct steps); every entry has `recorded_prompt_tokens`
+- **Medians** — agent 0.833, mem 1.027; both inside 0.75–1.33
+- **Builder** — `bench/build_replay_set.py` unchanged and previously ran exit 0; notes-only edit did not re-run it
+

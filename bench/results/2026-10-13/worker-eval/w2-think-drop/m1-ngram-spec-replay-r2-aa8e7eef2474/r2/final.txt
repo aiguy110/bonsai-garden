@@ -1,0 +1,2 @@
+Fixed §8. Now append §9 with the A/B choices.
+

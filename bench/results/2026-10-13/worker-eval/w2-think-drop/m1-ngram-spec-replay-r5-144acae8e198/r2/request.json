@@ -1,0 +1,8 @@
+{
+  "report": "Fixed spec_analyze.py: combined() now reads the new `window t0/t_fg_end/t_join_end` notes (recorded per phase by spec_replay.py) and reports both a wall-based (t_join_end-t0) and an apples-to-apples per-request-ms two-slot tok/s. Verified off-prod (no window notes) still works. m1-notes \u00a79b already has one heading and \"2 length rows\"; A/B server logs show 0 'restore checkpoint'. off-prod baseline already ran (184 rows, 4 phases). Next action: run A-prod (A = highest dual-agent greedy spec arm, 25.5 tok/s) so the full set off-greedy/A/B-greedy/off-prod/A-prod is complete, then analyze and decide.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "A-prod baseline replay (ngram-mod, prod sampling), 4 phases on fresh servers; gives full two-slot window data for the decision."
+}

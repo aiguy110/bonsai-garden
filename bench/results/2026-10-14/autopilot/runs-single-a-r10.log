@@ -1,0 +1,29 @@
+== w2-think-drop (145.0 min of budget left)
+[2026-10-14T07:07:58-04:00] w2-think-drop m1-ngram-replay-set-r10-0046c6599fd4 r2
+  valid=False kind=None match=False 1200.3s turns=16 tools=22
+[2026-10-14T07:27:59-04:00] w2-think-drop m1-ngram-replay-set-r11-fe779856b52c r2
+  valid=True kind=done match=True 701.1s turns=13 tools=17
+[2026-10-14T07:39:40-04:00] w2-think-drop m1-ngram-replay-set-r12-e62a974c8e88 r2
+  valid=True kind=done match=True 568.3s turns=19 tools=19
+[2026-10-14T07:49:08-04:00] w2-think-drop m1-ngram-spec-replay-r1-7be283086913 r2
+  valid=False kind=None match=False 1200.3s turns=20 tools=25
+[2026-10-14T08:09:09-04:00] w2-think-drop m1-ngram-spec-replay-r2-aa8e7eef2474 r2
+  valid=False kind=None match=False 1200.3s turns=21 tools=26
+[2026-10-14T08:29:09-04:00] w2-think-drop m1-ngram-spec-replay-r3-b72fe4dade49 r2
+  valid=True kind=run match=True 622.8s turns=20 tools=24
+[2026-10-14T08:39:32-04:00] w2-think-drop m1-ngram-spec-replay-r4-1147202353a6 r2
+  valid=True kind=run match=True 578.7s turns=10 tools=13
+[2026-10-14T08:49:11-04:00] w2-think-drop m1-ngram-spec-replay-r5-144acae8e198 r2
+  valid=True kind=run match=True 942.3s turns=16 tools=20
+[2026-10-14T09:04:54-04:00] w2-think-drop m1-ngram-spec-replay-r5-5c5d98bf3537 r2
+  valid=True kind=run match=True 185.9s turns=11 tools=13
+[2026-10-14T09:07:59-04:00] w2-think-drop m1-ngram-spec-replay-r6-ee9150033cd8 r2
+  valid=True kind=run match=True 310.3s turns=10 tools=11
+budget: 19.8 min left, a session may take 20; stopping
+{"skipped": 26, "ran": 10, "remaining": 8}
+bonsai-2026-10-12-honest: records 44/44
+w2-think-drop: records 36/44
+w2-reasoning-budget: records 0/44
+w2-session-budget: records 0/44
+w2-hashline: records 0/44
+w2-compaction: records 0/44

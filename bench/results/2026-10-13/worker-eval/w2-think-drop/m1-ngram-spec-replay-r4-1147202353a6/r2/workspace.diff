@@ -1,0 +1,87 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index ed47a8a..9110e74 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -336,25 +336,60 @@ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+ - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+ - Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
+ 
+-## 9. Spec-replay results so far and choice of B (round 3)
+-
+-Fg decode tok/s (sum predicted_n / sum predicted_ms, greedy), from
+-results/2026-10-12/m1-ngram/replay/{off,A}-greedy/requests.jsonl:
+-
+-| phase | off | A (ngram-mod defaults) | A draft_n / accepted | fg length-finishes off/A |
+-|---|---|---|---|---|
+-| single-agent | 55.1 | 86.0 | 8229 / 6212 | 1 / 3 |
+-| single-mem | 55.6 | 53.1 | 740 / 69 | 0 / 0 |
+-| dual-agent | 26.3 | 25.5 | 1856 / 259 | 0 / 2 |
+-| dual-mem | 25.0 | 23.8 | 740 / 69 | 0 / 0 |
+-
+-A helps agent traffic with one slot busy (some of that may be looping outputs hitting
+-max_tokens: 3 length-finishes vs 1) but not with both busy, and it is slightly negative
+-on mem. Acceptance is low in the dual and mem phases (the default drafts 48-64 tokens per
+-step, so a miss wastes a large verification batch).
+-
+-B = ngram-mod with `--spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12`:
+-same algorithm, shorter lookup and much shorter drafts, to cut the cost of rejected drafts
+-when both slots share the GPU, and to start drafting on shorter repeats. I keep one type
+-so the difference from A is only the draft-size knobs. (ngram-map-k/simple were not
+-chosen: their 12/48 defaults have the same long-draft cost.) Not yet measured.
++## 9. Spec-replay results so far (rounds 1-3): no gain with both slots busy
++
++Configurations replayed on :8089 with production flags (`--mmproj` loaded, ngram-mod on text-only
++replay), each on a fresh server per phase, greedy (temp 0, top_k 1, seed 0):
++- **off**: speculation off (production baseline).
++- **A**: `--spec-type ngram-mod` (defaults: n-min 48, n-max 64, n-match 24).
++- **B**: `--spec-type ngram-mod --spec-ngram-mod-n-min 8 --spec-ngram-mod-n-max 16 --spec-ngram-mod-n-match 12`
++  (shorter lookups/drafts to cut the cost of rejected drafts when both slots share the GPU). B was
++  chosen to isolate the draft-size knobs from A, keeping the same algorithm. (ngram-map-k/simple not
++  chosen: same long-draft cost.) All mmproj, no `-nommproj` fallback was needed (no refusal).
++
++Fg decode tok/s (sum predicted_n / sum predicted_ms, greedy), fg + draft acceptance + length-finishes:
++
++| phase | fg tok/s off | fg tok/s A | fg tok/s B | A draft (gen/acc) | B draft (gen/acc) | fg length-finishes off / A / B |
++|---|---|---|---|---|---|---|
++| single-agent | 55.1 | 86.0 (54.3 excl. length) | 53.4 (55.1 excl. length) | 8229/6212 (75.5%) | 2757/1194 (43.3%) | 1 / 3 / 1 |
++| single-mem | 55.6 | 53.1 | 50.7 | 740/69 (9.3%) | 592/142 (24.0%) | 0 / 0 / 0 |
++| dual-agent | 26.3 | 25.5 (26.1 excl. length) | 23.0 | 1856/259 (14.0%) | 1562/679 (43.5%) | 0 / 2 / 0 |
++| dual-mem | 25.0 | 23.8 | 22.4 | 740/69 (9.3%) | 624/145 (23.2%) | 0 / 0 / 0 |
++
++Combined (fg+bg) busy tok/s = sum(predicted_n)/sum(predicted_ms) over all requests in the phase
++(both slots): dual-agent 25.6 / 26.2 / 24.3; dual-mem 26.1 / 25.0 / 23.5 (off / A / B).
++
++**A's single-agent 86.0 is an artifact, not a gain.** It is driven by two greedy turns that A pushed
++into degenerate `max_tokens` loops: `mem0-r0/0/2` (3121 tok @~144 tok/s) and `mem0-r2/0/2`
++(4854 tok @~179 tok/s), where **off finished normally with tool_calls at 1020 and 3701 tok** respectively.
++Excluding the length rows A's single-agent is ~54.3 tok/s, i.e. no gain over off's ~55. A also pushed
++`baseline-r1/2/6` into a 768-tok loop in dual-agent (off: 270 tok, tool_call). These loops are quality
++regressions (the agent's real tool-calling output is replaced by truncated garbage), not speedups.
++
++**Neither A nor B helps when both slots are busy.** dual-agent fg: off 26.3, A 25.5, B 23.0; dual-mem fg:
++off 25.0, A 23.8, B 22.4. Even combined busy throughput is flat-to-worse (A 26.2 vs off 25.6 dual-agent
++is within noise; B is clearly worse; dual-mem both worse). Default A drafts (48-64 tok/step) miss on
++agent traffic so a rejected batch wastes work; B's shorter drafts have higher acceptance (24-43% mem, 43% dual-agent)
++but still do not close the gap — shorter drafts mean more spec steps per output token, which cancels the
++acceptance gain on a 2-slot share.
++
++**Output identity (temp 0) is broken.** out_sha256 of the foreground output vs off-greedy, per phase:
++A single-agent 3/30, single-mem 10/12, dual-agent 0/30, dual-mem 11/12; B single-agent 2/30, single-mem 10/12,
++dual-agent 0/30, dual-mem 11/12. Turning on ngram-mod changes the greedy numerics even when **zero** drafts
++are produced (e.g. `baseline-r0/0/0` single-agent out_sha256 is `530c...` off vs `cdad...` A, both 71 tok,
++draft_n 0), so off-vs-spec output identity cannot be assumed from lossless verification. Even B (the
++"safer" short-draft setting) yields very different agent responses (e.g. single-agent `mem0-r2/0/2`: off
++3701 tok tool_call vs B 86 tok tool_call) — not a loop, but substantially changed content. This alone is
++a strong reason not to ship speculation to the live worker.
++
++**Checkpoint evidence.** Server logs at default verbosity contain no 'restore checkpoint' line
++(the 3813 / 1172 'will use checkpoints' notices are SRV_TRC-only). Speculation is nonetheless confirmed
++active by the per-request `print_timing` line `draft acceptance = X (Y accepted / Z generated), mean len = W`
++(e.g. A single-agent `0.10.482.314 I slot print_timing: ... draft acceptance = 0.03125 (6 accepted / 192 generated), mean len = 3.00`).
++
++**Best arm for the prod probe (by the item's dual-agent rule):** A (25.5 fg / 26.1 excl-length dual-agent)
++beats B (23.0) both with and without length rows. Running A-prod next, then the decision.
++
++**Decision so far:** no gain with both slots busy, plus spec-induced loops and broken temp-0 output
++identity => do not deploy; leave the stack alone. (Prod probes run only to complete the item before the
++final write-up.)

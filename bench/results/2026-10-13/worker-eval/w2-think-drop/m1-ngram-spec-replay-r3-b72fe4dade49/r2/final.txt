@@ -1,0 +1,2 @@
+The notes are complete and correct: §8 restored, §9 added with the results table and B justification. Now let me submit the B/greedy run request.
+
