@@ -1,0 +1,8 @@
+{
+  "report": "off/greedy (round 1) landed: 4 phases on :8089, 151 rows, vram ~9507 MiB all phases, single ~59-60 tok/s, dual 13-35 tok/s (consistent with known 43-44 busy baseline). Applied the two advisor fixes to spec_replay.py: draft_n/draft_n_accepted default to 0 (server omits them when nothing drafted), and abort if :8089/health already answers before Popen (stale server). Documented the A/B choice in bench/m1-notes.md \u00a79: A = --spec-type ngram-mod defaults (same backend as docs/engine-review.md, isolates the new dual-slot + -np 2 + kv-unified conditions); B = --spec-type ngram-cache defaults, chosen as the remaining distinct ngram *type* (a different caching algorithm, not a re-tune of ngram-mod) since ngram-simple/map-k/map-k4v are the same-family small-n/m variants. Spec is expected to work with --mmproj on text-only replay (no mctx gate in the spec gates).",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A greedy --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "A/greedy replay: --spec-type ngram-mod defaults vs off baseline, 4 phases (single-agent, single-mem, dual-agent, dual-mem) on fresh :8089 servers, production flags."
+}

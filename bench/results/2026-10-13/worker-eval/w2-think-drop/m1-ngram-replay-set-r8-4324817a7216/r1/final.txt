@@ -1,0 +1,2 @@
+The full tools array is embedded in pi_prompt_src.txt. Let me extract it and find where the array starts.
+

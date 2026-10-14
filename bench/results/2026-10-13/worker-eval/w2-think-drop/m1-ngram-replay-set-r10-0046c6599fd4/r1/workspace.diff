@@ -1,0 +1,337 @@
+diff --git a/bench/build_replay_set.py b/bench/build_replay_set.py
+index c7d16de..b4a54c1 100644
+--- a/bench/build_replay_set.py
++++ b/bench/build_replay_set.py
+@@ -11,12 +11,19 @@ Outputs:
+   - bench/results/2026-10-12/m1-ngram/replay_manifest.json   (committed, no content)
+ 
+ Each line: {"id", "role", "body", "meta"}. Bodies carry no sampling params; the probe
+-sets them. Mem bodies carry no tools and chat_template_kwargs {enable_thinking:false}.
++sets them. Agent bodies keep assistant reasoning under the recorded thinkingSignature
++("reasoning_content") so they reproduce the real prompt size; mem bodies carry
++chat_template_kwargs {enable_thinking:false} and response_format json_object.
++
++Note to the probe: the live server uses --jinja; keep it on so the template can
++render reasoning_content.
+ """
+ from __future__ import annotations
+ 
+ import argparse
++import glob
+ import json
++import os
+ import pathlib
+ import re
+ import sqlite3
+@@ -43,6 +50,25 @@ def log(*a):
+     print(*a, file=sys.stderr)
+ 
+ 
++def _rc(m):
++    """Reasoning text of an assistant message (already converted), or ''."""
++    for k in ("reasoning_content", "thinking"):
++        if m.get(k):
++            return m[k]
++    return ""
++
++
++def parse_ts(s):
++    if isinstance(s, (int, float)) or (isinstance(s, str) and re.fullmatch(r"\d+(\.\d+)?", s)):
++        v = float(s)
++        return datetime.fromtimestamp(v / 1000 if v > 1e11 else v, timezone.utc)
++    try:
++        d = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
++    except ValueError:
++        return None
++    return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
++
++
+ # ---------- event streams ----------
+ 
+ def read_events(path):
+@@ -77,7 +103,7 @@ def blocks_text(content):
+ def system_text(m):
+     secs = m.get("sections")
+     if secs:
+-        # pi: sections rendered in order, joined with a blank line (pi_prompt_src.txt)
++        # pi: sections rendered in order, joined by a blank line (pi_prompt_src.txt)
+         return "\n\n".join(secs.values()), True
+     return m.get("content", ""), False
+ 
+@@ -89,19 +115,26 @@ def to_openai(m):
+     if r == "user":
+         return {"role": "user", "content": blocks_text(m["content"])}
+     if r == "custom":  # pi's mem0-recall message reaches the model as a user message
+-        return {"role": "user", "content": blocks_text(m["content"])}
++        return {"role": "user", "content": m.get("display") or blocks_text(m["content"])}
+     if r == "toolResult":
+-        return {"role": "tool", "tool_call_id": m["toolCallId"], "content": blocks_text(m["content"])}
+-    if r == "assistant":  # reasoning dropped, as pi does
+-        out = {"role": "assistant", "content": "".join(
+-            b.get("text", "") for b in m["content"] if b.get("type") == "text")}
++        return {"role": "tool", "tool_call_id": m["toolCallId"],
++                "content": blocks_text(m["content"])}
++    if r == "assistant":
++        # Mirror pi-ai's openai-completions converter: text goes to `content`,
++        # thinking goes to the field named by thinkingSignature ("reasoning_content").
++        out = {"role": "assistant",
++               "content": "".join(b.get("text", "") for b in m["content"] if b.get("type") == "text")}
++        think = [b for b in m["content"] if b.get("type") == "thinking" and b.get("thinking")]
++        if think:
++            sig = think[0].get("thinkingSignature") or "reasoning_content"
++            out[sig] = "\n".join(b.get("thinking", "") for b in think)
+         calls = [b for b in m["content"] if b.get("type") == "toolCall"]
+         if calls:
+             out["tool_calls"] = [{"id": c["id"], "type": "function",
+-                                  "function": {"name": c["name"],
+-                                               "arguments": c["arguments"] if isinstance(c["arguments"], str)
+-                                               else json.dumps(c["arguments"])}}
+-                                 for c in calls]
++                                 "function": {"name": c["name"],
++                                              "arguments": c["arguments"] if isinstance(c["arguments"], str)
++                                              else json.dumps(c["arguments"])}}
++                                for c in calls]
+         return out
+     raise ValueError("unknown role " + r)
+ 
+@@ -113,22 +146,42 @@ def tool_list(sysmsg):
+             for t in sysmsg.get("toolsAdded", [])]
+ 
+ 
+-def est_chars(messages, tools=None):
++def est_chars(messages, tools, scope):
++    """Estimate prompt char count. scope 'all' counts reasoning on every assistant turn;
++    'recent' counts it only on assistant turns after the last user message."""
+     n = 0
++    if tools:
++        n += len(json.dumps(tools, separators=(",", ":")))
+     for m in messages:
+         n += len(m.get("content") or "")
+         for c in m.get("tool_calls", []):
+-            n += len(c["function"]["name"]) + len(c["function"]["arguments"])
+-    if tools:
+-        n += len(json.dumps(tools, separators=(",", ":")))
++            fn = c.get("function", {})
++            n += len(str(fn.get("name", ""))) + len(str(fn.get("arguments", "")))
++    if scope == "all":
++        for m in messages:
++            n += len(_rc(m) or "")
++    elif scope == "recent":
++        last_user = max((i for i, m in enumerate(messages) if m.get("role") == "user"), default=-1)
++        for m in messages[last_user + 1:]:
++            if m.get("role") == "assistant":
++                n += len(_rc(m) or "")
+     return n
+ 
+ 
+-def chars_by_role(messages, tools):
++def chars_by_role(messages, tools, scope):
+     d = {"tools": len(json.dumps(tools, separators=(",", ":")))}
+     for m in messages:
+-        n = len(m.get("content") or "") + sum(len(c["function"]["arguments"]) for c in m.get("tool_calls", []))
+-        d[m["role"]] = d.get(m["role"], 0) + n
++        n = len(m.get("content") or "") + sum(
++            len(str(c.get("function", {}).get("arguments", ""))) for c in m.get("tool_calls", []))
++        d[m.get("role")] = d.get(m.get("role"), 0) + n
++    if scope == "all":
++        for m in messages:
++            d["reasoning"] = d.get("reasoning", 0) + len(_rc(m) or "")
++    elif scope == "recent":
++        last_user = max((i for i, m in enumerate(messages) if m.get("role") == "user"), default=-1)
++        for m in messages[last_user + 1:]:
++            if m.get("role") == "assistant":
++                d["reasoning"] = d.get("reasoning", 0) + len(_rc(m) or "")
+     return d
+ 
+ 
+@@ -164,17 +217,6 @@ def load_additive(path):
+     return re.sub(r"\\(u[0-9a-fA-F]{4}|.)", dec, raw, flags=re.S)
+ 
+ 
+-def parse_ts(s):
+-    if isinstance(s, (int, float)) or (isinstance(s, str) and re.fullmatch(r"\d+(\.\d+)?", s)):
+-        v = float(s)
+-        return datetime.fromtimestamp(v / 1000 if v > 1e11 else v, timezone.utc)
+-    try:
+-        d = datetime.fromisoformat(str(s).replace("Z", "+00:00"))
+-    except ValueError:
+-        return None
+-    return d if d.tzinfo else d.replace(tzinfo=timezone.utc)
+-
+-
+ def db_tables(db):
+     con = sqlite3.connect(f"file:{db}?mode=ro", uri=True)
+     con.row_factory = sqlite3.Row
+@@ -221,8 +263,8 @@ def last_k(con, cols, cutoff, k=10):
+ 
+ 
+ def mem_user_prompt(existing, lastk, new_msgs, date):
+-    # generateAdditiveExtractionPrompt (mem0_extract_src.txt:1137). serializeMemories and
+-    # formatConversationHistory are not in the dump: assumed JSON list / "role: content" lines.
++    # generateAdditiveExtractionPrompt (mem0_extract_src.txt:1137); messages assembled as
++    # `${role}: ${content}` joined with '\n' (mem0_extract_src.txt:838).
+     sections = [
+         "## Summary\n",
+         "## Last k Messages\n" + "\n".join(lastk),
+@@ -236,7 +278,41 @@ def mem_user_prompt(existing, lastk, new_msgs, date):
+     return "\n\n".join(sections)
+ 
+ 
+-# ---------- main ----------
++# ---------- pi-ai source confirmation ----------
++
++def confirm_pi_ai_source():
++    """Glob for pi-ai's openai-completions.js and print lines around 'thinkingSignature'.
++    Runs on the host; harmless if the file is not present in the sandbox."""
++    lines = []
++    src = (RECON / "sources.txt").read_text(encoding="utf-8")
++    pi_dir = None
++    for ln in src.splitlines():
++        if ln.startswith("pi_package_dir:"):
++            pi_dir = ln.split(":", 1)[1].strip()
++    dirs = [pathlib.Path(pi_dir) if pi_dir else None]
++    if pi_dir:
++        dirs.append(pathlib.Path(pi_dir).parent / "pi-ai")
++        dirs.append(pathlib.Path(pi_dir).parent / "node_modules" / "@earendil-works" / "pi-ai")
++    dirs.append(pathlib.Path(os.path.expanduser("~")) / "node_modules" / "@earendil-works" / "pi-ai")
++    candidates = set()
++    for d in dirs:
++        if d and d.exists():
++            candidates.update(glob.glob(str(d / "**/openai-completions.js"), recursive=True))
++    if not candidates:
++        lines.append("[pi-ai source] openai-completions.js not found on host; reasoning_content "
++                     "mapping inferred from recorded event_samples.json thinkingSignature blocks")
++    for p in sorted(candidates):
++        try:
++            text = p.read_text(encoding="utf-8")
++        except Exception as e:
++            lines.append(f"[pi-ai source] {p}: {e}")
++            continue
++        lines.append(f"[pi-ai source] {p}")
++        for i, l in enumerate(text.splitlines()):
++            if "thinkingSignature" in l or "reasoning" in l.lower() or "thinkingContent" in l:
++                lines.append(f"  L{i + 1}: {l[:140]}")
++    return lines
++
+ 
+ def median(xs):
+     return round(statistics.median(xs), 3) if xs else None
+@@ -283,14 +359,19 @@ def main():
+             if len(hist) != rec["n_messages"]:
+                 mismatches.append(dict(id=f"{s['run']}/{s['step']}/{t}", built=len(hist),
+                                        recorded=rec["n_messages"]))
+-            body = {"messages": hist, "tools": tools}
+-            agent.append(dict(id=f"{s['run']}/{s['step']}/{t}", role="agent", body=body,
+-                              recorded_prompt_tokens=rec["prompt_n"] + rec["cache_n"],
+-                              meta=dict(arm=s["arm"], step=s["step"], turn=t,
+-                                        predicted_n=rec["predicted_n"],
+-                                        recorded_n_messages=rec["n_messages"],
+-                                        chars=est_chars(hist, tools),
+-                                        chars_by_role=chars_by_role(hist, tools))))
++            chars_all = est_chars(hist, tools, "all")
++            chars_recent = est_chars(hist, tools, "recent")
++            rp = rec["prompt_n"] + rec["cache_n"]
++            agent.append(dict(
++                id=f"{s['run']}/{s['step']}/{t}", role="agent", body={"messages": hist, "tools": tools},
++                recorded_prompt_tokens=rp,
++                meta=dict(arm=s["arm"], step=s["step"], turn=t,
++                          predicted_n=rec["predicted_n"],
++                          recorded_n_messages=rec["n_messages"],
++                          chars=chars_all,
++                          chars_recent=chars_recent,
++                          chars_by_role=chars_by_role(hist, tools, "all"),
++                          chars_by_role_recent=chars_by_role(hist, tools, "recent")))
+     agent = agent[: args.agent_max]
+ 
+     # ---- mem set: one request per mem tap record in the mem0 arm, up to --mem-max.
+@@ -354,29 +435,36 @@ def main():
+                                       recorded_n_messages=rec["n_messages"],
+                                       n_existing=len(ex), n_last_k=len(lk),
+                                       existing_time_filtered=filtered,
+-                                      chars=est_chars(msgs_))))
++                                      chars=est_chars(msgs_, None, "all"))))
+     mem = mem[: args.mem_max]
+ 
+     # ---- manifest
+     def entry(r):
+-        c = r["meta"]["chars"]
+         rp = r["recorded_prompt_tokens"]
++        chars = r["meta"]["chars"]
+         return dict(id=r["id"], role=r["role"], n_messages=len(r["body"]["messages"]),
+-                    prompt_chars=c, est_tokens_chars4=round(c / 4),
+-                    recorded_prompt_tokens=rp, est_over_recorded=round(c / 4 / rp, 3),
++                    prompt_chars=chars, est_tokens_chars4=round(chars / 4),
++                    recorded_prompt_tokens=rp, est_over_recorded=round(chars / 4 / rp, 3),
++                    est_over_recorded_recent=(round(r["meta"]["chars_recent"] / 4 / rp, 3)
++                                             if r["role"] == "agent" else None),
+                     predicted_n=r["meta"]["predicted_n"], kind=r["meta"].get("kind"),
+-                    chars_by_role=r["meta"].get("chars_by_role"))
++                    chars_by_role=r["meta"].get("chars_by_role"),
++                    chars_by_role_recent=r["meta"].get("chars_by_role_recent"))
+     ents = [entry(r) for r in agent + mem]
+     by = lambda role: [e for e in ents if e["role"] == role]
++
+     manifest = dict(
+         system_prompt_exact=exact_all,
+-        system_prompt_note="agent system prompt = recorded sections joined by blank lines; the join is INFERRED "
+-                           "(getSystemMessageText is not in pi_prompt_src.txt); exactness is supported only by "
+-                           "the est/recorded ratios of requests with n_messages<=3",
+-        mem_prompt_assumptions="serializeMemories=JSON list; formatConversationHistory='role: content' lines; "
+-                               "existing = latest 10 live memories (ADD/UPDATE, DELETE removed) created before the per-call cutoff "
+-                               "(not the 10 nearest by embedding); newMessages 'role: content' per mem0_extract_src.txt:838; "
+-                               "tool-add content key guessed from toolCall arguments",
++        system_prompt_note=(
++            "agent system prompt = recorded sections joined by blank lines; the join is INFERRED "
++            "(getSystemMessageText is not in pi_prompt_src.txt); exactness is supported only by "
++            "the est/recorded ratios of requests with n_messages<=3"),
++        mem_prompt_assumptions=(
++            "serializeMemories=JSON list; formatConversationHistory='role: content' lines "
++            "(mem0_extract_src.txt:838 builds ${m.role}: ${m.content} joined with '\\n'); "
++            "existing = latest 10 live memories (ADD/UPDATE, DELETE removed) created before the "
++            "per-call cutoff (not the 10 nearest by embedding); newMessages 'role: content'; "
++            "tool-add content key guessed from toolCall arguments"),
+         totals={role: dict(requests=len(by(role)),
+                            distinct_steps=len({e["id"].rsplit("/", 1)[0] for e in by(role)}),
+                            prompt_chars=sum(e["prompt_chars"] for e in by(role)),
+@@ -386,19 +474,33 @@ def main():
+         n_messages_mismatches=mismatches,
+         mem0_db_columns=dbinfo,
+         requests=ents,
++        est_scope=(
++            "est_over_recorded counts assistant reasoning_content on ALL prior assistant turns "
++            "(scope='all') so the replay reproduces the real prompt size; est_over_recorded_recent "
++            "counts it only on assistant turns after the last user message (Qwen-template behaviour). "
++            "Probe server must keep --jinja on so the template renders reasoning_content."),
+     )
+-    print(json.dumps({k: manifest[k] for k in ("system_prompt_exact", "totals")}, indent=1))
+-    short = [e["est_over_recorded"] for e in by("agent") if e["n_messages"] <= 3]
+-    print("agent ratio n_messages<=3:", short)
+-    print("agent chars_by_role (id, ratio, breakdown):")
++
++    print("=== PI-AI SOURCE CONFIRMATION ===")
++    for L in confirm_pi_ai_source():
++        print(L)
++    print()
++
++    print(json.dumps({k: manifest[k] for k in ("system_prompt_exact", "totals", "est_scope")}, indent=1))
++    short_all = [e["est_over_recorded"] for e in by("agent") if e["n_messages"] <= 3]
++    print("agent ratio n_messages<=3 (all scope):", short_all)
++    print("agent chars_by_role (all) (id, est/recorded):")
+     for e in by("agent"):
+-        print("  ", e["id"], e["est_over_recorded"], e["chars_by_role"])
++        print("   ", e["id"], e["est_over_recorded"],
++              "(recent %.3f)" % e["est_over_recorded_recent"])
+     print("mem kinds:", [(e["id"], e["kind"], e["est_over_recorded"]) for e in by("mem")])
+-    manifest["agent_ratio_n_messages_le3"] = short
++
++    manifest["agent_ratio_n_messages_le3"] = short_all
+     print("n_messages mismatches:", len(mismatches), mismatches[:10])
+     print("mem0 db columns:", json.dumps(dbinfo))
+-    print("outliers (ratio outside 0.75-1.33):",
+-          [(e["id"], e["est_over_recorded"]) for e in ents if not 0.75 <= e["est_over_recorded"] <= 1.33])
++    print("outliers (ratio outside 0.75-1.33, all-scope):",
++          [(e["id"], e["est_over_recorded"]) for e in ents
++           if not 0.75 <= e["est_over_recorded"] <= 1.33])
+     if args.dry_run:
+         return
+     OUT_DIR.mkdir(parents=True, exist_ok=True)

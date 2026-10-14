@@ -1,0 +1,10 @@
+The advisor's revision is applied: §8 now carries the **measured** outlier cause (tool/JSON ruled out by the per-role breakdown, replaced with the recorded-prompt-growth arithmetic) and the "inferred" bullet is replaced by the same arithmetic as evidence that reasoning is sent back. No builder re-run, no manifest touch — exactly as requested.
+
+All acceptance criteria verified against repo artifacts:
+- `.gitignore` has `bench/.replay/` (line 8)
+- `bench/results/2026-10-12/m1-ngram/replay_manifest.json`: 30 agent reqs / 6 steps, 12 mem reqs / 5 steps, every entry has `recorded_prompt_tokens`, medians 0.833 (agent) / 1.027 (mem), both inside 0.75–1.33
+- `bench/build_replay_set.py` runs clean (round 10, exit 0)
+- Outliers explained in `bench/m1-notes.md` §8 (now with measured numbers)
+
+Submitting `done`.
+

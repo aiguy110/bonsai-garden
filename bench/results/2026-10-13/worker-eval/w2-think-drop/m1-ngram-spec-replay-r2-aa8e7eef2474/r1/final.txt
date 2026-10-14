@@ -1,0 +1,2 @@
+Script fixed and notes documented. Now run A/greedy under the turnstile lease.
+

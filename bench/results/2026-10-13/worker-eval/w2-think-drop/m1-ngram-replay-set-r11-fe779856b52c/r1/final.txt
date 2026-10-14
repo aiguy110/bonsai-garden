@@ -1,0 +1,2 @@
+Now I understand the layout: §7's final bullet is orphaned at the very end (after a `--- (continues from §7)` marker), while `## 8` sits at line 323 right after `step2`. I'll (1) reinsert the §7 bullet right after `step2`, and (2) delete the orphaned tail.
+

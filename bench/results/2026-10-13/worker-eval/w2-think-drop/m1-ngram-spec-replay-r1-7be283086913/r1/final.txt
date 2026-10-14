@@ -1,0 +1,2 @@
+Let me compute the total generation tokens per role to estimate run duration and confirm the manifest structure I'll parse.
+

@@ -1,0 +1,82 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 5b7ff37..f7058e6 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -323,3 +323,77 @@ are omitted; index row counts are `-1` and omitted.)
+ - Both `agent` and `mem` roles show non-zero `predicted_n` (generated tokens
+   only — no speculation, §1); `cache_n` grows across turns (prefix-cache
+   hits), consistent with the running context being reused.
++
++## 8. Replay set (bench/build_replay_set.py) — round 11 of 12
++
++Built via `python3 bench/build_replay_set.py` (host, no GPU; read-only on
++recordings + the mem0 SQLite stores in mode=ro). It writes the **gitignored**
++replay bodies to `bench/.replay/m1/agent.jsonl` and `bench/.replay/m1/mem.jsonl`
++(`bench/.replay/` is in `.gitignore`; recorded content stays out of git) and
++the committed manifest to `bench/results/2026-10-12/m1-ngram/replay_manifest.json`.
++
++**Set composition**
++- **agent (30 req, 6 distinct steps, both arms):** `baseline-r0/0` ×5,
++  `baseline-r1/0` ×5, `baseline-r1/2` ×5, `mem0-r0/0` ×5, `mem0-r1/0` ×5,
++  `mem0-r2/0` ×5. Steps chosen by `step_score` (file read/edit/write + test
++  output); turns spread across each step. Each request = one recorded assistant
++  turn: messages = system prompt + full history before the turn, assistant
++  reasoning **kept** as `reasoning_content` (pi-ai converter), `tool_calls` and
++  tool results kept, `tools` = the recorded `toolsAdded`. No sampling params in
++  the body — the probe sets them.
++- **mem (12 req, 5 distinct steps):** 9 `tool_add` (mem0_memory add) + 3
++  `capture` (auto-capture), one per recorded `mem` tap record. System =
++  ADDITIVE_EXTRACTION_PROMPT **verbatim** (recon/mem0_extract_src.txt:11-486,
++  single-pass unescaped). User prompt per mem0_extract_src.txt:838 / :1137-1165
++  (`## Summary` / `## Last k Messages` / `## Recently Extracted Memories []` /
++  `## Existing Memories` / `## New Messages` / `## Observation Date` /
++  `## Current Date` / `# Output:`). Per-call cutoff from the triggering tool
++  (toolAdd ts for `tool_add`; first-text ts for `capture`); existing = latest-10
++  live memories (ADD/UPDATE, DELETE removed) created before the cutoff. Bodies
++  carry `response_format {type:json_object}` +
++  `chat_template_kwargs {enable_thinking:false}`. One capture (`mem0-r0/2/0`)
++  has recorded `predicted_n=2048` (a max_tokens cap hit); the cap is carried
++  only as the recorded `predicted_n`, not as a body sampling param.
++
++**Est/recorded calibration (chars/4 estimator, unchanged)**
++- agent median **0.833** (in 0.75–1.33)
++- mem median **1.027** (in 0.75–1.33)
++- n_messages mismatches vs tap: **0**
++- agent `system_prompt_exact`: **true**
++- agent n_messages<=3 ratios (exact-system turns):
++  0.846, 0.846, 0.84, 0.877, 0.877, 0.877
++
++**Outliers (est/recorded outside 0.75–1.33): 3, all agent**
++| id | est/recorded | recorded_prompt_tokens | effective chars/token |
++|---|---|---|---|
++| inventory-baseline-r0/0/5 | 0.740 | 13032 | 2.96 |
++| inventory-baseline-r0/0/8 | 0.743 | 13939 | 2.97 |
++| inventory-baseline-r0/0/10 | 0.742 | 14317 | 2.97 |
++
++All three are long-code turns of `baseline-r0/step0` (turns 5, 8, 10). Their
++prompts are dominated by long assistant reasoning (~26k chars, mostly code/
++symbolic) plus assistant code text and tool output, so the effective chars per
++token falls to ~2.96–2.97 and the flat chars/4 estimator under-predicts the
++real token count. Code tokenizes at **<4 chars/token** (many 1–2-char symbol
++tokens), so tool-output / code-heavy turns are expected to land below 1 — and
++these three are only marginally below 0.75 (0.740–0.743). No estimator change
++was made; the **median (0.833) passes** with the unchanged chars/4 estimator.
++
++**Reading caveats (advisor, applied this round)**
++- `est_over_recorded_reasoning_after_last_user_only` == `est_over_recorded`
++  for every agent request: each step is a fresh session with a single user
++  message before all assistant turns, so "all reasoning" and "reasoning after
++  the last user message" are the same set. This reflects the recording
++  structure, **not** template evidence.
++- `chars_by_role['reasoning']` is non-zero on the long-output steps (e.g.
++  `baseline-r0/0/5`=25717, `mem0-r2/0/8`=19456), confirming
++  `reasoning_content` is counted and kept in the bodies.
++- `system_prompt_exact` (true) is about the **agent** system prompt, rebuilt
++  from the recorded `sections` map and joined by blank lines
++  (`pi_prompt_src.txt` / `buildSystemPromptSections`); exactness is supported
++  by the n_messages<=3 ratios above. The **mem** system prompt is
++  ADDITIVE_EXTRACTION_PROMPT verbatim.
++- The builder's `pi-ai openai-completions.js` source check now scans the full
++  pi install for the `pi-ai` package and prints lines around `thinkingSignature`
++  if found; if none is found it falls back to the recorded
++  `event_samples.json` (`thinkingSignature='reasoning_content'`) and the
