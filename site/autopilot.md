@@ -4,9 +4,9 @@ kind: Live status
 updated: 2026-10-13
 ---
 
-*Updated 2026-10-13T18:59:08-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
+*Updated 2026-10-13T21:46:55-04:00. Written by `autopilot/autopilot.py`; see the [roadmap](https://github.com/aiguy110/bonsai-garden/blob/main/docs/roadmap.md) for how it works.*
 
-Cloud advisor calls left today: **63** of 100.
+Cloud advisor calls left today: **61** of 100.
 
 ## M1-ngram
 
@@ -70,7 +70,7 @@ Full journal: [branch auto/W1-worker-eval](https://github.com/aiguy110/bonsai-ga
 
 - ✅ **Recon of pi/llama.cpp mechanisms, W1 trace analysis, and fixed W2 decisions**
 - ✅ **Harness support, W2 extensions, arm files, queue/compare tools, smoke run**
-- ▶️ **Full runs: baseline rerun (if drift), w2-think-drop, w2-reasoning-budget** (round 3)
+- ▶️ **Full runs: baseline rerun (if drift), w2-think-drop, w2-reasoning-budget** (round 5)
 - ⬜ **Stock oh-my-pi as a whole-harness arm (recon, harness support, smoke, full run)**
 - ⬜ **Full runs: remaining single-factor arms and the all-singles comparison**
 - ⬜ **Combination arm, advisor grading of the best arm, recommended configuration**
@@ -78,11 +78,6 @@ Full journal: [branch auto/W1-worker-eval](https://github.com/aiguy110/bonsai-ga
 
 <details><summary>Recent journal entries</summary>
 
-- 2026-10-13T13:24:05-04:00 · advisor (finished item)
-- 2026-10-13T13:29:20-04:00 · worker (gpt-5.6-terra), round 5
-- 2026-10-13T13:32:00-04:00 · advisor (finished item)
-- 2026-10-13T13:32:00-04:00 · orchestrator
-- 2026-10-13T13:32:33-04:00 · worker (gpt-5.6-terra), round 1
 - 2026-10-13T13:33:35-04:00 · advisor (run request)
 - 2026-10-13T15:39:40-04:00 · orchestrator
 - 2026-10-13T15:40:04-04:00 · worker (gpt-5.6-terra), round 2
@@ -90,6 +85,11 @@ Full journal: [branch auto/W1-worker-eval](https://github.com/aiguy110/bonsai-ga
 - 2026-10-13T16:48:22-04:00 · worker (gpt-5.6-terra), round 3
 - 2026-10-13T16:48:56-04:00 · advisor (run request)
 - 2026-10-13T18:59:07-04:00 · orchestrator
+- 2026-10-13T18:59:33-04:00 · worker (gpt-5.6-terra), round 4
+- 2026-10-13T19:00:09-04:00 · advisor (run request)
+- 2026-10-13T19:39:45-04:00 · worker (gpt-5.6-terra), round 5
+- 2026-10-13T19:40:15-04:00 · advisor (run request)
+- 2026-10-13T21:46:54-04:00 · orchestrator
 
 Full journal: [branch auto/W2-worker-harness](https://github.com/aiguy110/bonsai-garden/blob/auto/W2-worker-harness/autopilot/state/W2-worker-harness/journal.md)
 </details>
