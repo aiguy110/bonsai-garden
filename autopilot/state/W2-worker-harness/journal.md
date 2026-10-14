@@ -1001,3 +1001,21 @@ autopilot/state/W2-worker-harness/journal.md | 4 ++++
 ```
 
 Next session: don't polish further. Check those files briefly, then end early with submit_request (a `run` request). Running the script is how you test it.
+
+### 2026-10-14T15:58:57-04:00 · worker (gpt-5.6-terra), round 4
+
+Finished the required deterministic summaries and checks: w2-think-drop has 44/44 and w2-reasoning-budget has 9/9 signal records. Regenerated compare-a.json/md against honest and W1 baselines, then added mechanism/screen notes to compare-a.md. Think-drop’s valid rate is worse beyond spread; both arms meet the predeclared repeat-2 screen condition but no win is claimed. Next resume the already-started session-budget signal screen.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --cases bench/worker_eval/cases-signal.jsonl --repeat 1 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "The prior chunk completed reasoning-budget and left w2-session-budget at 1/9 signal-case records. This resumes current-SHA records without changing completed arms or outputs, then may advance only in the established queue order. Inference uses tap/turnstile, so gpu:false is required to avoid the lease deadlock."
+}
+```
+
+### 2026-10-14T16:00:01-04:00 · advisor (run request)
+
+**revise**: Replace the command with: python3 bench/worker_eval/run.py w2-session-budget --out bench/results/2026-10-13/worker-eval/w2-session-budget --cases bench/worker_eval/cases-signal.jsonl --repeat 1 --budget-min 145. This safely resumes its existing 1/9 record without potentially advancing into w2-hashline. Before finalizing compare-a.md, remove the claim that w2-think-drop is a repeat-2 candidate; it already has 44 records at N=2.

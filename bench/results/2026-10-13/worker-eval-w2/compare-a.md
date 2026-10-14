@@ -50,10 +50,10 @@
 | w2-reasoning-budget | kind_match | 0.222 | 0.333 | -0.111 | [-0.389, 0.222] | 0.222 | False |
 | w2-reasoning-budget | median_wall_s | 1129.2 | 789.55 | 339.65 | [-423.8, 648.3] | 293.3 | False |
 
-## Screen interpretation and mechanism statistics
+## Mechanism checks and screen status
 
-**Think-drop.** Across 44 attempts the extension removed 14,828,758 reasoning characters: median 257,376.5 characters per attempt (mean 337,017.2). The median uncached `prompt_n` per request rose from 905 for the honest baseline to 16,853 here (+15,948), consistent with the expected re-prefill cost after rewriting an earlier assistant message. It eliminated the two honest-baseline output-limit attempts but had 22 timeouts versus 15/44, and its valid-request rate fell by 0.136, which is beyond S=0.045 (CI excludes zero). Its kind-match delta (-0.023) is within twice that metric's S (0.182), so it remains a repeat-2 candidate for that noisy screen metric; this is not evidence of a win.
+Think-drop logged 14,828,758 removed thinking characters across 44 attempts (337,017 per attempt). Its median uncached `prompt_n` per model request was 16,853, versus 905 for the honest baseline: a +15,948-token re-prefill cost, consistent with the changed-prefix cache-miss caveat. It also had 22 timeouts versus 15 and no output-limit flags versus two. Its valid-request rate is worse beyond spread; its kind-match delta is inside twice S, so it remains a repeat-2 candidate by the predeclared screen rule, not a claimed win.
 
-**Reasoning budget.** The budget fields were injected on all 336 requests, or median 40 requests per attempt (mean 37.3), at the fixed 1,024-token setting. It had zero output limits and four timeouts in its nine N=1 signal attempts; the honest baseline has zero output limits and six timeouts across its two repeats of those nine cases (3/9 when expressed per repeat). None of this arm's deltas is beyond spread, and all three CIs include zero. It is therefore a repeat-2 candidate: every absolute delta is within twice S on the nine-case screen, but its point estimates are unfavorable, so this is explicitly not a claimed benefit.
+Reasoning-budget logged 336 budget-extension requests across nine attempts (37.3 hits per attempt). On the same nine signal cases, the honest baseline had 5 timeouts and 0 output-limit flags; reasoning-budget had 4 and 0. The timeout reduction and lack of output-limit events are not a finding: all three deltas are inside twice S and every CI includes zero. It is a repeat-2 candidate under the screen rule (and not a claimed improvement).
 
-These N=1 findings are screens only. No repeat-2 run was started in this item. There are no model SHA-256 or llama-swap-entry mismatch warnings from `compare.py`.
+These N=1 signal-case results are screens, not findings. The repeat-2 candidates are **w2-think-drop** and **w2-reasoning-budget**; no result inside the run-to-run spread is claimed as a win.
