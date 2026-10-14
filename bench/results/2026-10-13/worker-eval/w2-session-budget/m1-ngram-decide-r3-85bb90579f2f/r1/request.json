@@ -1,0 +1,8 @@
+{
+  "report": "Updated bench/spec_summarize.py per advisor: (1) added a criterion column to the deployment decision table stating each rule's exact threshold (1.10x, 0.97x, +64 MiB, validity comparison, 10-point identity allowance), and mirrored the criteria in summary.json; (2) rule 1 now verifies the pinned projector actually loaded by scanning all four A-prod server logs for 'load_model: loaded multimodal model, <path>' and matching the pinned --mmproj line from serving/llama-swap.bonsai-2-27b.yaml, not notes.txt. Compile passes; rule-1 logic verified against the four real A-prod logs (all match /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf); /tmp dry run reproduces rules 1/4/6 PASS, 2/3/5 FAIL with unchanged numbers. The gitignored response outputs are host-only, so I request a host run to regenerate summary.md, summary.json, and deploy.json in place.",
+  "request": "run",
+  "command": "python3 bench/spec_summarize.py bench/results/2026-10-12/m1-ngram/replay",
+  "gpu": false,
+  "timeout_min": 15,
+  "why": "Regenerate the M1 decision artifacts (summary.md, summary.json, deploy.json) with the new rule criteria and log-verified mmproj rule 1; sandbox lacks the gitignored .replay outputs, so the identity/first-divergence numbers can only be recomputed on the host."
+}

@@ -1,0 +1,17 @@
+[2026-10-14T16:19:24-04:00] w2-session-budget m1-ngram-replay-set-r10-0046c6599fd4 r1
+  valid=False kind=None match=False 853.1s turns=9 tools=13
+[2026-10-14T16:33:37-04:00] w2-session-budget m1-ngram-replay-set-r11-fe779856b52c r1
+  valid=True kind=continue match=False 1067.8s turns=22 tools=24
+[2026-10-14T16:51:25-04:00] w2-session-budget m1-ngram-spec-replay-r3-b72fe4dade49 r1
+  valid=True kind=run match=True 773.7s turns=14 tools=19
+[2026-10-14T17:04:19-04:00] w2-session-budget m1-ngram-spec-replay-r4-1147202353a6 r1
+  valid=False kind=None match=False 1200.3s turns=13 tools=14
+[2026-10-14T17:24:20-04:00] w2-session-budget m1-ngram-spec-replay-r10-dc0c818a5351 r1
+  valid=True kind=done match=True 670.2s turns=22 tools=23
+[2026-10-14T17:35:30-04:00] w2-session-budget m1-ngram-decide-r2-e17c18c1927d r1
+  valid=True kind=run match=False 834.0s turns=18 tools=23
+[2026-10-14T17:49:24-04:00] w2-session-budget m1-ngram-decide-r3-85bb90579f2f r1
+  valid=True kind=run match=False 592.8s turns=17 tools=21
+[2026-10-14T17:59:17-04:00] w2-session-budget m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=True kind=done match=True 312.7s turns=7 tools=15
+{"skipped": 1, "ran": 8, "remaining": 0}

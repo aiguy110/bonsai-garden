@@ -1,0 +1,9 @@
+{
+  "report": "Applied advisor's fixes to bench/spec_summarize.py: (1) per-phase VRAM parsing from vram.txt sections (A-prod vs off-prod deltas now +1/+1/+1/-1 MiB; rule 4 still PASS), (2) first-divergence character indices for off dual-vs-single control mismatches in both summary.md (new column) and summary.json (control entries now carry mismatches list). Verified script parses and runs correctly in sandbox; indices show \"\u2014\" there only because the gitignored response outputs live on the host. Decision stays no-deploy: rules 2, 3, 5 still fail. Now requesting host run to regenerate artifacts with real divergence indices.",
+  "request": "run",
+  "command": "python3 bench/spec_summarize.py bench/results/2026-10-12/m1-ngram/replay",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Summary must be regenerated on the host where bench/.replay/m1/outputs/* (gitignored response texts) exist; sandbox cannot compute the control first-divergence indices.",
+  "summary": "Regenerate M1 summary artifacts with fixed spec_summarize.py (per-phase VRAM + control first-divergence indices)."
+}

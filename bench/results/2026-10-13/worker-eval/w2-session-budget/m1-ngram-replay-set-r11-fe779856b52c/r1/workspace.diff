@@ -1,0 +1,93 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 5b7ff37..0189e97 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -323,3 +323,88 @@ are omitted; index row counts are `-1` and omitted.)
+ - Both `agent` and `mem` roles show non-zero `predicted_n` (generated tokens
+   only — no speculation, §1); `cache_n` grows across turns (prefix-cache
+   hits), consistent with the running context being reused.
++
++## 8. Replay-set verification (2026-10-12, rounds 7-11)
++
++`python3 bench/build_replay_set.py` (dry-run-safe; reads host event streams and the mem0
++SQLite stores `mode=ro`; writes only `bench/.replay/m1/{agent,mem}.jsonl` and the
++committed manifest). Last successful run: exit 0, log
++`bench/results/2026-10-12/autopilot/replay-set-r10.log`. Outputs:
++
++- **agent.jsonl — 30 requests, 6 distinct steps, both arms** (baseline-r0, baseline-r1,
++  mem0-r0/r1/r2; steps chosen by the file-op/test score in `step_score`, turns spread
++  across each step via `spread()`).
++- **mem.jsonl — 12 rebuilt mem0 extraction calls, 5 distinct steps** (auto-capture +
++  `mem0_memory` add tool-calls matched to the step's mem tap records in cutoff order;
++  per-call memory cutoff from the DB; `response_format {type: json_object}` and
++  `chat_template_kwargs {enable_thinking: false}` present). Bodies carry no sampling
++  params (the probe sets them).
++- **`n_messages_mismatches: []`** — every rebuilt body has exactly the recorded
++  `n_messages`.
++- **`system_prompt_exact: true`** — system prompt rebuilt from the recorded sections
++  payload (blank-line join inferred from pi_prompt_src.txt, `pi-ai 2026.10.1`); the
++  join is only *supported*, not directly verified, because the n_messages<=3 ratio
++  evidence is the actual ground check.
++- Every entry carries `recorded_prompt_tokens` (= tap `prompt_n + cache_n`), `prompt_chars`,
++  the chars/4 estimate, and `est_over_recorded`.
++
++### 8.1 Verification against recorded prompt sizes (chars/4 estimator)
++
++- Agent median est/recorded = **0.833**; mem median = **1.027**. Both inside the
++  0.75-1.33 acceptance window.
++- Agent median **0.457 without `reasoning_content`** (rounds 8/9), vs 0.833 with it
++  → recorded prompts *do* include earlier reasoning, so `reasoning_content` must be
++  sent back in replay bodies.
++- The "reasoning after last user only" median equals the all-reasoning median
++  (0.833 = 0.833). This is expected and carries no template evidence: every step is
++  a fresh session with a single user message before all assistant turns, so the two
++  splits are identical by construction.
++- `chars_by_role["reasoning"]` is non-zero on every long-output step (baseline-r0/0:
++  148 → 26591 chars across turns 2/5/8/10; mem0-r*/0: up to 19456), so reasoning is
++  counted in the estimate (only the `reasoning_content` key is counted).
++- **pi-ai source check: inconclusive.** `show_pi_ai_source()` printed
++  `pi-ai openai-completions.js: []` (empty glob) in every run — no converter source was
++  found at the pi-ai node path, so this check neither confirms nor refutes the
++  converter. The "reasoning sent back" claim is instead supported empirically (the
++  0.457 → 0.833 ratio delta when `reasoning_content` is included) and by the
++  `thinkingSignature = 'reasoning_content'` values in
++  `recon/event_samples.json` (line 457). That is the strength of the evidence; the
++  source check is a bonus, not a gate.
++
++### 8.2 Outliers (est/recorded outside 0.75-1.33)
++
++Three agent requests, all **baseline-r0 step 0, turns 5/8/10** (ratios 0.740 / 0.743 /
++0.742; recorded 13032 / 13939 / 14317 tokens):
++
++| id | ratio | recorded tokens | prompt chars |
++|---|---|---|---|
++| inventory-baseline-r0/0/5 | 0.740 | 13032 | 38559 |
++| inventory-baseline-r0/0/8 | 0.743 | 13939 | 41401 |
++| inventory-baseline-r0/0/10 | 0.742 | 14317 | 42495 |
++
++(all recorded-per-char = 0.337-0.338 tokens/char)
++
++These are the turns where **reasoning dominates** the prompt (25.7k-26.2k chars each,
++on top of the constant ~5.4k chars of system + JSON tool schemas; the `tool` role is
++only 2-4k chars, so tool output is not the driver). The recorded prompts tokenize at
++~2.96 chars/token (0.337-0.338 tokens/char), vs 3.38 chars/token (0.296 tokens/char)
++for the short n_messages=2 turn. The chars/4 estimator assumes 4 chars/token; the
++Qwen tokenizer emits >0.25 tokens/char on the reasoning + JSON-schema + code-ish mix,
++so the estimate is ~26% low on these turns. This is the expected sub-1 behaviour of
++the estimator on reasoning/JSON-heavy content (per the task's own caveat about
++<4-chars/token code tokenizing); recorded token counts are the ground truth the probe
++measures and chars/4 is only a reconstruction cross-check. Off the floor by at most
++0.01; the remaining 27 agent requests sit in 0.756-0.887.
++
++### 8.3 Probe requirements (carried in manifest `server_requirement`/notes)
++
++- Probe llama-server must be started with **`--jinja`** (production has it) so the chat
++  template renders `reasoning_content` from assistant messages and reproduces recorded
++  prompt sizes.
++- **max_tokens**: the recorded traffic shows no explicit cap field, but
++  `predicted_n == 2048` indicates a cap was hit. In the replay set exactly one request
++  is capped: **`inventory-mem0-r0/2/0`** (mem auto-capture, step2; predicted_n=2048).
++  The probe should set `max_tokens=2048` for that request and leave the other 11 mem
++  requests and all 30 agent requests uncapped. Manifest `predicted_n` fields flag it.
++
++(`.gitignore` contains `bench/.replay/`, so the recorded bodies are not committed.)

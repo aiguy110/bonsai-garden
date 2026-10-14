@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Analyzed A-greedy (ngram-mod defaults): all 4 phases done with spec ON + mmproj + q4_0 KV + --parallel 2 on :8089 \u2014 this confirms the \u00a73 static verdict (draft_n>0 rows + timing lines in server logs, no rejection, VRAM 9507 MiB). Results: single-agent 55.1\u219286.0 tok/s but the headline is inflated (2 mem0 requests diverged to length-capped output; no-length 54.3 vs off 56.2 = slightly worse); single-mem 55.6\u219253.1; dual-agent 26.3\u219225.5 (no-length 26.1); dual-mem 25.0\u219223.8. A fails the \"both slots busy\" deploy rule; acceptance low in dual (14% agent, 9% mem). Wrote bench/m1-notes.md \u00a79 (results, output-identity fractions 3/30, 10/12, 0/30, 11/12, no-length view) and \u00a710 (prod-sampling plan).",
+  "why": "B = ngram-cache greedy replay: second ngram setting per item (different mechanism: persistent cross-request n-gram cache vs ngram-mod per-request lookup), targeting the low dual-phase acceptance that made ngram-mod neutral/negative under contention. 4 phases (single/dual \u00d7 agent/mem), fresh server each, temp 0 top_k 1, same max_tokens=recorded predicted_n cap. Output lands in bench/results/2026-10-12/m1-ngram/replay/B-greedy/.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay B greedy --spec-type ngram-cache",
+  "timeout_min": 120,
+  "gpu": true
+}

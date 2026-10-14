@@ -1,0 +1,2 @@
+A/greedy is fully analyzed. The numbers tell a clear story: A doesn't help with two slots busy, and its single-agent headline is inflated by two diverged length-capped requests. Writing the notes section and B choice, then requesting the B run:
+

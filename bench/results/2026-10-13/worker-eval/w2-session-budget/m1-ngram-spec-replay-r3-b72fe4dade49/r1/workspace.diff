@@ -1,0 +1,74 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 4217e95..ad3ec8b 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -335,3 +335,69 @@ Estimator: chars/4 over the rebuilt body, against recorded prompt_n+cache_n.
+ - Outliers below 0.75: baseline-r0/0/5 (0.740), /0/8 (0.743), /0/10 (0.742), 1% under the bound, all late turns of baseline-r0 step 0, which is dominated by one long reasoning output. Cause: over turns 2-5 the rebuilt body grows 8502->38559 chars (+30057), of which tool output is only +219 (baseline-r0/0/5 chars_by_role: tool=2154, reasoning=25717), while the recorded prompt grows +10271 tokens. So the model's own reasoning/assistant text tokenizes at ~2.96 chars/token and chars/4 under-counts it. Estimator not changed.
+ - Mem requests are all 1.02–1.04: the prompt is mostly the fixed ADDITIVE prompt, so they pass easily. They do not test the tokenizer on conversation content.
+ - Replays still lack sampling params and per-request max_tokens (not recorded); the probe must set them.
++
++## 9. Round 3 (2026-10-12) — A-greedy (ngram-mod defaults): results, output identity, B choice
++
++A = `--spec-type ngram-mod` with defaults (n-min 48 / n-max 64 / n-match 24), full production flags
++(mmproj, --kv-unified, q4_0 KV, --parallel 2, --jinja) on :8089, greedy (temp 0, top_k 1, seed 0).
++Data: `bench/results/2026-10-12/m1-ngram/replay/{off,A}-greedy/` (4 phases each, fresh server per phase).
++
++**mmproj + spec confirmed (rounds 2-3 of the §3 verification list).** No rejection: `A-greedy/notes.txt`
++contains only the cmd + `done`; all 4 phases started, VRAM steady at 9507 MiB (vram.txt). Draft stats
++appear in every phase: `server_single-agent.log` timing lines show per-step draft acceptance
++(e.g. `6 accepted / 192 generated` 0.031, `45 accepted / 128 generated`, `2135 accepted / 2242
++generated` on the long mem0 request). Per-request `draft_n`/`draft_n_accepted` are present on all
++A foreground rows. This is the empirical confirmation §3 asked for: spec is usable with mmproj +
++q4_0 KV + --parallel 2 on text-only traffic.
++
++**Decode tok/s (fg, sum predicted_n / sum predicted_ms):**
++
++| phase | off | A (all) | A (no length) |
++|---|---|---|---|
++| single-agent | 55.1 | 86.0 | 54.3 |
++| single-mem | 55.6 | 53.1 | 53.1 |
++| dual-agent | 26.3 | 25.5 | 26.1 |
++| dual-mem | 25.0 | 23.8 | 23.8 |
++
++**A's single-agent 86.0 tok/s is not comparable output.** Two of the 30 requests —
++mem0-r0/0/2 (3121 vs 1020 tok) and mem0-r2/0/2 (4854 vs 3701 tok) — finish `length` in A but
++`tool_calls` in off, i.e. the temp-0 continuation diverged and A ran to the cap (both arms share
++the same recorded predicted_n-derived max_tokens, 3121 and 4854). Excluding the length-finished
++rows, A's single-agent is 54.3 vs 56.2 tok/s — slightly *worse*. Length-finish counts: off 1
++(r1/2/8, 1323 tok); A 3 (that row + the two mem0 rows above; dual-agent A adds r1/2/6 768 tok
++and r1/2/8 1323 tok). Per the advisor rule, both views are reported; the no-length view is the fair
++one.
++
++**Output identity at temperature 0 (off vs A, per phase, out_sha256):** single-agent 3/30,
++single-mem 10/12, dual-agent 0/30, dual-mem 11/12 identical. Consistent with the standing fact
++that even off-greedy outputs differ between single and dual phases (r0/0/0 sha 530c... vs
++4694...; r0/0/8 141 vs 203 tok) — greedy output depends on batch mix, and the spec path changes
++batching. So arm-to-arm identity must be judged per phase, and low match rates are expected; they
++are reported, not hidden.
++
++**Dual-slot verdict (the M1 decision metric): A does not help.** Both dual phases are negative
++(agent −3.0% all / −1.5% no-length; mem −4.8%) and acceptance is low (dual-agent 259/1856 ≈
++14%; dual-mem 69/740 ≈ 9%): the draft/verification overhead outweighs the occasional accepted
++run. A fails the "helps with both slots busy" rule; it is not a deploy candidate. The single-slot
++agent win in the all-rows view is real throughput only on diverged, longer output.
++
++**B choice: `--spec-type ngram-cache`.** From `spec_flags.txt` this is the only ngram variant with
++a different mechanism: a persistent n-gram cache retained across requests, versus ngram-mod's
++per-request lookup. M1's hypothesis is that repeated agent content (file contents, diffs, test
++output) makes drafts often correct — a cross-request cache is the type that most directly exploits
++repetition, including in the dual-phase traffic where ngram-mod's acceptance collapsed. It also
++has no per-variant flags of its own in the help text, so it runs on documented defaults and is a
++clean contrast, not a re-tuning of A. If B also fails dual, the ngram family does not help under
++contention and the stack stays as-is; if it wins dual, it becomes the deploy candidate after the
++prod-sampling runs. B will run as `B greedy --spec-type ngram-cache` in
++`bench/results/2026-10-12/m1-ngram/replay/B-greedy/` (same phases, fresh servers). If the server
++refuses ngram-cache, the failure line will be quoted in `B-greedy/notes.txt` and the mmproj
++fallback logic (refusal-only, per §3) handles it.
++
++## 10. prod-sampling plan (round 4 onward)
++
++Per the item: after B-greedy, run `off prod` and the winner of A/B (by dual-agent greedy
++decode tok/s) as `prod` — agent temp 1.0 / top_p 0.95 / top_k 20, mem temp 0.2, both seed 0.
++`off prod` is still pending regardless of the A/B outcome (required by the acceptance list).
++Report combined per-slot throughput over phase wall time (dual phases include the other slot's
++prefill stalls in predicted_ms) when summarizing.

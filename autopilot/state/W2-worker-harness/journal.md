@@ -1019,3 +1019,46 @@ Finished the required deterministic summaries and checks: w2-think-drop has 44/4
 ### 2026-10-14T16:00:01-04:00 · advisor (run request)
 
 **revise**: Replace the command with: python3 bench/worker_eval/run.py w2-session-budget --out bench/results/2026-10-13/worker-eval/w2-session-budget --cases bench/worker_eval/cases-signal.jsonl --repeat 1 --budget-min 145. This safely resumes its existing 1/9 record without potentially advancing into w2-hashline. Before finalizing compare-a.md, remove the claim that w2-think-drop is a repeat-2 candidate; it already has 44 records at N=2.
+
+### 2026-10-14T16:18:49-04:00 · worker (gpt-5.6-terra), round 5
+
+Corrected compare-a.md: w2-think-drop is no longer labeled a repeat-2 candidate because its 44-record N=2 run is complete; reasoning-budget remains the sole N=1 screen candidate. Confirmed session-budget has 1 completed manifest, so the direct runner will resume its remaining eight signal cases only.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run.py w2-session-budget --out bench/results/2026-10-13/worker-eval/w2-session-budget --cases bench/worker_eval/cases-signal.jsonl --repeat 1 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Inference requests route through the benchmark tap/turnstile, so gpu:false is required to avoid holding the turnstile lease and deadlocking model requests. The direct arm runner resumes only w2-session-budget current-SHA records and cannot advance into hashline."
+}
+```
+
+### 2026-10-14T16:19:24-04:00 · advisor (run request)
+
+**approve**: Run as submitted. `run.py` skips the completed current-arm-SHA record and runs only the remaining eight signal cases. It writes under the specified repository result directory and temporary `/tmp` workspaces, uses a networkless container, and cleans up only its own container/tap processes. It does not start llama-server, alter live configuration, or access :11435 directly; inference follows the intended tap-to-turnstile route with `gpu:false`. Preserve all records and report any stop after three consecutive infrastructure failures.
+
+### 2026-10-14T18:04:30-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run.py w2-session-budget --out bench/results/2026-10-13/worker-eval/w2-session-budget --cases bench/worker_eval/cases-signal.jsonl --repeat 1 --budget-min 145` (gpu=False) in 6306s, exit 0. Full output: `bench/results/2026-10-14/autopilot/runs-single-a-r5.log`. Last lines:
+
+```
+[2026-10-14T16:19:24-04:00] w2-session-budget m1-ngram-replay-set-r10-0046c6599fd4 r1
+  valid=False kind=None match=False 853.1s turns=9 tools=13
+[2026-10-14T16:33:37-04:00] w2-session-budget m1-ngram-replay-set-r11-fe779856b52c r1
+  valid=True kind=continue match=False 1067.8s turns=22 tools=24
+[2026-10-14T16:51:25-04:00] w2-session-budget m1-ngram-spec-replay-r3-b72fe4dade49 r1
+  valid=True kind=run match=True 773.7s turns=14 tools=19
+[2026-10-14T17:04:19-04:00] w2-session-budget m1-ngram-spec-replay-r4-1147202353a6 r1
+  valid=False kind=None match=False 1200.3s turns=13 tools=14
+[2026-10-14T17:24:20-04:00] w2-session-budget m1-ngram-spec-replay-r10-dc0c818a5351 r1
+  valid=True kind=done match=True 670.2s turns=22 tools=23
+[2026-10-14T17:35:30-04:00] w2-session-budget m1-ngram-decide-r2-e17c18c1927d r1
+  valid=True kind=run match=False 834.0s turns=18 tools=23
+[2026-10-14T17:49:24-04:00] w2-session-budget m1-ngram-decide-r3-85bb90579f2f r1
+  valid=True kind=run match=False 592.8s turns=17 tools=21
+[2026-10-14T17:59:17-04:00] w2-session-budget m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=True kind=done match=True 312.7s turns=7 tools=15
+{"skipped": 1, "ran": 8, "remaining": 0}
+
+```

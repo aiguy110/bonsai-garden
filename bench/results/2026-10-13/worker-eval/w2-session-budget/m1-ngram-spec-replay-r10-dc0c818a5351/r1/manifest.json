@@ -1,0 +1,28 @@
+{
+  "arm": "w2-session-budget",
+  "arm_sha256": "c37ac7ffd7702e173ed2353777458934b7610d05cd6066d76134cd2e4be7d6ab",
+  "case_id": "m1-ngram-spec-replay-r10-dc0c818a5351",
+  "repeat": 1,
+  "start_commit": "66680271bc71954c4a9fc741dfd7a0badf023dba",
+  "prompt_sha256": "ac5e711333264ffe79c302947f1ff81fbf32631cacb0b36e99108b36f7652177",
+  "prompt_timeout_min": 20,
+  "prompt_rewrite": "'killed after 45 minutes' -> 'killed after 20 minutes' (1 occurrence)",
+  "case_prompt_sha256": "55398ace3558c8d1638f9630bc01b109a219f11b6ebef37d7cedd971a471e6a0",
+  "checkout": "/tmp/w1-replay-8jtj8muy/garden",
+  "started": "2026-10-14T17:24:20-04:00",
+  "pi": [
+    "pi",
+    "-p",
+    "--mode",
+    "json",
+    "--no-session",
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-themes",
+    "--model",
+    "garden/bonsai-agent",
+    "--thinking",
+    "low",
+    "<prompt>"
+  ]
+}

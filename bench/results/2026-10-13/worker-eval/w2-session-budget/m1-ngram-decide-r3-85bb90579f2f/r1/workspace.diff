@@ -1,0 +1,96 @@
+diff --git a/bench/spec_summarize.py b/bench/spec_summarize.py
+index 67ba1b8..e2f122e 100644
+--- a/bench/spec_summarize.py
++++ b/bench/spec_summarize.py
+@@ -79,6 +79,32 @@ def metric(rows):
+             "tool_call_json_valid_rate": sum(bool(r["tool_call_json_valid"]) for r in valid) / len(valid) if valid else None}
+ 
+ 
++def pinned_mmproj_path():
++    """Pinned --mmproj path from the live serving entry (rule 1 condition)."""
++    path = Path(__file__).resolve().parent.parent / "serving" / "llama-swap.bonsai-2-27b.yaml"
++    for line in path.read_text().splitlines():
++        line = line.strip()
++        if line.startswith("--mmproj"):
++            return line.split(None, 1)[1].strip(" '\"")
++    return None
++
++
++def mmproj_log_loads(cand_dir):
++    """Per-phase projector-load evidence in the candidate's server logs.
++
++    Rule 1 requires the pinned projector to have actually loaded, verified from
++    all four phase server logs ('load_model: loaded multimodal model, <path>'),
++    not inferred from notes.txt.
++    """
++    found = {}
++    for phase in PHASES:
++        path = cand_dir / f"server_{phase}.log"
++        text = path.read_text() if path.exists() else ""
++        m = re.search(r"load_model: loaded multimodal model, '([^']*)'", text)
++        found[phase] = m.group(1) if m else None
++    return found
++
++
+ def fnum(x, digits=1):
+     return "—" if x is None else f"{x:.{digits}f}"
+ 
+@@ -157,13 +183,38 @@ def main():
+     candidate_id = [x for x in identity if x["arm"] == "A-greedy" and x["phase"].startswith("dual-")]
+     control_rate = sum(x["identical"] for x in control) / sum(x["compared"] for x in control)
+     identity_rate = sum(x["identical"] for x in candidate_id) / sum(x["compared"] for x in candidate_id)
++    pinned = pinned_mmproj_path()
++    mm = mmproj_log_loads(replay / candidate)
++    mm_pass = all(pinned is not None and mm[phase] == pinned for phase in PHASES)
++    if mm_pass:
++        mm_value = (f"all 4 {candidate} server logs contain 'load_model: loaded multimodal model, "
++                    f"{pinned}' (matches the pinned --mmproj line)")
++    else:
++        mm_value = ("missing/mismatched in: "
++                    + "; ".join(f"{phase}={'none' if mm[phase] is None else mm[phase]}" for phase in PHASES)
++                    + f" (pinned line: {pinned!r})")
+     rules = [
+-        {"rule": 1, "pass": "--mmproj" in (replay / candidate / "notes.txt").read_text() and "refused" not in (replay / candidate / "notes.txt").read_text(), "value": "--mmproj loaded; no refusal recorded"},
+-        {"rule": 2, "pass": ca["speedup_vs_off"] >= 1.10, "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
+-        {"rule": 3, "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)), "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
+-        {"rule": 4, "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)), "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
+-        {"rule": 5, "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem"))), "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): " + "/".join(f"{fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem")))},
+-        {"rule": 6, "pass": identity_rate >= control_rate - .10, "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
++        {"rule": 1, "pass": mm_pass,
++         "criterion": ("candidate runs with the pinned --mmproj projector loaded:"
++                        " 'load_model: loaded multimodal model, <pinned path>'"
++                        " in all 4 A-prod server logs"),
++         "value": mm_value},
++        {"rule": 2, "pass": ca["speedup_vs_off"] >= 1.10,
++         "criterion": "at prod sampling, dual-agent tok/s >= 1.10x off",
++         "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
++        {"rule": 3, "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)),
++         "criterion": "at prod sampling, dual-mem and both single phases >= 0.97x off",
++         "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
++        {"rule": 4, "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)),
++         "criterion": "VRAM <= off + 64 MiB in all 4 phases",
++         "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
++        {"rule": 5, "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem"))),
++         "criterion": "tool_call_json_valid rate >= off rate in all 4 phases (prod sampling)",
++         "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): " + "/".join(f"{fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem")))},
++        {"rule": 6, "pass": identity_rate >= control_rate - .10,
++         "criterion": ("A-greedy dual-phase identical-output rate >="
++                        " off dual-vs-single control rate - 10 points"),
++         "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
+     ]
+     result = {"replay_dir": str(replay), "foreground_only": True, "metrics": [dict(arm=a, phase=p, role=r, **m) for (a,p,r),m in metrics.items()], "identity": identity, "off_dual_vs_single_control": control, "decision_candidate": candidate, "rules": rules}
+     outdir.mkdir(parents=True, exist_ok=True)
+@@ -180,8 +231,11 @@ def main():
+     for x in control:
+         ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
+         lines.append(f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
+-    lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.", "", "| rule | result | value |", "|---:|---|---|"]
+-    lines += [f"| {x['rule']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
++    lines += ["", "## Deployment decision", "",
++              f"Candidate: `{candidate}` (`--spec-type ngram-mod`). Deploy only if every "
++              "rule passes; the criterion column states the exact threshold each rule "
++              "must meet.", "", "| rule | criterion | result | value |", "|---:|---|---|---|"]
++    lines += [f"| {x['rule']} | {x['criterion']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
+     failed = [f"rule {x['rule']}: {x['value']}" for x in rules if not x["pass"]]
+     lines += ["", "**Decision: do not deploy.** " + "; ".join(failed) + "."]
+     (outdir / "summary.md").write_text("\n".join(lines) + "\n")

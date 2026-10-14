@@ -1,0 +1,2 @@
+The script is at round 9 state (mem fixes in, but the round-9 advisor's "before running" items 1-5 are not). Let me check the event format, inventory, probe consumer, and probe flags before editing.
+

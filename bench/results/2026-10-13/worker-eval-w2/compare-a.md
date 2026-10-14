@@ -52,8 +52,8 @@
 
 ## Mechanism checks and screen status
 
-Think-drop logged 14,828,758 removed thinking characters across 44 attempts (337,017 per attempt). Its median uncached `prompt_n` per model request was 16,853, versus 905 for the honest baseline: a +15,948-token re-prefill cost, consistent with the changed-prefix cache-miss caveat. It also had 22 timeouts versus 15 and no output-limit flags versus two. Its valid-request rate is worse beyond spread; its kind-match delta is inside twice S, so it remains a repeat-2 candidate by the predeclared screen rule, not a claimed win.
+Think-drop logged 14,828,758 removed thinking characters across 44 attempts (337,017 per attempt). Its median uncached `prompt_n` per model request was 16,853, versus 905 for the honest baseline: a +15,948-token re-prefill cost, consistent with the changed-prefix cache-miss caveat. It also had 22 timeouts versus 15 and no output-limit flags versus two. Its valid-request rate is worse beyond spread; it has already completed its required N=2, 22-case run, so it is not a signal-screen repeat candidate or a claimed win.
 
 Reasoning-budget logged 336 budget-extension requests across nine attempts (37.3 hits per attempt). On the same nine signal cases, the honest baseline had 5 timeouts and 0 output-limit flags; reasoning-budget had 4 and 0. The timeout reduction and lack of output-limit events are not a finding: all three deltas are inside twice S and every CI includes zero. It is a repeat-2 candidate under the screen rule (and not a claimed improvement).
 
-These N=1 signal-case results are screens, not findings. The repeat-2 candidates are **w2-think-drop** and **w2-reasoning-budget**; no result inside the run-to-run spread is claimed as a win.
+The N=1 reasoning-budget signal-case result is a screen, not a finding. The repeat-2 candidate is **w2-reasoning-budget**; w2-think-drop already completed N=2 on all 22 cases. No result inside the run-to-run spread is claimed as a win.

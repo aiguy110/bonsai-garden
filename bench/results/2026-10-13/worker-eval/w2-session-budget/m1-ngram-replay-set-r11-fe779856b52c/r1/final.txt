@@ -1,0 +1,12 @@
+All acceptance criteria verified:
+- `bench/.replay/` in `.gitignore` (line 8) ✓
+- Manifest at `bench/results/2026-10-12/m1-ngram/replay_manifest.json` (committed by orchestrator) ✓
+- 30 agent / 6 steps (≥4), 12 mem ✓
+- `n_messages_mismatches: []`, `system_prompt_exact: true` ✓
+- All entries carry `recorded_prompt_tokens` ✓
+- Medians in window: agent 0.833, mem 1.027 ✓
+- 3 outliers documented in `bench/m1-notes.md` §8.2 ✓
+- Builder committed, runs exit 0, no sampling params in bodies ✓
+
+The section-7 restoration is in place and §8 is complete. Submitting to move to the replay probe next.
+
