@@ -31,7 +31,12 @@ doesn't.
 ## Candidates
 
 Work in this order unless W1's failure modes say otherwise. Each is an arm in
-`bench/worker_eval/arms/`; new arms never edit old ones. Run each at N=2 on all cases.
+`bench/worker_eval/arms/`; new arms never edit old ones. The baseline runs at N=2 on all
+22 cases. Single-factor arms are screened at N=1 on the 9 signal cases
+(`bench/worker_eval/cases-signal.jsonl`: the cases whose outcome varied across the
+baseline's and W1's 4 attempts); promising ones get a second repeat, and the
+combination or best arm runs at N=2 on all 22 cases before it is recommended
+(user decision 2026-10-14; see `W2-decisions.md`).
 
 0. **Corrected baseline (first; every later arm is compared with this one, not with
    `bonsai-2026-10-12`).** W1 replays each recorded prompt verbatim, and it says
@@ -79,7 +84,8 @@ Work in this order unless W1's failure modes say otherwise. Each is an arm in
 ## Done when
 
 1. Arm files for the candidates above, each with a stated hypothesis.
-2. Every arm run on every W1 case at N=2, with valid-request rate, kind-match rate,
+2. Every arm run per the design above (screens on the signal cases, the baseline and the
+   recommended arm at N=2 on all 22), with valid-request rate, kind-match rate,
    median time and failure-mode breakdown against the corrected baseline (and the
    W1 arm, for the first comparison). Note which
    differences exceed the run-to-run spread; don't claim wins inside it.
