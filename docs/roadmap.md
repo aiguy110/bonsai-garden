@@ -6,19 +6,20 @@ mem0 2/3 vs baseline 0/3. That is suggestive, not a result. A second
 mem0 arm, `mem0-server`, runs Python mem0 (the reference implementation)
 instead of the JS port. W1 local-worker replay is also done: on 22 real
 cloud-worker rounds at N=2, Bonsai submitted valid requests in 25/44 attempts
-(56.8%) and matched request kind in 21/44 (47.7%). W2 (worker harness) is paused
-part-way for T1, a small Terminal-Bench 2.0 probe: the worker eval is one milestone in
-one repo, and only 9 of its 22 cases separate arms.
+(56.8%) and matched request kind in 21/44 (47.7%). W2 (worker harness) is running.
+Alongside it, T1, a small Terminal-Bench 2.0 probe, is being prepared for a rented GPU:
+the worker eval is one milestone in one repo, and only 9 of its 22 cases separate arms.
 
 Bonsai couldn't keep up as the autopilot's worker (11 of 21 rounds sent no request),
 so since 2026-10-12 the worker is a cloud model (Claude Sonnet 5.5, then GPT-5.6
 Terra through Codex). The priority now is the
 [local worker track](#local-worker-track): making the stack good enough that Bonsai
-can do this research itself. M1 and W1 are done. Order from here: T1 (vanilla pi vs
-stock oh-my-pi on 10 random Terminal-Bench 2.0 tasks and W2's 9 signal cases, N=1),
-then the rest of W2 (worker harness; its single-factor arms are screened at N=1 on the
-signal cases), then N1 (oh-my-pi's Mnemopi memory layer as a pi extension), then M2 with
-Mnemopi arms added, then W3 (using whichever layer wins M2), W4, and the rest.
+can do this research itself. M1 and W1 are done. Order from here on the 3080: W2
+(worker harness; its single-factor arms are screened at N=1 on the signal cases), then
+N1 (oh-my-pi's Mnemopi memory layer as a pi extension), then M2 with
+Mnemopi arms added, then W3 (using whichever layer wins M2), W4, and the rest. T1
+(vanilla pi vs stock oh-my-pi on 10 random Terminal-Bench 2.0 tasks and W2's 9 signal
+cases, N=1) runs by hand on rented hardware, outside the autopilot queue.
 
 ## Terms
 
@@ -52,8 +53,8 @@ grow. Each step is measured on W1.
 | # | Milestone | Question | Done when |
 |---|---|---|---|
 | W1 | **Worker eval — done** | Could Bonsai do the autopilot's own rounds? | 22 real cloud-worker rounds replayed at N=2: 25/44 valid requests (56.8%), 21/44 kind matches (47.7%), median 903.5 s. [Experiment](../site/series/local-worker/worker-eval.md); spec: [`autopilot/milestones/W1-worker-eval.md`](../autopilot/milestones/W1-worker-eval.md) |
-| T1 | **Terminal-Bench probe** | Does Terminal-Bench 2.0 give Bonsai any signal, or is the fail rate too high? How do vanilla pi and stock omp compare, without memory? | Spec: [`autopilot/milestones/T1-terminal-bench.md`](../autopilot/milestones/T1-terminal-bench.md). 10 seeded-random TB2 tasks plus W2's 9 signal cases, both harnesses at N=1, with pass rates per task and a verdict on adopting TB2. Runs before W2 resumes |
-| W2 | **Worker harness** (paused for T1) | Which pi and server settings close the gap? | [Candidates](#w2-candidates) each run as a worker arm on W1 against the 2026-10-12 Bonsai arm; keep what helps |
+| T1 | **Terminal-Bench probe** | Does Terminal-Bench 2.0 give Bonsai any signal, or is the fail rate too high? How do vanilla pi and stock omp compare, without memory? | Plan: [`bench/terminal_bench/PLAN.md`](../bench/terminal_bench/PLAN.md). 10 seeded-random TB2 tasks plus W2's 9 signal cases, both harnesses at N=1, with pass rates per task and a verdict on adopting TB2. Runs by hand on a rented GPU, not in the autopilot queue |
+| W2 | **Worker harness** | Which pi and server settings close the gap? | [Candidates](#w2-candidates) each run as a worker arm on W1 against the 2026-10-12 Bonsai arm; keep what helps |
 | N1 | **Mnemopi adapter** | Can oh-my-pi's Mnemopi memory engine run inside our pi harness, and what does it cost? | Spec: [`autopilot/milestones/N1-mnemopi.md`](../autopilot/milestones/N1-mnemopi.md). A pi extension over the `@oh-my-pi/pi-mnemopi` library, two arms (`mnemopi-none`: no LLM, FTS-only; `mnemopi-bonsai`: Bonsai extracts and consolidates), smoke-tested on `inventory`. Runs after W2 |
 | W3 | **Passive worker memory** | Does memory let the worker survive compaction and fresh sessions? Uses the layer that wins M2 (mem0 or Mnemopi) | Auto-recall and capture keyed on the item and the round report, not the whole prompt; measured on W1 cases that span several rounds of one item |
 | W4 | **Routing** | How much real work can go local? | The planner marks local-capable items; Bonsai tries them first and hands an item to the cloud worker after N failed rounds. The status page tracks the local share |
@@ -80,8 +81,8 @@ grow. Each step is measured on W1.
 - **Session discipline.** Turn and time budgets in the `submit_request` extension:
   warnings first, then only that tool allowed. Smaller items when the worker is local.
 - **Compaction** (M6): the reserve, and what the summary keeps.
-- **Harness:** stock oh-my-pi (`omp`) as a whole-harness arm. T1 builds the omp
-  harness and runs it on the 9 signal cases as `w2-omp-stock`; W2 reuses those records. It brings hashline edits natively. The earlier
+- **Harness:** stock oh-my-pi (`omp`) as a whole-harness arm, run right after the first
+  single-factor batch rather than last. It brings hashline edits natively. The earlier
   worry that its tool set and system prompt cost too much of the 80k window looks
   smaller than assumed, so the arm records the first request's prompt size for both
   harnesses and settles it. If `submit_request` doesn't run under it, the arm uses
@@ -158,8 +159,8 @@ If the local model goes down, a cloud fixer takes over. Progress is published to
 the site's autopilot status page.
 
 M1 (n-gram speculation) was the first milestone and test case: it measured the
-live-server candidate and rejected deployment. W1 (worker eval) is complete; T1
-(Terminal-Bench probe) runs next, then W2 (worker harness) resumes. Milestones run in the order
+live-server candidate and rejected deployment. W1 (worker eval) is complete; W2
+(worker harness) is running for the local-worker track. Milestones run in the order
 of `milestones` in `autopilot/config.json`, and each needs a spec in
 `autopilot/milestones/<name>.md`.
 

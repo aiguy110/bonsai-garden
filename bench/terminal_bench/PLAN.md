@@ -1,21 +1,29 @@
-# T1: Terminal-Bench probe
+# T1: Terminal-Bench probe (rented GPU, run by hand)
 
 ## Question
 
 Our worker eval is 22 rounds of one milestone in one repo, and only 9 of them separate
 arms. Can Terminal-Bench 2.0 (TB2) give us signal for Bonsai, or is its fail rate too
 high to separate harnesses? And how does vanilla pi compare with stock oh-my-pi (`omp`),
-both without memory? This is a small probe (N=1), run before W2 resumes (user decision
-2026-10-14). It answers "is TB2 worth adopting", not "which harness is better".
+both without memory? This is a small probe (N=1). It answers "is TB2 worth adopting",
+not "which harness is better".
+
+**Where it runs (user decision 2026-10-14):** on a rented GPU, by hand, not by the
+autopilot, so W2 keeps the 3080. The model is served from the rented GPU (an RTX 5090
+if available) with the same `llama.cpp-bonsai2` build, GGUF and server flags as the live
+`bonsai-2-27b` entry, checked by hash. Harbor and the task containers run on bifrost,
+and the agents reach the rented llama-server through an SSH tunnel. That avoids
+needing Docker on the rented machine. Because the clock differs from the 3080, every
+number in T1 is compared only with other T1 numbers: pi is re-run on the signal cases
+on the rented GPU, and the 3080 honest baseline is shown for reference only.
 
 ## Design
 
 Two harnesses, both on the same model entry (`garden/bonsai-agent` through the bench tap
 and turnstile), no memory layer in either:
 
-- **pi:** stock pi 0.86.1, no extensions on TB tasks. On the signal cases this is the
-  honest baseline `bonsai-2026-10-12-honest`, which already has these records: reuse
-  its repeat-1 records (repeat 2 as a reference), do not rerun it.
+- **pi:** stock pi 0.86.1, no extensions on TB tasks. On the signal cases it is the
+  honest baseline arm `bonsai-2026-10-12-honest`, re-run on the rented GPU.
 - **omp:** stock oh-my-pi at its default settings, with Mnemopi and any other memory
   feature off. Change nothing beyond model and provider wiring.
 
@@ -28,7 +36,8 @@ Two case sets, N=1 per harness:
 2. **The 9 W2 signal cases** (`bench/worker_eval/cases-signal.jsonl`) for omp, under
    the W1 replay rules: honest prompt, 20-minute limit, `submit_request` if it loads
    under omp, else the JSON fallback (say which). Run them as the arm
-   `w2-omp-stock`, so W2's omp item can reuse the records.
+   `t1-omp-stock`. W2's own omp arm stays on the 3080; T1 records are not mixed into
+   W2's comparisons.
 
 ## What is already known
 
@@ -47,17 +56,19 @@ Verify each before relying on it.
 - Bun 1.4.3 is installed at `~/.local/bin/bun` (zip sha256 `3e730528…e18`). omp is not
   installed; pack it with `npm pack --ignore-scripts` into a new empty directory, as
   W2's omp item says. Don't install a runtime.
-- This branch starts from W2's state, so `bench/worker_eval/` already has `run.py`,
-  `cases-signal.jsonl`, `compare.py` and the honest baseline.
+- `run.py`, `cases-signal.jsonl`, `compare.py` and the honest arm are on the
+  `auto/W2-worker-harness` branch; T1 works from that branch's code.
 
 ## Constraints
 
-- Don't change files under `autopilot/`, the live llama-swap entry or turnstile. The
-  GPU stays capped at 250 W.
-- Model traffic goes through the bench tap with the bench key, like W1. Agent
-  containers reach it via the Docker host gateway. Bind any proxy to loopback or the
-  Docker bridge only, never 0.0.0.0. Runs that send LLM requests are `gpu:false` (see
-  facts). Chunks are at most 150 min.
+- Don't change files under `autopilot/`, the live llama-swap entry or turnstile, and
+  don't use bifrost's GPU.
+- Model traffic goes through the bench tap (for token counts), pointed at the tunnelled
+  rented llama-server instead of turnstile. Agent containers reach it via the Docker
+  host gateway. Bind any proxy or tunnel end to loopback or the Docker bridge only,
+  never 0.0.0.0, and expose nothing on the rented machine except SSH.
+- The RunPod (or other provider) key stays in `~/Projects/bonsai-garden/.env` and never
+  goes into a container, log or commit. Stop the rented machine when a session ends.
 - Install Harbor in its own virtualenv under `bench/terminal_bench/`, pinned, with the
   version and hashes recorded. Pull task images by digest and record the digests.
 - Agent runtimes (Node and pi, Bun and omp) go into task containers as read-only mounts
@@ -65,7 +76,7 @@ Verify each before relying on it.
   that is impossible, and say why. No secrets or tokens go into any container, and no
   host path other than these mounts and the output directory.
 - If the 20 TB attempts' summed task timeouts exceed 12 GPU-hours, report that before
-  running them.
+  running them. Record the rented GPU, its provider, hourly price and total cost.
 
 ## Done when
 
@@ -77,8 +88,9 @@ Verify each before relying on it.
 3. Each harness has 10 TB records: pass/fail from the task tests, timeout, wall time,
    turns, tool calls, request and token counts from the tap, and the failure mode
    (no progress, wrong answer, timeout, harness error).
-4. `w2-omp-stock` has 9 records on the signal cases, compared with the honest baseline
-   by `compare.py`, with the first request's prompt tokens under each harness.
+4. The honest arm and `t1-omp-stock` each have 9 records on the signal cases from the
+   rented GPU, compared by `compare.py`, with the first request's prompt tokens under
+   each harness.
 5. A short experiment page in the local-worker series (`site/AUTHORING.md`), with
    per-task tables for both case sets and the pass rate per harness. It gives a
    verdict on TB2 with this rule: if both harnesses pass at most 1 of 10, TB2 is too
