@@ -1,0 +1,2 @@
+The local run clobbered the files (mtime 08:30, deploy.json in new format). Let me check if the identity indices were lost (which would be a regression since the sandbox lacks the gitignored outputs).
+

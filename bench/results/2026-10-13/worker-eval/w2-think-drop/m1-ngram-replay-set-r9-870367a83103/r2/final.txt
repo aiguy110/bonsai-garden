@@ -1,0 +1,2 @@
+Let me read the mem0-in-pi doc and check how the mem0 tool/auto-capture flow works, plus find any tools.js reference.
+

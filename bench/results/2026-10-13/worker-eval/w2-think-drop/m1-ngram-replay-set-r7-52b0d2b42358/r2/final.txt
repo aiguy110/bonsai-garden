@@ -1,0 +1,2 @@
+Let me look for the SQLite store schema in the mem0 source and understand the memory_history / messages columns:
+

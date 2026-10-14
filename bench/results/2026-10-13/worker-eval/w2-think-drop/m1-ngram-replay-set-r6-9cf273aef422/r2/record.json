@@ -1,0 +1,59 @@
+{
+  "advisor_verdict": "revise",
+  "arm": "w2-think-drop",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/w2-think-drop/m1-ngram-replay-set-r6-9cf273aef422/r2",
+  "case_id": "m1-ngram-replay-set-r6-9cf273aef422",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 1,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-14T05:34:32-04:00",
+  "flag_triggers": {},
+  "item": "replay-set",
+  "kind_match": false,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": null,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": null,
+  "request": null,
+  "request_source": "none",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 11378,
+  "timeout": true,
+  "tool_calls": 20,
+  "tool_errors": {
+    "bash": 1
+  },
+  "tools": {
+    "bash": 13,
+    "read": 7
+  },
+  "turns": 16,
+  "valid_request": false,
+  "validation_errors": [
+    "no request"
+  ],
+  "wall_s": 1200.3
+}

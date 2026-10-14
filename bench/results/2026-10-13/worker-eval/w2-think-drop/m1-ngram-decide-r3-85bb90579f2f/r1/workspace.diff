@@ -1,0 +1,1008 @@
+diff --git a/bench/results/2026-10-12/m1-ngram/deploy.json b/bench/results/2026-10-12/m1-ngram/deploy.json
+index 120cd53..59d4150 100644
+--- a/bench/results/2026-10-12/m1-ngram/deploy.json
++++ b/bench/results/2026-10-12/m1-ngram/deploy.json
+@@ -3,6 +3,6 @@
+   "why": [
+     "rule 2: dual-agent 26.7 tok/s, 0.853x off",
+     "rule 3: dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x",
+-    "rule 5: candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%"
++    "rule 5: valid candidate/off: agent 100.0%/100.0%, mem 91.7%/100.0%, agent 100.0%/100.0%, mem 100.0%/100.0%"
+   ]
+ }
+diff --git a/bench/results/2026-10-12/m1-ngram/summary.json b/bench/results/2026-10-12/m1-ngram/summary.json
+index 7c7efe2..77d3349 100644
+--- a/bench/results/2026-10-12/m1-ngram/summary.json
++++ b/bench/results/2026-10-12/m1-ngram/summary.json
+@@ -353,111 +353,111 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 225
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 1006
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 449
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 815
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 213
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 504
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 485
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 472
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 1270
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 282
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 466
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 866
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 1018
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 311
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 231
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 3327
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 280
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 380
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 495
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -470,11 +470,11 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r0/1/0",
+-          "first_divergence_char": 419
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1244
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -487,123 +487,123 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 226
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 1005
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 275
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 820
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 25
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 31
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 109
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/7",
+-          "first_divergence_char": 449
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 412
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 39
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/8",
+-          "first_divergence_char": 161
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/11",
+-          "first_divergence_char": 852
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 322
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 400
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 210
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 186
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 130
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 75
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 231
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 255
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 591
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 382
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 496
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -616,7 +616,7 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1306
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -629,115 +629,115 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 225
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 1006
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 449
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 224
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 49
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 504
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 485
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 412
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 39
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/8",
+-          "first_divergence_char": 282
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 594
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 466
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 866
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 1018
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 311
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 231
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 18
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 280
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 380
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 258
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -750,11 +750,11 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 698
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1244
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -767,123 +767,123 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 62
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 329
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 275
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 550
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 49
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 31
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 485
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/7",
+-          "first_divergence_char": 629
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 472
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 310
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/8",
+-          "first_divergence_char": 294
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/11",
+-          "first_divergence_char": 66
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 282
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 249
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 513
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 242
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 245
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 21
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 255
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 591
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 164
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 79
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -896,7 +896,7 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1098
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -942,123 +942,123 @@
+       "mismatches": [
+         {
+           "id": "inventory-baseline-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/2",
+-          "first_divergence_char": 62
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/5",
+-          "first_divergence_char": 223
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/8",
+-          "first_divergence_char": 113
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r0/0/10",
+-          "first_divergence_char": 224
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/2",
+-          "first_divergence_char": 49
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/4",
+-          "first_divergence_char": 212
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/5",
+-          "first_divergence_char": 485
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/0/7",
+-          "first_divergence_char": 449
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/0",
+-          "first_divergence_char": 472
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/3",
+-          "first_divergence_char": 430
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/6",
+-          "first_divergence_char": 497
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/8",
+-          "first_divergence_char": 542
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-baseline-r1/2/11",
+-          "first_divergence_char": 66
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/2",
+-          "first_divergence_char": 282
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/4",
+-          "first_divergence_char": 249
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/7",
+-          "first_divergence_char": 513
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r0/0/9",
+-          "first_divergence_char": 242
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/2",
+-          "first_divergence_char": 179
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/4",
+-          "first_divergence_char": 39
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/5",
+-          "first_divergence_char": 331
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/0/7",
+-          "first_divergence_char": 231
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/0",
+-          "first_divergence_char": 253
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/2",
+-          "first_divergence_char": 18
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/4",
+-          "first_divergence_char": 280
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/6",
+-          "first_divergence_char": 164
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r2/0/8",
+-          "first_divergence_char": 495
++          "first_divergence_char": null
+         }
+       ]
+     },
+@@ -1070,11 +1070,11 @@
+       "mismatches": [
+         {
+           "id": "inventory-mem0-r0/0/0",
+-          "first_divergence_char": 191
++          "first_divergence_char": null
+         },
+         {
+           "id": "inventory-mem0-r1/1/0",
+-          "first_divergence_char": 1098
++          "first_divergence_char": null
+         }
+       ]
+     }
+@@ -1083,31 +1083,37 @@
+   "rules": [
+     {
+       "rule": 1,
++      "requirement": "pinned --mmproj projector loads in all four A-prod server logs (load_model: loaded multimodal model, ...mmproj); no spec refusal",
+       "pass": true,
+-      "value": "--mmproj loaded; no refusal recorded"
++      "value": "4/4 A-prod server logs load pinned mmproj (/home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf); refusal=none"
+     },
+     {
+       "rule": 2,
++      "requirement": "prod sampling: dual-agent decode tok/s >= 1.10x off",
+       "pass": false,
+       "value": "dual-agent 26.7 tok/s, 0.853x off"
+     },
+     {
+       "rule": 3,
++      "requirement": "dual-mem, single-agent, and single-mem each >= 0.97x off",
+       "pass": false,
+       "value": "dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x"
+     },
+     {
+       "rule": 4,
++      "requirement": "VRAM <= off + 64 MiB in all four phases",
+       "pass": true,
+       "value": "max delta +1 MiB"
+     },
+     {
+       "rule": 5,
++      "requirement": "tool_call_json_valid rate >= off's in each phase",
+       "pass": false,
+-      "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%"
++      "value": "valid candidate/off: agent 100.0%/100.0%, mem 91.7%/100.0%, agent 100.0%/100.0%, mem 100.0%/100.0%"
+     },
+     {
+       "rule": 6,
++      "requirement": "greedy identical-output rate >= off dual-vs-single control rate - 10 points",
+       "pass": true,
+       "value": "A dual 26.2%; off dual-vs-single control 23.8%"
+     }
+diff --git a/bench/results/2026-10-12/m1-ngram/summary.md b/bench/results/2026-10-12/m1-ngram/summary.md
+index cc034bf..162b72a 100644
+--- a/bench/results/2026-10-12/m1-ngram/summary.md
++++ b/bench/results/2026-10-12/m1-ngram/summary.md
+@@ -33,14 +33,14 @@ Compared against off at the same phase and request id. First divergence is a cha
+ 
+ | config | phase | identical/compared | rate | first-divergence indices for mismatches |
+ |---|---|---:|---:|---|
+-| A | single-agent | 3/30 | 10.0% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:225, inventory-baseline-r0/0/5:1006, inventory-baseline-r0/0/8:449, inventory-baseline-r0/0/10:815, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:213, inventory-baseline-r1/0/4:504, inventory-baseline-r1/0/5:485, inventory-baseline-r1/2/0:472, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:1270, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:282, inventory-mem0-r0/0/4:466, inventory-mem0-r0/0/7:866, inventory-mem0-r0/0/9:1018, inventory-mem0-r1/0/0:253, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:311, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:231, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:3327, inventory-mem0-r2/0/4:280, inventory-mem0-r2/0/6:380, inventory-mem0-r2/0/8:495 |
+-| A | single-mem | 10/12 | 83.3% | inventory-mem0-r0/1/0:419, inventory-mem0-r1/1/0:1244 |
+-| A | dual-agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:226, inventory-baseline-r0/0/5:1005, inventory-baseline-r0/0/8:275, inventory-baseline-r0/0/10:820, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:25, inventory-baseline-r1/0/4:31, inventory-baseline-r1/0/5:109, inventory-baseline-r1/0/7:449, inventory-baseline-r1/2/0:412, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:39, inventory-baseline-r1/2/8:161, inventory-baseline-r1/2/11:852, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:322, inventory-mem0-r0/0/4:400, inventory-mem0-r0/0/7:210, inventory-mem0-r0/0/9:186, inventory-mem0-r1/0/0:130, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:75, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:231, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:255, inventory-mem0-r2/0/4:591, inventory-mem0-r2/0/6:382, inventory-mem0-r2/0/8:496 |
+-| A | dual-mem | 11/12 | 91.7% | inventory-mem0-r1/1/0:1306 |
+-| B | single-agent | 2/30 | 6.7% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:225, inventory-baseline-r0/0/5:1006, inventory-baseline-r0/0/8:449, inventory-baseline-r0/0/10:224, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:49, inventory-baseline-r1/0/4:504, inventory-baseline-r1/0/5:485, inventory-baseline-r1/2/0:412, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:39, inventory-baseline-r1/2/8:282, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:594, inventory-mem0-r0/0/4:466, inventory-mem0-r0/0/7:866, inventory-mem0-r0/0/9:1018, inventory-mem0-r1/0/0:253, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:311, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:231, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:18, inventory-mem0-r2/0/4:280, inventory-mem0-r2/0/6:380, inventory-mem0-r2/0/8:258 |
+-| B | single-mem | 10/12 | 83.3% | inventory-mem0-r0/0/0:698, inventory-mem0-r1/1/0:1244 |
+-| B | dual-agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:62, inventory-baseline-r0/0/5:329, inventory-baseline-r0/0/8:275, inventory-baseline-r0/0/10:550, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:49, inventory-baseline-r1/0/4:31, inventory-baseline-r1/0/5:485, inventory-baseline-r1/0/7:629, inventory-baseline-r1/2/0:472, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:310, inventory-baseline-r1/2/8:294, inventory-baseline-r1/2/11:66, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:282, inventory-mem0-r0/0/4:249, inventory-mem0-r0/0/7:513, inventory-mem0-r0/0/9:242, inventory-mem0-r1/0/0:253, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:245, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:21, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:255, inventory-mem0-r2/0/4:591, inventory-mem0-r2/0/6:164, inventory-mem0-r2/0/8:79 |
+-| B | dual-mem | 11/12 | 91.7% | inventory-mem0-r1/1/0:1098 |
++| A | single-agent | 3/30 | 10.0% | inventory-baseline-r0/0/0:None, inventory-baseline-r0/0/2:None, inventory-baseline-r0/0/5:None, inventory-baseline-r0/0/8:None, inventory-baseline-r0/0/10:None, inventory-baseline-r1/0/0:None, inventory-baseline-r1/0/2:None, inventory-baseline-r1/0/4:None, inventory-baseline-r1/0/5:None, inventory-baseline-r1/2/0:None, inventory-baseline-r1/2/3:None, inventory-baseline-r1/2/6:None, inventory-mem0-r0/0/0:None, inventory-mem0-r0/0/2:None, inventory-mem0-r0/0/4:None, inventory-mem0-r0/0/7:None, inventory-mem0-r0/0/9:None, inventory-mem0-r1/0/0:None, inventory-mem0-r1/0/2:None, inventory-mem0-r1/0/4:None, inventory-mem0-r1/0/5:None, inventory-mem0-r1/0/7:None, inventory-mem0-r2/0/0:None, inventory-mem0-r2/0/2:None, inventory-mem0-r2/0/4:None, inventory-mem0-r2/0/6:None, inventory-mem0-r2/0/8:None |
++| A | single-mem | 10/12 | 83.3% | inventory-mem0-r0/1/0:None, inventory-mem0-r1/1/0:None |
++| A | dual-agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:None, inventory-baseline-r0/0/2:None, inventory-baseline-r0/0/5:None, inventory-baseline-r0/0/8:None, inventory-baseline-r0/0/10:None, inventory-baseline-r1/0/0:None, inventory-baseline-r1/0/2:None, inventory-baseline-r1/0/4:None, inventory-baseline-r1/0/5:None, inventory-baseline-r1/0/7:None, inventory-baseline-r1/2/0:None, inventory-baseline-r1/2/3:None, inventory-baseline-r1/2/6:None, inventory-baseline-r1/2/8:None, inventory-baseline-r1/2/11:None, inventory-mem0-r0/0/0:None, inventory-mem0-r0/0/2:None, inventory-mem0-r0/0/4:None, inventory-mem0-r0/0/7:None, inventory-mem0-r0/0/9:None, inventory-mem0-r1/0/0:None, inventory-mem0-r1/0/2:None, inventory-mem0-r1/0/4:None, inventory-mem0-r1/0/5:None, inventory-mem0-r1/0/7:None, inventory-mem0-r2/0/0:None, inventory-mem0-r2/0/2:None, inventory-mem0-r2/0/4:None, inventory-mem0-r2/0/6:None, inventory-mem0-r2/0/8:None |
++| A | dual-mem | 11/12 | 91.7% | inventory-mem0-r1/1/0:None |
++| B | single-agent | 2/30 | 6.7% | inventory-baseline-r0/0/0:None, inventory-baseline-r0/0/2:None, inventory-baseline-r0/0/5:None, inventory-baseline-r0/0/8:None, inventory-baseline-r0/0/10:None, inventory-baseline-r1/0/0:None, inventory-baseline-r1/0/2:None, inventory-baseline-r1/0/4:None, inventory-baseline-r1/0/5:None, inventory-baseline-r1/2/0:None, inventory-baseline-r1/2/3:None, inventory-baseline-r1/2/6:None, inventory-baseline-r1/2/8:None, inventory-mem0-r0/0/0:None, inventory-mem0-r0/0/2:None, inventory-mem0-r0/0/4:None, inventory-mem0-r0/0/7:None, inventory-mem0-r0/0/9:None, inventory-mem0-r1/0/0:None, inventory-mem0-r1/0/2:None, inventory-mem0-r1/0/4:None, inventory-mem0-r1/0/5:None, inventory-mem0-r1/0/7:None, inventory-mem0-r2/0/0:None, inventory-mem0-r2/0/2:None, inventory-mem0-r2/0/4:None, inventory-mem0-r2/0/6:None, inventory-mem0-r2/0/8:None |
++| B | single-mem | 10/12 | 83.3% | inventory-mem0-r0/0/0:None, inventory-mem0-r1/1/0:None |
++| B | dual-agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:None, inventory-baseline-r0/0/2:None, inventory-baseline-r0/0/5:None, inventory-baseline-r0/0/8:None, inventory-baseline-r0/0/10:None, inventory-baseline-r1/0/0:None, inventory-baseline-r1/0/2:None, inventory-baseline-r1/0/4:None, inventory-baseline-r1/0/5:None, inventory-baseline-r1/0/7:None, inventory-baseline-r1/2/0:None, inventory-baseline-r1/2/3:None, inventory-baseline-r1/2/6:None, inventory-baseline-r1/2/8:None, inventory-baseline-r1/2/11:None, inventory-mem0-r0/0/0:None, inventory-mem0-r0/0/2:None, inventory-mem0-r0/0/4:None, inventory-mem0-r0/0/7:None, inventory-mem0-r0/0/9:None, inventory-mem0-r1/0/0:None, inventory-mem0-r1/0/2:None, inventory-mem0-r1/0/4:None, inventory-mem0-r1/0/5:None, inventory-mem0-r1/0/7:None, inventory-mem0-r2/0/0:None, inventory-mem0-r2/0/2:None, inventory-mem0-r2/0/4:None, inventory-mem0-r2/0/6:None, inventory-mem0-r2/0/8:None |
++| B | dual-mem | 11/12 | 91.7% | inventory-mem0-r1/1/0:None |
+ | off | single-agent | 30/30 | 100.0% | — |
+ | off | single-mem | 12/12 | 100.0% | — |
+ | off | dual-agent | 30/30 | 100.0% | — |
+@@ -50,20 +50,20 @@ Off dual-vs-single batch-numerics control:
+ 
+ | role | identical/compared | rate | first-divergence indices for mismatches |
+ |---|---:|---:|---|
+-| agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:253, inventory-baseline-r0/0/2:62, inventory-baseline-r0/0/5:223, inventory-baseline-r0/0/8:113, inventory-baseline-r0/0/10:224, inventory-baseline-r1/0/0:253, inventory-baseline-r1/0/2:49, inventory-baseline-r1/0/4:212, inventory-baseline-r1/0/5:485, inventory-baseline-r1/0/7:449, inventory-baseline-r1/2/0:472, inventory-baseline-r1/2/3:430, inventory-baseline-r1/2/6:497, inventory-baseline-r1/2/8:542, inventory-baseline-r1/2/11:66, inventory-mem0-r0/0/0:253, inventory-mem0-r0/0/2:282, inventory-mem0-r0/0/4:249, inventory-mem0-r0/0/7:513, inventory-mem0-r0/0/9:242, inventory-mem0-r1/0/0:253, inventory-mem0-r1/0/2:179, inventory-mem0-r1/0/4:39, inventory-mem0-r1/0/5:331, inventory-mem0-r1/0/7:231, inventory-mem0-r2/0/0:253, inventory-mem0-r2/0/2:18, inventory-mem0-r2/0/4:280, inventory-mem0-r2/0/6:164, inventory-mem0-r2/0/8:495 |
+-| mem | 10/12 | 83.3% | inventory-mem0-r0/0/0:191, inventory-mem0-r1/1/0:1098 |
++| agent | 0/30 | 0.0% | inventory-baseline-r0/0/0:None, inventory-baseline-r0/0/2:None, inventory-baseline-r0/0/5:None, inventory-baseline-r0/0/8:None, inventory-baseline-r0/0/10:None, inventory-baseline-r1/0/0:None, inventory-baseline-r1/0/2:None, inventory-baseline-r1/0/4:None, inventory-baseline-r1/0/5:None, inventory-baseline-r1/0/7:None, inventory-baseline-r1/2/0:None, inventory-baseline-r1/2/3:None, inventory-baseline-r1/2/6:None, inventory-baseline-r1/2/8:None, inventory-baseline-r1/2/11:None, inventory-mem0-r0/0/0:None, inventory-mem0-r0/0/2:None, inventory-mem0-r0/0/4:None, inventory-mem0-r0/0/7:None, inventory-mem0-r0/0/9:None, inventory-mem0-r1/0/0:None, inventory-mem0-r1/0/2:None, inventory-mem0-r1/0/4:None, inventory-mem0-r1/0/5:None, inventory-mem0-r1/0/7:None, inventory-mem0-r2/0/0:None, inventory-mem0-r2/0/2:None, inventory-mem0-r2/0/4:None, inventory-mem0-r2/0/6:None, inventory-mem0-r2/0/8:None |
++| mem | 10/12 | 83.3% | inventory-mem0-r0/0/0:None, inventory-mem0-r1/1/0:None |
+ 
+ ## Deployment decision
+ 
+-Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.
++Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes: (1) the pinned `--mmproj` projector loads in all four A-prod server logs; (2) prod-sampling dual-agent decode tok/s >= 1.10x off; (3) dual-mem, single-agent, single-mem each >= 0.97x off; (4) VRAM <= off + 64 MiB; (5) tool_call_json_valid rate >= off in each phase; (6) greedy identical-output rate >= off dual-vs-single control rate minus 10 points.
+ 
+-| rule | result | value |
+-|---:|---|---|
+-| 1 | PASS | --mmproj loaded; no refusal recorded |
+-| 2 | FAIL | dual-agent 26.7 tok/s, 0.853x off |
+-| 3 | FAIL | dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x |
+-| 4 | PASS | max delta +1 MiB |
+-| 5 | FAIL | candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0% |
+-| 6 | PASS | A dual 26.2%; off dual-vs-single control 23.8% |
++| rule | requirement | result | value |
++|---:|---|---|---|
++| 1 | pinned --mmproj projector loads in all four A-prod server logs (load_model: loaded multimodal model, ...mmproj); no spec refusal | PASS | 4/4 A-prod server logs load pinned mmproj (/home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf); refusal=none |
++| 2 | prod sampling: dual-agent decode tok/s >= 1.10x off | FAIL | dual-agent 26.7 tok/s, 0.853x off |
++| 3 | dual-mem, single-agent, and single-mem each >= 0.97x off | FAIL | dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x |
++| 4 | VRAM <= off + 64 MiB in all four phases | PASS | max delta +1 MiB |
++| 5 | tool_call_json_valid rate >= off's in each phase | FAIL | valid candidate/off: agent 100.0%/100.0%, mem 91.7%/100.0%, agent 100.0%/100.0%, mem 100.0%/100.0% |
++| 6 | greedy identical-output rate >= off dual-vs-single control rate - 10 points | PASS | A dual 26.2%; off dual-vs-single control 23.8% |
+ 
+-**Decision: do not deploy.** rule 2: dual-agent 26.7 tok/s, 0.853x off; rule 3: dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x; rule 5: candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): 100.0%/100.0%/91.7%/100.0%/100.0%/100.0%/100.0%/100.0%.
++**Decision: do not deploy.** rule 2: dual-agent 26.7 tok/s, 0.853x off; rule 3: dual-mem/single-agent/single-mem 0.920x/1.001x/0.962x; rule 5: valid candidate/off: agent 100.0%/100.0%, mem 91.7%/100.0%, agent 100.0%/100.0%, mem 100.0%/100.0%.
+diff --git a/bench/spec_summarize.py b/bench/spec_summarize.py
+index 67ba1b8..1a5e3d0 100644
+--- a/bench/spec_summarize.py
++++ b/bench/spec_summarize.py
+@@ -87,6 +87,34 @@ def fpct(x):
+     return "—" if x is None else f"{100*x:.1f}%"
+ 
+ 
++LIVE_YAML = Path(__file__).resolve().parents[1] / "serving" / "llama-swap.bonsai-2-27b.yaml"
++
++
++def pinned_mmproj_path():
++    """The projector pinned by the live bonsai-2-27b entry (--mmproj line)."""
++    m = re.search(r"--mmproj\s+(\S+)", LIVE_YAML.read_text())
++    return m.group(1) if m else None
++
++
++def projector_loaded(candidate_dir, mmproj_path):
++    """Verify the pinned projector actually loaded in every A-prod phase log.
++
++    Each phase's server log must contain the
++    ``load_model: loaded multimodal model, '<pinned mmproj path>'`` line.
++    Returns (ok, per-log detail) where ok is True iff all four phase logs
++    are present and each carries the pinned mmproj load line.
++    """
++    logs = sorted(candidate_dir.glob("server_*.log"))
++    detail = []
++    for log in logs:
++        loaded = mmproj_path is not None and any(
++            "load_model: loaded multimodal model" in line and mmproj_path in line
++            for line in log.read_text().splitlines()
++        )
++        detail.append({"log": log.name, "loaded": loaded})
++    return len(detail) == 4 and all(x["loaded"] for x in detail), detail
++
++
+ def main():
+     replay = Path(sys.argv[1]) if len(sys.argv) > 1 else Path("bench/results/2026-10-12/m1-ngram/replay")
+     outdir = replay.parent
+@@ -157,13 +185,30 @@ def main():
+     candidate_id = [x for x in identity if x["arm"] == "A-greedy" and x["phase"].startswith("dual-")]
+     control_rate = sum(x["identical"] for x in control) / sum(x["compared"] for x in control)
+     identity_rate = sum(x["identical"] for x in candidate_id) / sum(x["compared"] for x in candidate_id)
++    # Rule 1: verify the live entry's pinned projector actually loaded in all
++    # four A-prod phase server logs (load_model: loaded multimodal model, ...mmproj).
++    mmproj = pinned_mmproj_path()
++    mmproj_ok, mmproj_detail = projector_loaded(replay / candidate, mmproj)
++    refused = any(
++        "refused" in p.read_text()
++        for p in (replay / candidate / "notes.txt", *(replay / candidate).glob("server_*.log"))
++    )
++    rule1_pass = mmproj_ok and not refused
++    rule1_value = (
++        f"{sum(x['loaded'] for x in mmproj_detail)}/{len(mmproj_detail)} A-prod server logs load pinned "
++        f"mmproj ({mmproj}); refusal={'none' if not refused else 'found'}"
++    )
++    valid_pairs = ((ca,"dual-agent","agent"),
++                   (cm,"dual-mem","mem"),
++                   (cs_a,"single-agent","agent"),
++                   (cs_m,"single-mem","mem"))
+     rules = [
+-        {"rule": 1, "pass": "--mmproj" in (replay / candidate / "notes.txt").read_text() and "refused" not in (replay / candidate / "notes.txt").read_text(), "value": "--mmproj loaded; no refusal recorded"},
+-        {"rule": 2, "pass": ca["speedup_vs_off"] >= 1.10, "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
+-        {"rule": 3, "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)), "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
+-        {"rule": 4, "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)), "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
+-        {"rule": 5, "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem"))), "value": "candidate/off valid rates (dual-agent, dual-mem, single-agent, single-mem): " + "/".join(f"{fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in ((ca,"dual-agent","agent"),(cm,"dual-mem","mem"),(cs_a,"single-agent","agent"),(cs_m,"single-mem","mem")))},
+-        {"rule": 6, "pass": identity_rate >= control_rate - .10, "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
++        {"rule": 1, "requirement": "pinned --mmproj projector loads in all four A-prod server logs (load_model: loaded multimodal model, ...mmproj); no spec refusal", "pass": rule1_pass, "value": rule1_value},
++        {"rule": 2, "requirement": "prod sampling: dual-agent decode tok/s >= 1.10x off", "pass": ca["speedup_vs_off"] >= 1.10, "value": f"dual-agent {fnum(ca['decode_tok_s'])} tok/s, {fnum(ca['speedup_vs_off'], 3)}x off"},
++        {"rule": 3, "requirement": "dual-mem, single-agent, and single-mem each >= 0.97x off", "pass": all(x["speedup_vs_off"] >= .97 for x in (cm, cs_a, cs_m)), "value": "dual-mem/single-agent/single-mem " + "/".join(fnum(x["speedup_vs_off"], 3) + "x" for x in (cm, cs_a, cs_m))},
++        {"rule": 4, "requirement": "VRAM <= off + 64 MiB in all four phases", "pass": all(x["vram_vs_off_mib"] <= 64 for x in (ca, cm, cs_a, cs_m)), "value": f"max delta {max(x['vram_vs_off_mib'] for x in (ca, cm, cs_a, cs_m)):+.0f} MiB"},
++        {"rule": 5, "requirement": "tool_call_json_valid rate >= off's in each phase", "pass": all(x["tool_call_json_valid_rate"] >= metrics[("off-prod", ph, ro)]["tool_call_json_valid_rate"] for x, ph, ro in valid_pairs), "value": "valid candidate/off: " + ", ".join(f"{ro} {fpct(x['tool_call_json_valid_rate'])}/{fpct(metrics[('off-prod', ph, ro)]['tool_call_json_valid_rate'])}" for x, ph, ro in valid_pairs)},
++        {"rule": 6, "requirement": "greedy identical-output rate >= off dual-vs-single control rate - 10 points", "pass": identity_rate >= control_rate - .10, "value": f"A dual {fpct(identity_rate)}; off dual-vs-single control {fpct(control_rate)}"},
+     ]
+     result = {"replay_dir": str(replay), "foreground_only": True, "metrics": [dict(arm=a, phase=p, role=r, **m) for (a,p,r),m in metrics.items()], "identity": identity, "off_dual_vs_single_control": control, "decision_candidate": candidate, "rules": rules}
+     outdir.mkdir(parents=True, exist_ok=True)
+@@ -180,8 +225,8 @@ def main():
+     for x in control:
+         ds = ", ".join(f"{m['id']}:{m['first_divergence_char']}" for m in x["mismatches"])
+         lines.append(f"| {x['role']} | {x['identical']}/{x['compared']} | {fpct(x['identical_rate'])} | {ds or '—'} |")
+-    lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes.", "", "| rule | result | value |", "|---:|---|---|"]
+-    lines += [f"| {x['rule']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
++    lines += ["", "## Deployment decision", "", "Candidate: `A-prod` (`--spec-type ngram-mod`). Deploy only if every rule passes: (1) the pinned `--mmproj` projector loads in all four A-prod server logs; (2) prod-sampling dual-agent decode tok/s >= 1.10x off; (3) dual-mem, single-agent, single-mem each >= 0.97x off; (4) VRAM <= off + 64 MiB; (5) tool_call_json_valid rate >= off in each phase; (6) greedy identical-output rate >= off dual-vs-single control rate minus 10 points.", "", "| rule | requirement | result | value |", "|---:|---|---|---|"]
++    lines += [f"| {x['rule']} | {x['requirement']} | {'PASS' if x['pass'] else 'FAIL'} | {x['value']} |" for x in rules]
+     failed = [f"rule {x['rule']}: {x['value']}" for x in rules if not x["pass"]]
+     lines += ["", "**Decision: do not deploy.** " + "; ".join(failed) + "."]
+     (outdir / "summary.md").write_text("\n".join(lines) + "\n")

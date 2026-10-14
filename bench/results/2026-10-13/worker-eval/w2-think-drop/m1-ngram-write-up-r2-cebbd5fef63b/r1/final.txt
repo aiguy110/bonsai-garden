@@ -1,0 +1,2 @@
+All page numbers trace to `summary.md` and `bench/m1-notes.md`. Now let me check how the site layout lists children (to confirm renaming is safe), and view the rest of the page.
+

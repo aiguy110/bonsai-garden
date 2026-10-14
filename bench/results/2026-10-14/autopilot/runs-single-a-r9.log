@@ -1,0 +1,23 @@
+== w2-think-drop (145.0 min of budget left)
+[2026-10-14T04:14:29-04:00] w2-think-drop m1-ngram-decide-r3-85bb90579f2f r1
+  valid=False kind=None match=False 1200.4s turns=25 tools=29
+[2026-10-14T04:34:30-04:00] w2-think-drop m1-ngram-write-up-r2-cebbd5fef63b r1
+  valid=False kind=None match=False 1200.5s turns=17 tools=23
+[2026-10-14T04:54:31-04:00] w2-think-drop m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=False kind=None match=False 1200.5s turns=22 tools=33
+[2026-10-14T05:14:31-04:00] w2-think-drop m1-ngram-replay-set-r6-9cf273aef422 r2
+  valid=False kind=None match=False 1200.3s turns=16 tools=20
+[2026-10-14T05:34:32-04:00] w2-think-drop m1-ngram-replay-set-r7-52b0d2b42358 r2
+  valid=False kind=None match=False 1200.3s turns=23 tools=24
+[2026-10-14T05:54:32-04:00] w2-think-drop m1-ngram-replay-set-r8-4324817a7216 r2
+  valid=False kind=None match=False 1200.3s turns=22 tools=33
+[2026-10-14T06:14:33-04:00] w2-think-drop m1-ngram-replay-set-r9-870367a83103 r2
+  valid=False kind=None match=False 1200.3s turns=14 tools=13
+budget: 4.9 min left, a session may take 20; stopping
+{"skipped": 19, "ran": 7, "remaining": 18}
+bonsai-2026-10-12-honest: records 44/44
+w2-think-drop: records 26/44
+w2-reasoning-budget: records 0/44
+w2-session-budget: records 0/44
+w2-hashline: records 0/44
+w2-compaction: records 0/44

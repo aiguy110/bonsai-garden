@@ -760,3 +760,52 @@ w2-hashline: records 0/44
 w2-compaction: records 0/44
 
 ```
+
+### 2026-10-14T04:13:31-04:00 · worker (gpt-5.6-terra), round 9
+
+No repository changes. The honest corrected baseline remains complete at 44/44; the latest host chunk left w2-think-drop at 19/44 and w2-reasoning-budget at 0/44. Resume the existing ordered queue without modifying arm files, extensions, or output directories.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "The worker harness routes inference through the benchmark tap/turnstile. Per the established deadlock finding, gpu:false is required because a GPU lease prevents turnstile from serving these requests. Current-arm-SHA filtering preserves existing records and continues think-drop before reasoning-budget."
+}
+```
+
+### 2026-10-14T04:14:29-04:00 · advisor (run request)
+
+**approve**: Run as submitted. It resumes w2-think-drop from 19/44, preserves completed records, and cannot plausibly advance beyond the item’s permitted arms within this chunk. Keep all records and report any stop after three consecutive infrastructure failures.
+
+### 2026-10-14T06:34:33-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145` (gpu=False) in 8404s, exit 0. Full output: `bench/results/2026-10-14/autopilot/runs-single-a-r9.log`. Last lines:
+
+```
+== w2-think-drop (145.0 min of budget left)
+[2026-10-14T04:14:29-04:00] w2-think-drop m1-ngram-decide-r3-85bb90579f2f r1
+  valid=False kind=None match=False 1200.4s turns=25 tools=29
+[2026-10-14T04:34:30-04:00] w2-think-drop m1-ngram-write-up-r2-cebbd5fef63b r1
+  valid=False kind=None match=False 1200.5s turns=17 tools=23
+[2026-10-14T04:54:31-04:00] w2-think-drop m1-ngram-write-up-r3-aee7d1507663 r1
+  valid=False kind=None match=False 1200.5s turns=22 tools=33
+[2026-10-14T05:14:31-04:00] w2-think-drop m1-ngram-replay-set-r6-9cf273aef422 r2
+  valid=False kind=None match=False 1200.3s turns=16 tools=20
+[2026-10-14T05:34:32-04:00] w2-think-drop m1-ngram-replay-set-r7-52b0d2b42358 r2
+  valid=False kind=None match=False 1200.3s turns=23 tools=24
+[2026-10-14T05:54:32-04:00] w2-think-drop m1-ngram-replay-set-r8-4324817a7216 r2
+  valid=False kind=None match=False 1200.3s turns=22 tools=33
+[2026-10-14T06:14:33-04:00] w2-think-drop m1-ngram-replay-set-r9-870367a83103 r2
+  valid=False kind=None match=False 1200.3s turns=14 tools=13
+budget: 4.9 min left, a session may take 20; stopping
+{"skipped": 19, "ran": 7, "remaining": 18}
+bonsai-2026-10-12-honest: records 44/44
+w2-think-drop: records 26/44
+w2-reasoning-budget: records 0/44
+w2-session-budget: records 0/44
+w2-hashline: records 0/44
+w2-compaction: records 0/44
+
+```

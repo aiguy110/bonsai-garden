@@ -1,0 +1,60 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "w2-think-drop",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/w2-think-drop/m1-ngram-write-up-r2-cebbd5fef63b/r1",
+  "case_id": "m1-ngram-write-up-r2-cebbd5fef63b",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-14T04:54:31-04:00",
+  "flag_triggers": {},
+  "item": "write-up",
+  "kind_match": false,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": null,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 1,
+  "replay_kind": null,
+  "request": null,
+  "request_source": "none",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 12097,
+  "timeout": true,
+  "tool_calls": 23,
+  "tool_errors": {
+    "bash": 2
+  },
+  "tools": {
+    "bash": 21,
+    "read": 2
+  },
+  "turns": 17,
+  "valid_request": false,
+  "validation_errors": [
+    "no request"
+  ],
+  "wall_s": 1200.5
+}
