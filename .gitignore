@@ -6,3 +6,6 @@ __pycache__/
 autopilot/.runtime/
 autopilot/.cache/
 bench/.replay/
+
+# Local secrets
+.env
