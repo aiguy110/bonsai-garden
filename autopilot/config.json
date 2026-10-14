@@ -50,6 +50,7 @@
   "milestones": [
     "M1-ngram",
     "W1-worker-eval",
+    "T1-terminal-bench",
     "W2-worker-harness",
     "N1-mnemopi",
     "M2-continuity"
