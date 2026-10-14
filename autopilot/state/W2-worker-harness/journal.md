@@ -1083,3 +1083,25 @@ Generated and checked the deterministic session-budget N=1 summary after its com
 Added to the standing facts:
 
 - In `compare-a.md`, `reasoning_budget:request` counts budget-field applications, not budget exhaustion hits; actual hits must be counted from response events containing the injected budget marker (`bench/worker_eval/extensions/reasoning_budget.ts:25-32`).
+
+### 2026-10-14T19:26:26-04:00 · worker (gpt-5.6-terra), round 7
+
+Corrected the advisor-identified mechanism-stat error without replaying. `compare-a.md` now distinguishes 336 budget-field applications (37.3/attempt) from 92 actual marker-confirmed budget hits (10.2/attempt, 92 distinct response IDs).
+
+```json
+{
+  "request": "done",
+  "summary": "Current item is complete. `bench/results/2026-10-13/worker-eval/w2-think-drop/` contains exactly 44 records (22 cases \u00d7 2), summary.json/summary.md, and passes the default summarize check. `w2-reasoning-budget/` contains 9 signal-case records, summary files, and passes its N=1 signal check; the permitted `w2-session-budget/` screen is likewise complete and checked. `bench/results/2026-10-13/worker-eval-w2/compare-a.{json,md}` compares each finished arm against the honest and W1 baselines restricted to its own cases, with deltas, CIs, spread, beyond-spread, failure modes, and cautious repeat-2 candidates. The reasoning-budget mechanism note now correctly reports 336 budget-field applications (37.3/attempt) separately from 92 deduplicated assistant-response marker hits (10.2/attempt). Think-drop is worse than honest beyond spread on valid rate and is already N=2; reasoning-budget and session-budget remain N=1 screen candidates only. No protected paths were changed."
+}
+```
+
+### 2026-10-14T19:28:03-04:00 · advisor (finished item)
+
+**approve**: Acceptance criteria are met. The summaries report 44/44, 9/9, and 9/9 completed records with no completion errors; arm hashes are consistent across chunks; compare-a metrics trace to the summaries and raw extension/events logs. The 336 reasoning-budget applications and 92 marker-confirmed assistant responses are correctly distinguished. Interpretation is appropriately cautious.
+
+### 2026-10-14T19:28:03-04:00 · orchestrator
+
+Added to the standing facts:
+
+- The completed N=2 think-drop arm is worse than the honest baseline on valid-request rate: 21/44 versus 27/44, delta -0.136, 95% CI [-0.273, -0.023], beyond spread S=0.045 (`bench/results/2026-10-13/worker-eval-w2/compare-a.json`).
+- Reasoning-budget and session-budget remain inconclusive N=1 signal-case screens and are repeat-2 candidates, not demonstrated improvements (`bench/results/2026-10-13/worker-eval-w2/compare-a.md`).
