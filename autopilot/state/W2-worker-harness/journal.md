@@ -1062,3 +1062,24 @@ Ran `python3 bench/worker_eval/run.py w2-session-budget --out bench/results/2026
 {"skipped": 1, "ran": 8, "remaining": 0}
 
 ```
+
+### 2026-10-14T18:47:23-04:00 · worker (gpt-5.6-terra), round 6
+
+Generated and checked the deterministic session-budget N=1 summary after its completed host run, regenerated compare-a for all finished arms, and restored mechanism/screen notes. All three checks pass; manifests share the W1 model SHA and entry.
+
+```json
+{
+  "request": "done",
+  "summary": "Current item complete. `bench/results/2026-10-13/worker-eval/w2-think-drop/` has 44 unique records and passes default `summarize.py --check`; `w2-reasoning-budget/` has 9 signal-case records and passes its N=1 check. Both have summary.json/summary.md. `bench/results/2026-10-13/worker-eval-w2/compare-a.{json,md}` compares them against honest and W1 with restricted cases, deltas/CIs/spread/beyond-spread and mechanism notes; reasoning-budget is the N=1 repeat-2 candidate, while think-drop is worse than honest beyond spread for valid rate and already completed N=2. The permitted follow-on `w2-session-budget/` N=1 signal screen also completed, has summary files/check, and is included in compare-a: 8 warnings, zero blocks, no finding inside spread, and a repeat-2 candidate. All inspected manifests have SHA-256 3907dc16\u2026 and the same llama-swap entry as W1. No protected files were changed."
+}
+```
+
+### 2026-10-14T18:49:36-04:00 · advisor (finished item)
+
+**revise**: Most acceptance criteria are met and the reported outcome metrics trace to the 44/9/9 records and reproducible summaries. However, compare-a.md incorrectly calls the 336 `reasoning_budget:request` events “hits.” `bench/worker_eval/extensions/reasoning_budget.ts` logs one event whenever it adds the budget fields, regardless of whether the model exhausts the budget. Compute actual budget hits from one non-duplicated response event per request containing the injected marker (for example, assistant `message_end` events containing the exact standard message), report hits per attempt, and distinguish them from 336 budget applications (37.3 applications/attempt). The raw traces show these counts differ. Regenerate or amend compare-a.md accordingly; no replay rerun is needed. Also retain the existing cautious N=1 interpretation.
+
+### 2026-10-14T18:49:36-04:00 · orchestrator
+
+Added to the standing facts:
+
+- In `compare-a.md`, `reasoning_budget:request` counts budget-field applications, not budget exhaustion hits; actual hits must be counted from response events containing the injected budget marker (`bench/worker_eval/extensions/reasoning_budget.ts:25-32`).

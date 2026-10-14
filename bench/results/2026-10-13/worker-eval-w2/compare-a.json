@@ -162,6 +162,60 @@
       "valid": 5,
       "valid_denominator": 5
     },
+    "w2-session-budget": {
+      "arm": "w2-session-budget",
+      "compaction_starts": 5,
+      "dir": "bench/results/2026-10-13/worker-eval/w2-session-budget",
+      "edit_like_calls": 12,
+      "edit_like_error_rate": 0.25,
+      "edit_like_errors": 3,
+      "ext_actions": {
+        "session_budget:warn": 8
+      },
+      "flags": {
+        "context_overflow": 0,
+        "invalid": 0,
+        "no_request": 3,
+        "output_limit": 1,
+        "timeout": 2
+      },
+      "kind_match": 3,
+      "kind_match_given_valid": 0.5,
+      "kind_match_of_valid": 3,
+      "median_turns": 17,
+      "median_wall_s": 834.0,
+      "records": 9,
+      "replay_kind": {
+        "continue": 1,
+        "done": 2,
+        "infra": 0,
+        "none": 3,
+        "run": 3,
+        "stuck": 0
+      },
+      "tap_attempts": 9,
+      "tap_median": {
+        "decode_s": 680.381,
+        "max_prompt_tokens": 45007,
+        "predicted_n": 27136,
+        "prefill_s": 51.317,
+        "prompt_n": 48444
+      },
+      "tap_sum_predicted_n": 224415,
+      "tool_calls": {
+        "bash": 114,
+        "edit": 12,
+        "read": 46,
+        "submit_request": 7
+      },
+      "tool_errors": {
+        "bash": 13,
+        "edit": 3,
+        "submit_request": 1
+      },
+      "valid": 6,
+      "valid_denominator": 6
+    },
     "w2-think-drop": {
       "arm": "w2-think-drop",
       "compaction_starts": 5,
@@ -264,6 +318,48 @@
           0.111
         ],
         "delta": -0.167,
+        "spread": 0.111,
+        "unit": "rate"
+      }
+    },
+    "w2-session-budget": {
+      "cases_compared": 9,
+      "kind_match": {
+        "arm": 0.333,
+        "baseline": 0.333,
+        "beyond_spread": false,
+        "cases_in_bootstrap": 9,
+        "ci95": [
+          -0.278,
+          0.278
+        ],
+        "delta": 0.0,
+        "spread": 0.222,
+        "unit": "rate"
+      },
+      "median_wall_s": {
+        "arm": 834.0,
+        "baseline": 789.55,
+        "beyond_spread": false,
+        "cases_in_bootstrap": 9,
+        "ci95": [
+          -347.2,
+          362.1
+        ],
+        "delta": 44.45,
+        "spread": 293.3,
+        "unit": "seconds"
+      },
+      "valid": {
+        "arm": 0.667,
+        "baseline": 0.722,
+        "beyond_spread": false,
+        "cases_in_bootstrap": 9,
+        "ci95": [
+          -0.222,
+          0.111
+        ],
+        "delta": -0.056,
         "spread": 0.111,
         "unit": "rate"
       }

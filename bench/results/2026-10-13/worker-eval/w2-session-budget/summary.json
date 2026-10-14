@@ -1,0 +1,509 @@
+{
+  "arm": "w2-session-budget",
+  "cases": [
+    {
+      "case_id": "m1-ngram-replay-set-r9-870367a83103",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 1,
+          "start_total": 1
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 0,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 1
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 0.0,
+        "kind_match_rate_valid_requests": null,
+        "kind_matches": 0,
+        "kind_matches_among_valid_requests": 0,
+        "last_stop_reasons": {
+          "toolUse": 1
+        },
+        "median_turns": 21,
+        "median_wall_s": 1200.3,
+        "tool_calls_by_tool": {
+          "bash": 25,
+          "read": 2
+        },
+        "tool_calls_total": 27,
+        "tool_errors_by_tool": {
+          "bash": 1
+        },
+        "tool_errors_total": 1,
+        "valid_request_rate": 0.0,
+        "valid_requests": 0
+      }
+    },
+    {
+      "case_id": "m1-ngram-replay-set-r10-0046c6599fd4",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 1,
+          "start_total": 1
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 1,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 0
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 0.0,
+        "kind_match_rate_valid_requests": null,
+        "kind_matches": 0,
+        "kind_matches_among_valid_requests": 0,
+        "last_stop_reasons": {
+          "length": 1
+        },
+        "median_turns": 9,
+        "median_wall_s": 853.1,
+        "tool_calls_by_tool": {
+          "bash": 10,
+          "read": 3
+        },
+        "tool_calls_total": 13,
+        "tool_errors_by_tool": {
+          "bash": 3
+        },
+        "tool_errors_total": 3,
+        "valid_request_rate": 0.0,
+        "valid_requests": 0
+      }
+    },
+    {
+      "case_id": "m1-ngram-replay-set-r11-fe779856b52c",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 1,
+          "start_total": 1
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 0,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 0
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 0.0,
+        "kind_match_rate_valid_requests": 0.0,
+        "kind_matches": 0,
+        "kind_matches_among_valid_requests": 0,
+        "last_stop_reasons": {
+          "toolUse": 1
+        },
+        "median_turns": 22,
+        "median_wall_s": 1067.8,
+        "tool_calls_by_tool": {
+          "bash": 8,
+          "edit": 3,
+          "read": 12,
+          "submit_request": 1
+        },
+        "tool_calls_total": 24,
+        "tool_errors_by_tool": {
+          "bash": 2
+        },
+        "tool_errors_total": 2,
+        "valid_request_rate": 1.0,
+        "valid_requests": 1
+      }
+    },
+    {
+      "case_id": "m1-ngram-spec-replay-r3-b72fe4dade49",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 1,
+          "start_total": 1
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 0,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 0
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 1.0,
+        "kind_match_rate_valid_requests": 1.0,
+        "kind_matches": 1,
+        "kind_matches_among_valid_requests": 1,
+        "last_stop_reasons": {
+          "toolUse": 1
+        },
+        "median_turns": 14,
+        "median_wall_s": 773.7,
+        "tool_calls_by_tool": {
+          "bash": 15,
+          "edit": 1,
+          "read": 2,
+          "submit_request": 1
+        },
+        "tool_calls_total": 19,
+        "tool_errors_by_tool": {
+          "bash": 1
+        },
+        "tool_errors_total": 1,
+        "valid_request_rate": 1.0,
+        "valid_requests": 1
+      }
+    },
+    {
+      "case_id": "m1-ngram-spec-replay-r4-1147202353a6",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 0,
+          "start_total": 0
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 0,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 1
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 0.0,
+        "kind_match_rate_valid_requests": null,
+        "kind_matches": 0,
+        "kind_matches_among_valid_requests": 0,
+        "last_stop_reasons": {
+          "error": 1
+        },
+        "median_turns": 13,
+        "median_wall_s": 1200.3,
+        "tool_calls_by_tool": {
+          "bash": 8,
+          "read": 6
+        },
+        "tool_calls_total": 14,
+        "tool_errors_by_tool": {
+          "bash": 1
+        },
+        "tool_errors_total": 1,
+        "valid_request_rate": 0.0,
+        "valid_requests": 0
+      }
+    },
+    {
+      "case_id": "m1-ngram-spec-replay-r10-dc0c818a5351",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 0,
+          "start_total": 0
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 0,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 0
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 1.0,
+        "kind_match_rate_valid_requests": 1.0,
+        "kind_matches": 1,
+        "kind_matches_among_valid_requests": 1,
+        "last_stop_reasons": {
+          "toolUse": 1
+        },
+        "median_turns": 22,
+        "median_wall_s": 670.2,
+        "tool_calls_by_tool": {
+          "bash": 19,
+          "read": 3,
+          "submit_request": 1
+        },
+        "tool_calls_total": 23,
+        "tool_errors_by_tool": {
+          "bash": 3
+        },
+        "tool_errors_total": 3,
+        "valid_request_rate": 1.0,
+        "valid_requests": 1
+      }
+    },
+    {
+      "case_id": "m1-ngram-decide-r2-e17c18c1927d",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 1,
+          "start_total": 1
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 0,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 0
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 0.0,
+        "kind_match_rate_valid_requests": 0.0,
+        "kind_matches": 0,
+        "kind_matches_among_valid_requests": 0,
+        "last_stop_reasons": {
+          "toolUse": 1
+        },
+        "median_turns": 18,
+        "median_wall_s": 834.0,
+        "tool_calls_by_tool": {
+          "bash": 12,
+          "edit": 3,
+          "read": 6,
+          "submit_request": 2
+        },
+        "tool_calls_total": 23,
+        "tool_errors_by_tool": {
+          "bash": 1,
+          "edit": 1,
+          "submit_request": 1
+        },
+        "tool_errors_total": 3,
+        "valid_request_rate": 1.0,
+        "valid_requests": 1
+      }
+    },
+    {
+      "case_id": "m1-ngram-decide-r3-85bb90579f2f",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 0,
+          "start_total": 0
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 0,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 0
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 0.0,
+        "kind_match_rate_valid_requests": 0.0,
+        "kind_matches": 0,
+        "kind_matches_among_valid_requests": 0,
+        "last_stop_reasons": {
+          "toolUse": 1
+        },
+        "median_turns": 17,
+        "median_wall_s": 592.8,
+        "tool_calls_by_tool": {
+          "bash": 12,
+          "edit": 5,
+          "read": 3,
+          "submit_request": 1
+        },
+        "tool_calls_total": 21,
+        "tool_errors_by_tool": {
+          "bash": 1,
+          "edit": 2
+        },
+        "tool_errors_total": 3,
+        "valid_request_rate": 1.0,
+        "valid_requests": 1
+      }
+    },
+    {
+      "case_id": "m1-ngram-write-up-r3-aee7d1507663",
+      "metrics": {
+        "attempts": 1,
+        "compactions": {
+          "end_total": 0,
+          "start_total": 0
+        },
+        "failure_flags": {
+          "counts": {
+            "context_overflow": 0,
+            "output_limit": 0,
+            "pi_exit_nonzero": 0,
+            "rate_limit": 0,
+            "timeout": 0
+          },
+          "denominator": "all attempts; flags may overlap"
+        },
+        "kind_match_rate_all_attempts": 1.0,
+        "kind_match_rate_valid_requests": 1.0,
+        "kind_matches": 1,
+        "kind_matches_among_valid_requests": 1,
+        "last_stop_reasons": {
+          "toolUse": 1
+        },
+        "median_turns": 7,
+        "median_wall_s": 312.7,
+        "tool_calls_by_tool": {
+          "bash": 5,
+          "read": 9,
+          "submit_request": 1
+        },
+        "tool_calls_total": 15,
+        "tool_errors_by_tool": {},
+        "tool_errors_total": 0,
+        "valid_request_rate": 1.0,
+        "valid_requests": 1
+      }
+    }
+  ],
+  "cases_path": "bench/worker_eval/cases-signal.jsonl",
+  "completed_records": 9,
+  "completion_errors": [],
+  "failures": {
+    "failed_attempts": 3,
+    "flag_denominator": "all attempts; flags may overlap",
+    "flags": {
+      "context_overflow": 0,
+      "output_limit": 1,
+      "pi_exit_nonzero": 0,
+      "rate_limit": 0,
+      "timeout": 2
+    },
+    "invalid_request_failures": 0,
+    "no_request_failures": 3,
+    "table": [
+      {
+        "case_id": "m1-ngram-replay-set-r9-870367a83103",
+        "errors": [],
+        "failure_type": "no_request",
+        "flag_triggers": {},
+        "flags": {
+          "context_overflow": false,
+          "output_limit": false,
+          "pi_exit_nonzero": false,
+          "rate_limit": false,
+          "timeout": true
+        },
+        "last_stop": "toolUse",
+        "pi_exit_code": null,
+        "repeat": 1,
+        "request_source": "none",
+        "validation_errors": [
+          "no request"
+        ]
+      },
+      {
+        "case_id": "m1-ngram-replay-set-r10-0046c6599fd4",
+        "errors": [],
+        "failure_type": "no_request",
+        "flag_triggers": {
+          "output_limit": [
+            "stopReason=length"
+          ]
+        },
+        "flags": {
+          "context_overflow": false,
+          "output_limit": true,
+          "pi_exit_nonzero": false,
+          "rate_limit": false,
+          "timeout": false
+        },
+        "last_stop": "length",
+        "pi_exit_code": 0,
+        "repeat": 1,
+        "request_source": "none",
+        "validation_errors": [
+          "no request"
+        ]
+      },
+      {
+        "case_id": "m1-ngram-spec-replay-r4-1147202353a6",
+        "errors": [
+          "Request timed out.",
+          "Request timed out."
+        ],
+        "failure_type": "no_request",
+        "flag_triggers": {},
+        "flags": {
+          "context_overflow": false,
+          "output_limit": false,
+          "pi_exit_nonzero": false,
+          "rate_limit": false,
+          "timeout": true
+        },
+        "last_stop": "error",
+        "pi_exit_code": null,
+        "repeat": 1,
+        "request_source": "none",
+        "validation_errors": [
+          "no request"
+        ]
+      }
+    ],
+    "unclassified_invalid_request_failures": 0,
+    "unclassified_no_request_failures": 0
+  },
+  "format": "worker-eval-summary-v1",
+  "pooled": {
+    "attempts": 9,
+    "compactions": {
+      "end_total": 5,
+      "start_total": 5
+    },
+    "failure_flags": {
+      "counts": {
+        "context_overflow": 0,
+        "output_limit": 1,
+        "pi_exit_nonzero": 0,
+        "rate_limit": 0,
+        "timeout": 2
+      },
+      "denominator": "all attempts; flags may overlap"
+    },
+    "kind_match_rate_all_attempts": 0.3333333333333333,
+    "kind_match_rate_valid_requests": 0.5,
+    "kind_matches": 3,
+    "kind_matches_among_valid_requests": 3,
+    "last_stop_reasons": {
+      "error": 1,
+      "length": 1,
+      "toolUse": 7
+    },
+    "median_turns": 17,
+    "median_wall_s": 834.0,
+    "tool_calls_by_tool": {
+      "bash": 114,
+      "edit": 12,
+      "read": 46,
+      "submit_request": 7
+    },
+    "tool_calls_total": 179,
+    "tool_errors_by_tool": {
+      "bash": 13,
+      "edit": 3,
+      "submit_request": 1
+    },
+    "tool_errors_total": 17,
+    "valid_request_rate": 0.6666666666666666,
+    "valid_requests": 6
+  },
+  "records_total": 9,
+  "repeat_required": 1
+}
