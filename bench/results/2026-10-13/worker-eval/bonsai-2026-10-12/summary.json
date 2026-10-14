@@ -934,7 +934,7 @@
       }
     }
   ],
-  "cases_path": "/home/josiah/Projects/bonsai-garden-auto/W1-worker-eval/bench/worker_eval/cases.jsonl",
+  "cases_path": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/worker_eval/cases.jsonl",
   "completed_records": 44,
   "completion_errors": [],
   "failures": {

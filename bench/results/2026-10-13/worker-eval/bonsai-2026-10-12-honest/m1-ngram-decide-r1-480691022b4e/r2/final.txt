@@ -1,0 +1,2 @@
+Now I understand the full data pipeline. Let me check the notes.txt for exact spec flags used in arms A and B, and confirm whether the results dir is git-tracked (affects sync back to sandbox):
+

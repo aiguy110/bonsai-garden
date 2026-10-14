@@ -1,0 +1,11 @@
+All three of the advisor's requested documentation fixes are complete and verified:
+
+1. **`bench/m1-notes.md` §7**: mem0-r0 step 0 agent requests corrected **11 → 10** (matches `recon/inventory.json` `tap_role_totals.agent.requests: 10` and the 10 agent entries summing to `predicted_n=6654`).
+2. **`bench/m1-notes.md` §1**: added that `help.txt` enumerates the `--spec-type` names only and the per-variant descriptions are explicitly labeled *"my reading of the flag names/usage, not taken from `help.txt`"* — so they're no longer (mis)attributed to help.txt.
+3. **B `n_match=12` warning disclosed** next to the B justification in `bench/m1-notes.md` §9 (quoting the server log line and citing all four B phase logs by path) and on the experiment page `site/series/serving/ngram-self-speculation.md`.
+4. Bonus consistency fix: §9 "Not yet measured." → "Measured in §9b."
+
+Site metadata re-validated (equivalent front-matter check, since PyYAML is unavailable here): **10 pages checked, 0 errors**. The no-deploy decision and the unchanged live `bonsai-2-27b` entry are unaffected by these doc-only edits.
+
+I'm re-submitting for approval with the documentation corrected.
+

@@ -1,0 +1,8 @@
+{
+  "report": "Applied the advisor's (2026-10-12T10:35:02) t0 ordering fix in bench/spec_replay.py phase(): t0=time.time() now runs before th.start(), so the window includes bg work from phase start and no bg row counts tokens produced before the window. Both scripts compile (py_compile OK). Offline-tested spec_analyze.py against a temp fixture: window parsing for all 4 phases works, and the combined two-slot figure correctly includes only bg rows with t_end <= t_fg_end (excluded a 99-tok row at t_end=1200, confirming conservative completed-output throughput). m1-notes.md \u00a79b dedup/wording already correct from prior session. Next: resubmit off/prod to be remeasured with the corrected probe (per-row t_end + window lines), then A/prod.",
+  "request": "run",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Repeat off/prod on the corrected probe. t0 is now recorded before the background thread starts and every row carries t_end, so all four fresh-server phases yield valid conservative two-slot completed-output throughput (window lines + t_end). Prior off/prod results only have fg wall_s and lack per-row end timestamps."
+}

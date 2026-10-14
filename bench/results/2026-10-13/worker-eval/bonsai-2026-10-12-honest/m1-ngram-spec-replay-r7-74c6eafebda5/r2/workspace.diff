@@ -1,0 +1,14 @@
+diff --git a/bench/m1-notes.md b/bench/m1-notes.md
+index 83d6b51..70a28ea 100644
+--- a/bench/m1-notes.md
++++ b/bench/m1-notes.md
+@@ -381,3 +381,9 @@ The earlier §9 reading of A's single-agent 86.0 tok/s as a gain is wrong.
+   length rows excluded (26.1 vs 23.0). Prod runs: off, then A.
+ - Combined two-slot throughput over wall time was not recorded for off/A/B greedy;
+   spec_replay.py now notes `fg wall_s` per phase, so prod runs have it.
++- off/prod rerun on the corrected probe (2026-10-12, ~883 s, exit 0): 4 phases with
++  window lines, 140/140 rows have t_end, no request errors. Analyzer combined throughput:
++  dual-agent 47.8 tok/s, dual-mem 35.4 (fg wall includes t_join in the combined()
++  window per spec_analyze.py; combined() itself counts only rows with t_end <= t_fg_end).
++- Next: A/prod (`--spec-type ngram-mod`), the higher dual-agent greedy fg tok/s arm
++  (25.5 vs B 23.0, also 26.1 vs 23.0 no-length).

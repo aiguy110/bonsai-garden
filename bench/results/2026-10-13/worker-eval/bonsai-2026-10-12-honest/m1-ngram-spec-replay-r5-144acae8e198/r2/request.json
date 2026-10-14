@@ -1,0 +1,8 @@
+{
+  "report": "Round 5 (fresh): verified m1-notes \u00a79b is single + corrected (\"two length rows\"), confirmed window/t_end logging exists in spec_replay.py and combined() in spec_analyze.py. Note: off-prod was captured before t_end/window logging landed (no t_end in its requests.jsonl), so its combined two-slot throughput is not computable from that data; A-prod will have complete data. Added 'bad tool_json' failure column to spec_analyze.py per advisor (4); both scripts compile. Next: A/prod run (A = ngram-mod defaults, best dual-agent greedy at 25.5 vs B 23.0); then analyze both prod runs, re-run off-prod only if the combined metric decides the call, and write the no-deploy decision + experiment page.",
+  "request": "run",
+  "why": "A/prod baseline-adjacent replay (prod sampling), 4 phases on fresh servers, with full window/t_end logging so combined two-slot throughput is measurable.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "timeout_min": 180,
+  "gpu": true
+}

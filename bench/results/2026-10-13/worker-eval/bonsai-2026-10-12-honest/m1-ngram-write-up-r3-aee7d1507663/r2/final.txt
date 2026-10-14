@@ -1,0 +1,2 @@
+All numbers cross-check, summary is 130 words (≤200), and front matter is complete. Re-running the site validator on the host for a fresh journal output.
+

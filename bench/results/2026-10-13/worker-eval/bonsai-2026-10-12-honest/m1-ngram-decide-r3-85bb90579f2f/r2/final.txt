@@ -1,0 +1,2 @@
+Confirmed: `bench/.replay/` is gitignored and only exists on the host — the raw response texts needed for the first-divergence indices are not in this sandbox. The local rewrite is verified (compiles, passes a full-path smoke test with dummy data, decision table renders with the criterion column and log-based rule 1). The real summary must be regenerated on the host where the `.replay` outputs live.
+

@@ -1,0 +1,63 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12-honest",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12-honest/m1-ngram-spec-replay-r7-74c6eafebda5/r2",
+  "case_id": "m1-ngram-spec-replay-r7-74c6eafebda5",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T22:06:35-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+    "gpu": true,
+    "report": "Round 9 (new model): verified state. Greedy off/A/B complete (summary-greedy.md); A beats B on dual-agent (25.5 vs 23.0 tok/s). off/prod rerun on the corrected probe (t0 before bg thread, t_end per row, window lines): 140/140 rows have t_end, all 4 phases, no errors, analyzer combined dual-agent 47.8 tok/s. Added status note to bench/m1-notes.md. Remaining run: A/prod, the last of the five required (config,sampling) pairs.",
+    "request": "run",
+    "timeout_min": 60,
+    "why": "Final required replay run: ngram-mod (arm A, highest dual-agent greedy decode tok/s) under prod sampling on the private :8089 server, fresh-server 4 phases. Needed to complete the off-vs-A prod comparison for the dual-slot busy decision."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 8631,
+  "timeout": false,
+  "tool_calls": 17,
+  "tool_errors": {
+    "bash": 2,
+    "read": 1
+  },
+  "tools": {
+    "bash": 9,
+    "edit": 2,
+    "read": 5,
+    "submit_request": 1
+  },
+  "turns": 12,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 187.7
+}

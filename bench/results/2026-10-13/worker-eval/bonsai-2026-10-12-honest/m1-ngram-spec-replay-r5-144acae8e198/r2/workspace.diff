@@ -1,0 +1,28 @@
+diff --git a/bench/spec_analyze.py b/bench/spec_analyze.py
+index 4b4ec5f..8eafe70 100644
+--- a/bench/spec_analyze.py
++++ b/bench/spec_analyze.py
+@@ -52,8 +52,8 @@ def main():
+     d, arms = sys.argv[1], sys.argv[2:]
+     data = {a: rows(d, a) for a in arms}
+     ref = {(r["phase"], r["id"]): r.get("out_sha256") for r in data[arms[0]] if r["fg_bg"] == "fg"}
+-    print("| phase | arm | fg tok/s | fg tok/s no-length | n fg | length rows (ids) | draft_n | accepted | bg tok | same sha as", arms[0], "|")
+-    print("|---|---|---|---|---|---|---|---|---|---|")
++    print("| phase | arm | fg tok/s | fg tok/s no-length | n fg | length rows (ids) | draft_n | accepted | bad tool_json | bg tok | same sha as", arms[0], "|")
++    print("|---|---|---|---|---|---|---|---|---|---|---|")
+     for ph in PHASES:
+         for a in arms:
+             fg = [r for r in data[a] if r["phase"] == ph and r["fg_bg"] == "fg"]
+@@ -61,10 +61,11 @@ def main():
+             ln = [r for r in fg if r.get("finish_reason") == "length"]
+             nl = [r for r in fg if r.get("finish_reason") != "length"]
+             same = sum(1 for r in fg if ref.get((ph, r["id"])) == r.get("out_sha256"))
++            badjson = sum(1 for r in fg if not r.get("tool_call_json_valid"))
+             print(f"| {ph} | {a} | {rate(fg):.1f} | {rate(nl):.1f} | {len(fg)} | "
+                   f"{len(ln)} ({', '.join(r['id'].split('inventory-')[-1] for r in ln)}) | "
+                   f"{sum((r.get('draft_n') or 0) for r in fg)} | {sum((r.get('draft_n_accepted') or 0) for r in fg)} | "
+-                  f"{sum((r.get('predicted_n') or 0) for r in bg)} | {same}/{len(fg)} |")
++                  f"{badjson} | {sum((r.get('predicted_n') or 0) for r in bg)} | {same}/{len(fg)} |")
+ 
+ 
+ 

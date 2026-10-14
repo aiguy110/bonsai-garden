@@ -593,3 +593,64 @@ w2-hashline: records 0/44
 w2-compaction: records 0/44
 
 ```
+
+### 2026-10-13T21:47:32-04:00 · worker (gpt-5.6-terra), round 6
+
+No files changed. The most recent host chunk left the corrected honest baseline at 33/44 current-SHA records; think-drop and reasoning-budget have not started. Resume the ordered queue, preserving completed records.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145",
+  "gpu": false,
+  "timeout_min": 150,
+  "why": "Inference routes through the benchmark tap/turnstile, so gpu:false is required: holding a GPU lease would deadlock those requests. The queue's current-arm-SHA filter safely resumes honest first and then advances in order."
+}
+```
+
+### 2026-10-13T21:48:33-04:00 · advisor (run request)
+
+**approve**: Run as submitted. It resumes the honest arm from 33/44, preserves completed records, retries only interrupted attempts, and advances in queue order if budget remains. The 145-minute internal budget leaves shutdown margin within the 150-minute host request. Preserve all records and report any stop after three consecutive infrastructure failures.
+
+### 2026-10-13T23:54:55-04:00 · orchestrator
+
+Ran `python3 bench/worker_eval/run_queue.py --queue bench/worker_eval/w2_queue.json --repeat 2 --budget-min 145` (gpu=False) in 7582s, exit 0. Full output: `bench/results/2026-10-13/autopilot/runs-single-a-r6.log`. Last lines:
+
+```
+== bonsai-2026-10-12-honest (145.0 min of budget left)
+[2026-10-13T21:48:34-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r5-144acae8e198 r2
+  valid=True kind=run match=True 349.9s turns=10 tools=13
+[2026-10-13T21:54:24-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r5-5c5d98bf3537 r2
+  valid=True kind=run match=True 348.4s turns=15 tools=15
+[2026-10-13T22:00:12-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r6-ee9150033cd8 r2
+  valid=True kind=run match=True 195.1s turns=15 tools=17
+[2026-10-13T22:03:27-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r7-74c6eafebda5 r2
+  valid=True kind=run match=True 187.7s turns=12 tools=17
+[2026-10-13T22:06:35-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r10-dc0c818a5351 r2
+  valid=True kind=run match=False 437.2s turns=10 tools=22
+[2026-10-13T22:13:52-04:00] bonsai-2026-10-12-honest m1-ngram-spec-replay-r11-f096b0e52769 r2
+  valid=True kind=done match=True 490.1s turns=16 tools=22
+[2026-10-13T22:22:03-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r1-480691022b4e r2
+  valid=False kind=None match=False 1200.5s turns=18 tools=31
+[2026-10-13T22:42:03-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r2-e17c18c1927d r2
+  valid=True kind=run match=False 594.2s turns=15 tools=17
+[2026-10-13T22:51:58-04:00] bonsai-2026-10-12-honest m1-ngram-decide-r3-85bb90579f2f r2
+  valid=True kind=run match=False 1154.0s turns=27 tools=29
+[2026-10-13T23:11:12-04:00] bonsai-2026-10-12-honest m1-ngram-write-up-r2-cebbd5fef63b r2
+  valid=False kind=None match=False 1200.5s turns=31 tools=40
+[2026-10-13T23:31:13-04:00] bonsai-2026-10-12-honest m1-ngram-write-up-r3-aee7d1507663 r2
+  valid=True kind=run match=False 221.8s turns=8 tools=13
+{"skipped": 33, "ran": 11, "remaining": 0}
+== w2-think-drop (38.6 min of budget left)
+[2026-10-13T23:34:55-04:00] w2-think-drop m1-ngram-replay-set-r6-9cf273aef422 r1
+  valid=False kind=None match=False 1200.3s turns=17 tools=28
+budget: 18.6 min left, a session may take 20; stopping
+{"skipped": 0, "ran": 1, "remaining": 43}
+bonsai-2026-10-12-honest: records 44/44
+w2-think-drop: records 1/44
+w2-reasoning-budget: records 0/44
+w2-session-budget: records 0/44
+w2-hashline: records 0/44
+w2-compaction: records 0/44
+
+```

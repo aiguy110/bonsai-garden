@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Round 1 (gpt-5.6-terra): verified the corrected probe from the prior session. bench/spec_replay.py now records per-row t_end and per-phase window lines (t0, t_fg_end, t_join_end, logged after the bg join); bench/spec_analyze.py computes combined two-slot throughput = (fg tok + bg tok with t_end <= t_fg_end) / fg wall per phase. m1-notes.md \u00a79b duplicate is already resolved (single corrected \u00a79b at line 362; \u00a79 round-3 table kept). The off-prod dir is still the pre-fix run (0 t_end rows in requests.jsonl), so it has to be re-run to get valid dual-phase windows. off-greedy, A-greedy, B-greedy are done; this resubmit runs off-prod next, then A-prod (A = 25.5 dual-agent fg tok/s vs B 23.0, both with length rows excluded).",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay off prod",
+  "gpu": true,
+  "timeout_min": 120,
+  "why": "Resubmit the off/prod replay (prod sampling) with the corrected probe that records per-row t_end and t0/t_fg_end/t_join_end windows, so dual-phase combined throughput is valid. The earlier resubmission died 2 min in to a config restart and its output was discarded; the restored off-prod results are the old format without end timestamps."
+}

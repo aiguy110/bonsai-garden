@@ -1,0 +1,7 @@
+Everything checks out:
+- **t0 ordering fix** applied in `bench/spec_replay.py`: `t0 = time.time()` now runs *before* `th.start()` (line 237 before 239), so the first bg row can't count tokens produced before the window.
+- **Compile** OK on both `spec_replay.py` and `spec_analyze.py`.
+- **Offline sanity test** of `spec_analyze.py`: window parsing from `notes.txt` works (all 4 phases), and the conservative combined figure correctly counts only bg rows with `t_end <= t_fg_end` — a 99-tok bg row at `t_end=1200` was properly excluded, giving combined = (fg 10 + in-window bg 10)/100 = 0.2 tok/s as expected.
+
+The only diff is the t0 fix in `spec_replay.py`. Now I resubmit the off/prod run, which will be measured with the corrected probe (t0-before-bg-start, per-row `t_end`, and window lines) so all four phases yield valid conservative two-slot throughput.
+

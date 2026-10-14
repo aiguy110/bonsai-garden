@@ -1,0 +1,2 @@
+The script works. VRAM is now per-phase (A-prod: +1/+1/+1/-1), rule 4 PASS, and the control table carries first-divergence indices (showing `None` here only because the gitignored `.replay` text outputs live on the host). Let me send a `run` request to produce the final artifacts on the host where the full output text is available.
+

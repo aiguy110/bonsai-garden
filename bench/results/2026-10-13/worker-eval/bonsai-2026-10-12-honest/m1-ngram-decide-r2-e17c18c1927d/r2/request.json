@@ -1,0 +1,8 @@
+{
+  "report": "Fixed bench/spec_summarize.py per the advisor's review. (1) VRAM is now computed per phase via vram_by_phase(), parsing each `== phase` block's memory.used line, so the per-phase A-prod vs off-prod deltas are +1/+1/+1/-1 MiB (dual-mem corrected to -1); rule 4 remains PASS with max per-phase delta +1 MiB. (2) The off dual-vs-single batch-numerics control now includes first-divergence char indices for mismatches, in both summary.md (new column) and summary.json (\"mismatches\" with first_divergence_char). Sandbox dry-run validates: no crash, VRAM per-phase correct, control table present (indices None here only because the gitignored .replay output texts are host-only). Decision unchanged: do-not-deploy (rules 2,3,5 fail). Next: run on host to fill real first-divergence indices.",
+  "request": "run",
+  "command": "python3 bench/spec_summarize.py bench/results/2026-10-12/m1-ngram/replay",
+  "timeout_min": 15,
+  "why": "Regenerate summary.md/summary.json/deploy.json from the host's full data so the control (and identity) first-divergence character indices are computed from the real gitignored .replay output texts, which are unavailable in the sandbox.",
+  "gpu": false
+}

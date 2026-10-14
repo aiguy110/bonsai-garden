@@ -1,0 +1,8 @@
+{
+  "report": "Verified the final write-up state: experiment page summary is 130 words with full front matter; every table number (26.7/31.3, 23.4/25.4, 56.0, acceptances, identity fractions) matches summary.md/deploy.json; serving index, site index, engine-review \u00a73.2, Phase C line, roadmap M1 row, and README next steps all reflect the no-deploy result; dates are consistent (all 2026-10-12). Re-running the validator for a fresh journal output.",
+  "request": "run",
+  "command": "python3 bench/check_site.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "Final validation of the completed write-up (experiment page, series/site summaries, docs) via the protected tools/check_site.py through its bench wrapper, to paste the output into the final journal entry."
+}

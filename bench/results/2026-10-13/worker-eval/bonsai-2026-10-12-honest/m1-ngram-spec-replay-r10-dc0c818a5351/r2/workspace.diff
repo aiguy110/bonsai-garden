@@ -1,0 +1,46 @@
+diff --git a/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt b/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
+index 1268a47..17dacf8 100644
+--- a/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
++++ b/bench/results/2026-10-12/m1-ngram/replay/off-greedy/notes.txt
+@@ -1,2 +1,7 @@
+ cmd: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server --model /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0.gguf --mmproj /home/josiah/models/Ternary-Bonsai-2-27B-mmproj-Q8_0.gguf --no-mmproj-offload --port 8089 --n-gpu-layers 99 --ctx-size 98304 --parallel 2 --kv-unified --threads 8 --flash-attn on --cache-type-k q4_0 --cache-type-v q4_0 --kv-mean-center /home/josiah/models/Ternary-Bonsai-2-27B-PQ2_0-kv-bias.gguf --temp 1.0 --top-p 0.95 --top-k 20 --jinja
+ done
++
++[off] All requests have draft_n=0: the command carries no --spec-type, so the
++server ran with the default spec backend disabled and no speculative decoding was
++ever initialized. There is no server log line to quote for this; the cmd above is
++the evidence that speculation was off by construction (see also off-prod).
+diff --git a/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt b/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
+index 3194612..6d08825 100644
+--- a/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
++++ b/bench/results/2026-10-12/m1-ngram/replay/off-prod/notes.txt
+@@ -8,3 +8,8 @@ cmd: /home/josiah/Projects/llama.cpp-bonsai2/build/bin/llama-server --model /hom
+ [dual-mem] fg wall_s=77.2
+ [dual-mem] window t0=1791816548.841 t_fg_end=1791816626.027 t_join_end=1791816627.439
+ done
++
++[off] All requests have draft_n=0: the command carries no --spec-type, so the
++server ran with the default spec backend disabled and no speculative decoding was
++ever initialized. There is no server log line to quote for this; the cmd above is
++the evidence that speculation was off by construction (see also off-greedy).
+diff --git a/bench/site_check_wrapper.py b/bench/site_check_wrapper.py
+new file mode 100644
+index 0000000..4d8bbab
+--- /dev/null
++++ b/bench/site_check_wrapper.py
+@@ -0,0 +1,15 @@
++#!/usr/bin/env python3
++"""Thin host-side wrapper: run the repo's site structure checker.
++
++The checker itself lives in tools/check_site.py (protected, read-only from here).
++Run with:  python3 bench/site_check_wrapper.py
++"""
++import os
++import subprocess
++import sys
++
++ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
++check = os.path.join(ROOT, "tools/check_site.py")
++site = os.path.join(ROOT, "site")
++proc = subprocess.run([sys.executable, check, site])
++sys.exit(proc.returncode)

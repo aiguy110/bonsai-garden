@@ -1,0 +1,8 @@
+{
+  "report": "Rewrote bench/spec_summarize.py for the advisor's round-3 revision: (1) the deployment decision table in summary.md now has a 'criterion' column with the exact thresholds (1.10x, 0.97x, +64 MiB, validity comparison, 10-point identity allowance, mmproj condition), and summary.json rule entries carry the same criterion text; (2) rule 1 no longer infers from notes.txt (--mmproj / no \"refused\") \u2014 it regex-matches 'load_model: loaded multimodal model ... mmproj' against all four A-prod server logs (server_{phase}.log) and fails the rule if any log is missing. Verified: compiles, passes a full-path smoke test (dummy replay dir exercises every table and the deploy.json path), and the four A-prod logs in the committed artifacts each contain the pinned mmproj load line, so rule 1 should still PASS. Local sandbox cannot regenerate the real summary because bench/.replay/ is gitignored (raw response text, host-only); the run below regenerates summary.md/summary.json/deploy.json on the host where those exist. No candidates added, no live YAML changes (no-deploy path unchanged).",
+  "request": "run",
+  "timeout_min": 5,
+  "why": "Regenerate summary.md/summary.json/deploy.json against the committed replay artifacts so the summary reflects the new rule table (criteria column) and the log-verified rule 1; reads host-only gitignored bench/.replay/m1/outputs for the identity/first-divergence table, so it must run on the host, not this sandbox.",
+  "command": "python3 bench/spec_summarize.py bench/results/2026-10-12/m1-ngram/replay",
+  "gpu": false
+}

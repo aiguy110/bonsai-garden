@@ -1,0 +1,60 @@
+{
+  "advisor_verdict": "approve",
+  "arm": "bonsai-2026-10-12-honest",
+  "attempt_dir": "/home/josiah/Projects/bonsai-garden-auto/W2-worker-harness/bench/results/2026-10-13/worker-eval/bonsai-2026-10-12-honest/m1-ngram-spec-replay-r5-144acae8e198/r2",
+  "case_id": "m1-ngram-spec-replay-r5-144acae8e198",
+  "cloud_kind": "run",
+  "compaction_end": 0,
+  "compaction_start": 0,
+  "complete": true,
+  "context_overflow": false,
+  "errors": [],
+  "finished": "2026-10-13T21:54:24-04:00",
+  "flag_triggers": {},
+  "item": "spec-replay",
+  "kind_match": true,
+  "last_stop": "toolUse",
+  "output_limit": false,
+  "pi_exit_code": 0,
+  "pi_exit_nonzero": false,
+  "rate_limit": false,
+  "repeat": 2,
+  "replay_kind": "run",
+  "request": {
+    "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+    "gpu": true,
+    "report": "Round 5 (fresh): verified m1-notes \u00a79b is single + corrected (\"two length rows\"), confirmed window/t_end logging exists in spec_replay.py and combined() in spec_analyze.py. Note: off-prod was captured before t_end/window logging landed (no t_end in its requests.jsonl), so its combined two-slot throughput is not computable from that data; A-prod will have complete data. Added 'bad tool_json' failure column to spec_analyze.py per advisor (4); both scripts compile. Next: A/prod run (A = ngram-mod defaults, best dual-agent greedy at 25.5 vs B 23.0); then analyze both prod runs, re-run off-prod only if the combined metric decides the call, and write the no-deploy decision + experiment page.",
+    "request": "run",
+    "timeout_min": 180,
+    "why": "A/prod baseline-adjacent replay (prod sampling), 4 phases on fresh servers, with full window/t_end logging so combined two-slot throughput is measurable."
+  },
+  "request_source": "tool",
+  "stop_reasons": [
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse",
+    "toolUse"
+  ],
+  "tap_log_bytes": 7230,
+  "timeout": false,
+  "tool_calls": 13,
+  "tool_errors": {
+    "edit": 1
+  },
+  "tools": {
+    "bash": 5,
+    "edit": 2,
+    "read": 5,
+    "submit_request": 1
+  },
+  "turns": 10,
+  "valid_request": true,
+  "validation_errors": [],
+  "wall_s": 349.9
+}

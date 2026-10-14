@@ -1,0 +1,8 @@
+All verified:
+- `bench/spec_replay.py` now records per-row `t_end` (line 198) and per-phase `window t0/t_fg_end/t_join_end` lines (line 247).
+- `bench/spec_analyze.py` prints combined two-slot throughput (fg + bg rows ending before `t_fg_end`) / fg wall time per phase.
+- Existing `off-prod/requests.jsonl` has **0** `t_end` rows — it's the restored pre-fix baseline, so it must be re-run to get valid dual-phase windows.
+- The duplicated §9b in `bench/m1-notes.md` was already resolved in the prior round (single §9b at line 362, with the corrected "two length rows" attribution); §9 (round 3) remains as the original table.
+
+The off/prod run that was stopped 2 minutes into the 10:30 resubmission (config restart, partial output discarded, old results restored) needs to be run again with the corrected probe. This is the next item in the required order (off-greedy, A-greedy, B-greedy already complete; then off-prod, then the best arm's prod).
+

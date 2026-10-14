@@ -1,0 +1,2 @@
+The state is clean. All greedy arms (off, A, B) are measured, off/prod was rerun on the corrected probe (4 phases, window lines, 140/140 rows with t_end, combined throughput 47.8 tok/s dual-agent), and A is the higher dual-agent greedy arm (25.5 vs 23.0). The only remaining replay run is A/prod, the last one needed before the decision. Submitting it.
+

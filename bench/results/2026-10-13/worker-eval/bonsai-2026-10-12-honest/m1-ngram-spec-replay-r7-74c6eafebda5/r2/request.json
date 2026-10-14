@@ -1,0 +1,8 @@
+{
+  "request": "run",
+  "report": "Round 9 (new model): verified state. Greedy off/A/B complete (summary-greedy.md); A beats B on dual-agent (25.5 vs 23.0 tok/s). off/prod rerun on the corrected probe (t0 before bg thread, t_end per row, window lines): 140/140 rows have t_end, all 4 phases, no errors, analyzer combined dual-agent 47.8 tok/s. Added status note to bench/m1-notes.md. Remaining run: A/prod, the last of the five required (config,sampling) pairs.",
+  "command": "python3 bench/spec_replay.py bench/results/2026-10-12/m1-ngram/replay A prod --spec-type ngram-mod",
+  "gpu": true,
+  "timeout_min": 60,
+  "why": "Final required replay run: ngram-mod (arm A, highest dual-agent greedy decode tok/s) under prod sampling on the private :8089 server, fresh-server 4 phases. Needed to complete the off-vs-A prod comparison for the dual-slot busy decision."
+}

@@ -1,0 +1,8 @@
+{
+  "report": "Verified the spec-replay item is complete: all five replay dirs (off-greedy, A-greedy, B-greedy, off-prod, A-prod=best) under bench/results/2026-10-12/m1-ngram/replay/ have requests.jsonl, vram.txt, four server phase logs; all 4 phases present in each; all foreground A/B rows carry draft_n/draft_n_accepted; A-prod drafted 25774/accepted 5954 tokens matching bench/m1-notes.md; VRAM constant 9507 MiB. Added all-zero-draft explanations to the two off-run notes.txt (spec off by construction, no log line to quote). Decision (no deploy) and docs are in place: site/series/serving/ngram-self-speculation.md, serving/index.md and site/index.md all updated 2026-10-12 with consistent date chains. PyYAML is absent in the sandbox, so I added bench/site_check_wrapper.py to run the protected tools/check_site.py on the host and am submitting that now for final metadata validation.",
+  "request": "run",
+  "command": "python3 bench/site_check_wrapper.py",
+  "timeout_min": 5,
+  "why": "Run the repo's site structure checker (tools/check_site.py, wrapped from bench/ per the run-request script-location rule) on the host where PyYAML may be available. Purely read-only validation of site frontmatter (required fields, summary word counts, series references, updated-date ordering) for the new ngram-self-speculation experiment page and the edited serving series/project summaries.",
+  "gpu": false
+}
