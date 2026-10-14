@@ -56,7 +56,7 @@ retained. Outputs are written only after all validation succeeds.
 
 ### Scoping and further provenance checks
 
-- Only logs whose prompt has `## Milestone` / `# M1:` and whose stamp is not after the last M1 journal entry are scanned; others (W1 logs etc.) are dropped silently so output does not change as new rounds run.
+- Only logs whose prompt has `## Milestone` / `# M1:` (the milestone's code) and whose stamp is not after the milestone's last journal entry (or the set's freeze time) are scanned; others are dropped silently so output does not change as new rounds run.
 - `--check` also re-runs `parse_events` on every included log and fails on any rate-limit match.
 - Call logs are associated with journal entries by window: for each worker log (sorted by
   stamp), the first `worker (...), round <n>` entry with time in [log start, next worker
@@ -71,6 +71,22 @@ retained. Outputs are written only after all validation succeeds.
   (`journal_request_missing` / `journal_request_mismatch` skips).
 - The start commit must be at most 300 s older than the call-log stamp
   (`stale_start_commit` skip), since `commit()` skips unchanged trees.
+
+### Case set v2 (`--set v2`)
+
+`python3 bench/worker_eval/build_cases.py --set v2 [--check]` applies the same rules to the
+M1, W1 and W2 journals and writes `cases-v2.jsonl` / `inventory-v2.json` (84 cases: the 22
+v1 rows byte for byte, 41 from W1, 21 from W2). It is frozen at 2026-10-14 10:00 -04:00 so
+`--check` stays stable while W2 runs; a milestone's case IDs start with its lowercased name.
+v2 is not screened yet: the 62 new cases need baseline runs before the ones that separate
+arms are known.
+
+### Signal cases (`cases-signal.jsonl`, W2 branch)
+
+The 9 v1 cases whose outcome (valid request, kind match) varied across the 4 baseline
+attempts (the W1 run and the honest rerun, N=2 each). The other 13 always passed (7) or
+always failed (6) and cannot separate arms. W2 screens single-factor arms at N=1 on these 9;
+see `W2-decisions.md`.
 
 ## Replay harness (`run.py`)
 

@@ -1,0 +1,50 @@
+{
+  "canonical_worker_description": "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU",
+  "counts": {
+    "advisor_verdict": {
+      "approve": 59,
+      "reject": 1,
+      "revise": 24
+    },
+    "item": {
+      "M1-ngram/decide": 3,
+      "M1-ngram/replay-set": 7,
+      "M1-ngram/spec-replay": 10,
+      "M1-ngram/write-up": 2,
+      "W1-worker-eval/advisor-grades": 6,
+      "W1-worker-eval/baseline-results": 9,
+      "W1-worker-eval/case-corpus": 4,
+      "W1-worker-eval/replay-harness": 16,
+      "W1-worker-eval/worker-eval-writeup": 6,
+      "W2-worker-harness/harness-and-arms": 3,
+      "W2-worker-harness/recon-and-w1-traces": 7,
+      "W2-worker-harness/runs-single-a": 11
+    },
+    "milestone": {
+      "M1-ngram": 22,
+      "W1-worker-eval": 41,
+      "W2-worker-harness": 21
+    },
+    "request_kind": {
+      "done": 18,
+      "run": 66
+    },
+    "source_model": {
+      "claude-sonnet-5-5": 11,
+      "gpt-5.6-terra": 73
+    }
+  },
+  "eligible_revise": 24,
+  "included": 84,
+  "schema_version": 1,
+  "skipped": {
+    "before_cutoff": 24,
+    "before_cutoff_or_bonsai": 1,
+    "no_journal_worker": 8,
+    "no_matching_advisor_verdict": 6,
+    "no_recoverable_request": 2,
+    "rate_limited": 14,
+    "unreviewed_continue_request": 4,
+    "unreviewed_stuck_request": 1
+  }
+}

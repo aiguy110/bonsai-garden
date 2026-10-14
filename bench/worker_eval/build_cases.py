@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Build the provenance-preserving cloud-worker corpus for W1 replays.
 
-This is host-only: it reads the call archive, one authoritative M1 journal, and git;
-it never writes under autopilot.
+This is host-only: it reads the call archive, one authoritative journal per milestone,
+and git; it never writes under autopilot.
+
+  build_cases.py [--check]              cases.jsonl / inventory.json (v1: M1 only)
+  build_cases.py --set v2 [--check]     cases-v2.jsonl / inventory-v2.json (M1, W1, W2 up to V2_UNTIL)
 """
 from __future__ import annotations
 
@@ -20,7 +23,13 @@ from collections import Counter
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUT = ROOT / "bench" / "worker_eval"
-CASES, INVENTORY = OUT / "cases.jsonl", OUT / "inventory.json"
+SETS = {
+    "v1": {"cases": OUT / "cases.jsonl", "inventory": OUT / "inventory.json", "milestones": ["M1-ngram"], "until": None},
+    # v2 is frozen at a fixed time so --check stays deterministic while W2 keeps running.
+    "v2": {"cases": OUT / "cases-v2.jsonl", "inventory": OUT / "inventory-v2.json",
+           "milestones": ["M1-ngram", "W1-worker-eval", "W2-worker-harness"],
+           "until": "2026-10-14T10:00:00-04:00"},
+}
 CANONICAL = "Bonsai 2 27B (Ternary-Bonsai-2-27B, 2-bit), a local model on this machine's GPU"
 CUTOFF = dt.datetime.fromisoformat("2026-10-12T08:33:00-04:00")
 HEADER = re.compile(r"^### ([^·]+) · ([^\n]+)$", re.M)
@@ -35,21 +44,22 @@ def sha(text): return hashlib.sha256(text.encode()).hexdigest()
 def bytes_sha(path): return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def host_paths():
+def host_paths(milestone="M1-ngram"):
     home = pathlib.Path.home()
     base = pathlib.Path(os.environ.get("GARDEN_SOURCE", home / "Projects" / "bonsai-garden"))
     calls = pathlib.Path(os.environ.get("GARDEN_CALLS", base / "autopilot" / ".runtime" / "calls"))
     # Do not merge journal copies: identical historical entries otherwise interrupt
-    # worker-to-advisor association.  The M1 worktree is preferred explicitly.
+    # worker-to-advisor association.  The milestone's worktree is preferred explicitly.
+    env = f"GARDEN_{milestone.split('-', 1)[0]}_JOURNAL"
     candidates = [
-        pathlib.Path(os.environ["GARDEN_M1_JOURNAL"]) if os.environ.get("GARDEN_M1_JOURNAL") else None,
-        home / "Projects" / "bonsai-garden-auto" / "M1-ngram" / "autopilot" / "state" / "M1-ngram" / "journal.md",
-        base / "autopilot" / "state" / "M1-ngram" / "journal.md",
-        ROOT / "autopilot" / "state" / "M1-ngram" / "journal.md",
+        pathlib.Path(os.environ[env]) if os.environ.get(env) else None,
+        home / "Projects" / "bonsai-garden-auto" / milestone / "autopilot" / "state" / milestone / "journal.md",
+        base / "autopilot" / "state" / milestone / "journal.md",
+        ROOT / "autopilot" / "state" / milestone / "journal.md",
     ]
     for path in candidates:
         if path and path.exists(): return calls, path
-    raise SystemExit("M1-ngram journal not found (set GARDEN_M1_JOURNAL if needed)")
+    raise SystemExit(f"{milestone} journal not found (set {env} if needed)")
 
 
 def entries(path):
@@ -178,19 +188,22 @@ def associated_advisor(journal_entries, worker_index, kind):
 def same_json(a, b): return json.dumps(a, sort_keys=True, separators=(",", ":")) == json.dumps(b, sort_keys=True, separators=(",", ":"))
 
 
-def build():
-    calls, journal = host_paths()
+def build(milestone="M1-ngram", until=None):
+    calls, journal = host_paths(milestone)
+    code = milestone.split("-", 1)[0]
     if not calls.is_dir(): raise SystemExit(f"call archive not found: {calls}")
     journal_entries = entries(journal); workers = workers_and_advisors(journal_entries); starts = commits()
     rows, skipped, eligible_revise = [], Counter(), 0
     claimed = {}
-    # Scope to M1 logs: milestone heading of the prompt, and not after the last journal entry.
+    # Scope to this milestone's logs: milestone heading of the prompt, and not after the
+    # last journal entry (or the set's freeze time).
     last_entry = max(e["when"] for e in journal_entries)
+    if until: last_entry = min(last_entry, dt.datetime.fromisoformat(until))
     def in_scope(p):
         when = dt.datetime.strptime(LOG.match(p.name).group(1), "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo)
         if when > last_entry: return False
         head = log_data(p)[0] or ""
-        return re.search(r"^## Milestone\s+# M1:", head, re.M) is not None
+        return re.search(rf"^## Milestone\s+# {re.escape(code)}:", head, re.M) is not None
     logs = sorted(p for p in calls.glob("*-worker-*.jsonl") if LOG.match(p.name) and in_scope(p))
     starts_of = [dt.datetime.strptime(LOG.match(p.name).group(1), "%Y%m%d-%H%M%S").replace(tzinfo=CUTOFF.tzinfo) for p in logs]
     for n, path in enumerate(logs):
@@ -228,12 +241,12 @@ def build():
         try: changed, old_description = substitute(prompt or "")
         except ValueError: skipped["bad_worker_description"] += 1; continue
         if "bonsai" in old_description.lower(): skipped["bonsai_source"] += 1; continue
-        selected = select_commit(starts.get(("M1-ngram", item, rnd), []), source_time)
+        selected = select_commit(starts.get((milestone, item, rnd), []), source_time)
         if not selected: skipped["no_unambiguous_start_commit"] += 1; continue
         commit_time, commit, subject = selected
         if (source_time - commit_time).total_seconds() > START_COMMIT_MAX_AGE: skipped["stale_start_commit"] += 1; continue
-        rows.append({"case_id": f"m1-ngram-{item}-r{rnd}-{sha(path.name + sha(prompt))[:12]}",
-          "milestone": "M1-ngram", "item": item, "round": rnd, "source_timestamp": source_time.isoformat(),
+        rows.append({"case_id": f"{milestone.lower()}-{item}-r{rnd}-{sha(path.name + sha(prompt))[:12]}",
+          "milestone": milestone, "item": item, "round": rnd, "source_timestamp": source_time.isoformat(),
           "worker_entry_timestamp": worker["when"].isoformat(),
           "source_model": source_model or event_model or "unknown", "start_commit": commit, "start_commit_subject": subject,
           "source_first_user_prompt": prompt, "source_first_user_prompt_sha256": sha(prompt), "prompt": changed,
@@ -273,16 +286,26 @@ def validate(rows, eligible_revise):
     return errors
 
 
-def inventory(rows, skipped, eligible_revise):
-    return {"schema_version": 1, "canonical_worker_description": CANONICAL, "included": len(rows),
+def inventory(rows, skipped, eligible_revise, by_milestone=False):
+    inv = {"schema_version": 1, "canonical_worker_description": CANONICAL, "included": len(rows),
       "counts": {"source_model": dict(Counter(r["source_model"] for r in rows)), "item": dict(Counter(r["item"] for r in rows)),
                  "request_kind": dict(Counter(r["request"]["request"] for r in rows)), "advisor_verdict": dict(Counter(r["advisor_verdict"] for r in rows))},
       "eligible_revise": eligible_revise, "skipped": dict(skipped)}
+    if by_milestone:
+        inv["counts"]["milestone"] = dict(Counter(r["milestone"] for r in rows))
+        inv["counts"]["item"] = dict(Counter(f"{r['milestone']}/{r['item']}" for r in rows))
+    return inv
 
 
 def main():
-    parser = argparse.ArgumentParser(); parser.add_argument("--check", action="store_true"); args = parser.parse_args()
-    rows, skipped, eligible_revise = build(); errors = validate(rows, eligible_revise); inv = inventory(rows, skipped, eligible_revise)
+    parser = argparse.ArgumentParser(); parser.add_argument("--check", action="store_true")
+    parser.add_argument("--set", choices=sorted(SETS), default="v1"); args = parser.parse_args()
+    cfg = SETS[args.set]; CASES, INVENTORY = cfg["cases"], cfg["inventory"]
+    rows, skipped, eligible_revise = [], Counter(), 0
+    for milestone in cfg["milestones"]:
+        r, s, e = build(milestone, cfg["until"]); rows += r; skipped.update(s); eligible_revise += e
+    rows.sort(key=lambda row: (row["source_timestamp"], row["case_id"]))
+    errors = validate(rows, eligible_revise); inv = inventory(rows, skipped, eligible_revise, by_milestone=args.set != "v1")
     rendered = "".join(json.dumps(r, sort_keys=True) + "\n" for r in rows)
     if args.check:
         if not CASES.exists() or CASES.read_text() != rendered: errors.append("cases.jsonl is not deterministic build output")
