@@ -1105,3 +1105,21 @@ Added to the standing facts:
 
 - The completed N=2 think-drop arm is worse than the honest baseline on valid-request rate: 21/44 versus 27/44, delta -0.136, 95% CI [-0.273, -0.023], beyond spread S=0.045 (`bench/results/2026-10-13/worker-eval-w2/compare-a.json`).
 - Reasoning-budget and session-budget remain inconclusive N=1 signal-case screens and are repeat-2 candidates, not demonstrated improvements (`bench/results/2026-10-13/worker-eval-w2/compare-a.md`).
+
+### 2026-10-14T20:06:16-04:00 · worker (gpt-5.6-terra), round 1
+
+Added `bench/worker_eval/recon_omp.py`, a no-install package recon script. It packs the `oh-my-pi` registry package with `--ignore-scripts`, records tarball SHA-256, registry integrity, license, scripts, engines/runtime metadata, and safely unpacks the exact tarball for source review. `py_compile` and the existing worker-eval tests pass (56). Next: inspect the host-produced artifact and source-level harness/config/event mechanisms.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/recon_omp.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "This host-only recon uses npm pack --ignore-scripts in a fresh temporary directory, never installs dependencies or starts inference, and writes the package manifest plus unpacked stock artifact under bench/results/2026-10-13/worker-eval-w2/recon/. It is needed to identify the exact oh-my-pi package/version before implementing its sandbox harness."
+}
+```
+
+### 2026-10-14T20:07:21-04:00 · advisor (run request)
+
+**revise**: Do not run yet. `PACKAGE = "oh-my-pi"` does not establish that this is the intended coding-agent package. Query and validate the canonical registry package (expected `@oh-my-pi/pi-coding-agent`), including repository and `bin` containing `omp`, then pack the exact resolved `name@version`. Also remove `shutil.rmtree(package_dir)`: refuse if the destination exists, stage extraction in `/tmp`, and move it into place only after all metadata/integrity checks pass. Validate that npm's filename is a basename and that returned name/version are expected before constructing paths. Compare the packed integrity with `npm view ... dist.integrity`. Finally, add the OMP entry to the existing `recon/packages/manifest.json`; `omp-pack.json` alone is not the requested packages manifest. The script otherwise does not start inference or touch live services.
