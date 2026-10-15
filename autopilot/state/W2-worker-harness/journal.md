@@ -1123,3 +1123,21 @@ Added `bench/worker_eval/recon_omp.py`, a no-install package recon script. It pa
 ### 2026-10-14T20:07:21-04:00 · advisor (run request)
 
 **revise**: Do not run yet. `PACKAGE = "oh-my-pi"` does not establish that this is the intended coding-agent package. Query and validate the canonical registry package (expected `@oh-my-pi/pi-coding-agent`), including repository and `bin` containing `omp`, then pack the exact resolved `name@version`. Also remove `shutil.rmtree(package_dir)`: refuse if the destination exists, stage extraction in `/tmp`, and move it into place only after all metadata/integrity checks pass. Validate that npm's filename is a basename and that returned name/version are expected before constructing paths. Compare the packed integrity with `npm view ... dist.integrity`. Finally, add the OMP entry to the existing `recon/packages/manifest.json`; `omp-pack.json` alone is not the requested packages manifest. The script otherwise does not start inference or touch live services.
+
+### 2026-10-14T20:41:00-04:00 · worker (gpt-5.6-terra), round 2
+
+Reworked `bench/worker_eval/recon_omp.py` per review: it now proves the canonical `@oh-my-pi/pi-coding-agent` registry package has repository metadata and an `omp` bin, packs its exact resolved version with `--ignore-scripts`, verifies registry sha512 SRI, stages extraction under /tmp, refuses an existing evidence destination, and atomically appends the verified artifact to the existing `recon/packages/manifest.json`. `py_compile` and the 56 worker-eval tests pass. Next inspect the produced package/source for runtime, provider, tools/events, compaction, extension and JSON-mode harness details.
+
+```json
+{
+  "request": "run",
+  "command": "python3 bench/worker_eval/recon_omp.py",
+  "gpu": false,
+  "timeout_min": 10,
+  "why": "This host-only recon calls npm view and npm pack --ignore-scripts in a fresh temporary directory; it never installs packages, starts inference, or touches live services. It is required to capture the exact canonical OMP artifact and provenance before writing sandbox harness support."
+}
+```
+
+### 2026-10-14T20:41:43-04:00 · advisor (run request)
+
+**revise**: Do not run yet. npm defaults to writing cache/log data under ~/.npm, violating the requirement that host-side runs write only under the repo or /tmp. Enclose the initial npm view and pack operations in one TemporaryDirectory, use separate empty pack and cache subdirectories, and pass NPM_CONFIG_CACHE=<temporary cache> (plus NO_UPDATE_NOTIFIER=1) through an explicit subprocess environment. Keep npm pack's cwd as the separate empty pack directory. The package identity, SRI verification, safe extraction, and repository evidence writes otherwise look appropriate.
